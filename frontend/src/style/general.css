@@ -5,12 +5,17 @@
 }
 
 :root {
-    --color-primary: #83c043;
-    --color-secondary: #1582cb;
-    --color-primary-hover: #496b24;
-    --color-secondary-hover: #004e89;
-    --color-text: #121212;
-    --color-background: #fafafa;
-    --color-light-grey: #cdcdcd;
-    --color-grey: #9a9a9a;
+  --text-font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --text-font-logo: 'olivier', var(--text-font-primary);
+
+  --color-primary: #83c043;
+  --color-secondary: #1582cb;
+  --color-primary-hover: #496b24;
+  --color-secondary-hover: #004e89;
+  --color-primary-light: #c0e29c;
+  --color-secondary-light: #90b8d6;
+  --color-text: #121212;
+  --color-background: #fafafa;
+  --color-light-grey: #cdcdcd;
+  --color-grey: #9a9a9a;
 }
