@@ -1,0 +1,135 @@
+---
+const CANT_IMAGES: number = 10
+const CANT_IMAGES_CLONED: number = 5
+
+const images: string[] = []
+
+for (let i: number = 0; i < CANT_IMAGES; i++)
+  images.push(`/img_donaciones/${i}.avif`)
+for (let i: number = 0; i < CANT_IMAGES_CLONED; i++) images.push(images[i])
+---
+
+<div class="carousel">
+  <div class="track" id="track">
+    {
+      images.map((image, i) => (
+        <img
+          src={image}
+          alt="Imagen de donación"
+          class="slide"
+          loading={i < 3 ? 'eager' : 'lazy'}
+        />
+      ))
+    }
+  </div>
+
+  <div class="overlay">
+    <p>Tu donación ayuda un montón</p>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    const track: HTMLDivElement = document.getElementById(
+      'track',
+    ) as HTMLDivElement
+
+    const slides: HTMLImageElement[] = [
+      ...(track.getElementsByClassName(
+        'slide',
+      ) as HTMLCollectionOf<HTMLImageElement>),
+    ]
+
+    const REAL_IMAGES = slides.length - 5
+    const TRANSITION_TIME = 800
+
+    let current = 0
+
+    const moveToSlide = () => {
+      current++
+
+      track.style.transform = `translate3d(-${slides[current].offsetLeft}px, 0, 0)`
+
+      if (current === REAL_IMAGES) {
+        setTimeout(() => {
+          track.style.transition = 'none'
+
+          current = 0
+
+          track.style.transform = 'translate3d(0,0,0)'
+
+          // fuerza el reflow
+          track.offsetHeight
+
+          track.style.transition = `transform ${TRANSITION_TIME}ms ease-in-out`
+        }, TRANSITION_TIME)
+      }
+    }
+
+    setInterval(moveToSlide, 5000)
+  })
+</script>
+
+<style>
+  .carousel {
+    position: relative;
+
+    width: 100%;
+    height: 400px;
+
+    overflow: hidden;
+  }
+
+  .track {
+    display: flex;
+
+    height: 100%;
+
+    transition: transform 800ms ease-in-out;
+
+    will-change: transform;
+  }
+
+  .slide {
+    height: 100%;
+
+    flex-shrink: 0;
+
+    object-fit: cover;
+
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: flex-end;
+
+    background: color-mix(in srgb, var(--color-text) 35%, transparent);
+
+    pointer-events: none;
+  }
+
+  .overlay p {
+    width: 100%;
+
+    margin: 0;
+    padding: 1rem;
+
+    text-align: center;
+
+    font-family: var(--text-font-logo);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+
+    color: var(--color-text);
+
+    background: color-mix(
+      in srgb,
+      var(--color-secondary-light) 70%,
+      transparent
+    );
+  }
+</style>
