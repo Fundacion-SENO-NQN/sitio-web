@@ -1,17 +1,19 @@
 ---
-import '../style/general.css'
 import Contacto from './Footer/Contacto.astro'
+import FooterFin from './Footer/FooterFin.astro'
 import FooterInfo from './Footer/FooterInfo.astro'
 ---
 
 <footer class="footer">
   <Contacto />
   <FooterInfo />
+  <FooterFin />
 </footer>
 
 <style>
   .footer {
-    position: absolute;
+    margin-top: 4rem;
+    position: relative;
     bottom: 0;
     width: 100%;
     display: flex;
