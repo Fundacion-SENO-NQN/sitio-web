@@ -1,4 +1,6 @@
-export const navigationDonaciones: { name: string; href: string }[] = [
+import type Navigation from './interfaces/Navigation'
+
+export const navigationDonaciones: Navigation[] = [
   {
     name: 'Quiero ayudar',
     href: '/quiero-ayudar',

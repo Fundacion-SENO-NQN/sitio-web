@@ -1,11 +1,12 @@
 ---
+import type Navigation from '../../data/interfaces/Navigation'
 import { navigationMain } from '../../data/navigationMain'
 ---
 
 <nav>
   <ul class="lista-nav">
     {
-      navigationMain.map((item) => (
+      navigationMain.map((item: Navigation) => (
         <a href={item.href}>
           <li>{item.name}</li>
         </a>

@@ -1,4 +1,6 @@
-export const navigationInformacionUtil: { name: string; href: string }[] = [
+import type Navigation from './interfaces/Navigation'
+
+export const navigationInformacionUtil: Navigation[] = [
   {
     name: 'Como recibir ayuda',
     href: '/necesito-ayuda',

@@ -1,4 +1,6 @@
-export const navigationMain: { name: string; href: string }[] = [
+import type Navigation from './interfaces/Navigation'
+
+export const navigationMain: Navigation[] = [
   {
     name: 'Inicio',
     href: '/',

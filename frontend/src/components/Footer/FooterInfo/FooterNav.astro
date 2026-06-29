@@ -1,19 +1,12 @@
 ---
-interface MenuItem {
-  name: string
-  href: string
-}
-
-interface Props {
-  items: MenuItem[]
-}
+import type Navigation from '../../../data/interfaces/Navigation'
 
 const { items } = Astro.props
 ---
 
 <nav class="footer-nav">
   <ul class="footer-lista-nav">
-    {items.map((item) => <a href={item.href}>{item.name}</a>)}
+    {items.map((item: Navigation) => <a href={item.href}>{item.name}</a>)}
   </ul>
 </nav>
 
