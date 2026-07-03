@@ -1,0 +1,86 @@
+---
+const { integrante } = Astro.props
+---
+
+<li class="integrante">
+  <img
+    src={'/img_equipo/' + integrante.img + '.avif'}
+    alt={'Foto de ' + integrante.nombre + ' ' + integrante.apellido}
+  />
+  <div class="contenido">
+    <h3>{integrante.nombre} {integrante.apellido}</h3>
+    <sub>{integrante.puesto}</sub>
+    <div class="descripcion">
+      <p>{integrante.descripcion}</p>
+    </div>
+  </div>
+</li>
+
+<style>
+  .integrante {
+    width: 80dvw;
+    display: flex;
+    padding: 0;
+    border: 1px solid var(--color-primary-hover);
+    border-top: none;
+  }
+
+  .integrante:first-child {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border-top: 1px solid var(--color-primary-hover);
+    overflow: hidden;
+  }
+
+  .integrante:last-child {
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .integrante * {
+    margin: 0;
+    padding: 0;
+    font-family: var(--text-font-primary);
+  }
+
+  .integrante img {
+    width: 10rem;
+    height: 10rem;
+    background-color: var(--color-primary);
+    border-right: 1px solid var(--color-primary-hover);
+  }
+
+  .integrante > div {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .integrante h3 {
+    background-color: var(--color-primary-hover);
+    height: 2.7rem;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    color: var(--color-background);
+  }
+
+  .integrante sub {
+    background-color: var(--color-light-grey);
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    height: 1.5rem;
+  }
+
+  .descripcion {
+    overflow: auto;
+    height: 5.8rem;
+  }
+
+  .integrante p {
+    padding-left: 1rem;
+  }
+</style>

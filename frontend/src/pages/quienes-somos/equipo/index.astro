@@ -1,0 +1,38 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import EquipoItem from '../../../components/QuienesSomos/Equipo/EquipoItem.astro'
+
+import { equipo } from '../../../data/equipo/equipo'
+---
+
+<Layout>
+  <NavegacionQuienesSomos pag="2" />
+  <h2 class="titulo">Equipo</h2>
+  <main>
+    <ul class="lista-equipo">
+      {equipo.map((item) => <EquipoItem integrante={item} />)}
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  .titulo {
+    margin-inline: auto;
+    width: fit-content;
+    font-family: var(--text-font-primary);
+    color: var(--color-primary-hover);
+    border-bottom: 1px solid var(--color-primary-hover);
+  }
+
+  .lista-equipo {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
