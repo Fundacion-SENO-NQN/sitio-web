@@ -1,0 +1,31 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import ItemHistoria from '../../../components/QuienesSomos/Historia/ItemHistoria.astro'
+
+import { historia } from '../../../data/historia/historia'
+import type Historia from '../../../data/interfaces/Historia'
+---
+
+<Layout>
+  <NavegacionQuienesSomos pag="1" />
+  <h2 class="titulo">Historia</h2>
+  <main>
+    {
+      historia.map((item: Historia, index: number) => (
+        <ItemHistoria historia={item} lado={index % 2} />
+      ))
+    }
+  </main>
+</Layout>
+
+<style>
+  .titulo {
+    margin-inline: auto;
+    width: fit-content;
+    font-family: var(--text-font-primary);
+    color: var(--color-primary-hover);
+    border-bottom: 1px solid var(--color-primary-hover);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+const { historia, lado } = Astro.props
+---
+
+<section class="container">
+  <div class={lado ? 'der' : 'izq'}>
+    <h3>{historia.titulo}</h3>
+    <p set:html={historia.contenido}></p>
+  </div>
+</section>
+
+<style>
+  .container {
+    width: 100%;
+    height: max-content;
+    display: flex;
+    justify-content: center;
+    font-family: var(--text-font-primary);
+  }
+
+  .container > div {
+    width: 80dvw;
+    background-color: var(--color-primary-light);
+    border-top: 1px solid var(--color-primary-hover);
+  }
+
+  .izq {
+    border-left: 1px solid var(--color-primary-hover);
+  }
+
+  .der {
+    border-right: 1px solid var(--color-primary-hover);
+  }
+
+  .container div p {
+    position: relative;
+    padding-inline: 2rem;
+  }
+
+  .izq p::before,
+  .der p::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 100%;
+    border: 1px solid var(--color-primary-hover);
+    background-color: var(--color-background);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .izq p::before {
+    left: -0.5rem;
+  }
+
+  .der p::after {
+    right: -0.5rem;
+  }
+
+  .container > div h3 {
+    background-color: var(--color-primary);
+    margin: 0;
+    color: var(--color-background);
+    padding: 0.5rem;
+  }
+
+  .container > div p {
+    padding-left: 2rem;
+  }
+</style>
