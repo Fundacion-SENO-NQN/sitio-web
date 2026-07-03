@@ -19,3 +19,7 @@
   --color-light-grey: #cdcdcd;
   --color-grey: #9a9a9a;
 }
+
+main {
+  flex: 1;
+}
