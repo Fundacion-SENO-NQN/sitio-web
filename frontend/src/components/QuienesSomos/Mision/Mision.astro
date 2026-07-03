@@ -1,0 +1,42 @@
+---
+import ItemMision from './ItemMision.astro'
+
+import { misiones } from '../../../data/mision/mision'
+import type Mision from '../../../data/interfaces/Mision'
+---
+
+<li>
+  <h3 class="titulo-mision">¿Cual es nuestra misión?</h3>
+  <ul class="lista-mision">
+    {misiones.map((item: Mision) => <ItemMision mision={item} />)}
+  </ul>
+</li>
+
+<style>
+  .titulo-mision {
+    text-align: center;
+    font-family: var(--text-font-primary);
+  }
+
+  .lista-mision {
+    display: grid;
+
+    justify-items: center;
+
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+    column-gap: 2rem;
+  }
+
+  @media screen and (min-width: 1200px) {
+    .lista-mision {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media screen and (min-width: 1700px) {
+    .lista-mision {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+</style>
