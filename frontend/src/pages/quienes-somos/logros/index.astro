@@ -1,0 +1,27 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import ItemLogro from '../../../components/QuienesSomos/Logros/ItemLogro.astro'
+
+import type Logro from '../../../data/interfaces/Logro'
+import { logros } from '../../../data/logros/logros.ts'
+---
+
+<Layout>
+  <NavegacionQuienesSomos pag="3" />
+  <h2 class="titulo">Logros</h2>
+  <main>
+    {logros.map((item: Logro) => <ItemLogro logro={item} />)}
+  </main>
+</Layout>
+
+<style>
+  .titulo {
+    margin-inline: auto;
+    width: fit-content;
+    font-family: var(--text-font-primary);
+    color: var(--color-primary-hover);
+    border-bottom: 1px solid var(--color-primary-hover);
+  }
+</style>
