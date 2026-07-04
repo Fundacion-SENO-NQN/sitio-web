@@ -5,11 +5,12 @@ import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQ
 import EquipoItem from '../../../components/QuienesSomos/Equipo/ItemEquipo.astro'
 
 import { equipo } from '../../../data/equipo/equipo'
+import TituloPag from '../../../components/Common/TituloPag.astro'
 ---
 
 <Layout>
   <NavegacionQuienesSomos pag="2" />
-  <h2 class="titulo">Equipo</h2>
+  <TituloPag titulo="Equipo" />
   <main>
     <ul class="lista-equipo">
       {equipo.map((item) => <EquipoItem integrante={item} />)}
@@ -18,14 +19,6 @@ import { equipo } from '../../../data/equipo/equipo'
 </Layout>
 
 <style>
-  .titulo {
-    margin-inline: auto;
-    width: fit-content;
-    font-family: var(--text-font-primary);
-    color: var(--color-primary-hover);
-    border-bottom: 1px solid var(--color-primary-hover);
-  }
-
   .lista-equipo {
     list-style: none;
     padding: 0;
