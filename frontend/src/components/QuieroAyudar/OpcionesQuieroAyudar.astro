@@ -1,0 +1,26 @@
+---
+import { quieroAyudar } from '../../data/quieroAyudar/quieroAyudar'
+import type QuieroAyudar from '../../data/interfaces/QuieroAyudar'
+import ItemQuieroAyudar from '../../components/QuieroAyudar/ItemQuieroAyudar.astro'
+---
+
+<nav>
+  <ul>
+    {quieroAyudar.map((item: QuieroAyudar) => <ItemQuieroAyudar item={item} />)}
+  </ul>
+</nav>
+
+<style>
+  nav,
+  ul {
+    width: 100%;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    font-family: var(--text-font-primary);
+  }
+</style>
