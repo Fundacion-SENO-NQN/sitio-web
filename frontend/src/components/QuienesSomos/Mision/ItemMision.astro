@@ -1,13 +1,16 @@
 ---
 const { mision } = Astro.props
 
-const icons = import.meta.glob('../../../assets/*.svg', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-})
+const icons: Record<string, string> = import.meta.glob(
+  '../../../assets/icon-mision/*.svg',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
 
-const icono = icons[`../../../assets/${mision.img}`] as string
+const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
 ---
 
 <li class="item-lista">
