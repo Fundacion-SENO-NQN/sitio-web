@@ -6,6 +6,10 @@ export const navigationQuieroAyudar: Navigation[] = [
     href: '/quiero-ayudar/donar',
   },
   {
+    name: 'Miembro protector',
+    href: '/quiero-ayudar/miembro-protector'
+  },
+  {
     name: 'Donar cosas',
     href: '/quiero-ayudar/donar-cosas',
   },
