@@ -20,6 +20,8 @@
   --color-background: #fafafa;
   --color-light-grey: #cdcdcd;
   --color-grey: #9a9a9a;
+
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 main {
