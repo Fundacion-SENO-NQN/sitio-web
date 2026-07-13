@@ -1,22 +1,239 @@
 ---
 import TituloPag from '../../components/Common/TituloPag.astro'
-import LogroPelucas from '../../components/Pelucas/LogroPelucas.astro'
 import NavegacionPelucas from '../../components/Pelucas/NavegacionPelucas.astro'
 import Layout from '../../layouts/Layout.astro'
 ---
 
-<Layout>
+<Layout pag="Pelucas">
   <NavegacionPelucas pag="0" />
   <TituloPag titulo="Pelucas" />
   <main>
-    <LogroPelucas />
-    <p>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates eos
-      eius, nisi unde doloremque cumque mollitia similique quisquam tenetur
-      animi provident odio repellendus error perferendis ipsum quaerat sunt,
-      magnam quia?
-    </p>
-    <!--? TEXTO DE LAS PELUCAS (SIGNIFICADO, IMPORTANCIA, ETC)
-    <!--? HISTORIA (FECHAS, DIFICULTADES, ETC.) -->
+    <section class="pelucas">
+      <div class="pelucas__hero">
+        <div class="pelucas__imagen">
+          <img
+            src="/img/pelucas/taller.avif"
+            alt="Voluntarias confeccionando pelucas"
+          />
+        </div>
+
+        <div class="pelucas__contenido">
+          <span class="pelucas__etiqueta"> Taller de Pelucas </span>
+
+          <h2>Mucho más que una peluca.</h2>
+
+          <p class="pelucas__descripcion">
+            Sabemos que la pérdida del cabello suele ser uno de los momentos más
+            difíciles del tratamiento oncológico. Por eso confeccionamos pelucas
+            de manera totalmente artesanal, buscando que cada persona vuelva a
+            sentirse cómoda, segura y acompañada.
+          </p>
+
+          <div class="pelucas__destacado">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2L15 8L22 9L17 14L18 22L12 19L6 22L7 14L2 9L9 8Z"
+              ></path>
+            </svg>
+
+            <p>
+              <strong
+                >Fuimos el primer taller de pelucas para pacientes oncológicos
+                de toda la Patagonia</strong
+              >, un proyecto que continúa creciendo gracias al compromiso de
+              nuestras voluntarias y de cada persona que decide donar cabello.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pelucas__cards">
+        <article>
+          <div class="icono">❤️</div>
+
+          <h3>Recuperar confianza</h3>
+
+          <p>
+            Una peluca no cambia un diagnóstico, pero puede ayudar a que una
+            persona vuelva a mirarse al espejo con tranquilidad y seguridad.
+          </p>
+        </article>
+
+        <article>
+          <div class="icono">✂️</div>
+
+          <h3>Hechas a mano</h3>
+
+          <p>
+            Cada peluca es confeccionada artesanalmente por voluntarias que
+            dedican su tiempo y experiencia para acompañar a quienes más lo
+            necesitan.
+          </p>
+        </article>
+
+        <article>
+          <div class="icono">🤝</div>
+
+          <h3>Todo comienza con una donación</h3>
+
+          <p>
+            Detrás de cada donación de cabello hay una historia, una promesa o
+            simplemente el deseo de ayudar. Ese gesto es el primer paso para
+            transformar una vida.
+          </p>
+        </article>
+      </div>
+
+      <blockquote class="pelucas__frase">
+        <p>
+          "Cada peluca comienza con un cabello donado y termina devolviendo una
+          sonrisa."
+        </p>
+      </blockquote>
+    </section>
   </main>
 </Layout>
+
+<style>
+  .pelucas {
+    font-family: var(--text-font-primary);
+    max-width: 75rem;
+    margin: auto;
+    padding: 6rem 2rem;
+  }
+
+  .pelucas__hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .pelucas__imagen {
+    overflow: hidden;
+    border-radius: 1.5rem;
+  }
+
+  .pelucas__imagen img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .pelucas__etiqueta {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 62.4375rem;
+    background: var(--color-background);
+    color: var(--color-primary);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .pelucas h2 {
+    font-size: clamp(2.3rem, 5vw, 3.7rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .pelucas__descripcion {
+    color: var(--color-grey);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+  }
+
+  .pelucas__destacado {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-left: 5px solid var(--color-principal);
+    background: #faf8ff;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .pelucas__destacado svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    fill: #f2b400;
+    flex-shrink: 0;
+  }
+
+  .pelucas__destacado p {
+    margin: 0;
+    line-height: 1.8;
+  }
+
+  .pelucas__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 5rem;
+  }
+
+  .pelucas__cards article {
+    padding: 2rem;
+    border-radius: 1.25rem;
+    background: white;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    transition: 0.25s;
+  }
+
+  .pelucas__cards article:hover {
+    transform: translateY(-8px);
+  }
+
+  .icono {
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .pelucas__cards h3 {
+    margin-bottom: 1rem;
+  }
+
+  .pelucas__cards p {
+    color: var(--color-grey);
+    line-height: 1.8;
+  }
+
+  .pelucas__frase {
+    margin: 5rem auto 0;
+    max-width: 53.125rem;
+    padding: 3rem;
+    text-align: center;
+    border-radius: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-principal-light)
+    );
+    color: var(--color-primary);
+    font-weight: bold;
+  }
+
+  .pelucas__frase p {
+    font-size: 1.6rem;
+    line-height: 1.7;
+    font-style: italic;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .pelucas__hero {
+      grid-template-columns: 1fr;
+    }
+
+    .pelucas__cards {
+      grid-template-columns: 1fr;
+    }
+
+    .pelucas__frase {
+      padding: 2rem;
+    }
+
+    .pelucas__frase p {
+      font-size: 1.3rem;
+    }
+  }
+</style>
