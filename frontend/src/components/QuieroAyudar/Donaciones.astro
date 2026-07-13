@@ -1,0 +1,52 @@
+---
+import { mediosPagoBPN } from '../../data/donacion/mediosPagoBPN'
+import { mediosPagoMP } from '../../data/donacion/mediosPagoMP'
+import TarjetaDonacion from './Donar/TarjetaDonacion.astro'
+---
+
+<section class="donaciones">
+  <p class="descripcion">
+    Cada aporte nos ayuda a seguir acompañando a personas con cáncer y a sus
+    familias. Elegí el método que prefieras para realizar tu donación.
+  </p>
+
+  <div class="contenedor">
+    <TarjetaDonacion
+      logo="mp"
+      nombre="Mercado Pago"
+      descripcion="Doná desde cualquier billetera virtual"
+      datos={mediosPagoMP}
+    />
+
+    <TarjetaDonacion
+      logo="bpn"
+      nombre="Banco Provincia del Neuquén"
+      descripcion="Transferencia bancaria"
+      datos={mediosPagoBPN}
+    />
+  </div>
+</section>
+
+<style>
+  .donaciones {
+    width: min(1200px, 90%);
+    margin: 1rem auto;
+    font-family: var(--text-font-primary);
+  }
+
+  .descripcion {
+    max-width: 700px;
+    margin: 0 auto 3rem;
+
+    text-align: center;
+    line-height: 1.8;
+    color: var(--color-text);
+    font-size: 1.2rem;
+  }
+
+  .contenedor {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2rem;
+  }
+</style>
