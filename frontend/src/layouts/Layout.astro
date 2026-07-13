@@ -2,6 +2,8 @@
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.astro'
 import '../style/general.css'
+
+const { pag } = Astro.props
 ---
 
 <!doctype html>
@@ -11,7 +13,7 @@ import '../style/general.css'
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    <title>Fundación SENO</title>
+    <title>Fundación SENO {pag ? `- ${pag}` : ''}</title>
   </head>
   <body>
     <Header />
