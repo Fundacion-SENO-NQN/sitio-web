@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+import TituloPag from '../../components/Common/TituloPag.astro'
+import { noticia } from '../../data/noticia/noticia'
+import type Noticia from '../../data/interfaces/Noticia'
+import ItemNoticia from '../../components/Noticias/ItemNoticia.astro'
+---
+
+<Layout pag="Noticias">
+  <TituloPag titulo="Noticias" />
+  <main>
+    <section>
+      {noticia.map((item: Noticia) => <ItemNoticia noticia={item} />)}
+    </section>
+  </main>
+</Layout>
+
+<style>
+  section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    gap: 2rem;
+  }
+</style>
