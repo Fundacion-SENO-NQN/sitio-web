@@ -1,23 +1,28 @@
 ---
-const CANT_IMAGES: number = 10
-const CANT_IMAGES_CLONED: number = 5
+import { Image } from 'astro:assets'
+import Img0 from '../../assets/img_donaciones/0.avif'
+import Img1 from '../../assets/img_donaciones/1.avif'
+import Img2 from '../../assets/img_donaciones/2.avif'
+import Img3 from '../../assets/img_donaciones/3.avif'
+import Img4 from '../../assets/img_donaciones/4.avif'
+import Img5 from '../../assets/img_donaciones/5.avif'
+import Img6 from '../../assets/img_donaciones/6.avif'
+import Img7 from '../../assets/img_donaciones/7.avif'
+import Img8 from '../../assets/img_donaciones/8.avif'
+import Img9 from '../../assets/img_donaciones/9.avif'
 
-const images: string[] = []
-
-for (let i: number = 0; i < CANT_IMAGES; i++)
-  images.push(`/img_donaciones/${i}.avif`)
-for (let i: number = 0; i < CANT_IMAGES_CLONED; i++) images.push(images[i])
+const images: ImageMetadata[] = [Img0, Img1, Img2, Img3, Img4, Img5, Img6, Img7, Img8, Img9]
 ---
 
 <div class="carousel">
   <div class="track" id="track">
     {
       images.map((image, i) => (
-        <img
+        <Image
           src={image}
           alt="Imagen de donación"
           class="slide"
-          loading={i < 3 ? 'eager' : 'lazy'}
+          priority
         />
       ))
     }
@@ -92,6 +97,7 @@ for (let i: number = 0; i < CANT_IMAGES_CLONED; i++) images.push(images[i])
 
   .slide {
     height: 100%;
+    width: auto;
 
     flex-shrink: 0;
 
