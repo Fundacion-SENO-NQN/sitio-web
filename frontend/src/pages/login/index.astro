@@ -1,0 +1,91 @@
+---
+import LayoutLogin from '../../layouts/LayoutLogin.astro'
+import ImgLogo from '../../assets/logo_seno.avif'
+import { Image } from 'astro:assets'
+---
+
+<LayoutLogin>
+  <form action="">
+    <h1>Inicio de sesión</h1>
+    <div class="container-logo">
+      <Image src={ImgLogo} alt="Logo de la Fundación SENO" priority />
+    </div>
+    <label>
+      <p>Usuario</p>
+      <input type="text" min="3" required />
+    </label>
+    <label>
+      <p>Contraseña</p>
+      <input type="password" min="4" required />
+    </label>
+    <input type="submit" />
+  </form>
+</LayoutLogin>
+
+<style>
+  form {
+    width: 20rem;
+    border-radius: 1rem;
+    border: 1px solid var(--color-primary-hover);
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    align-items: center;
+    color: var(--color-text);
+    font-family: var(--text-font-primary);
+  }
+
+  h1 {
+    color: var(--color-primary-hover);
+  }
+
+  form > div {
+    height: 7rem;
+    position: relative;
+    display: flex;
+  }
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+
+  label {
+    margin-top: 1.3rem;
+  }
+
+  label > input {
+    border: 1px solid var(--color-primary-hover);
+    border-radius: 0.3rem;
+    height: 1.4rem;
+  }
+
+  label > input:focus {
+    outline: 5px solid var(--color-primary-hover);
+    border-color: transparent;
+  }
+
+  p {
+    margin: 0;
+    margin-bottom: 0.3rem;
+  }
+
+  input[type='submit'] {
+    padding: 0.5rem;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    margin-top: 1.4rem;
+    border-top: 1px solid var(--color-primary-hover);
+    transition:
+      color 0.3s ease,
+      background-color 0.3s ease;
+  }
+
+  input[type='submit']:hover {
+    cursor: pointer;
+    background-color: var(--color-primary-hover);
+    color: var(--color-background);
+  }
+</style>
