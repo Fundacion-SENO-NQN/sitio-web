@@ -11,7 +11,7 @@ export const navigationInformacionUtil: Navigation[] = [
   },
   {
     name: 'Donde estamos',
-    href: '#',
+    href: '/donde-estamos',
   },
   {
     name: 'Donar cosas',
