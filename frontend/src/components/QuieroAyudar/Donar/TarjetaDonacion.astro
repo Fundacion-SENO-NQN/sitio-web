@@ -1,0 +1,186 @@
+---
+import type { SvgComponent } from "astro/types"
+import type MetodoPago from '../../../data/interfaces/MetodoPago'
+
+const { logo, nombre, descripcion, datos } = Astro.props
+
+const images: Record<string, SvgComponent> = import.meta.glob(
+  '../../../assets/icon-donar/*.svg',
+  {
+    eager: true,
+    import: 'default',
+  },
+)
+
+const SvgLogo: SvgComponent =
+  images[`../../../assets/icon-donar/icon-${logo}.svg`]
+
+---
+
+<article class="tarjeta">
+  <SvgLogo class="logo"/>
+
+  <h3>{nombre}</h3>
+
+  <p class="descripcion">
+    {descripcion}
+  </p>
+
+  <div class="datos">
+    {
+      datos.map((dato: MetodoPago) => (
+        <div class="dato">
+          <span class="titulo">{dato.titulo}</span>
+
+          <div class="valor">
+            <code>{dato.valor}</code>
+
+            <button class="copiar" data-value={dato.valor}>
+              Copiar
+            </button>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</article>
+
+<script>
+  ;(
+    Array(...document.getElementsByClassName('copiar')) as HTMLButtonElement[]
+  ).forEach((boton: HTMLButtonElement): void => {
+    boton.addEventListener('click', async () => {
+      const texto: string | undefined = boton.dataset.value
+
+      if (!texto) return
+
+      await navigator.clipboard.writeText(texto)
+
+      const anterior: string = boton.textContent
+
+      boton.textContent = '¡Copiado!'
+
+      setTimeout(() => {
+        boton.textContent = anterior
+      }, 1500)
+    })
+  })
+</script>
+
+<style>
+  .tarjeta {
+    background: white;
+
+    border: 1px solid var(--color-primary-light);
+
+    border-radius: 1.5rem;
+
+    padding: 2rem;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+
+    transition:
+      transform 0.25s,
+      box-shadow 0.25s;
+  }
+
+  .tarjeta:hover {
+    transform: translateY(-5px);
+
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .logo {
+    height: 60px;
+
+    margin-bottom: 1.5rem;
+
+    object-fit: contain;
+  }
+
+  h3 {
+    margin: 0;
+
+    color: var(--color-primary-hover);
+
+    font-size: 1.5rem;
+  }
+
+  .descripcion {
+    margin: 1rem 0 2rem;
+
+    line-height: 1.6;
+  }
+
+  .datos {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1.5rem;
+  }
+
+  .titulo {
+    display: block;
+
+    margin-bottom: 0.5rem;
+
+    font-weight: 600;
+  }
+
+  .valor {
+    display: flex;
+
+    gap: 1rem;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background: #f7f8fa;
+
+    border-radius: 0.8rem;
+
+    padding: 0.9rem 1rem;
+  }
+
+  code {
+    font-size: 1rem;
+
+    word-break: break-word;
+  }
+
+  .copiar {
+    border: none;
+
+    border-radius: 0.6rem;
+
+    background: var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    padding: 0.6rem 0.9rem;
+
+    transition: 0.2s;
+
+    flex-shrink: 0;
+  }
+
+  .copiar:hover {
+    background: var(--color-primary-hover);
+  }
+
+  @media (max-width: 500px) {
+    .valor {
+      flex-direction: column;
+
+      align-items: flex-start;
+    }
+
+    .copiar {
+      width: 100%;
+    }
+  }
+</style>
