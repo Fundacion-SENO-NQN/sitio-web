@@ -1,0 +1,745 @@
+---
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import Ubicacion from '../../../components/Common/Ubicacion.astro'
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout pag="Donar pelo">
+  <TituloPag titulo="Donar pelo" />
+  <main>
+    <section class="donar-pelo">
+      <header class="hero">
+        <div class="hero__contenido">
+          <span>Donación de cabello</span>
+
+          <h1>
+            Un pequeño gesto puede acompañar a alguien en uno de los momentos
+            más difíciles de su vida.
+          </h1>
+
+          <p>
+            Cada donación de cabello nos permite confeccionar pelucas para
+            pacientes oncológicos. Detrás de cada mechón hay una historia, un
+            gesto solidario y la oportunidad de devolver una sonrisa.
+          </p>
+        </div>
+      </header>
+
+      <section class="importancia">
+        <h2>¿Por qué donar cabello?</h2>
+
+        <p>
+          Sabemos que donar cabello es mucho más que un cambio de look. Muchas
+          personas lo hacen en memoria de un ser querido, para cumplir una
+          promesa o simplemente porque desean ayudar. Cada donación tiene un
+          enorme valor para quienes atraviesan un tratamiento oncológico.
+        </p>
+      </section>
+
+      <section class="requisitos" id="requisitos">
+        <h2>¿Qué necesito para donar?</h2>
+
+        <div class="cards">
+          <article>
+            <div>✂️</div>
+            <h3>20 cm como mínimo</h3>
+            <p>Recibimos cabello de al menos veinte centímetros de largo.</p>
+          </article>
+
+          <article>
+            <div>🎀</div>
+            <h3>Bien atado</h3>
+            <p>Debe estar sujetado con una o más colitas antes de cortarlo.</p>
+          </article>
+
+          <article>
+            <div>💇</div>
+            <h3>Traerlo ya cortado</h3>
+            <p>No contamos con peluqueras dentro de la institución.</p>
+          </article>
+
+          <article>
+            <div>❤️</div>
+            <h3>Con muchas ganas de ayudar</h3>
+            <p>Cada donación representa una nueva oportunidad para alguien.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="pasos">
+        <h2>¿Cómo donar?</h2>
+
+        <div class="timeline">
+          <article>
+            <span>1</span>
+
+            <h3>Cortá tu cabello</h3>
+
+            <p>Atalo antes del corte para conservar todas las fibras.</p>
+          </article>
+
+          <article>
+            <span>2</span>
+
+            <h3>Guardalo</h3>
+
+            <p>Colocalo en una bolsa limpia para protegerlo.</p>
+          </article>
+
+          <article>
+            <span>3</span>
+
+            <h3>Acercate a la Fundación</h3>
+
+            <p>Recibimos donaciones de lunes a viernes.</p>
+          </article>
+
+          <article>
+            <span>4</span>
+
+            <h3>Nosotros hacemos el resto</h3>
+
+            <p>
+              Tu donación podrá convertirse en una peluca para quien la
+              necesite.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="informacion">
+        <div>
+          <h2>¿Dónde donar?</h2>
+
+          <Ubicacion />
+
+          <p><strong>📍 Dirección</strong><br />San Carlos 1330</p>
+
+          <p>
+            <strong>🕙 Horario</strong><br />Lunes a viernes de 10:00 a 14:00
+            hs.<br />(Excepto feriados)
+          </p>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Gracias por querer ayudar.</h2>
+
+        <p>
+          Tu donación puede convertirse en una peluca que acompañe a una persona
+          durante su tratamiento.
+        </p>
+
+        <a href="#contacto"> Tengo una consulta </a>
+      </section>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .donar-pelo {
+    max-width: 75rem;
+    margin: auto;
+    padding-bottom: 8rem;
+    font-family: var(--text-font-primary);
+  }
+
+  .hero {
+    position: relative;
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 0 0 2rem 2rem;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 92%, transparent),
+      color-mix(in srgb, var(--color-primary) 82%, transparent)
+    );
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/img/pelucas/donacion.avif');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.18;
+  }
+
+  .hero__contenido {
+    position: relative;
+    z-index: 2;
+    max-width: 47.5rem;
+    padding: 4rem;
+    color: var(--color-background);
+  }
+
+  .hero__contenido span {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border-radius: 62.4375rem;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero__contenido h1 {
+    font-size: clamp(2.8rem, 6vw, 4.8rem);
+    line-height: 1.08;
+    margin-bottom: 1.8rem;
+    text-wrap: balance;
+  }
+
+  .hero__contenido p {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.94);
+    margin-bottom: 2.5rem;
+  }
+
+  .hero__contenido a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border-radius: 0.875rem;
+    background: white;
+    color: var(--color-primary);
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.25s;
+  }
+
+  .hero__contenido a:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
+  }
+
+  .importancia {
+    max-width: 53.125rem;
+    margin: 6rem auto;
+    text-align: center;
+    padding: 0 2rem;
+  }
+
+  .importancia h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-text);
+    margin-bottom: 1.5rem;
+  }
+
+  .importancia h2::after {
+    content: '';
+    display: block;
+    width: 5.625rem;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: 62.4375rem;
+    margin: 1rem auto 0;
+  }
+
+  .importancia p {
+    color: var(--color-grey);
+    line-height: 2;
+    font-size: 1.08rem;
+  }
+
+  .requisitos {
+    padding: 0 2rem;
+    margin-bottom: 7rem;
+  }
+
+  .requisitos h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 3rem;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15.625rem, 1fr));
+    gap: 2rem;
+  }
+
+  .cards article {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition:
+      transform 0.25s,
+      box-shadow 0.25s;
+  }
+
+  .cards article:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.12);
+  }
+
+  .cards article div {
+    width: 5rem;
+    height: 5rem;
+    margin: auto;
+    margin-bottom: 1.5rem;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+  }
+
+  .cards h3 {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+
+  .cards p {
+    color: var(--color-grey);
+    line-height: 1.9;
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      min-height: 38.75rem;
+    }
+
+    .hero__contenido {
+      padding: 2rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero {
+      min-height: 32.5rem;
+      border-radius: 0 0 1.5rem 1.5rem;
+    }
+
+    .hero__contenido {
+      padding: 1.5rem;
+    }
+
+    .hero__contenido h1 {
+      font-size: 2.3rem;
+    }
+
+    .hero__contenido p {
+      font-size: 1rem;
+    }
+
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .pasos {
+    padding: 0 2rem;
+    margin-bottom: 8rem;
+  }
+
+  .pasos h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  .pasos > p {
+    max-width: 47.5rem;
+    margin: auto;
+    text-align: center;
+    color: var(--color-grey);
+    line-height: 1.9;
+    margin-bottom: 4rem;
+  }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 42px;
+    left: 12%;
+    right: 12%;
+    height: 4px;
+    background: #ececec;
+    border-radius: 62.4375rem;
+    z-index: 0;
+  }
+
+  .timeline article {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .timeline span {
+    width: 5.25rem;
+    height: 5.25rem;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-background);
+    font-size: 1.6rem;
+    font-weight: 700;
+    box-shadow: 0 12px 35px rgba(143, 99, 214, 0.35);
+    margin-bottom: 1.8rem;
+    transition: 0.25s;
+  }
+
+  .timeline article:hover span {
+    transform: scale(1.08);
+  }
+
+  .timeline h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .timeline p {
+    max-width: 14.375rem;
+    margin: auto;
+    color: var(--color-grey);
+    line-height: 1.8;
+  }
+
+  .informacion {
+    margin-bottom: 8rem;
+    padding: 0 2rem;
+  }
+
+  .informacion > div {
+    background: white;
+    border-radius: 2rem;
+    padding: 3rem;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .informacion h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    margin-bottom: 2rem;
+  }
+
+  .informacion strong {
+    color: var(--color-text);
+    font-size: 1.05rem;
+  }
+
+  .informacion p {
+    color: var(--color-grey);
+    line-height: 1.9;
+    margin-bottom: 1.8rem;
+  }
+
+  .info-extra {
+    background: var(--color-primary-light);
+    border-radius: 2rem;
+    padding: 2rem;
+  }
+
+  .info-extra h3 {
+    margin-bottom: 1.2rem;
+    color: var(--color-text);
+  }
+
+  .info-extra ul {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .info-extra li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    color: var(--color-grey);
+    line-height: 1.7;
+  }
+
+  .info-extra li::before {
+    content: '✔';
+    color: var(--color-primary);
+    font-weight: bold;
+  }
+
+  @media (max-width: 950px) {
+    .timeline {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .timeline::before {
+      left: 40px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      height: auto;
+    }
+
+    .timeline article {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1.5rem;
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .timeline span {
+      margin: 0;
+    }
+
+    .timeline h3 {
+      margin-top: 0.7rem;
+    }
+
+    .timeline p {
+      margin: 0;
+      max-width: none;
+    }
+
+    .informacion > div {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .timeline article {
+      grid-template-columns: 70px 1fr;
+    }
+
+    .timeline span {
+      width: 3.625rem;
+      height: 3.625rem;
+      font-size: 1.2rem;
+    }
+
+    .informacion > div {
+      padding: 2rem;
+    }
+  }
+
+  .faq {
+    max-width: 56.25rem;
+    margin: 0 auto 8rem;
+    padding: 0 2rem;
+  }
+
+  .faq h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-text);
+    margin-bottom: 3rem;
+  }
+
+  .faq details {
+    background: white;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: 0.25s;
+  }
+
+  .faq details + details {
+    margin-top: 1rem;
+  }
+
+  .faq details:hover {
+    transform: translateY(-2px);
+  }
+
+  .faq summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq summary::after {
+    content: '+';
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    transition: 0.25s;
+  }
+
+  .faq details[open] summary::after {
+    transform: rotate(45deg);
+  }
+
+  .faq details p {
+    padding: 0 2rem 2rem;
+    color: var(--color-grey);
+    line-height: 1.9;
+  }
+
+  .cta {
+    margin-top: 2rem;
+    padding: 5rem 3rem;
+    border-radius: 2rem;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-primary-light)
+    );
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    width: 21.875rem;
+    height: 21.875rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    top: -140px;
+    right: -100px;
+  }
+
+  .cta::after {
+    content: '';
+    position: absolute;
+    width: 13.75rem;
+    height: 13.75rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    bottom: -90px;
+    left: -70px;
+  }
+
+  .cta > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta h2 {
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    margin-bottom: 1rem;
+  }
+
+  .cta p {
+    max-width: 45rem;
+    margin: 0 auto 2.5rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .cta a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-radius: 0.875rem;
+    background: white;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.25s;
+  }
+
+  .cta a:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero,
+  .importancia,
+  .requisitos,
+  .pasos,
+  .informacion,
+  .faq,
+  .cta {
+    animation: fadeUp 0.8s ease both;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  section {
+    scroll-margin-top: 120px;
+  }
+
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  ::-webkit-scrollbar {
+    width: 0.625rem;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 62.4375rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  @media (max-width: 700px) {
+    .faq summary {
+      padding: 1.2rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .faq details p {
+      padding: 0 1.5rem 1.5rem;
+    }
+
+    .cta {
+      padding: 4rem 2rem;
+      border-radius: 1.5rem;
+    }
+
+    .cta h2 {
+      font-size: 2rem;
+    }
+  }
+</style>
