@@ -1,0 +1,35 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+import TituloPag from '../../components/Common/TituloPag.astro'
+import Ubicacion from '../../components/Common/Ubicacion.astro'
+---
+
+<Layout pag="¿Donde estamos?">
+  <TituloPag titulo="¿Donde estamos?" />
+  <main>
+    <section>
+      <div>
+        <p>Ciudad de Neuquén - San Carlos 1330</p>
+        <p>Desde las 10:00 hasta las 14:00 h</p>
+      </div>
+      <Ubicacion />
+    </section>
+  </main>
+</Layout>
+
+<style>
+    section {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    p {
+        text-align: center;
+        font-size: 1.3rem;
+        font-family: var(--text-font-primary);
+        color: var(--color-primary-hover);
+        font-weight: bold;
+    }
+</style>
