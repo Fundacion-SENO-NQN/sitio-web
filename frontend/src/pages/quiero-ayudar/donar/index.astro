@@ -1,0 +1,15 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+import Donaciones from '../../../components/QuieroAyudar/Donaciones.astro'
+---
+
+<Layout pag="Donar">
+  <NavegacionQuieroAyudar pag="1" />
+  <TituloPag titulo="Donar" />
+  <main>
+    <Donaciones />
+  </main>
+</Layout>
