@@ -2,9 +2,46 @@
 import Layout from '../layouts/Layout.astro'
 import CarouselDonaciones from '../components/Inicio/CarouselDonaciones.astro'
 import TituloPag from '../components/Common/TituloPag.astro'
+import { noticia } from '../data/noticia/noticia'
+import ItemNoticia from '../components/Noticias/ItemNoticia.astro'
+import { logros } from '../data/logros/logros'
+import { logrosFav } from '../data/logros/logrosFav'
+import ItemLogro from '../components/QuienesSomos/Logros/ItemLogro.astro'
 ---
 
-<Layout>
+<Layout pag="Inicio">
   <TituloPag titulo="Inicio" />
   <CarouselDonaciones />
+  <main>
+    <h2>Logros destacados</h2>
+    <section class="logros-destacados">
+      {logrosFav.map((num: number) => <ItemLogro logro={logros[num]} />)}
+    </section>
+    <h2>Últimas noticias</h2>
+    <section class="ultimas-noticias">
+      {
+        noticia
+          .slice(-4)
+          .reverse()
+          .map((item) => <ItemNoticia noticia={item} />)
+      }
+    </section>
+  </main>
 </Layout>
+
+<style>
+  h2 {
+    font-family: var(--text-font-primary);
+    text-align: center;
+    color: var(--color-primary-hover);
+    font-size: 1.7rem;
+  }
+
+  .ultimas-noticias {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+</style>
