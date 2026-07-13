@@ -7,6 +7,11 @@ export const quieroAyudar: QuieroAyudar[] = [
     url: '/quiero-ayudar/donar',
   },
   {
+    titulo: 'Miembro protector',
+    img: 'icon-medal',
+    url: '/quiero-ayudar/miembro-protector',
+  },
+  {
     titulo: 'Donar cosas',
     img: 'icon-caja',
     url: '/quiero-ayudar/donar-cosas',
