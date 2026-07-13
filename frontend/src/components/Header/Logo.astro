@@ -1,12 +1,21 @@
-<a href="/" class="container-logo"
-  ><img src="/logo_seno.avif" alt="Logo de la Fundación SENO" /></a
+---
+import { Image } from 'astro:assets'
+import LogoSeno from '../../assets/logo_seno.avif'
+---
+
+<a href="/"><Image src={LogoSeno} alt="Logo de la Fundación SENO" priority /></a
 >
 
 <style>
-  .container-logo {
+  a {
     height: 6.5rem;
     width: auto;
     position: relative;
     display: flex;
+  }
+
+  img {
+    height: 100%;
+    width: auto;
   }
 </style>
