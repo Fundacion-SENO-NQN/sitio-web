@@ -1,15 +1,58 @@
 ---
 const { titulo } = Astro.props
+
+import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
 ---
 
-<h2>{titulo}</h2>
+<div class="titulo-seccion">
+  <h1>{titulo}</h1>
+  <div class="decoracion">
+    <span class="linea"></span>
+
+    <SvgCorazon class="icono" />
+
+    <span class="linea"></span>
+  </div>
+</div>
 
 <style>
-  h2 {
-    margin-inline: auto;
-    width: fit-content;
-    font-family: var(--text-font-primary);
+  .titulo-seccion {
+    width: min(900px, 90%);
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .decoracion {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .linea {
+    flex: 1;
+    height: 2px;
+    background: var(--color-primary-light);
+  }
+
+  .icono {
+    width: 1.8rem;
+    height: 1.8rem;
     color: var(--color-primary-hover);
-    border-bottom: 1px solid var(--color-primary-hover);
+    flex-shrink: 0;
+  }
+
+  h1 {
+    margin: 0;
+
+    font-family: var(--text-font-primary);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    text-align: center;
+
+    color: var(--color-primary-hover);
   }
 </style>
