@@ -1,0 +1,574 @@
+---
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import NavegacionPelucas from '../../../components/Pelucas/NavegacionPelucas.astro'
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<Layout pag="Taller de pelucas">
+  <NavegacionPelucas pag="2" />
+  <TituloPag titulo="Taller de pelucas" />
+  <main>
+    <section class="taller">
+      <header class="hero">
+        <img
+          src="/img/pelucas/taller.avif"
+          alt="Voluntarias confeccionando pelucas"
+        />
+
+        <div class="hero__contenido">
+          <span>Taller de Pelucas</span>
+
+          <h1>Transformamos cabello en esperanza.</h1>
+
+          <p>
+            Nuestro taller reúne a voluntarias que, con paciencia, dedicación y
+            mucho cariño, confeccionan pelucas destinadas a pacientes
+            oncológicos.
+          </p>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h2>Un espacio hecho con amor</h2>
+
+        <p>
+          El taller nació con un objetivo muy claro: acompañar a quienes
+          atraviesan un tratamiento oncológico. Sabemos que la pérdida del
+          cabello representa mucho más que un cambio físico; por eso cada peluca
+          busca devolver confianza, seguridad y una sonrisa.
+        </p>
+
+        <p>
+          Nuestras voluntarias se reúnen para trabajar en la confección de
+          pelucas. Detrás de cada una hay muchas horas de trabajo, dedicación y
+          el compromiso de personas que donan su tiempo para ayudar a los demás.
+        </p>
+      </section>
+
+      <section class="proceso">
+        <h2>¿Cómo nace una peluca?</h2>
+
+        <div class="pasos">
+          <article>
+            <span>1</span>
+
+            <h3>Donación</h3>
+
+            <p>Todo comienza con una persona que decide donar su cabello.</p>
+          </article>
+
+          <article>
+            <span>2</span>
+
+            <h3>Preparación</h3>
+
+            <p>
+              Clasificamos y acondicionamos el cabello para comenzar el trabajo
+              artesanal.
+            </p>
+          </article>
+
+          <article>
+            <span>3</span>
+
+            <h3>Confección</h3>
+
+            <p>Cada peluca se realiza completamente a mano.</p>
+          </article>
+
+          <article>
+            <span>4</span>
+
+            <h3>Entrega</h3>
+
+            <p>Finalmente llega a una persona que la necesita.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Siempre hay lugar para una mano más.</h2>
+
+        <p>
+          Si querés colaborar con nuestro taller, donar materiales o sumarte
+          como voluntario, estaremos felices de recibirte.
+        </p>
+
+        <a href="/quiero-ayudar/voluntarios"> Quiero participar </a>
+      </section>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .taller {
+    max-width: 75rem;
+    margin: auto;
+    padding: 0 2rem 8rem;
+    font-family: var(--text-font-primary);
+  }
+
+  .hero {
+    position: relative;
+    min-height: 70vh;
+    overflow: hidden;
+    border-radius: 0 0 1.5rem 1.5rem;
+    margin-bottom: 6rem;
+  }
+
+  .hero img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--color-primary) 70%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary) 65%, transparent) 50%,
+      color-mix(in srgb, var(--color-primary) 35%, transparent) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero__contenido {
+    position: relative;
+    z-index: 2;
+    height: 70vh;
+    max-width: 43.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    color: var(--color-background);
+  }
+
+  .hero__contenido span {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 62.4375rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero__contenido h1 {
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.05;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-wrap: balance;
+  }
+
+  .hero__contenido p {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.92);
+    max-width: 40.625rem;
+  }
+
+  .intro {
+    max-width: 53.125rem;
+    margin: auto;
+    text-align: center;
+    margin-bottom: 7rem;
+  }
+
+  .intro h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-text);
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .intro h2::after {
+    content: '';
+    display: block;
+    width: 5.625rem;
+    height: 0.25rem;
+    border-radius: 62.5rem;
+    background: var(--color-primary);
+    margin: 1rem auto 0;
+  }
+
+  .intro p {
+    color: var(--color-grey);
+    line-height: 2;
+    font-size: 1.05rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .intro p:last-child {
+    margin-bottom: 0;
+  }
+  .hero__contenido h1,
+  .hero__contenido p,
+  .hero__contenido span {
+    animation: aparecer 1s ease forwards;
+  }
+
+  .hero__contenido p {
+    animation-delay: 0.15s;
+  }
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      min-height: 37.5rem;
+    }
+
+    .hero__contenido {
+      height: 37.5rem;
+      padding: 2rem;
+    }
+
+    .hero__contenido h1 {
+      font-size: 2.8rem;
+    }
+
+    .hero__contenido p {
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .intro {
+      margin-bottom: 5rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .taller {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .hero {
+      min-height: 31.25rem;
+      border-radius: 0 0 1.25rem 1.25rem;
+    }
+
+    .hero__contenido {
+      height: 31.25rem;
+    }
+
+    .hero__contenido h1 {
+      font-size: 2.2rem;
+    }
+
+    .hero__contenido span {
+      font-size: 0.75rem;
+    }
+
+    .intro h2 {
+      font-size: 1.8rem;
+    }
+
+    .intro p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .proceso {
+    margin-bottom: 8rem;
+  }
+
+  .proceso h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 1rem;
+  }
+
+  .proceso > p {
+    max-width: 47.5rem;
+    margin: auto;
+    text-align: center;
+    color: var(--color-grey);
+    line-height: 1.9;
+    margin-bottom: 5rem;
+  }
+
+  .pasos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    position: relative;
+  }
+
+  .pasos::before {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 38px;
+    height: 0.25rem;
+    background: #e8e8e8;
+    z-index: 0;
+  }
+
+  .pasos article {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .pasos span {
+    width: 4.75rem;
+    height: 4.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-background);
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(143, 99, 214, 0.35);
+    margin-bottom: 1.8rem;
+  }
+
+  .pasos h3 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+  }
+
+  .pasos p {
+    color: var(--color-grey);
+    line-height: 1.8;
+    max-width: 15rem;
+    margin: auto;
+  }
+
+  .pasos article:hover span {
+    transform: scale(1.08);
+    transition: 0.25s;
+  }
+
+  @media (max-width: 950px) {
+    .pasos {
+      grid-template-columns: 1fr;
+      gap: 4rem;
+    }
+
+    .pasos::before {
+      left: 37px;
+      top: 0;
+      bottom: 0;
+      width: 0.25rem;
+      height: auto;
+    }
+
+    .pasos article {
+      display: grid;
+      grid-template-columns: 5.625rem 1fr;
+      gap: 1.5rem;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .pasos span {
+      margin: 0;
+    }
+
+    .pasos h3 {
+      margin-top: 0.6rem;
+    }
+
+    .pasos p {
+      max-width: none;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pasos article {
+      grid-template-columns: 4.375rem 1fr;
+    }
+
+    .pasos span {
+      width: 3.625rem;
+      height: 3.625rem;
+      font-size: 1.2rem;
+    }
+  }
+
+  .frase {
+    margin: 7rem auto;
+    max-width: 56.25rem;
+    text-align: center;
+    padding: 4rem 3rem;
+    border-radius: 1.875rem;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-secondary)
+    );
+    color: var(--color-background);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .frase::before {
+    content: '❝';
+    position: absolute;
+    top: -40px;
+    left: 30px;
+    font-size: 9rem;
+    opacity: 0.08;
+  }
+
+  .frase p {
+    font-size: clamp(1.4rem, 2vw, 2rem);
+    line-height: 1.8;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .cta {
+    text-align: center;
+    padding: 5rem 3rem;
+    border-radius: 1.875rem;
+    background: var(--color-background);
+    box-shadow: var(--shadow);
+  }
+
+  .cta h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 1rem;
+  }
+
+  .cta p {
+    max-width: 45rem;
+    margin: auto;
+    color: var(--color-grey);
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+  }
+
+  .cta__botones {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .cta a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border-radius: 0.875rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.25s;
+  }
+
+  .cta a:first-child {
+    background: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  .cta a:first-child:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(131, 192, 67, 0.35);
+  }
+
+  .cta a:last-child {
+    border: 2px solid var(--color-background);
+    color: var(--color-text);
+  }
+
+  .cta a:last-child:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: translateY(-4px);
+  }
+
+  section {
+    scroll-margin-top: 120px;
+  }
+
+  .hero,
+  .intro,
+  .proceso,
+  .frase,
+  .cta {
+    animation: fadeUp 0.7s ease;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .frase {
+      padding: 3rem 2rem;
+    }
+
+    .cta {
+      padding: 4rem 2rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .frase {
+      padding: 2.5rem 1.5rem;
+      border-radius: 1.375rem;
+    }
+
+    .frase::before {
+      font-size: 6rem;
+      top: -20px;
+      left: 15px;
+    }
+
+    .frase p {
+      font-size: 1.2rem;
+    }
+
+    .cta {
+      border-radius: 1.375rem;
+    }
+
+    .cta__botones {
+      flex-direction: column;
+    }
+
+    .cta a {
+      width: 100%;
+    }
+  }
+</style>

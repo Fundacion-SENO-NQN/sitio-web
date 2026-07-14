@@ -1,0 +1,31 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import EquipoItem from '../../../components/QuienesSomos/Equipo/ItemEquipo.astro'
+
+import { equipo } from '../../../data/equipo/equipo'
+import TituloPag from '../../../components/Common/TituloPag.astro'
+---
+
+<Layout pag="Equipo">
+  <NavegacionQuienesSomos pag="2" />
+  <TituloPag titulo="Equipo" />
+  <main>
+    <ul class="lista-equipo">
+      {equipo.map((item) => <EquipoItem integrante={item} />)}
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  .lista-equipo {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>

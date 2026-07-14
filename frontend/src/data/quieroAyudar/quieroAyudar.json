@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Donar",
+    "img": "icon-dinero",
+    "href": "/quiero-ayudar/donar"
+  },
+  {
+    "name": "Miembro protector",
+    "img": "icon-medal",
+    "href": "/quiero-ayudar/miembro-protector"
+  },
+  {
+    "name": "Donar cosas",
+    "img": "icon-caja",
+    "href": "/quiero-ayudar/donar-cosas"
+  },
+  {
+    "name": "Donar pelo",
+    "img": "icon-pelo",
+    "href": "/quiero-ayudar/donar-pelo"
+  },
+  {
+    "name": "Empresa (sponsor)",
+    "img": "icon-empresa",
+    "href": "/quiero-ayudar/empresas"
+  },
+  {
+    "name": "Voluntariado",
+    "img": "icon-voluntariado",
+    "href": "/quiero-ayudar/quiero-ser-voluntario"
+  }
+]

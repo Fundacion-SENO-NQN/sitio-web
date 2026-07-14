@@ -1,0 +1,72 @@
+---
+const { pag, navigation, inicio } = Astro.props
+const numPag = parseInt(pag)
+
+import type Navigation from '../../data/interfaces/Navigation'
+---
+
+<nav class="nav">
+  <ul class="lista-nav">
+    {
+      navigation.map((item: Navigation, index: number) => {
+        if (numPag === index + 1) {
+          return (
+            <a href={'/' + inicio + '/'}>
+              <li>Atrás</li>
+            </a>
+          )
+        } else {
+          return (
+            <a href={item.href}>
+              <li>{item.name}</li>
+            </a>
+          )
+        }
+      })
+    }
+  </ul>
+</nav>
+
+<style>
+  .nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .lista-nav {
+    background-color: var(--color-primary-light);
+    height: 4rem;
+    width: max-content;
+    font-size: 1.1rem;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    border-radius: 1.3rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .lista-nav a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--text-font-primary);
+    width: 7rem;
+    text-align: center;
+    height: 100%;
+    width: 9rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .lista-nav a:hover {
+    background-color: var(--color-primary-hover);
+    color: var(--color-background);
+  }
+</style>

@@ -1,0 +1,141 @@
+---
+import { Image } from 'astro:assets'
+import Img0 from '../../assets/img_donaciones/0.avif'
+import Img1 from '../../assets/img_donaciones/1.avif'
+import Img2 from '../../assets/img_donaciones/2.avif'
+import Img3 from '../../assets/img_donaciones/3.avif'
+import Img4 from '../../assets/img_donaciones/4.avif'
+import Img5 from '../../assets/img_donaciones/5.avif'
+import Img6 from '../../assets/img_donaciones/6.avif'
+import Img7 from '../../assets/img_donaciones/7.avif'
+import Img8 from '../../assets/img_donaciones/8.avif'
+import Img9 from '../../assets/img_donaciones/9.avif'
+
+const images: ImageMetadata[] = [Img0, Img1, Img2, Img3, Img4, Img5, Img6, Img7, Img8, Img9]
+---
+
+<div class="carousel">
+  <div class="track" id="track">
+    {
+      images.map((image, i) => (
+        <Image
+          src={image}
+          alt="Imagen de donación"
+          class="slide"
+          priority
+        />
+      ))
+    }
+  </div>
+
+  <div class="overlay">
+    <p>Tu donación ayuda un montón</p>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    const track: HTMLDivElement = document.getElementById(
+      'track',
+    ) as HTMLDivElement
+
+    const slides: HTMLImageElement[] = [
+      ...(track.getElementsByClassName(
+        'slide',
+      ) as HTMLCollectionOf<HTMLImageElement>),
+    ]
+
+    const REAL_IMAGES = slides.length - 5
+    const TRANSITION_TIME = 800
+
+    let current = 0
+
+    const moveToSlide = () => {
+      current++
+
+      track.style.transform = `translate3d(-${slides[current].offsetLeft}px, 0, 0)`
+
+      if (current === REAL_IMAGES) {
+        setTimeout(() => {
+          track.style.transition = 'none'
+
+          current = 0
+
+          track.style.transform = 'translate3d(0,0,0)'
+
+          // fuerza el reflow
+          track.offsetHeight
+
+          track.style.transition = `transform ${TRANSITION_TIME}ms ease-in-out`
+        }, TRANSITION_TIME)
+      }
+    }
+
+    setInterval(moveToSlide, 5000)
+  })
+</script>
+
+<style>
+  .carousel {
+    position: relative;
+
+    width: 100%;
+    height: 400px;
+
+    overflow: hidden;
+  }
+
+  .track {
+    display: flex;
+
+    height: 100%;
+
+    transition: transform 800ms ease-in-out;
+
+    will-change: transform;
+  }
+
+  .slide {
+    height: 100%;
+    width: auto;
+
+    flex-shrink: 0;
+
+    object-fit: cover;
+
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: flex-end;
+
+    background: color-mix(in srgb, var(--color-text) 35%, transparent);
+
+    pointer-events: none;
+  }
+
+  .overlay p {
+    width: 100%;
+
+    margin: 0;
+    padding: 1rem;
+
+    text-align: center;
+
+    font-family: var(--text-font-logo);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+
+    color: var(--color-text);
+
+    background: color-mix(
+      in srgb,
+      var(--color-secondary-light) 70%,
+      transparent
+    );
+  }
+</style>

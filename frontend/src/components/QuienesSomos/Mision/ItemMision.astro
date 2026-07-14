@@ -1,0 +1,109 @@
+---
+const { mision } = Astro.props
+
+const icons: Record<string, string> = import.meta.glob(
+  '../../../assets/icon-mision/*.svg',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
+
+const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
+---
+
+<li class="item-lista">
+  <div class="inicio-borde"></div>
+  <div class="contenedor-titulo">
+    <h4 class="titulo">{mision.titulo}</h4>
+  </div>
+  <div class="contenedor-contenido">
+    <p>
+      {mision.contenido}
+    </p>
+    <Fragment set:html={icono} />
+  </div>
+</li>
+
+<style>
+  .item-lista {
+    width: min-content;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--text-font-primary);
+  }
+
+  .inicio-borde {
+    position: relative;
+    height: 2rem;
+    width: 100%;
+    z-index: 100;
+    border-left: 1px solid var(--color-primary);
+  }
+
+  .contenedor-titulo {
+    position: relative;
+    height: 2.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    outline: 1px solid var(--color-primary);
+    border-radius: 11rem;
+    right: 1rem;
+  }
+
+  .contenedor-titulo::before {
+    content: '';
+    height: 120%;
+    width: 100%;
+    top: 50%;
+    transform: translatey(-50%);
+    left: calc(1rem + 1px);
+    position: absolute;
+    background-color: var(--color-background);
+  }
+
+  .contenedor-titulo h4 {
+    align-items: center;
+    display: flex;
+  }
+
+  .titulo {
+    margin: 0;
+    width: 15rem;
+    height: 2.3rem;
+    padding: 0.3rem;
+    padding-inline: 0.7rem;
+    border-radius: 10rem;
+    position: relative;
+    background-color: var(--color-primary);
+    display: flex;
+    align-items: center;
+  }
+
+  .contenedor-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 0.7rem;
+    border-left: 1px solid var(--color-primary);
+  }
+
+  .contenedor-contenido p {
+    margin: 0;
+    margin-bottom: 1rem;
+    height: min-content;
+  }
+
+  .contenedor-contenido :global(svg) {
+    height: 5rem;
+    color: var(--color-primary);
+    stroke-width: 5;
+    margin-top: auto;
+  }
+</style>

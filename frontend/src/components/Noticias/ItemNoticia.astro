@@ -1,0 +1,86 @@
+---
+const { noticia } = Astro.props
+import { Image } from 'astro:assets'
+import IconCalendario from '../../assets/icon-noticias/icon-calendario.svg'
+import type { ImageMetadata } from 'astro'
+
+const images: Record<string, ImageMetadata> = import.meta.glob(
+  '../../assets/img_noticias/*.avif',
+  {
+    eager: true,
+    import: 'default',
+  },
+)
+
+const image: ImageMetadata =
+  images[`../../assets/img_noticias/${noticia.img}.avif`]
+---
+
+<article>
+  <Image src={image} alt={`Imagen de ${noticia.titulo}`} priority />
+  <div class="content">
+    <div class="fecha">
+      <IconCalendario />
+      <span>{noticia.fecha}</span>
+    </div>
+    <h3>{noticia.titulo}</h3>
+    <p>{noticia.content}</p>
+  </div>
+</article>
+
+<style>
+  article {
+    width: 20rem;
+    font-family: var(--text-font-primary);
+    border-radius: 1rem;
+    background-color: #fff;
+    overflow: hidden;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    height: 100%;
+    padding-bottom: 1rem;
+    transition: 0.3s;
+  }
+
+  article:hover {
+    transform: translateY(-0.4rem);
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  .content {
+    padding-inline: 1rem;
+  }
+
+  .fecha {
+    height: 1.3rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-grey);
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  svg {
+    height: 100%;
+    color: var(--color-primary-hover);
+    stroke-width: 100;
+  }
+
+  span {
+    margin-left: 0.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--color-primary-hover);
+  }
+
+  p {
+    margin: 0;
+  }
+</style>

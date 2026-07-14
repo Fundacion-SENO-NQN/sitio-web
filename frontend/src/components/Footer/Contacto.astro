@@ -1,0 +1,132 @@
+---
+import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+
+import SvgWhatsapp from '../../assets/icon-contacto/icon-whatsapp.svg'
+import SvgTelefono from '../../assets/icon-contacto/icon-telefono.svg'
+import SvgEmail from '../../assets/icon-contacto/icon-email.svg'
+
+import contacto from '../../data/contacto/contacto.json'
+---
+
+<section class="section-contacto" id="contacto">
+  <SvgCorazon class="img-footer-contacto" />
+  <div>
+    <h2>Estamos para estar junto a vos</h2>
+    <p>Si necesitas ayuda o tenés dudas,<br />no dudes en escribirnos</p>
+  </div>
+  <div class="separador"></div>
+  <ul class="lista-contacto">
+    <li class="container-contacto">
+      <div class="container-svg-contacto">
+        <SvgWhatsapp class="svg-whatsapp" />
+      </div>
+      <div class="container-contacto-info">
+        <h3>WhatsApp</h3>
+        <p>{contacto.whatsapp}</p>
+      </div>
+    </li>
+    <li class="container-contacto">
+      <div class="container-svg-contacto">
+        <SvgTelefono class="svg-phone" />
+      </div>
+      <div class="container-contacto-info">
+        <h3>Teléfono</h3>
+        <p>{contacto.telefono}</p>
+      </div>
+    </li>
+    <li class="container-contacto">
+      <div class="container-svg-contacto">
+        <SvgEmail class="svg-email" />
+      </div>
+      <div class="container-contacto-info">
+        <h3>Correo Electrónico</h3>
+        <p>{contacto.email}</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<style>
+  .section-contacto {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: var(--color-secondary-light);
+    border-radius: 1rem;
+    width: 97%;
+    font-size: 1rem;
+    position: relative;
+    padding: 1rem;
+    padding-left: 5rem;
+    font-family: var(--text-font-primary);
+  }
+
+  .section-contacto h2,
+  .section-contacto h3,
+  .section-contacto p {
+    margin: 0;
+  }
+
+  .separador {
+    width: 1px;
+    height: 6rem;
+    background-color: var(--color-secondary);
+  }
+
+  .lista-contacto {
+    display: flex;
+    list-style: none;
+    width: inherit;
+    justify-content: space-evenly;
+    margin: 0;
+    margin-block: 0;
+    padding: 0;
+  }
+
+  .img-footer-contacto {
+    height: 2rem;
+    width: 2rem;
+    stroke: var(--color-secondary);
+    fill: none;
+    stroke-width: 2;
+    position: absolute;
+    left: 1.5rem;
+  }
+
+  .container-contacto {
+    display: flex;
+    align-items: center;
+  }
+
+  .container-contacto svg {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+
+  .container-svg-contacto {
+    height: 2.7rem;
+    width: 2.7rem;
+    border-radius: 100%;
+    background-color: var(--color-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+  }
+
+  .svg-whatsapp {
+    fill: var(--color-secondary);
+  }
+
+  .svg-phone {
+    stroke: var(--color-secondary);
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .svg-email {
+    fill: none;
+    stroke: var(--color-secondary);
+    stroke-width: 2;
+  }
+</style>

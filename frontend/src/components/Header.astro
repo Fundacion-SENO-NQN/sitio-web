@@ -1,0 +1,22 @@
+---
+import MainNav from './Header/MainNav.astro'
+import BtnQuieroAyudar from './Header/BtnQuieroAyudar.astro'
+import Logo from './Header/Logo.astro'
+---
+
+<header class="header">
+  <Logo />
+  <MainNav />
+  <BtnQuieroAyudar />
+</header>
+
+<style>
+  .header {
+    width: 100%;
+    height: min-content;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>

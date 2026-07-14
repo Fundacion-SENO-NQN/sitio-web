@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+import NavegacionQuienesSomos from '../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import Descripcion from '../../components/QuienesSomos/Descripcion.astro'
+import ListaDescripcion from '../../components/QuienesSomos/ListaDescripcion.astro'
+import TituloPag from '../../components/Common/TituloPag.astro'
+---
+
+<Layout pag="¿Quienes somos?">
+  <NavegacionQuienesSomos pag="0" />
+  <TituloPag titulo="¿Quienes somos?" />
+  <main>
+    <Descripcion />
+    <ListaDescripcion />
+  </main>
+</Layout>

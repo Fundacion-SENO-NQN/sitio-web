@@ -1,0 +1,8 @@
+---
+const { pag } = Astro.props
+
+import { navigationQuienesSomos } from '../../data/navigation/navigationQuienesSomos'
+import SubNav from '../Common/SubNav.astro'
+---
+
+<SubNav pag={pag} navigation={navigationQuienesSomos} inicio="quienes-somos" />

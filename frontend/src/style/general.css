@@ -1,0 +1,30 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+:root {
+  --text-font-primary:
+    system-ui, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --text-font-logo: 'olivier', var(--text-font-primary);
+
+  --color-primary: #83c043;
+  --color-secondary: #1582cb;
+  --color-primary-hover: #496b24;
+  --color-secondary-hover: #004e89;
+  --color-primary-light: #c0e29c;
+  --color-secondary-light: #90b8d6;
+  --color-text: #121212;
+  --color-background: #fafafa;
+  --color-light-grey: #cdcdcd;
+  --color-grey: #9a9a9a;
+
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+main {
+  flex: 1;
+  width: 100%;
+}

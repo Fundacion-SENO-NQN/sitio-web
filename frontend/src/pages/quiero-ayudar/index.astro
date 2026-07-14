@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+import TituloPag from '../../components/Common/TituloPag.astro'
+import NavegacionQuieroAyudar from '../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+import CarouselDonaciones from '../../components/Inicio/CarouselDonaciones.astro'
+import OpcionesQuieroAyudar from '../../components/QuieroAyudar/OpcionesQuieroAyudar.astro'
+import TituloQuieroAyudar from '../../components/QuieroAyudar/TituloQuieroAyudar.astro'
+---
+
+<Layout pag="Quiero ayudar">
+  <NavegacionQuieroAyudar pag="0" />
+  <TituloPag titulo="Quiero ayudar" />
+  <CarouselDonaciones />
+  <main>
+    <TituloQuieroAyudar />
+    <OpcionesQuieroAyudar />
+  </main>
+</Layout>
+
+<style>
+  p {
+    font-family: var(--text-font-primary);
+  }
+</style>
