@@ -1,6 +1,6 @@
 ---
-import { mediosPagoBPN } from '../../data/donacion/mediosPagoBPN'
-import { mediosPagoMP } from '../../data/donacion/mediosPagoMP'
+import donacion from '../../data/donacion/donacion.json'
+import type CuentaPago from '../../data/interfaces/CuentaPago'
 import TarjetaDonacion from './Donar/TarjetaDonacion.astro'
 ---
 
@@ -11,19 +11,7 @@ import TarjetaDonacion from './Donar/TarjetaDonacion.astro'
   </p>
 
   <div class="contenedor">
-    <TarjetaDonacion
-      logo="mp"
-      nombre="Mercado Pago"
-      descripcion="Doná desde cualquier billetera virtual"
-      datos={mediosPagoMP}
-    />
-
-    <TarjetaDonacion
-      logo="bpn"
-      nombre="Banco Provincia del Neuquén"
-      descripcion="Transferencia bancaria"
-      datos={mediosPagoBPN}
-    />
+    {donacion.map((item: CuentaPago) => <TarjetaDonacion donacion={item} />)}
   </div>
 </section>
 
