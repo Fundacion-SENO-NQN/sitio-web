@@ -1,1 +1,0 @@
-export const logrosFav: number[] = [0, 1, 2]

@@ -1,0 +1,28 @@
+[
+  {
+    "nombre": "Mercado Pago",
+    "descripcion": "Doná desde cualquier billetera virtual",
+    "logo": "mp",
+    "datos": [
+      {
+        "titulo": "Alias",
+        "valor": "fundacionseno"
+      },
+      {
+        "titulo": "CVU",
+        "valor": "0000003100085015012040"
+      }
+    ]
+  },
+  {
+    "nombre": "Banco Provincia del Neuquén",
+    "descripcion": "Transferencia bancaria",
+    "logo": "bpn",
+    "datos": [
+      {
+        "titulo": "CBU",
+        "valor": "0970099413004665390014"
+      }
+    ]
+  }
+]
