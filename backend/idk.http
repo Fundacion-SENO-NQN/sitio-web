@@ -1,0 +1,8 @@
+PATCH http://localhost:3000/news/2
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="titulo"
+
+New title
+--MyBoundary--

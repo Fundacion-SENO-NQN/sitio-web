@@ -1,32 +1,51 @@
 [
   {
-    "titulo": "Noticia 1",
-    "fecha": "7 de julio de 2026",
-    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1",
-    "img": "not1"
-  },
-  {
-    "titulo": "Noticia 2",
-    "fecha": "7 de julio de 2026",
-    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1",
-    "img": "not1"
-  },
-  {
+    "id": 3,
+    "order": 1,
     "titulo": "Noticia 3",
     "fecha": "7 de julio de 2026",
-    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1",
-    "img": "not1"
+    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1"
   },
   {
+    "id": 1,
+    "order": 2,
+    "titulo": "Noticia 1",
+    "fecha": "7 de julio de 2026",
+    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1"
+  },
+  {
+    "id": 4,
+    "order": 3,
     "titulo": "Noticia 4",
     "fecha": "7 de julio de 2026",
-    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1",
-    "img": "not1"
+    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1"
   },
   {
-    "titulo": "Noticia 5",
+    "id": 2,
+    "order": 4,
+    "titulo": "New title",
     "fecha": "7 de julio de 2026",
-    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1",
-    "img": "not1"
+    "content": "Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1,Contenido de la noticia 1"
+  },
+  {
+    "id": 5,
+    "order": 5,
+    "titulo": "Noticia desde http",
+    "fecha": "15 de julio del 2026",
+    "content": "Contenido de esta noticia, lorem"
+  },
+  {
+    "id": 6,
+    "order": 6,
+    "titulo": "Noticia desde http",
+    "fecha": "15 de julio del 2026",
+    "content": "Contenido de esta noticia, lorem"
+  },
+  {
+    "id": 7,
+    "order": 1,
+    "titulo": "My first news",
+    "fecha": "15 de julio del 2026",
+    "content": "This is the content of the news."
   }
 ]

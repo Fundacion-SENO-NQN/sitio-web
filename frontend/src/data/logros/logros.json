@@ -1,22 +1,26 @@
 [
   {
+    "id": 1,
+    "order": 1,
     "titulo": "Escalera de acceso al primer piso",
-    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum.",
-    "img": "logros1"
+    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum."
   },
   {
+    "id": 2,
+    "order": 2,
     "titulo": "Escalera de acceso al primer piso",
-    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum.",
-    "img": "logros1"
+    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum."
   },
   {
+    "id": 3,
+    "order": 3,
     "titulo": "Escalera de acceso al primer piso",
-    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum.",
-    "img": "logros1"
+    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum."
   },
   {
+    "id": 4,
+    "order": 4,
     "titulo": "Escalera de acceso al primer piso",
-    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum.",
-    "img": "logros1"
+    "contenido": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati perferendis ut harum amet neque quidem, nisi, dolore eum beatae saepe earum illum cupiditate fugiat, temporibus iste labore accusamus at ipsum."
   }
 ]
