@@ -1,4 +1,4 @@
-const API = import.meta.env.PUBLIC_API_URL;
+const API = 'https://sitio-web-fundacion-seno.fly.dev';
 
 export async function api<T>(
     path: string,
