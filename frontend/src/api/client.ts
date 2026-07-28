@@ -1,6 +1,7 @@
 const API = import.meta.env.PUBLIC_API_URL
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  console.log(API)
   const response = await fetch(`${API}${path}`, {
     ...init,
   })
