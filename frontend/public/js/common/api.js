@@ -1,6 +1,6 @@
 const API = 'https://sitio-web-fundacion-seno.fly.dev'
 
-if (!API_URL) {
+if (!API) {
   throw new Error(
     'PUBLIC_API_URL is not configured. Add it to the environment variables.',
   )
