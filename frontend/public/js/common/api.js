@@ -1,4 +1,4 @@
-const API = 'http://127.0.0.1:3000'
+const API = 'https://sitio-web-fundacion-seno.fly.dev'
 
 function token() {
   return localStorage.getItem('token')
