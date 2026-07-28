@@ -1,5 +1,13 @@
 const API = 'https://sitio-web-fundacion-seno.fly.dev'
 
+if (!API_URL) {
+  throw new Error(
+    'PUBLIC_API_URL is not configured. Add it to the environment variables.',
+  )
+}
+
+const BASE_URL = API.replace(/\/+$/, '')
+
 function token() {
   return localStorage.getItem('token')
 }
@@ -12,7 +20,7 @@ async function request(url, options = {}) {
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json'
   }
-  const response = await fetch(API + url, {
+  const response = await fetch(BASE_URL + url, {
     ...options,
     headers,
   })

@@ -1,8 +1,16 @@
-const API = import.meta.env.PUBLIC_API_URL
+const API: string = import.meta.env.PUBLIC_API_URL
+
+if (!API) {
+  throw new Error(
+    'PUBLIC_API_URL is not configured. Add it to the environment variables.',
+  )
+}
+
+const BASE_URL: string = API.replace(/\/+$/, '')
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  console.log(API)
-  const response = await fetch(`${API}${path}`, {
+  console.log(BASE_URL)
+  const response = await fetch(`${BASE_URL}${path}`, {
     ...init,
   })
 
@@ -11,5 +19,4 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return response.json()
-
 }
