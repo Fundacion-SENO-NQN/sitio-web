@@ -5,8 +5,11 @@ import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQ
 import ItemLogro from '../../../components/QuienesSomos/Logros/ItemLogro.astro'
 
 import type Logro from '../../../data/interfaces/Logro'
-import logros from '../../../data/logros/logros.json'
 import TituloPag from '../../../components/Common/TituloPag.astro'
+
+import { getLogros } from "../../../api/logros";
+
+const logros = await getLogros();
 ---
 
 <Layout pag="Logros">

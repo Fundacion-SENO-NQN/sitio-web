@@ -1,7 +1,9 @@
 use crate::{
     AppState,
-    models::noticia::{ChangeOrderNoticia, Noticia},
-    repositories::noticia::replace_all,
+    auth::{auth_user::AuthUser, services::ADMIN_NOTICIAS},
+    error::api_error::{ApiError, ApiResult},
+    models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
+    repositories::{self, noticia::get_by_id},
     utils,
 };
 use axum::{
@@ -9,217 +11,204 @@ use axum::{
     extract::{Multipart, Path, State},
     http::StatusCode,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    env,
-    path::PathBuf,
-    sync::Arc,
-};
-
-fn path_news_img(id: u32) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut route = PathBuf::from(env::var("ROUTE_TO_IMG")?);
-    route.push("img_noticias");
-    route.push(format!("{id}"));
-    Ok(route)
-}
+use std::sync::Arc;
 
 pub async fn get_all_news(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<Noticia>>, StatusCode> {
     Ok(Json(
-        crate::repositories::noticia::get_all(state.as_ref())
-            .expect("ERR: handlers/noticia.rs -> get_all_news get_all"),
+        crate::repositories::noticia::get_all(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
     ))
 }
 
 pub async fn get_new_by_id(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Noticia>, StatusCode> {
-    let news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if let Some(noticia) = news.iter().find(|n| n.id == id) {
-        Ok(Json(noticia.clone()))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
+    Path(id): Path<i64>,
+) -> Result<Json<Option<Noticia>>, StatusCode> {
+    Ok(Json(
+        get_by_id(&state.db, id)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    ))
 }
 
-pub async fn post_create_news(
+pub async fn create_news(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
     mut multipart: Multipart,
-) -> Result<(StatusCode, Json<Noticia>), StatusCode> {
-    let news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let new_id = news.iter().map(|n| n.id).max().unwrap_or(0) + 1;
+) -> ApiResult<(StatusCode, Json<Noticia>)> {
+    user.require(ADMIN_NOTICIAS)?;
 
     let mut titulo = String::new();
-    let mut content = String::new();
-    let mut order = 0;
+    let mut contenido = String::new();
+    let mut orden = 0_i64;
+
     let mut image: Option<Vec<u8>> = None;
 
     while let Some(field) = multipart
         .next_field()
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
+        .map_err(|_| ApiError::BadRequest("Cuerpo multiparte no válido.".into()))?
     {
-        let name = field.name().unwrap_or("").to_string();
-
-        match name.as_str() {
-            "titulo" => {
-                titulo = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "content" => {
-                content = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "order" => {
-                order = field
+        match field.name() {
+            Some("titulo") => {
+                titulo = field
                     .text()
                     .await
-                    .map_err(|_| StatusCode::BAD_REQUEST)?
-                    .parse::<u32>()
-                    .map_err(|_| StatusCode::BAD_REQUEST)?;
+                    .map_err(|_| ApiError::BadRequest("Título inválido.".into()))?;
             }
-            "image" => {
+
+            Some("contenido") => {
+                contenido = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Contenido inválido.".into()))?;
+            }
+
+            Some("orden") => {
+                orden = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Orden inválido.".into()))?
+                    .parse()
+                    .map_err(|_| ApiError::BadRequest("El orden debe de ser un número.".into()))?;
+            }
+
+            Some("imagen") => {
                 image = Some(
                     field
                         .bytes()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
+                        .map_err(|_| ApiError::BadRequest("Imagen inválida.".into()))?
                         .to_vec(),
                 );
             }
+
             _ => {}
         }
     }
-    let image = image.ok_or(StatusCode::BAD_REQUEST)?;
+
+    let image = image.ok_or(ApiError::BadRequest("La imágen es requerida.".into()))?;
+
+    let noticia = repositories::noticia::create(
+        &state.db,
+        orden,
+        titulo,
+        utils::date_spanish::current_date_spanish(),
+        contenido,
+    )
+    .await?;
+
     utils::image::save_image(
-        path_news_img(new_id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+        utils::noticia::path_news_img(noticia.id).map_err(|_| ApiError::InternalServerError)?,
         &image,
     )
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let noticia = Noticia {
-        id: new_id,
-        titulo,
-        content,
-        fecha: utils::date_spanish::current_date_spanish(),
-        order,
-    };
-
-    crate::repositories::noticia::push(state.as_ref(), noticia.clone())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|_| ApiError::InternalServerError)?;
 
     Ok((StatusCode::CREATED, Json(noticia)))
 }
 
 pub async fn change_order_news(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
     Json(request): Json<Vec<ChangeOrderNoticia>>,
-) -> Result<StatusCode, StatusCode> {
-    let mut news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> ApiResult<StatusCode> {
+    user.require(ADMIN_NOTICIAS)?;
 
-    if request.len() != news.len() {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    let valid_ids: HashSet<u32> = news.iter().map(|n| n.id).collect();
-
-    let mut received_ids = HashSet::new();
-
-    let mut new_orders = HashMap::new();
+    let mut ids = std::collections::HashSet::new();
+    let mut orders = std::collections::HashSet::new();
 
     for item in &request {
-        if !received_ids.insert(item.id) {
-            return Err(StatusCode::BAD_REQUEST);
+        if !ids.insert(item.id) {
+            return Err(ApiError::BadRequest("Id de noticia duplicado.".into()));
         }
 
-        if !valid_ids.contains(&item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if new_orders.insert(item.id, item.order).is_some() {
-            return Err(StatusCode::BAD_REQUEST);
+        if !orders.insert(item.orden) {
+            return Err(ApiError::BadRequest("Orden duplicado.".into()));
         }
     }
 
-    if received_ids != valid_ids {
-        return Err(StatusCode::BAD_REQUEST);
-    }
+    repositories::noticia::change_order(&state.db, request).await?;
 
-    for noticia in &mut news {
-        noticia.order = *new_orders.get(&noticia.id).unwrap();
-    }
-
-    news.sort_by_key(|n| n.order);
-
-    crate::repositories::noticia::replace_all(&state, news)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(StatusCode::OK)
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn delete_new(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Noticia>, StatusCode> {
-    let res = crate::repositories::noticia::delete(state.as_ref(), id);
-    if res.is_ok() {
-        Ok(res.unwrap())
-    } else {
-        Err(res.unwrap_err())
-    }
+    Path(id): Path<i64>,
+) -> ApiResult<Json<Noticia>> {
+    user.require(ADMIN_NOTICIAS)?;
+
+    let noticia = repositories::noticia::delete(&state.db, id).await.unwrap();
+
+    utils::image::delete_image(
+        utils::noticia::path_news_img(noticia.id).map_err(|_| ApiError::InternalServerError)?,
+    )
+    .map_err(|_| ApiError::InternalServerError)?;
+
+    Ok(Json(noticia))
 }
 
 pub async fn patch_news(
-    Path(id): Path<u32>,
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
     mut multipart: Multipart,
-) -> Result<Json<Noticia>, StatusCode> {
-    let mut news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> ApiResult<Json<Noticia>> {
+    user.require(ADMIN_NOTICIAS)?;
 
     let mut titulo = None;
-    let mut content = None;
-    let mut order = None;
-    let mut image = None;
+    let mut contenido = None;
+    let mut orden = None;
+
+    let mut image: Option<Vec<u8>> = None;
 
     while let Some(field) = multipart
         .next_field()
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
+        .map_err(|_| ApiError::BadRequest("Cuerpo multiparte no válido.".into()))?
     {
-        let name = field.name().unwrap_or("");
-
-        match name {
-            "titulo" => {
-                titulo = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-
-            "content" => {
-                content = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-
-            "order" => {
-                order = Some(
+        match field.name() {
+            Some("titulo") => {
+                titulo = Some(
                     field
                         .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .parse::<u32>()
-                        .map_err(|_| StatusCode::BAD_REQUEST)?,
+                        .map_err(|_| ApiError::BadRequest("Título duplicado.".into()))?,
                 );
             }
 
-            "image" => {
+            Some("contenido") => {
+                contenido = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Contenido inválido.".into()))?,
+                );
+            }
+
+            Some("orden") => {
+                orden = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Orden inválido.".into()))?
+                        .parse()
+                        .map_err(|_| {
+                            ApiError::BadRequest("El orden debe de ser un número.".into())
+                        })?,
+                );
+            }
+
+            Some("image") | Some("imagen") => {
                 image = Some(
                     field
                         .bytes()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
+                        .map_err(|_| ApiError::BadRequest("Imagen inválida.".into()))?
                         .to_vec(),
                 );
             }
@@ -228,34 +217,25 @@ pub async fn patch_news(
         }
     }
 
-    let noticia = news
-        .iter_mut()
-        .find(|n| n.id == id)
-        .ok_or(StatusCode::NOT_FOUND)?;
+    let update = UpdateNoticia {
+        titulo,
+        contenido,
+        orden,
+    };
 
-    if let Some(t) = titulo {
-        noticia.titulo = t;
-    }
+    let noticia = repositories::noticia::update(&state.db, id, update).await?;
 
-    if let Some(c) = content {
-        noticia.content = c;
-    }
-
-    if let Some(o) = order {
-        noticia.order = o;
-    }
-
-    if let Some(img) = image {
+    if let Some(image) = image {
         utils::image::save_image(
-            path_news_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &img,
+            utils::noticia::path_news_img(noticia.id).map_err(|_| ApiError::InternalServerError)?,
+            &image,
         )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|_| ApiError::InternalServerError)?;
     }
 
-    let resp = noticia.clone();
+    Ok(Json(noticia))
+}
 
-    replace_all(&state, news).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(Json(resp))
+pub async fn get_last_4_news(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Noticia>>> {
+    Ok(Json(repositories::noticia::get_last_4(&state.db).await?))
 }

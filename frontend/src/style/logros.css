@@ -1,0 +1,1140 @@
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.logrosPage {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2rem;
+
+  padding: 2rem;
+
+  min-height: 100%;
+
+  background: var(--color-background);
+}
+
+.pageHeader {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 2rem;
+}
+
+.pageHeader h1 {
+  margin: 0;
+
+  font-size: 2rem;
+
+  font-weight: 700;
+
+  color: var(--color-text);
+}
+
+.pageHeader p {
+  margin-top: 0.5rem;
+
+  color: var(--color-grey);
+}
+
+/* ==========================================================
+   TOOLBAR
+========================================================== */
+
+.toolbar {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 1rem;
+
+  flex-wrap: wrap;
+}
+
+.toolbarLeft,
+.toolbarRight {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.75rem;
+
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   SEARCH
+========================================================== */
+
+.search {
+  width: 340px;
+
+  max-width: 100%;
+
+  padding: 0.8rem 1rem;
+
+  border: var(--border);
+
+  border-radius: var(--radius);
+
+  outline: none;
+
+  font-size: 0.95rem;
+
+  transition: var(--transition);
+
+  background: white;
+}
+
+.search:focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: 0 0 0 3px rgba(21, 130, 203, 0.15);
+}
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.button {
+  border: none;
+
+  border-radius: var(--radius);
+
+  padding: 0.8rem 1.3rem;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+
+  font-weight: 600;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.5rem;
+}
+
+.buttonPrimary {
+  background: var(--color-primary);
+
+  color: white;
+}
+
+.buttonPrimary:hover {
+  background: var(--color-primary-hover);
+}
+
+.buttonSecondary {
+  background: var(--color-secondary);
+
+  color: white;
+}
+
+.buttonSecondary:hover {
+  background: var(--color-secondary-hover);
+}
+
+.buttonDanger {
+  background: var(--color-red);
+
+  color: white;
+}
+
+.buttonDanger:hover {
+  filter: brightness(0.9);
+}
+
+.buttonGhost {
+  background: white;
+
+  border: var(--border);
+
+  color: var(--color-text);
+}
+
+.buttonGhost:hover {
+  background: var(--table-row-hover);
+}
+
+.button:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.tableContainer {
+  background: white;
+
+  border-radius: var(--radius);
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow);
+
+  border: var(--border);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 1100px;
+}
+
+.table thead {
+  background: #f5f5f5;
+}
+
+.table th {
+  padding: 1rem;
+
+  text-align: left;
+
+  font-size: 0.9rem;
+
+  font-weight: 700;
+
+  color: var(--color-text);
+
+  white-space: nowrap;
+
+  user-select: none;
+}
+
+.table th.sortable {
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.table th.sortable:hover {
+  color: var(--color-secondary);
+}
+
+.table td {
+  padding: 1rem;
+
+  vertical-align: middle;
+
+  border-top: 1px solid #ececec;
+}
+
+.table tbody tr {
+  transition: var(--transition);
+}
+
+.table tbody tr:hover {
+  background: var(--table-row-hover);
+}
+
+/* ==========================================================
+   IMAGE
+========================================================== */
+
+.logroImage {
+  width: 90px;
+
+  height: 60px;
+
+  object-fit: cover;
+
+  border-radius: var(--radius-small);
+
+  border: var(--border);
+
+  display: block;
+}
+
+/* ==========================================================
+   TITLE
+========================================================== */
+
+.logroTitle {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.35rem;
+}
+
+.logroTitle strong {
+  color: var(--color-text);
+
+  font-size: 0.95rem;
+}
+
+.logroTitle small {
+  color: var(--color-grey);
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+}
+
+/* ==========================================================
+   ORDER
+========================================================== */
+
+.orderCell {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+}
+
+.orderValue {
+  width: 32px;
+
+  text-align: center;
+
+  font-weight: bold;
+}
+
+.orderButtons {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.25rem;
+}
+
+.orderButton {
+  width: 28px;
+
+  height: 28px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  background: var(--color-light-grey);
+
+  transition: var(--transition);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 0.8rem;
+}
+
+.orderButton:hover:not(:disabled) {
+  background: var(--color-secondary);
+
+  color: white;
+}
+
+.orderButton:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   FEATURED
+========================================================== */
+
+.featuredBadge {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0.35rem 0.7rem;
+
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-hover);
+}
+
+.notFeaturedBadge {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0.35rem 0.7rem;
+
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  background: #ececec;
+
+  color: var(--color-grey);
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.actions {
+  display: flex;
+
+  gap: 0.5rem;
+
+  justify-content: flex-end;
+}
+
+.tableButton {
+  border: none;
+
+  border-radius: var(--radius-small);
+
+  padding: 0.45rem 0.8rem;
+
+  cursor: pointer;
+
+  font-size: 0.85rem;
+
+  font-weight: 600;
+
+  transition: var(--transition);
+
+  color: white;
+}
+
+.tableButton.edit {
+  background: var(--color-secondary);
+}
+
+.tableButton.edit:hover {
+  background: var(--color-secondary-hover);
+}
+
+.tableButton.delete {
+  background: var(--color-red);
+}
+
+.tableButton.delete:hover {
+  filter: brightness(0.9);
+}
+
+.tableButton.secondary {
+  background: var(--color-grey);
+}
+
+.tableButton.secondary:hover {
+  background: #777;
+}
+
+/* ==========================================================
+   EMPTY
+========================================================== */
+
+.emptyState {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 1rem;
+
+  padding: 4rem;
+
+  color: var(--color-grey);
+
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin: 0;
+
+  color: var(--color-text);
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+/* ==========================================================
+   MODALS
+========================================================== */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 2rem;
+
+  background: var(--modal-background);
+
+  z-index: 1000;
+
+  opacity: 1;
+
+  transition: var(--transition);
+}
+
+.modal.hidden {
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.modalContent {
+  width: 100%;
+
+  max-width: 760px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background: white;
+
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow);
+
+  animation: modalAppear 0.2s ease;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================
+   MODAL HEADER
+========================================================== */
+
+.modalHeader {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 1.5rem 2rem;
+
+  border-bottom: var(--border);
+}
+
+.modalHeader h2 {
+  margin: 0;
+
+  font-size: 1.4rem;
+
+  color: var(--color-text);
+}
+
+.modalClose {
+  width: 42px;
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  font-size: 1.3rem;
+
+  transition: var(--transition);
+}
+
+.modalClose:hover {
+  background: var(--table-row-hover);
+}
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1.5rem;
+
+  padding: 2rem;
+}
+
+.formGrid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.45rem;
+}
+
+.formGroup.full {
+  grid-column: 1 / -1;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+
+  font-weight: 600;
+
+  color: var(--color-text);
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  padding: 0.9rem 1rem;
+
+  border: var(--border);
+
+  border-radius: var(--radius-small);
+
+  outline: none;
+
+  font-size: 0.95rem;
+
+  transition: var(--transition);
+
+  background: white;
+
+  font-family: inherit;
+}
+
+.formGroup textarea {
+  resize: vertical;
+
+  min-height: 170px;
+
+  line-height: 1.5;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus,
+.formGroup select:focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: 0 0 0 3px rgba(21, 130, 203, 0.15);
+}
+
+/* ==========================================================
+   IMAGE UPLOAD
+========================================================== */
+
+.imageUpload {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 1rem;
+
+  border: 2px dashed var(--color-light-grey);
+
+  border-radius: var(--radius);
+
+  min-height: 220px;
+
+  padding: 2rem;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+
+  text-align: center;
+}
+
+.imageUpload:hover {
+  border-color: var(--color-secondary);
+
+  background: rgba(21, 130, 203, 0.04);
+}
+
+.imageUpload.dragover {
+  border-color: var(--color-primary);
+
+  background: rgba(131, 192, 67, 0.08);
+}
+
+.imageUpload input {
+  display: none;
+}
+
+.imageUpload p {
+  margin: 0;
+
+  color: var(--color-grey);
+}
+
+.imagePreview {
+  width: 100%;
+
+  max-height: 260px;
+
+  object-fit: cover;
+
+  border-radius: var(--radius-small);
+
+  display: block;
+
+  border: var(--border);
+}
+
+/* ==========================================================
+   MODAL FOOTER
+========================================================== */
+
+.modalFooter {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 0.75rem;
+
+  padding: 1.5rem 2rem;
+
+  border-top: var(--border);
+}
+
+/* ==========================================================
+   DELETE MODAL
+========================================================== */
+
+.deleteModal {
+  max-width: 480px;
+}
+
+.deleteBody {
+  padding: 2rem;
+
+  text-align: center;
+}
+
+.deleteBody h3 {
+  margin: 0 0 1rem;
+
+  color: var(--color-red);
+}
+
+.deleteBody p {
+  margin: 0;
+
+  color: var(--color-grey);
+
+  line-height: 1.6;
+}
+
+/* ==========================================================
+   FEATURED ACHIEVEMENTS
+========================================================== */
+
+.featuredList {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.75rem;
+}
+
+.featuredRow {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 1rem;
+
+  padding: 1rem 1.25rem;
+
+  border: var(--border);
+
+  border-radius: var(--radius-small);
+
+  transition: var(--transition);
+
+  background: white;
+}
+
+.featuredRow:hover {
+  background: var(--table-row-hover);
+}
+
+.featuredInfo {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.35rem;
+}
+
+.featuredInfo strong {
+  color: var(--color-text);
+
+  font-size: 0.95rem;
+}
+
+.featuredInfo small {
+  color: var(--color-grey);
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+}
+
+.featuredPosition {
+  min-width: 36px;
+
+  height: 36px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  border-radius: 50%;
+
+  background: var(--color-primary);
+
+  color: white;
+
+  font-weight: bold;
+}
+
+.featuredActions {
+  display: flex;
+
+  gap: 0.5rem;
+}
+
+#achievementForm {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================
+   DRAG HANDLE
+========================================================== */
+
+.dragHandle {
+  cursor: grab;
+
+  font-size: 1.2rem;
+
+  color: var(--color-grey);
+
+  user-select: none;
+
+  transition: var(--transition);
+}
+
+.dragHandle:hover {
+  color: var(--color-secondary);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+.loading {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding: 3rem;
+
+  color: var(--color-grey);
+
+  font-weight: 600;
+}
+
+.spinner {
+  width: 28px;
+
+  height: 28px;
+
+  border-radius: 50%;
+
+  border: 3px solid var(--color-light-grey);
+
+  border-top-color: var(--color-secondary);
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+.toastContainer {
+  position: fixed;
+
+  right: 2rem;
+
+  bottom: 2rem;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.75rem;
+
+  z-index: 9999;
+}
+
+.toast {
+  min-width: 320px;
+
+  max-width: 420px;
+
+  padding: 1rem 1.25rem;
+
+  border-radius: var(--radius);
+
+  color: white;
+
+  font-weight: 600;
+
+  box-shadow: var(--shadow);
+
+  transform: translateX(120%);
+
+  transition: 0.25s ease;
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast.success {
+  background: var(--color-primary);
+}
+
+.toast.error {
+  background: var(--color-red);
+}
+
+.toast.warning {
+  background: var(--color-yellow);
+
+  color: var(--color-text);
+}
+
+.toast.info {
+  background: var(--color-secondary);
+}
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+.modalContent::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: var(--color-light-grey);
+
+  border-radius: 999px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: var(--color-grey);
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 1200px) {
+  .table {
+    min-width: 950px;
+  }
+}
+
+@media (max-width: 900px) {
+  .pageHeader {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .toolbar {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .toolbarLeft,
+  .toolbarRight {
+    width: 100%;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .logrosPage {
+    padding: 1rem;
+  }
+
+  .modal {
+    padding: 1rem;
+  }
+
+  .modalContent {
+    max-height: 95vh;
+  }
+
+  .modalHeader,
+  .modalFooter,
+  .form {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .tableButton {
+    width: 100%;
+  }
+
+  .featuredRow {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .featuredActions {
+    width: 100%;
+
+    justify-content: flex-end;
+  }
+
+  .toastContainer {
+    right: 1rem;
+
+    left: 1rem;
+
+    bottom: 1rem;
+  }
+
+  .toast {
+    min-width: auto;
+
+    max-width: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .pageHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .modalFooter {
+    flex-direction: column-reverse;
+  }
+
+  .modalFooter .button {
+    width: 100%;
+  }
+}
+
+img {
+  height: 4rem;
+}

@@ -4,8 +4,11 @@ import Layout from '../../../layouts/Layout.astro'
 import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
 import EquipoItem from '../../../components/QuienesSomos/Equipo/ItemEquipo.astro'
 
-import { equipo } from '../../../data/equipo/equipo'
 import TituloPag from '../../../components/Common/TituloPag.astro'
+
+import { getEquipo } from '../../../api/equipo'
+
+const equipo = await getEquipo()
 ---
 
 <Layout pag="Equipo">

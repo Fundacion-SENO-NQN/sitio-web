@@ -44,7 +44,11 @@ pub fn replace_oldest_donation_image(bytes: &[u8]) -> Result<PathBuf, Box<dyn st
     }
 
     let mut path = get_route_img_donation()?;
-    path.push(format!("{}", state.next));
+    path.push(format!("{}.avif", state.next));
+
+    if path.exists() {
+        std::fs::remove_file(&path)?;
+    }
 
     let file = File::create(&path)?;
     let writer = BufWriter::new(file);

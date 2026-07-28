@@ -1,57 +1,170 @@
 use crate::{
-    AppState,
-    models::logro::Logro,
-    utils::{self, logro::path_logro_img, read_json::read_json, write_json::write_json},
+    error::api_error::ApiResult,
+    models::logro::{ChangeOrderLogro, Logro, UpdateLogro},
 };
-use axum::{Json, http::StatusCode};
-use serde::de::DeserializeOwned;
-use std::{env, path::PathBuf};
+use sqlx::PgPool;
 
-fn get_route() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut route = PathBuf::from(env::var("ROUTE_TO_DATA")?);
-    route.push("logros");
-    route.push("logros.json");
-    Ok(route)
+pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Logro>> {
+    Ok(sqlx::query_as::<_, Logro>(
+        r#"
+            SELECT
+                id,
+                orden,
+                titulo,
+                contenido,
+                created_at
+            FROM logros
+            ORDER BY orden
+            "#,
+    )
+    .fetch_all(db)
+    .await?)
 }
 
-pub fn get_all<T>(state: &AppState) -> Result<T, Box<dyn std::error::Error>>
-where
-    T: DeserializeOwned,
-{
-    let _guard = state.logros.read().unwrap();
-    Ok(read_json(get_route()?)?)
+pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Logro>> {
+    Ok(sqlx::query_as::<_, Logro>(
+        r#"
+            SELECT
+                id,
+                orden,
+                titulo,
+                contenido,
+                created_at
+            FROM logros
+            WHERE id = $1
+            "#,
+    )
+    .bind(id)
+    .fetch_optional(db)
+    .await?)
 }
 
-pub fn push(state: &AppState, logro: Logro) -> Result<(), Box<dyn std::error::Error>> {
-    let mut logros: Vec<Logro> = get_all(state)?;
-    let _guard = state.logros.read().unwrap();
-    logros.push(logro);
-    write_json(get_route()?, &logros)?;
-    Ok(())
+pub async fn create(db: &PgPool, titulo: &str, contenido: &str) -> ApiResult<Logro> {
+    Ok(sqlx::query_as::<_, Logro>(
+        r#"
+        INSERT INTO logros
+            (
+                orden,
+                titulo,
+                contenido
+            )
+        VALUES
+            (
+                (
+                    SELECT COALESCE(MAX(orden), -1) + 1
+                    FROM logros
+                ),
+                $1,
+                $2
+            )
+        RETURNING
+            id,
+            orden,
+            titulo,
+            contenido,
+            created_at
+        "#,
+    )
+    .bind(titulo)
+    .bind(contenido)
+    .fetch_one(db)
+    .await?)
 }
 
-pub fn delete(state: &AppState, id: u32) -> Result<Json<Logro>, StatusCode> {
-    let mut logros: Vec<Logro> = get_all(state).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let _guard = state.logros.read().unwrap();
-    if let Some(pos) = logros.iter().position(|n| n.id == id) {
-        let logro_deleted = logros.remove(pos).clone();
-        write_json(
-            get_route().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &logros,
+pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logro> {
+    Ok(sqlx::query_as::<_, Logro>(
+        r#"
+            UPDATE logros
+            SET
+                orden = COALESCE($1, orden),
+                titulo = COALESCE($2, titulo),
+                contenido = COALESCE($3, contenido)
+            WHERE id = $4
+            RETURNING
+                id,
+                orden,
+                titulo,
+                contenido,
+                created_at
+            "#,
+    )
+    .bind(update.orden)
+    .bind(update.titulo)
+    .bind(update.contenido)
+    .bind(id)
+    .fetch_one(db)
+    .await?)
+}
+
+pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Logro> {
+    let mut tx = db.begin().await?;
+
+    let logro = sqlx::query_as::<_, Logro>(
+        r#"
+        DELETE FROM logros
+        WHERE id = $1
+        RETURNING
+            id,
+            orden,
+            titulo,
+            contenido,
+            created_at
+        "#,
+    )
+    .bind(id)
+    .fetch_one(&mut *tx)
+    .await?;
+
+    sqlx::query(
+        r#"
+        UPDATE logros
+        SET orden = orden - 1
+        WHERE orden > $1
+        "#,
+    )
+    .bind(logro.orden)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(logro)
+}
+
+pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderLogro>) -> ApiResult<()> {
+    let mut tx = db.begin().await?;
+
+    // Temporary negative values to avoid UNIQUE conflicts.
+    for logro in &order {
+        sqlx::query(
+            r#"
+            UPDATE logros
+            SET orden = -$1
+            WHERE id = $2
+            "#,
         )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-        utils::image::delete_image(
-            path_logro_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-        );
-        Ok(Json(logro_deleted))
-    } else {
-        Err(StatusCode::NOT_FOUND)
+        .bind(logro.orden + 1)
+        .bind(logro.id)
+        .execute(&mut *tx)
+        .await?;
     }
-}
 
-pub fn replace_all(state: &AppState, logros: Vec<Logro>) -> Result<(), Box<dyn std::error::Error>> {
-    let _guard = state.logros.read().unwrap();
-    write_json(get_route()?, &logros)?;
+    // Final values.
+    for logro in &order {
+        sqlx::query(
+            r#"
+            UPDATE logros
+            SET orden = $1
+            WHERE id = $2
+            "#,
+        )
+        .bind(logro.orden)
+        .bind(logro.id)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+
     Ok(())
 }

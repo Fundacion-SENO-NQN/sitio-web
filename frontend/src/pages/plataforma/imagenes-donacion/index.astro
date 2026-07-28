@@ -1,0 +1,35 @@
+---
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+import '../../../style/uploadImage.css'
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import ModalCarga from '../../../components/Common/ModalCarga.astro'
+---
+
+<LayoutPlataforma>
+  <ModalCarga />
+  <HeaderPlataforma
+    title="Imágenes de donación"
+    content="Subida de las fotos tomadas a las donaciones"
+  />
+  <main class="upload-page">
+    <form id="uploadForm">
+      <label for="images" class="drop-zone" id="dropZone">
+        <span class="icon">🖼️</span>
+
+        <h2>Soltá las imágenes acá</h2>
+
+        <p>o hace click para seleccionarlas</p>
+
+        <input id="images" type="file" accept="image/*" hidden />
+      </label>
+
+      <div id="previewContainer" class="previewContainer"></div>
+
+      <button id="btnUpload" class="primaryButton" type="submit" disabled>
+        Subir imagen
+      </button>
+    </form>
+  </main>
+</LayoutPlataforma>
+
+<script type="module" is:inline src="/js/uploadImages/uploadImages.js"></script>

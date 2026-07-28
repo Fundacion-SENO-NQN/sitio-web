@@ -1,57 +1,145 @@
 use crate::{
-    AppState,
-    models::noticia::Noticia,
-    utils::{self, noticia::path_news_img, read_json::read_json, write_json::write_json},
+    models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
+    error::api_error::ApiResult,
 };
-use axum::{Json, http::StatusCode};
-use serde::de::DeserializeOwned;
-use std::{env, path::PathBuf};
+use axum::http::StatusCode;
+use sqlx::{Error, PgPool};
 
-fn get_route() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut route = PathBuf::from(env::var("ROUTE_TO_DATA")?);
-    route.push("noticia");
-    route.push("noticia.json");
-    Ok(route)
+pub async fn get_all(db: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>("SELECT * FROM noticias")
+        .fetch_all(db)
+        .await
 }
 
-pub fn get_all<T>(state: &AppState) -> Result<T, Box<dyn std::error::Error>>
-where
-    T: DeserializeOwned,
-{
-    let _guard = state.news.read().unwrap();
-    Ok(read_json(get_route()?)?)
+pub async fn get_by_id(db: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>(
+        "SELECT * FROM noticias
+         WHERE id = $1",
+    )
+    .bind(id)
+    .fetch_optional(db)
+    .await
 }
 
-pub fn push(state: &AppState, new: Noticia) -> Result<(), Box<dyn std::error::Error>> {
-    let mut news: Vec<Noticia> = get_all(state)?;
-    let _guard = state.news.read().unwrap();
-    news.push(new);
-    write_json(get_route()?, &news)?;
-    Ok(())
+pub async fn create(
+    db: &PgPool,
+    orden: i64,
+    titulo: String,
+    fecha: String,
+    contenido: String,
+) -> Result<Noticia, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>(
+        r#"
+        INSERT INTO noticias
+            (orden, titulo, fecha, contenido, img)
+        VALUES
+            ($1, $2, $3, $4, $5)
+        RETURNING
+            id,
+            orden,
+            titulo,
+            fecha,
+            contenido,
+            created_at
+        "#,
+    )
+    .bind(orden)
+    .bind(titulo)
+    .bind(fecha)
+    .bind(contenido)
+    .fetch_one(db)
+    .await
 }
 
-pub fn delete(state: &AppState, id: u32) -> Result<Json<Noticia>, StatusCode> {
-    let mut news: Vec<Noticia> = get_all(state).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let _guard = state.news.read().unwrap();
-    if let Some(pos) = news.iter().position(|n| n.id == id) {
-        let new_deleted = news.remove(pos).clone();
-        write_json(
-            get_route().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &news,
+pub async fn delete(db: &PgPool, id: i64) -> Result<Noticia, StatusCode> {
+    let noticia = sqlx::query_as::<_, Noticia>(
+        "DELETE FROM noticias
+         WHERE id = $1
+         RETURNING *",
+    )
+    .bind(id)
+    .fetch_one(db)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(noticia)
+}
+
+pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderNoticia>) -> Result<(), Error> {
+    let mut tx = db.begin().await?;
+
+    // Temporarily move every order out of the normal range
+    for noticia in &order {
+        sqlx::query(
+            "UPDATE noticias
+             SET orden = -$1
+             WHERE id = $2",
         )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-        utils::image::delete_image(
-            path_news_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-        );
-        Ok(Json(new_deleted))
-    } else {
-        Err(StatusCode::NOT_FOUND)
+        .bind(noticia.orden)
+        .bind(noticia.id)
+        .execute(&mut *tx)
+        .await?;
     }
+
+    // Set the final order
+    for noticia in &order {
+        sqlx::query(
+            "UPDATE noticias
+             SET orden = $1
+             WHERE id = $2",
+        )
+        .bind(noticia.orden)
+        .bind(noticia.id)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+
+    Ok(())
 }
 
-pub fn replace_all(state: &AppState, news: Vec<Noticia>) -> Result<(), Box<dyn std::error::Error>> {
-    let _guard = state.news.read().unwrap();
-    write_json(get_route()?, &news)?;
-    Ok(())
+pub async fn update(db: &PgPool, id: i64, update: UpdateNoticia) -> Result<Noticia, sqlx::Error> {
+    let noticia = get_by_id(db, id).await?.ok_or(sqlx::Error::RowNotFound)?;
+
+    let titulo = update.titulo.unwrap_or(noticia.titulo);
+    let contenido = update.contenido.unwrap_or(noticia.contenido);
+    let orden = update.orden.unwrap_or(noticia.orden);
+
+    sqlx::query_as::<_, Noticia>(
+        r#"
+        UPDATE noticias
+        SET
+            titulo = $1,
+            contenido = $2,
+            orden = $3
+        WHERE id = $4
+        RETURNING *
+        "#,
+    )
+    .bind(titulo)
+    .bind(contenido)
+    .bind(orden)
+    .bind(id)
+    .fetch_one(db)
+    .await
+}
+
+pub async fn get_last_4(db: &PgPool) -> ApiResult<Vec<Noticia>> {
+    Ok(sqlx::query_as::<_, Noticia>(
+        r#"
+            SELECT
+                id,
+                orden,
+                titulo,
+                fecha,
+                contenido,
+                created_at
+            FROM noticias
+            ORDER BY created_at DESC
+            LIMIT 4
+            "#,
+    )
+    .fetch_all(db)
+    .await?)
 }

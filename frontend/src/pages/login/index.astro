@@ -2,25 +2,77 @@
 import LayoutLogin from '../../layouts/LayoutLogin.astro'
 import ImgLogo from '../../assets/logo_seno.avif'
 import { Image } from 'astro:assets'
+import ModalCarga from '../../components/Common/ModalCarga.astro'
 ---
 
 <LayoutLogin>
-  <form action="">
+  <ModalCarga />
+  <form id="login-form" method="POST">
     <h1>Inicio de sesión</h1>
     <div class="container-logo">
       <Image src={ImgLogo} alt="Logo de la Fundación SENO" priority />
     </div>
-    <label>
+    <label for="username">
       <p>Usuario</p>
-      <input type="text" min="3" required />
+      <input type="text" name="username" id="username" min="3" required />
     </label>
-    <label>
+    <label for="password">
       <p>Contraseña</p>
-      <input type="password" min="4" required />
+      <input type="password" name="password" id="password" min="3" required />
     </label>
     <input type="submit" />
   </form>
+  <p id="error" class="error"></p>
 </LayoutLogin>
+
+<script>
+  if (localStorage.getItem('token')) {
+    window.location.href = '/plataforma'
+  }
+
+  import { api } from '../../api/login'
+
+  const modalCarga = document.getElementById('modal-carga') as HTMLDivElement
+  const form = document.getElementById('login-form') as HTMLFormElement
+  const error = document.getElementById('error') as HTMLParagraphElement
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    modalCarga.style.display = 'flex'
+    const formData = new FormData(form)
+
+    try {
+      const response: {
+        token: string
+        username: string
+        name: string
+        lastname: string
+        role_name: string
+      } = await api('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.get('username'),
+          password: formData.get('password'),
+        }),
+      })
+
+      localStorage.setItem('name', response.name)
+      localStorage.setItem('username', response.username)
+      localStorage.setItem('token', response.token)
+      localStorage.setItem('role', response.role_name)
+
+      window.location.href = '/plataforma'
+    } catch {
+      error.textContent = 'Usuario o contraseña incorrectos'
+      modalCarga.style.display = 'none'
+    }
+  })
+
+  modalCarga.style.display = 'none'
+</script>
 
 <style>
   form {
@@ -87,5 +139,16 @@ import { Image } from 'astro:assets'
     cursor: pointer;
     background-color: var(--color-primary-hover);
     color: var(--color-background);
+  }
+
+  .error {
+    position: absolute;
+    color: var(--color-primary-hover);
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    bottom: 3rem;
+    font-family: var(--text-font-primary);
+    font-size: 1.2rem;
   }
 </style>

@@ -16,7 +16,7 @@ dotenvy = "0.15"
 image = { version = "0.25", features = ["avif"] }
 argon2 = { version = "0.5", features = ["std"] }
 password-hash = { version = "0.6.1", features = ["getrandom"] }
-jsonwebtoken = "10.4.0"
+jsonwebtoken = "9"
 rand = "0.10.2"
 uuid = { version = "1", features = ["v4"] }
 sqlx = { version = "0.9.0", features = [
@@ -26,3 +26,4 @@ sqlx = { version = "0.9.0", features = [
     "chrono",
     "uuid",
 ] }
+thiserror = "2"

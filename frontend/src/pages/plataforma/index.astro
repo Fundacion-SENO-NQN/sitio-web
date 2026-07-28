@@ -1,0 +1,150 @@
+---
+import LayoutPlataforma from '../../layouts/LayoutPlataforma.astro'
+import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
+import '../../style/service-card.css'
+import PantallaCarga from '../../components/Common/PantallaCarga.astro'
+---
+
+<LayoutPlataforma>
+  <header>
+    <h1>Bienvenid@ <span id="name"></span></h1>
+    <button
+      id="logout"
+      onclick="localStorage.clear(); window.location.href = '/login'"
+    >
+      <SvgLogOut />
+    </button>
+  </header>
+  <main id="main">
+    <PantallaCarga />
+  </main>
+</LayoutPlataforma>
+
+<script>
+  if (!localStorage.getItem('token')) {
+    window.location.href = '/login'
+  }
+
+  import type Service from '../../data/interfaces/Service'
+
+  ;(document.getElementById('name') as HTMLSpanElement).textContent =
+    localStorage.getItem('name')
+
+  const main = document.getElementById('main') as HTMLElement
+
+  try {
+    const token = localStorage.getItem('token')
+    const username = localStorage.getItem('username') || ''
+
+    const response = await fetch(
+      `http://localhost:3000/user/permissions/username/${encodeURIComponent(username)}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    const permissions = await response.json()
+
+    permissions.forEach((service: Service) => {
+      const btn = createBtnService(service)
+      main.appendChild(btn)
+    })
+
+    const pantallaCarga = document.getElementById(
+      'pantalla-carga',
+    ) as HTMLDivElement
+    pantallaCarga.style.display = 'none'
+  } catch (err) {
+    console.error(err)
+    console.error('Error al obtener los permisos del usuario')
+  }
+
+  function createBtnService(service: Service): HTMLButtonElement {
+    const button = document.createElement('button')
+    button.className = 'service-card'
+
+    button.onclick = () => {
+      window.location.href += '/' + service.url
+    }
+
+    const image = document.createElement('img')
+    image.src = `/img_services/${service.id}.avif`
+    image.alt = service.titulo
+
+    image.loading = 'lazy'
+
+    image.onerror = () => {
+      image.remove()
+    }
+
+    const content = document.createElement('div')
+    content.className = 'service-card-content'
+
+    const title = document.createElement('h2')
+    title.textContent = service.titulo
+
+    const description = document.createElement('p')
+    description.textContent = service.name
+
+    content.append(title)
+    content.append(description)
+
+    button.append(image)
+    button.append(content)
+
+    return button
+  }
+</script>
+
+<style>
+  header {
+    border-bottom: 1px solid var(--color-primary-hover);
+    margin-bottom: 1rem;
+    position: relative;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1 {
+    text-align: center;
+    color: var(--color-primary-hover);
+    font-family: var(--text-font-primary);
+  }
+
+  button {
+    height: 3rem;
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 2rem;
+    top: 0.5rem;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    color: var(--color-primary-hover);
+    border: none;
+    transition: transform 0.3s ease;
+  }
+
+  button:hover {
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+
+  button svg {
+    height: 100%;
+    width: 100%;
+  }
+
+  #main {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+</style>

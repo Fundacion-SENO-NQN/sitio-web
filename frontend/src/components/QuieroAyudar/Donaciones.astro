@@ -1,7 +1,10 @@
 ---
-import donacion from '../../data/donacion/donacion.json'
 import type CuentaPago from '../../data/interfaces/CuentaPago'
 import TarjetaDonacion from './Donar/TarjetaDonacion.astro'
+
+import { getCuentasPago } from '../../api/metodo_donar'
+
+const donacion: CuentaPago[] = await getCuentasPago()
 ---
 
 <section class="donaciones">

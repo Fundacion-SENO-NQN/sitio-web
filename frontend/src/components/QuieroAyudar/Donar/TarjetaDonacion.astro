@@ -13,7 +13,7 @@ const images: Record<string, SvgComponent> = import.meta.glob(
 )
 
 const SvgLogo: SvgComponent =
-  images[`../../../assets/icon-donar/icon-${donacion.logo}.svg`]
+  images[`../../../assets/icon-donar/${donacion.id}.svg`]
 ---
 
 <article class="tarjeta">
@@ -27,7 +27,7 @@ const SvgLogo: SvgComponent =
 
   <div class="datos">
     {
-      donacion.datos.map((dato: MetodoPago) => (
+      donacion.informacion.map((dato: MetodoPago) => (
         <div class="dato">
           <span class="titulo">{dato.titulo}</span>
 

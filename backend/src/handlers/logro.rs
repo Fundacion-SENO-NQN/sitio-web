@@ -1,7 +1,9 @@
 use crate::{
     AppState,
-    models::logro::{ChangeOrderLogro, Logro},
-    repositories::logro::replace_all,
+    auth::{auth_user::AuthUser, services::ADMIN_LOGROS},
+    error::api_error::{ApiError, ApiResult},
+    models::logro::{ChangeOrderLogro, Logro, UpdateLogro},
+    repositories,
     utils::{self, logro::path_logro_img},
 };
 use axum::{
@@ -9,239 +11,204 @@ use axum::{
     extract::{Multipart, Path, State},
     http::StatusCode,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 pub async fn get_all_logros(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<Logro>>, StatusCode> {
-    Ok(Json(
-        crate::repositories::logro::get_all(state.as_ref())
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-    ))
+    let logros = repositories::logro::get_all(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(logros))
 }
 
 pub async fn get_logro_by_id(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
+    Path(id): Path<i64>,
 ) -> Result<Json<Logro>, StatusCode> {
-    let logros: Vec<Logro> = crate::repositories::logro::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if let Some(logro) = logros.iter().find(|n| n.id == id) {
-        Ok(Json(logro.clone()))
-    } else {
-        Err(StatusCode::NOT_FOUND)
+    match repositories::logro::get_by_id(&state.db, id)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    {
+        Some(logro) => Ok(Json(logro)),
+        None => Err(StatusCode::NOT_FOUND),
     }
 }
 
-pub async fn post_create_logros(
+pub async fn create_logro(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
     mut multipart: Multipart,
-) -> Result<(StatusCode, Json<Logro>), StatusCode> {
-    let logros: Vec<Logro> = crate::repositories::logro::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let logro_id = logros.iter().map(|n| n.id).max().unwrap_or(0) + 1;
+) -> ApiResult<(StatusCode, Json<Logro>)> {
+    user.require(ADMIN_LOGROS)?;
 
     let mut titulo = String::new();
     let mut contenido = String::new();
+
     let mut image: Option<Vec<u8>> = None;
-    let mut order = 0;
 
     while let Some(field) = multipart
         .next_field()
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
+        .map_err(|_| ApiError::BadRequest("Cuerpo multiparte no válido.".into()))?
     {
-        let title = field.name().unwrap_or("").to_string();
-
-        match title.as_str() {
-            "titulo" => {
-                titulo = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "contenido" => {
-                contenido = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "order" => {
-                order = field
+        match field.name() {
+            Some("titulo") => {
+                titulo = field
                     .text()
                     .await
-                    .map_err(|_| StatusCode::BAD_REQUEST)?
-                    .parse::<u32>()
-                    .map_err(|_| StatusCode::BAD_REQUEST)?;
+                    .map_err(|_| ApiError::BadRequest("Título inválido.".into()))?;
             }
-            "image" => {
+
+            Some("contenido") => {
+                contenido = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Contenido inválido.".into()))?;
+            }
+
+            Some("image") => {
                 image = Some(
                     field
                         .bytes()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
+                        .map_err(|_| ApiError::BadRequest("Imagen inválido.".into()))?
                         .to_vec(),
                 );
             }
+
             _ => {}
         }
     }
-    let image = image.ok_or(StatusCode::BAD_REQUEST)?;
+    let image = image.ok_or(ApiError::BadRequest("La imagen es requerida.".into()))?;
+
+    let logro = repositories::logro::create(&state.db, titulo.as_str(), contenido.as_str()).await?;
+
     utils::image::save_image(
-        path_logro_img(logro_id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+        path_logro_img(logro.id).map_err(|_| ApiError::InternalServerError)?,
         &image,
     )
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let logro = Logro {
-        id: logro_id,
-        titulo,
-        contenido,
-        order,
-    };
-
-    crate::repositories::logro::push(state.as_ref(), logro.clone())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
+    .map_err(|_| ApiError::InternalServerError)?;
     Ok((StatusCode::CREATED, Json(logro)))
 }
 
-pub async fn change_order_logros(
+pub async fn patch_logro(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
-    Json(request): Json<Vec<ChangeOrderLogro>>,
-) -> Result<StatusCode, StatusCode> {
-    let mut logros: Vec<Logro> = crate::repositories::logro::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if request.len() != logros.len() {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    let valid_ids: HashSet<u32> = logros.iter().map(|n| n.id).collect();
-
-    let mut received_ids = HashSet::new();
-
-    let mut logro_orders = HashMap::new();
-
-    for item in &request {
-        if !received_ids.insert(item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if !valid_ids.contains(&item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if logro_orders.insert(item.id, item.order).is_some() {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-    }
-
-    if received_ids != valid_ids {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    for logro in &mut logros {
-        logro.order = *logro_orders.get(&logro.id).unwrap();
-    }
-
-    logros.sort_by_key(|n| n.order);
-
-    crate::repositories::logro::replace_all(&state, logros)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(StatusCode::OK)
-}
-
-pub async fn delete_logro(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Logro>, StatusCode> {
-    let res = crate::repositories::logro::delete(state.as_ref(), id);
-    if res.is_ok() {
-        Ok(res.unwrap())
-    } else {
-        Err(res.unwrap_err())
-    }
-}
-
-pub async fn patch_logros(
-    Path(id): Path<u32>,
-    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
     mut multipart: Multipart,
-) -> Result<Json<Logro>, StatusCode> {
-    let mut logros: Vec<Logro> = crate::repositories::logro::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> ApiResult<Json<Logro>> {
+    user.require(ADMIN_LOGROS)?;
 
     let mut titulo = None;
     let mut contenido = None;
+    let mut orden = None;
     let mut image: Option<Vec<u8>> = None;
-    let mut order = None;
 
     while let Some(field) = multipart
         .next_field()
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
+        .map_err(|_| ApiError::BadRequest("Cuerpo multiparte no válido.".into()))?
     {
-        let name = field.name().unwrap_or("");
-
-        match name {
-            "titulo" => {
-                titulo = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "contenido" => {
-                contenido = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "order" => {
-                order = Some(
+        match field.name() {
+            Some("titulo") => {
+                titulo = Some(
                     field
                         .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .parse::<u32>()
-                        .map_err(|_| StatusCode::BAD_REQUEST)?,
+                        .map_err(|_| ApiError::BadRequest("Título inválido.".into()))?,
                 );
             }
-            "image" => {
+
+            Some("contenido") => {
+                contenido = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Contenido inválido.".into()))?,
+                );
+            }
+
+            Some("orden") => {
+                orden = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Orden inválido.".into()))?
+                        .parse()
+                        .map_err(|_| ApiError::BadRequest("El orden debe de ser un número.".into()))?,
+                );
+            }
+
+            Some("image") => {
                 image = Some(
                     field
                         .bytes()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
+                        .map_err(|_| ApiError::BadRequest("Imagen inválida.".into()))?
                         .to_vec(),
                 );
             }
+
             _ => {}
         }
     }
 
-    let logro = logros
-        .iter_mut()
-        .find(|n| n.id == id)
-        .ok_or(StatusCode::NOT_FOUND)?;
+    let update = UpdateLogro {
+        titulo,
+        contenido,
+        orden,
+    };
 
-    if let Some(t) = titulo {
-        logro.titulo = t;
-    }
+    let logro = repositories::logro::update(&state.db, id, update).await?;
 
-    if let Some(c) = contenido {
-        logro.contenido = c;
-    }
-
-    if let Some(o) = order {
-        logro.order = o;
-    }
-
-    if let Some(img) = image {
+    if let Some(image) = image {
         utils::image::save_image(
-            path_logro_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &img,
+            path_logro_img(logro.id).map_err(|_| ApiError::InternalServerError)?,
+            &image,
         )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|_| ApiError::InternalServerError)?;
     }
 
-    let resp = logro.clone();
+    Ok(Json(logro))
+}
 
-    replace_all(&state, logros).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+pub async fn change_order_logros(
+    AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<Vec<ChangeOrderLogro>>,
+) -> ApiResult<StatusCode> {
+    user.require(ADMIN_LOGROS)?;
 
-    Ok(Json(resp))
+    let mut ids = std::collections::HashSet::new();
+    let mut orders = std::collections::HashSet::new();
+    for item in &request {
+        if !ids.insert(item.id) {
+            return Err(ApiError::BadRequest("Id de logro duplicado.".into()));
+        }
+
+        if !orders.insert(item.orden) {
+            return Err(ApiError::BadRequest("Orden duplicado.".into()));
+        }
+    }
+    repositories::logro::change_order(&state.db, request).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn delete_logro(
+    AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
+) -> ApiResult<Json<Logro>> {
+    user.require(ADMIN_LOGROS)?;
+
+    let logro = repositories::logro::delete(&state.db, id).await?;
+
+    utils::image::delete_image(
+        path_logro_img(logro.id).map_err(|_| ApiError::InternalServerError)?,
+    )
+    .map_err(|_| ApiError::InternalServerError)?;
+
+    Ok(Json(logro))
 }

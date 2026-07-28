@@ -2,16 +2,19 @@
 import Layout from '../../layouts/Layout.astro'
 
 import TituloPag from '../../components/Common/TituloPag.astro'
-import { noticia } from '../../data/noticia/noticia'
 import type Noticia from '../../data/interfaces/Noticia'
 import ItemNoticia from '../../components/Noticias/ItemNoticia.astro'
+
+import { getNoticias } from "../../api/noticias";
+
+const noticias = await getNoticias();
 ---
 
 <Layout pag="Noticias">
   <TituloPag titulo="Noticias" />
   <main>
     <section>
-      {noticia.map((item: Noticia) => <ItemNoticia noticia={item} />)}
+      {noticias.map((item: Noticia) => <ItemNoticia noticia={item} />)}
     </section>
   </main>
 </Layout>

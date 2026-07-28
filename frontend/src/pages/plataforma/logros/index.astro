@@ -1,0 +1,112 @@
+---
+import ModalCarga from '../../../components/Common/ModalCarga.astro'
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+import '../../../style/logros.css'
+---
+
+<LayoutPlataforma>
+  <HeaderPlataforma
+    title="Logros"
+    content="Manejo de los logros mostrados en el sitio Web"
+  />
+  <main class="achievements-page">
+    <section class="toolbar">
+      <button id="btnNewAchievement" class="primary"> + Nuevo Logro </button>
+
+      <button id="btnFeatured" class="secondary"> Logros destacados </button>
+    </section>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+
+          <th>Imagen</th>
+
+          <th>Título</th>
+
+          <th>Destacado</th>
+
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody id="achievementsBody"></tbody>
+    </table>
+
+    <div id="achievementsEmpty" class="empty" hidden>
+      No logros encontrados.
+    </div>
+  </main>
+
+  <!-- ===================================================== -->
+
+  <div id="achievementModal" class="modal hidden">
+    <div class="modalContent">
+      <h2 id="modalTitle">Nuevo Logro</h2>
+
+      <form id="achievementForm">
+        <label>
+          Título
+          <input id="title" required />
+        </label>
+
+        <label>
+          Descripción
+
+          <textarea id="description" rows="8" required></textarea>
+        </label>
+
+        <label>
+          Imagen
+
+          <input id="image" type="file" accept="image/*" />
+        </label>
+
+        <div class="modalButtons">
+          <button id="btnCancel" type="button"> Cancelar </button>
+
+          <button type="submit"> Guardar </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================== -->
+
+  <div id="featuredModal" class="modal hidden">
+    <div class="modalContent">
+      <h2>Logros destacados</h2>
+
+      <p>Seleccioná 3 logros</p>
+
+      <div id="featuredContainer"></div>
+
+      <div class="modalButtons">
+        <button id="btnCancelFeatured" type="button"> Cancelar </button>
+
+        <button id="btnSaveFeatured" type="button"> Guardar </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================== -->
+
+  <div id="deleteModal" class="modal hidden">
+    <div class="modalContent small">
+      <h2>Borrar logro</h2>
+
+      <p id="deleteText"></p>
+
+      <div class="modalButtons">
+        <button id="btnCancelDelete"> Cancelar </button>
+
+        <button id="btnDelete" class="danger"> Borrar </button>
+      </div>
+    </div>
+  </div>
+  <ModalCarga />
+</LayoutPlataforma>
+
+<script type="module" src="/js/logros/logros.js"></script>

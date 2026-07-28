@@ -1,0 +1,35 @@
+---
+import '../style/general.css'
+import '../style/toast.css'
+
+const { titulo } = Astro.props
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Plataforma SENO {titulo ? `- ${titulo}` : ''}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100dvh;
+  }
+
+  body {
+    background-color: var(--color-background);
+    display: flex;
+    flex-direction: column;
+  }
+</style>

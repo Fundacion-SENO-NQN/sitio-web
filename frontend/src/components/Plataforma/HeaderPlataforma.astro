@@ -1,0 +1,75 @@
+---
+import SvgReturn from '../../assets/icon-common/icon-return.svg'
+
+const { title, content } = Astro.props
+---
+
+<header class="page-header">
+  <div>
+    <h1>{title}</h1>
+    <p>{content}</p>
+  </div>
+  <a href="/plataforma">
+    <button class="btn-header" type="button">
+      <SvgReturn />
+    </button>
+  </a>
+</header>
+
+<style>
+  header {
+    margin-bottom: 35px;
+    position: relative;
+    margin-top: 3rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  p {
+    color: var(--color-grey);
+
+    margin-top: 8px;
+  }
+
+  button {
+    height: 3rem;
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 20%;
+    top: 0.5rem;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    border: none;
+    transition: transform 0.3s ease;
+  }
+
+  button:hover {
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+
+  svg {
+    color: var(--color-primary) !important;
+    height: 100%;
+    width: 100%;
+    transition: color 0.3s ease;
+    -webkit-transition: color 0.3s ease;
+    -moz-transition: color 0.3s ease;
+    -ms-transition: color 0.3s ease;
+    -o-transition: color 0.3s ease;
+  }
+
+  button:hover svg {
+    color: var(--color-primary-hover) !important;
+  }
+</style>

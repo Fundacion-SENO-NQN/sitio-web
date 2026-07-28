@@ -1,8 +1,7 @@
-PATCH http://localhost:3000/news/2
-Content-Type: multipart/form-data; boundary=MyBoundary
+POST http://localhost:3000/login HTTP/1.1
+content-type: application/json
 
---MyBoundary
-Content-Disposition: form-data; name="titulo"
-
-New title
---MyBoundary--
+{
+    "username": "SJS395",
+    "password": "Ruso_395"
+}

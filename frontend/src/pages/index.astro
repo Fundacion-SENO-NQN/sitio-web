@@ -2,11 +2,16 @@
 import Layout from '../layouts/Layout.astro'
 import CarouselDonaciones from '../components/Inicio/CarouselDonaciones.astro'
 import TituloPag from '../components/Common/TituloPag.astro'
-import noticia from '../data/noticia/noticia.json'
 import ItemNoticia from '../components/Noticias/ItemNoticia.astro'
-import logros from '../data/logros/logros.json'
-import logrosFav from '../data/logros/logrosFav.json'
 import ItemLogro from '../components/QuienesSomos/Logros/ItemLogro.astro'
+import type Noticia from '../data/interfaces/Noticia'
+import type Logro from '../data/interfaces/Logro'
+
+import { getLogrosFav } from '../api/logros'
+import { getUltimasNoticias } from '../api/noticias'
+
+const logrosFav = await getLogrosFav()
+const noticias = await getUltimasNoticias()
 ---
 
 <Layout pag="Inicio">
@@ -15,16 +20,11 @@ import ItemLogro from '../components/QuienesSomos/Logros/ItemLogro.astro'
   <main>
     <h2>Logros destacados</h2>
     <section class="logros-destacados">
-      {logrosFav.map((num: number) => <ItemLogro logro={logros[num]} />)}
+      {logrosFav.map((item: Logro) => <ItemLogro logro={item} />)}
     </section>
     <h2>Últimas noticias</h2>
     <section class="ultimas-noticias">
-      {
-        noticia
-          .slice(-4)
-          .reverse()
-          .map((item) => <ItemNoticia noticia={item} />)
-      }
+      {noticias.map((item: Noticia) => <ItemNoticia noticia={item} />)}
     </section>
   </main>
 </Layout>
