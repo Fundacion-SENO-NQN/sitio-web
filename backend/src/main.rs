@@ -5,14 +5,17 @@ use crate::{
 use axum::{
     Router,
     http::{
-        Method,
+        HeaderValue, Method,
         header::{AUTHORIZATION, CONTENT_TYPE},
     },
     routing::{get, patch, post, put},
 };
 use dotenvy::dotenv;
 use sqlx::PgPool;
-use std::sync::{Arc, RwLock};
+use std::{
+    env,
+    sync::{Arc, RwLock},
+};
 use tower_http::cors::CorsLayer;
 
 mod auth;
@@ -33,9 +36,45 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Loads .env locally.
+    // On Fly.io, the variables will come from Fly secrets and fly.toml.
     dotenv().ok();
+
+    /* ========================================================
+     * SERVER ADDRESS
+     * ====================================================== */
+
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+
+    let address = format!("0.0.0.0:{port}");
+
+    /* ========================================================
+     * CORS
+     * ====================================================== */
+
+    /*
+     * Example:
+     *
+     * CORS_ALLOWED_ORIGINS=http://localhost:4321,https://plataforma.fundacionseno.org
+     *
+     * Origins must not contain a trailing slash.
+     */
+    let cors_origins =
+        env::var("CORS_ALLOWED_ORIGINS").unwrap_or_else(|_| "http://localhost:4321".to_string());
+
+    let allowed_origins: Vec<HeaderValue> = cors_origins
+        .split(',')
+        .map(str::trim)
+        .filter(|origin| !origin.is_empty())
+        .map(|origin| origin.parse::<HeaderValue>())
+        .collect::<Result<Vec<_>, _>>()?;
+
+    if allowed_origins.is_empty() {
+        return Err("CORS_ALLOWED_ORIGINS cannot be empty".into());
+    }
+
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:4321".parse::<axum::http::HeaderValue>()?)
+        .allow_origin(allowed_origins)
         .allow_methods([
             Method::GET,
             Method::POST,
@@ -44,14 +83,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Method::PUT,
         ])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+
+    /* ========================================================
+     * DATABASE AND STATE
+     * ====================================================== */
+
     let db = db::connection::connect().await?;
+
     let state = Arc::new(AppState {
-        db: db.clone(),
+        db,
         news: RwLock::new(Vec::new()),
         team: RwLock::new(Vec::new()),
         logros: RwLock::new(Vec::new()),
     });
+
+    /* ========================================================
+     * ROUTES
+     * ====================================================== */
+
     let app = Router::new()
+        // Fly.io health endpoint
+        .route("/health", get(|| async { "OK" }))
+        // Noticias
         .route(
             "/noticias",
             get(noticia::get_all_news).post(noticia::create_news),
@@ -64,6 +117,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .route("/noticias/order", put(noticia::change_order_news))
         .route("/ultimas_noticias", get(noticia::get_last_4_news))
+        // Equipo
         .route(
             "/equipo",
             get(equipo::get_all_equipo).post(equipo::create_equipo),
@@ -75,6 +129,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .patch(equipo::patch_equipo),
         )
         .route("/equipo/order", put(equipo::change_order_equipo))
+        // Logros
         .route(
             "/logros",
             get(logro::get_all_logros).post(logro::create_logro),
@@ -86,6 +141,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .patch(logro::patch_logro),
         )
         .route("/logros/order", put(logro::change_order_logros))
+        // Logros favoritos
         .route(
             "/logros_fav",
             get(logro_fav::get_all_logros_fav)
@@ -96,8 +152,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/logros_fav/{id}",
             get(logro_fav::get_by_id_logros_fav).delete(logro_fav::delete_logro_fav),
         )
+        // Imágenes de donación
         .route("/img_donacion", put(img_donation::upload_donation_image))
+        // Autenticación
         .route("/login", post(handlers::auth::login))
+        // Usuarios
         .route(
             "/users",
             post(handlers::user::create_user).get(handlers::user::get_all_users),
@@ -125,6 +184,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/users/password/{id}",
             patch(handlers::user::patch_user_password),
         )
+        // Roles
         .route("/roles", get(handlers::user::get_all_roles))
         .route(
             "/roles/{id}",
@@ -140,7 +200,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/roles-service/{id}",
             get(handlers::user::get_role_with_service_by_id),
         )
+        // Servicios
         .route("/services", get(handlers::service::get_all_services))
+        // Métodos de donación
         .route(
             "/metodos_donacion",
             get(handlers::metodo_donacion::get_all_metodos_donacion)
@@ -152,45 +214,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .patch(handlers::metodo_donacion::patch_metodo_donacion)
                 .delete(handlers::metodo_donacion::delete_metodo_donacion),
         )
+        // Shared state and middleware
         .with_state(state)
         .layer(cors);
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
-        .await
-        .unwrap();
 
-    println!("Backend server running on http://127.0.0.1:3000");
+    /* ========================================================
+     * START SERVER
+     * ====================================================== */
 
-    // let news: Vec<crate::models::noticia::Noticia> = repositories::noticia::get_all()?;
-    // println!("{:?}", news);
+    let listener = tokio::net::TcpListener::bind(&address).await?;
 
-    // println!("{}", utils::password::hash_password("Ruso_395")?);
+    println!("Backend server running on http://{address}");
 
-    // match repositories::user::get_by_username(&db, "SJS395").await {
-    //     Ok(Some(user)) => println!("{:#?}", user),
-    //     Ok(None) => println!("User not found"),
-    //     Err(err) => println!("Database error: {}", err),
-    // }
-
-    // let token =
-    //     auth::jwt::generate_token(5, std::env::var("JWT_SECRET").unwrap().as_str()).unwrap();
-
-    // println!("{token}");
-
-    // let claims =
-    //     auth::jwt::validate_token(&token, std::env::var("JWT_SECRET").unwrap().as_str()).unwrap();
-
-    // println!("{:?}", claims);
-
-    // let user = repositories::user::get_by_username(&db.clone(), "SJS395").await?;
-
-    // println!("{:#?}", user);
-
-    // let permissions =
-    //     repositories::user::get_permissions(&db.clone(), user.as_ref().unwrap().role_id).await?;
-
-    // println!("{:#?}", permissions);
-
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
 
     Ok(())
 }
