@@ -37,7 +37,7 @@ import PantallaCarga from '../../components/Common/PantallaCarga.astro'
     const username = localStorage.getItem('username') || ''
 
     const response = await fetch(
-      `http://localhost:3000/user/permissions/username/${encodeURIComponent(username)}`,
+      `https://sitio-web-fundacion-seno.fly.dev/user/permissions/username/${encodeURIComponent(username)}`,
       {
         method: 'GET',
         headers: {
