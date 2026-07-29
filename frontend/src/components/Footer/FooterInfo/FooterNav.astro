@@ -1,51 +1,104 @@
 ---
 import type Navigation from '../../../data/interfaces/Navigation'
 
-const { items } = Astro.props
+interface Props {
+  items: Navigation[]
+  label: string
+}
+
+const { items, label } = Astro.props
 ---
 
-<nav class="footer-nav">
+<nav class="footer-nav" aria-label={label}>
   <ul class="footer-lista-nav">
-    {items.map((item: Navigation) => <a href={item.href}>{item.name}</a>)}
+    {
+      items.map((item: Navigation) => (
+        <li>
+          <a href={item.href}>{item.name}</a>
+        </li>
+      ))
+    }
   </ul>
 </nav>
 
 <style>
   .footer-lista-nav {
-    list-style: none;
+    margin: 0;
+    padding: 0;
+
     display: flex;
     flex-direction: column;
-    margin: 0;
-    margin-block: 0;
-    padding: 0;
+    align-items: flex-start;
+    gap: 0.45rem;
+
+    list-style: none;
+  }
+
+  .footer-lista-nav li {
+    max-width: 100%;
   }
 
   .footer-lista-nav a {
-    width: max-content;
-    text-decoration: none;
-    color: var(--color-text);
-    margin-top: 0.4rem;
+    max-width: 100%;
+
+    display: inline-block;
     position: relative;
+
+    color: var(--color-text);
+
+    font-family: var(--text-font-primary);
+    line-height: 1.4;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
     transition: color 0.3s ease;
+  }
+
+  .footer-lista-nav a::after {
+    content: '';
+
+    width: 100%;
+    height: 1px;
+
+    position: absolute;
+    bottom: -0.1rem;
+    left: 0;
+
+    background-color: var(--color-secondary);
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform 0.3s ease;
   }
 
   .footer-lista-nav a:hover {
     color: var(--color-secondary-hover);
   }
 
-  .footer-lista-nav a::after {
-    content: '';
-    width: 100%;
-    height: 1px;
-    position: absolute;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-    left: 0;
-    bottom: 0;
-    background-color: var(--color-secondary);
-  }
-
   .footer-lista-nav a:hover::after {
     transform: scaleX(1);
+  }
+
+  .footer-lista-nav a:focus-visible {
+    border-radius: 0.2rem;
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 600px) {
+    .footer-lista-nav {
+      gap: 0.6rem;
+    }
+
+    .footer-lista-nav a {
+      padding-block: 0.15rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-lista-nav a,
+    .footer-lista-nav a::after {
+      transition: none;
+    }
   }
 </style>

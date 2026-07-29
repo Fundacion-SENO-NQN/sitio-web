@@ -3,19 +3,45 @@ import { Image } from 'astro:assets'
 import LogoSeno from '../../assets/logo_seno.avif'
 ---
 
-<a href="/"><Image src={LogoSeno} alt="Logo de la Fundación SENO" priority /></a
->
+<a href="/" class="logo" aria-label="Ir al inicio">
+  <Image src={LogoSeno} alt="Logo de la Fundación SENO" priority />
+</a>
 
 <style>
-  a {
-    height: 6.5rem;
+  .logo {
     width: auto;
-    position: relative;
+    height: clamp(4.5rem, 7vw, 6.5rem);
+
     display: flex;
+    flex-shrink: 0;
+    align-items: center;
   }
 
-  img {
-    height: 100%;
+  .logo img {
     width: auto;
+    height: 100%;
+    max-width: 100%;
+
+    display: block;
+    object-fit: contain;
+  }
+
+  .logo:focus-visible {
+    border-radius: 0.5rem;
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 1100px) {
+    .logo {
+      height: 4.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logo {
+      height: 4rem;
+      max-width: calc(100% - 4.5rem);
+    }
   }
 </style>

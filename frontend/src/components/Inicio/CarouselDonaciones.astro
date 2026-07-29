@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets'
+
 import Img0 from '../../assets/img_donaciones/0.avif'
 import Img1 from '../../assets/img_donaciones/1.avif'
 import Img2 from '../../assets/img_donaciones/2.avif'
@@ -11,97 +12,211 @@ import Img7 from '../../assets/img_donaciones/7.avif'
 import Img8 from '../../assets/img_donaciones/8.avif'
 import Img9 from '../../assets/img_donaciones/9.avif'
 
-const images: ImageMetadata[] = [Img0, Img1, Img2, Img3, Img4, Img5, Img6, Img7, Img8, Img9]
+const images: ImageMetadata[] = [
+  Img0,
+  Img1,
+  Img2,
+  Img3,
+  Img4,
+  Img5,
+  Img6,
+  Img7,
+  Img8,
+  Img9,
+]
+
+/*
+ * We duplicate the first image at the end.
+ * After showing the duplicate, JavaScript returns instantly to the real first
+ * image, creating the infinite-loop effect.
+ */
+const carouselImages = [...images, images[0]]
 ---
 
-<div class="carousel">
-  <div class="track" id="track">
+<section
+  class="carousel"
+  data-carousel
+  data-real-images={images.length}
+  aria-label="Imágenes de donaciones recibidas por la Fundación SENO"
+>
+  <div class="track" data-carousel-track>
     {
-      images.map((image, i) => (
-        <Image
-          src={image}
-          alt="Imagen de donación"
-          class="slide"
-          priority
-        />
-      ))
+      carouselImages.map((image, index) => {
+        const isClone = index === images.length
+
+        return (
+          <Image
+            src={image}
+            alt={
+              isClone
+                ? ''
+                : `Donación recibida por la Fundación SENO, imagen ${index + 1}`
+            }
+            class="slide"
+            loading={index === 0 ? 'eager' : 'lazy'}
+            priority={index === 0}
+            draggable="false"
+            aria-hidden={isClone ? 'true' : undefined}
+          />
+        )
+      })
     }
   </div>
 
   <div class="overlay">
     <p>Tu donación ayuda un montón</p>
   </div>
-</div>
+</section>
 
 <script>
-  window.addEventListener('load', () => {
-    const track: HTMLDivElement = document.getElementById(
-      'track',
-    ) as HTMLDivElement
+  const TRANSITION_TIME = 800
+  const SLIDE_INTERVAL = 5000
 
-    const slides: HTMLImageElement[] = [
-      ...(track.getElementsByClassName(
-        'slide',
-      ) as HTMLCollectionOf<HTMLImageElement>),
-    ]
+  const carousels = document.querySelectorAll<HTMLElement>('[data-carousel]')
 
-    const REAL_IMAGES = slides.length - 5
-    const TRANSITION_TIME = 800
+  carousels.forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('[data-carousel-track]')
+
+    if (!track) return
+
+    const slides = Array.from(track.querySelectorAll<HTMLElement>('.slide'))
+
+    const realImages = Number(carousel.dataset.realImages)
+
+    if (slides.length <= 1 || !realImages) return
 
     let current = 0
+    let intervalId: number | undefined
+    let resizeFrame: number | undefined
 
-    const moveToSlide = () => {
-      current++
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-      track.style.transform = `translate3d(-${slides[current].offsetLeft}px, 0, 0)`
+    const setTransform = () => {
+      const currentSlide = slides[current]
 
-      if (current === REAL_IMAGES) {
-        setTimeout(() => {
-          track.style.transition = 'none'
+      if (!currentSlide) return
 
-          current = 0
-
-          track.style.transform = 'translate3d(0,0,0)'
-
-          // fuerza el reflow
-          track.offsetHeight
-
-          track.style.transition = `transform ${TRANSITION_TIME}ms ease-in-out`
-        }, TRANSITION_TIME)
-      }
+      track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
     }
 
-    setInterval(moveToSlide, 5000)
+    const repositionWithoutAnimation = () => {
+      track.style.transition = 'none'
+
+      setTransform()
+
+      // Forces the browser to apply the transform before restoring animation.
+      track.offsetHeight
+
+      track.style.transition = `transform ${TRANSITION_TIME}ms ease-in-out`
+    }
+
+    const moveToNextSlide = () => {
+      current += 1
+      setTransform()
+    }
+
+    const startCarousel = () => {
+      if (reducedMotion.matches || intervalId !== undefined) return
+
+      intervalId = window.setInterval(moveToNextSlide, SLIDE_INTERVAL)
+    }
+
+    const stopCarousel = () => {
+      if (intervalId === undefined) return
+
+      window.clearInterval(intervalId)
+      intervalId = undefined
+    }
+
+    /*
+     * When the cloned first slide finishes appearing, return to the real first
+     * slide without an animation.
+     */
+    track.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'transform' || current !== realImages) {
+        return
+      }
+
+      current = 0
+      repositionWithoutAnimation()
+    })
+
+    /*
+     * Slide widths change at the responsive breakpoints, so offsetLeft must be
+     * recalculated whenever the carousel changes size.
+     */
+    const resizeObserver = new ResizeObserver(() => {
+      if (resizeFrame !== undefined) {
+        window.cancelAnimationFrame(resizeFrame)
+      }
+
+      resizeFrame = window.requestAnimationFrame(() => {
+        repositionWithoutAnimation()
+      })
+    })
+
+    resizeObserver.observe(carousel)
+
+    carousel.addEventListener('mouseenter', stopCarousel)
+    carousel.addEventListener('mouseleave', startCarousel)
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopCarousel()
+      } else {
+        startCarousel()
+      }
+    })
+
+    reducedMotion.addEventListener('change', () => {
+      if (reducedMotion.matches) {
+        stopCarousel()
+        current = 0
+        repositionWithoutAnimation()
+      } else {
+        startCarousel()
+      }
+    })
+
+    startCarousel()
   })
 </script>
 
 <style>
   .carousel {
+    width: 100%;
+    max-width: 100%;
+    height: clamp(17rem, 35vw, 25rem);
+
     position: relative;
 
-    width: 100%;
-    height: 400px;
-
     overflow: hidden;
+    background-color: var(--color-secondary-light);
   }
 
   .track {
-    display: flex;
-
+    width: 100%;
     height: 100%;
 
-    transition: transform 800ms ease-in-out;
+    display: flex;
 
+    transition: transform 800ms ease-in-out;
     will-change: transform;
   }
 
   .slide {
+    /*
+     * Several images can be partially visible on desktop, preserving the
+     * original continuous-strip appearance.
+     */
+    width: clamp(18rem, 38vw, 32rem);
     height: 100%;
-    width: auto;
 
-    flex-shrink: 0;
+    display: block;
+    flex: 0 0 clamp(18rem, 38vw, 32rem);
 
     object-fit: cover;
+    object-position: center;
 
     user-select: none;
     pointer-events: none;
@@ -114,7 +229,7 @@ const images: ImageMetadata[] = [Img0, Img1, Img2, Img3, Img4, Img5, Img6, Img7,
     display: flex;
     align-items: flex-end;
 
-    background: color-mix(in srgb, var(--color-text) 35%, transparent);
+    background: color-mix(in srgb, var(--color-text) 25%, transparent);
 
     pointer-events: none;
   }
@@ -123,19 +238,67 @@ const images: ImageMetadata[] = [Img0, Img1, Img2, Img3, Img4, Img5, Img6, Img7,
     width: 100%;
 
     margin: 0;
-    padding: 1rem;
-
-    text-align: center;
-
-    font-family: var(--text-font-logo);
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    padding: clamp(0.75rem, 2vw, 1.25rem);
 
     color: var(--color-text);
-
     background: color-mix(
       in srgb,
-      var(--color-secondary-light) 70%,
+      var(--color-secondary-light) 78%,
       transparent
     );
+
+    font-family: var(--text-font-logo);
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  /*
+   * Tablet: each image occupies approximately two thirds of the carousel.
+   */
+  @media (max-width: 900px) {
+    .carousel {
+      height: clamp(16rem, 48vw, 22rem);
+    }
+
+    .slide {
+      width: 65%;
+      flex-basis: 65%;
+    }
+  }
+
+  /*
+   * Mobile: exactly one complete image is visible at a time.
+   */
+  @media (max-width: 600px) {
+    .carousel {
+      height: clamp(15rem, 75vw, 21rem);
+    }
+
+    .slide {
+      width: 100%;
+      flex-basis: 100%;
+    }
+
+    .overlay p {
+      padding: 0.8rem 1rem;
+      font-size: clamp(1.6rem, 8vw, 2.4rem);
+    }
+  }
+
+  @media (max-width: 380px) {
+    .carousel {
+      height: 16rem;
+    }
+
+    .overlay p {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      transition: none;
+    }
   }
 </style>

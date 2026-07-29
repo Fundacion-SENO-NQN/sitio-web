@@ -9,37 +9,48 @@ import contacto from '../../data/contacto/contacto.json'
 ---
 
 <section class="section-contacto" id="contacto">
-  <SvgCorazon class="img-footer-contacto" />
-  <div>
-    <h2>Estamos para estar junto a vos</h2>
-    <p>Si necesitas ayuda o tenés dudas,<br />no dudes en escribirnos</p>
+  <div class="contacto-presentacion">
+    <div class="corazon-container">
+      <SvgCorazon class="img-footer-contacto" />
+    </div>
+
+    <div>
+      <h2>Estamos para estar junto a vos</h2>
+
+      <p>Si necesitás ayuda o tenés dudas, no dudes en escribirnos.</p>
+    </div>
   </div>
-  <div class="separador"></div>
+
   <ul class="lista-contacto">
     <li class="container-contacto">
       <div class="container-svg-contacto">
         <SvgWhatsapp class="svg-whatsapp" />
       </div>
+
       <div class="container-contacto-info">
         <h3>WhatsApp</h3>
         <p>{contacto.whatsapp}</p>
       </div>
     </li>
+
     <li class="container-contacto">
       <div class="container-svg-contacto">
         <SvgTelefono class="svg-phone" />
       </div>
+
       <div class="container-contacto-info">
         <h3>Teléfono</h3>
         <p>{contacto.telefono}</p>
       </div>
     </li>
+
     <li class="container-contacto">
       <div class="container-svg-contacto">
         <SvgEmail class="svg-email" />
       </div>
+
       <div class="container-contacto-info">
-        <h3>Correo Electrónico</h3>
+        <h3>Correo electrónico</h3>
         <p>{contacto.email}</p>
       </div>
     </li>
@@ -48,17 +59,52 @@ import contacto from '../../data/contacto/contacto.json'
 
 <style>
   .section-contacto {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 1400px);
+    padding: clamp(1.25rem, 3vw, 2rem);
+
+    display: grid;
+    grid-template-columns: minmax(17rem, 0.9fr) minmax(0, 1.7fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+
+    border-radius: 1rem;
+    background-color: var(--color-secondary-light);
+
+    font-family: var(--text-font-primary);
+  }
+
+  .contacto-presentacion {
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .corazon-container {
+    width: 3rem;
+    height: 3rem;
+
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    background-color: var(--color-secondary-light);
-    border-radius: 1rem;
-    width: 97%;
-    font-size: 1rem;
-    position: relative;
-    padding: 1rem;
-    padding-left: 5rem;
-    font-family: var(--text-font-primary);
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background-color: var(--color-background);
+  }
+
+  .img-footer-contacto {
+    width: 1.75rem;
+    height: 1.75rem;
+
+    fill: none;
+    stroke: var(--color-secondary);
+    stroke-width: 2;
   }
 
   .section-contacto h2,
@@ -67,51 +113,72 @@ import contacto from '../../data/contacto/contacto.json'
     margin: 0;
   }
 
-  .separador {
-    width: 1px;
-    height: 6rem;
-    background-color: var(--color-secondary);
+  .section-contacto h2 {
+    margin-bottom: 0.4rem;
+
+    color: var(--color-text);
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  .contacto-presentacion p {
+    line-height: 1.5;
   }
 
   .lista-contacto {
-    display: flex;
-    list-style: none;
-    width: inherit;
-    justify-content: space-evenly;
+    min-width: 0;
     margin: 0;
-    margin-block: 0;
     padding: 0;
-  }
+    padding-left: clamp(1.5rem, 3vw, 3rem);
 
-  .img-footer-contacto {
-    height: 2rem;
-    width: 2rem;
-    stroke: var(--color-secondary);
-    fill: none;
-    stroke-width: 2;
-    position: absolute;
-    left: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 2rem);
+
+    border-left: 1px solid var(--color-secondary);
+    list-style: none;
   }
 
   .container-contacto {
+    min-width: 0;
+
     display: flex;
     align-items: center;
-  }
-
-  .container-contacto svg {
-    height: 1.5rem;
-    width: 1.5rem;
+    gap: 0.8rem;
   }
 
   .container-svg-contacto {
-    height: 2.7rem;
     width: 2.7rem;
-    border-radius: 100%;
-    background-color: var(--color-background);
+    height: 2.7rem;
+
     display: flex;
+    flex: 0 0 2.7rem;
     align-items: center;
     justify-content: center;
-    margin-right: 1rem;
+
+    border-radius: 50%;
+    background-color: var(--color-background);
+  }
+
+  .container-contacto svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .container-contacto-info {
+    min-width: 0;
+  }
+
+  .container-contacto-info h3 {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+  }
+
+  .container-contacto-info p {
+    overflow-wrap: anywhere;
+
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .svg-whatsapp {
@@ -119,14 +186,68 @@ import contacto from '../../data/contacto/contacto.json'
   }
 
   .svg-phone {
+    fill: none;
     stroke: var(--color-secondary);
     stroke-width: 2;
-    fill: none;
   }
 
   .svg-email {
     fill: none;
     stroke: var(--color-secondary);
     stroke-width: 2;
+  }
+
+  @media (max-width: 1050px) {
+    .section-contacto {
+      grid-template-columns: 1fr;
+    }
+
+    .lista-contacto {
+      padding-top: 1.5rem;
+      padding-left: 0;
+
+      border-top: 1px solid var(--color-secondary);
+      border-left: none;
+    }
+  }
+
+  @media (max-width: 750px) {
+    .lista-contacto {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .container-contacto {
+      padding: 0.75rem;
+
+      border-radius: 0.75rem;
+      background-color: color-mix(
+        in srgb,
+        var(--color-background) 45%,
+        transparent
+      );
+    }
+  }
+
+  @media (max-width: 480px) {
+    .section-contacto {
+      width: calc(100% - 1.5rem);
+      padding: 1.25rem;
+    }
+
+    .contacto-presentacion {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .corazon-container {
+      margin-inline: auto;
+    }
+
+    .container-svg-contacto {
+      width: 2.5rem;
+      height: 2.5rem;
+      flex-basis: 2.5rem;
+    }
   }
 </style>

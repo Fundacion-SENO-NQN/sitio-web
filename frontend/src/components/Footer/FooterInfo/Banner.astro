@@ -3,18 +3,35 @@ import { Image } from 'astro:assets'
 import Banner from '../../../assets/banner_seno.avif'
 ---
 
-<a href="./">
-  <Image
-    class="banner-seno"
-    src={Banner}
-    alt="Banner de la Fundación SENO"
-    loading="lazy"
-  />
+<a href="/" class="banner-link" aria-label="Ir al inicio de Fundación SENO">
+  <Image class="banner-seno" src={Banner} alt="Fundación SENO" loading="lazy" />
 </a>
 
 <style>
+  .banner-link {
+    width: min(100%, 20rem);
+
+    display: block;
+
+    border-radius: 0.5rem;
+  }
+
   .banner-seno {
-    height: 4rem;
-    width: auto;
+    width: 100%;
+    height: auto;
+
+    display: block;
+    object-fit: contain;
+  }
+
+  .banner-link:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 1100px) {
+    .banner-link {
+      width: min(100%, 18rem);
+    }
   }
 </style>
