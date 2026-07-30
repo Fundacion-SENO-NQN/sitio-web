@@ -1,26 +1,63 @@
 ---
 import quieroAyudar from '../../data/quieroAyudar/quieroAyudar.json'
 import type QuieroAyudar from '../../data/interfaces/QuieroAyudar'
-import ItemQuieroAyudar from '../../components/QuieroAyudar/ItemQuieroAyudar.astro'
+import ItemQuieroAyudar from './ItemQuieroAyudar.astro'
 ---
 
-<nav>
-  <ul>
-    {quieroAyudar.map((item: QuieroAyudar) => <ItemQuieroAyudar item={item} />)}
+<nav class="navegacion" aria-label="Formas de ayudar">
+  <ul class="navegacion__lista">
+    {
+      quieroAyudar.map((item: QuieroAyudar) => (
+        <li class="navegacion__item">
+          <ItemQuieroAyudar item={item} />
+        </li>
+      ))
+    }
   </ul>
 </nav>
 
 <style>
-  nav,
-  ul {
-    width: 100%;
+  .navegacion {
+    box-sizing: border-box;
+    width: min(100%, 80rem);
+    margin-inline: auto;
+    padding-inline: clamp(0.75rem, 3vw, 2rem);
   }
 
-  ul {
-    list-style: none;
+  .navegacion__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+
+    width: 100%;
+    margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
+
+    list-style: none;
     font-family: var(--text-font-primary);
+  }
+
+  .navegacion__item {
+    min-width: 0;
+  }
+
+  /*
+   * Hace que el enlace o elemento principal de ItemQuieroAyudar
+   * ocupe toda la celda.
+   */
+  .navegacion__item :global(a) {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 35rem) {
+    .navegacion {
+      padding-inline: 0.75rem;
+    }
+
+    .navegacion__lista {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

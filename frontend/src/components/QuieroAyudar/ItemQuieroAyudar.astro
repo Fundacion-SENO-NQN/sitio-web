@@ -7,64 +7,160 @@ const icons: Record<string, string> = import.meta.glob(
     query: '?raw',
     import: 'default',
     eager: true,
-  },
+  }
 )
 
-const icono = icons[`../../assets/icon-quiero-ayudar/${item.img}.svg`] as string
+const iconPath = `../../assets/icon-quiero-ayudar/${item.img}.svg`
+const icono = icons[iconPath]
 ---
 
-<a href={item.url}>
-  <li>
-    <p>{item.titulo}</p>
-    <Fragment set:html={icono} />
-  </li>
+<a
+  class="item"
+  href={item.url}
+  aria-label={item.titulo}
+>
+  <span class="item__titulo">{item.titulo}</span>
+
+  <span class="item__icono" aria-hidden="true">
+    {
+      icono ? (
+        <Fragment set:html={icono} />
+      ) : (
+        <span class="item__sin-icono">?</span>
+      )
+    }
+  </span>
 </a>
 
 <style>
-  a {
-    text-decoration: none;
-  }
-
-  li {
-    width: 10rem;
+  .item {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding-bottom: 1rem;
-    border: 1px solid var(--color-primary-hover);
-  }
+    align-items: stretch;
 
-  a:not(:first-child) li {
-    border-left: none;
-  }
-
-  li p {
-    margin: 0;
-    background-color: var(--color-primary-hover);
     width: 100%;
-    height: 2rem;
+    min-width: 0;
+    min-height: 8rem;
+
+    overflow: hidden;
+    border: 1px solid var(--color-primary-hover);
+    border-radius: 0.75rem;
+    background-color: var(--color-background);
+    color: var(--color-primary-hover);
+
+    text-decoration: none;
+
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease,
+      transform 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .item__titulo {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-background);
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-  }
 
-  li :global(svg) {
-    height: 3rem;
-    color: var(--color-primary);
-    transition: color 0.3s ease;
-  }
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
 
-  li:hover {
     background-color: var(--color-primary-hover);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    color: var(--color-background);
+
+    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    text-wrap: balance;
   }
 
-  li:hover :global(svg) {
+  .item__icono {
+    display: grid;
+    flex: 1;
+    place-items: center;
+
+    min-height: 5rem;
+    padding: 1rem;
+
+    color: var(--color-primary);
+  }
+
+  .item__icono :global(svg) {
+    display: block;
+    width: clamp(2.75rem, 7vw, 4rem);
+    height: clamp(2.75rem, 7vw, 4rem);
+
+    color: currentColor;
+
+    transition:
+      color 200ms ease,
+      transform 200ms ease;
+  }
+
+  .item__icono :global(svg *) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .item__sin-icono {
+    display: grid;
+    place-items: center;
+
+    width: 3rem;
+    height: 3rem;
+
+    border: 2px solid currentColor;
+    border-radius: 50%;
+
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .item:hover {
+    border-color: var(--color-primary-hover);
+    background-color: var(--color-primary-hover);
     color: var(--color-background);
-    stroke-width: 5;
+
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 12%);
+  }
+
+  .item:hover .item__icono :global(svg) {
+    transform: scale(1.08);
+  }
+
+  .item:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 35rem) {
+    .item {
+      min-height: 7rem;
+    }
+
+    .item__titulo {
+      min-height: 2.5rem;
+      font-size: 0.95rem;
+    }
+
+    .item__icono {
+      min-height: 4.5rem;
+      padding: 0.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .item,
+    .item__icono :global(svg) {
+      transition: none;
+    }
+
+    .item:hover,
+    .item:hover .item__icono :global(svg) {
+      transform: none;
+    }
   }
 </style>

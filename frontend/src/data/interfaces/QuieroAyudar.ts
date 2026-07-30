@@ -1,5 +1,5 @@
 export default interface QuieroAyudar {
-  titulo: string
+  name: string
   img: string
-  url: string
+  href: string
 }
