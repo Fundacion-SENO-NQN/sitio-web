@@ -27,5 +27,9 @@ backend/Cargo.lock
 backend/target/
 backend/idk.http
 backend/test.png
+backend/Dockerfile
 
 test/
+
+frontend/.vscode
+frontend/.wrangler

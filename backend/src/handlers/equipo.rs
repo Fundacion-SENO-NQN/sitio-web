@@ -98,7 +98,7 @@ pub async fn create_equipo(
             _ => {}
         }
     }
-
+    println!("antes del image");
     let image = image.ok_or(ApiError::BadRequest("La imagen es requerida".into()))?;
     println!("{:?}", image);
     let member =
