@@ -7,6 +7,7 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
 import SvgReloj from '../../assets/icon-common/icon-reloj.svg'
 import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
 ---
 
 <Layout pag="¿Dónde estamos?">
@@ -60,10 +61,7 @@ import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
         >
           Abrir en Google Maps
 
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M7 17 17 7"></path>
-            <path d="M7 7h10v10"></path>
-          </svg>
+          <SvgFlecha />
         </a>
       </div>
 
@@ -213,6 +211,7 @@ import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
 
   .ubicacion__enlace svg {
     width: 1.2rem;
+    transform: rotate(45deg);
   }
 
   .ubicacion__mapa {
