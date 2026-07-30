@@ -1,0 +1,257 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/miembros.css'
+---
+
+<LayoutPlataforma>
+  <HeaderPlataforma
+    title="Miembros"
+    content="Manejo de los miembros mostrados en el sitio Web"
+  />
+  <main class="miembrosPage">
+    <section class="toolbar" aria-label="Herramientas de miembros">
+      <div class="toolbarLeft">
+        <label class="searchWrapper">
+          <span class="srOnly">Buscar miembros</span>
+
+          <input
+            id="searchMembers"
+            class="search"
+            type="search"
+            placeholder="Buscar por nombre, apellido o puesto..."
+            autocomplete="off"
+          />
+        </label>
+      </div>
+
+      <div class="toolbarRight">
+        <button id="btnNewMember" class="button buttonPrimary" type="button">
+          <span aria-hidden="true">+</span>
+          Nuevo miembro
+        </button>
+      </div>
+    </section>
+
+    <section class="tableContainer" aria-labelledby="membersTableTitle">
+      <h2 id="membersTableTitle" class="srOnly">Lista de miembros</h2>
+
+      <div class="tableWrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Orden</th>
+              <th scope="col">Foto</th>
+
+              <th
+                id="sortName"
+                class="sortable"
+                scope="col"
+                tabindex="0"
+                role="button"
+              >
+                Nombre
+              </th>
+
+              <th scope="col">Puesto</th>
+              <th scope="col">Descripción</th>
+
+              <th
+                id="sortDate"
+                class="sortable"
+                scope="col"
+                tabindex="0"
+                role="button"
+              >
+                Fecha
+              </th>
+
+              <th scope="col">
+                <span class="srOnly">Acciones</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="membersBody"></tbody>
+        </table>
+      </div>
+
+      <div id="membersEmpty" class="emptyState hidden">
+        <h2>No hay miembros</h2>
+
+        <p>Agregá el primer miembro del equipo para comenzar.</p>
+
+        <button
+          id="btnEmptyNewMember"
+          class="button buttonPrimary"
+          type="button"
+        >
+          Agregar miembro
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Create/Edit modal -->
+  <div
+    id="memberModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="memberModalTitle"
+  >
+    <div class="modalContent">
+      <header class="modalHeader">
+        <h2 id="memberModalTitle">Nuevo miembro</h2>
+
+        <button
+          id="btnCloseMemberModal"
+          class="modalClose"
+          type="button"
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </header>
+
+      <form id="memberForm" class="form">
+        <div class="formGrid">
+          <div class="formGroup">
+            <label for="memberName"> Nombre </label>
+
+            <input
+              id="memberName"
+              name="nombre"
+              type="text"
+              maxlength="80"
+              autocomplete="given-name"
+              required
+            />
+          </div>
+
+          <div class="formGroup">
+            <label for="memberLastName"> Apellido </label>
+
+            <input
+              id="memberLastName"
+              name="apellido"
+              type="text"
+              maxlength="80"
+              autocomplete="family-name"
+              required
+            />
+          </div>
+
+          <div class="formGroup full">
+            <label for="memberPosition"> Puesto o función </label>
+            <input
+              id="memberPosition"
+              name="puesto"
+              type="text"
+              maxlength="120"
+              placeholder="Ej.: Presidente, secretari@, tallerista..."
+              required
+            />
+          </div>
+
+          <div class="formGroup full">
+            <label for="memberDescription"> Descripción </label>
+
+            <textarea
+              id="memberDescription"
+              name="descripcion"
+              maxlength="1500"
+              placeholder="Breve descripción del miembro y su función..."
+              required></textarea>
+
+            <small class="fieldHelp"> Máximo 1500 caracteres. </small>
+          </div>
+
+          <div class="formGroup full">
+            <label for="memberImage"> Fotografía </label>
+
+            <label id="memberImageUpload" class="imageUpload" for="memberImage">
+              <input
+                id="memberImage"
+                name="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+              />
+
+              <img
+                id="memberImagePreview"
+                class="imagePreview hidden"
+                src=""
+                alt="Vista previa de la fotografía"
+              />
+
+              <div id="memberImagePlaceholder">
+                <strong>Seleccionar fotografía</strong>
+
+                <p>JPG, PNG, WebP o AVIF</p>
+              </div>
+            </label>
+
+            <small id="memberImageHelp" class="fieldHelp">
+              La fotografía es obligatoria al crear un miembro.
+            </small>
+          </div>
+        </div>
+
+        <footer class="modalFooter">
+          <button id="btnCancelMember" class="button buttonGhost" type="button">
+            Cancelar
+          </button>
+
+          <button id="btnSaveMember" class="button buttonPrimary" type="submit">
+            Guardar
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete modal -->
+  <div
+    id="deleteMemberModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="deleteMemberTitle"
+  >
+    <div class="modalContent deleteModal">
+      <header class="modalHeader">
+        <h2 id="deleteMemberTitle">Eliminar miembro</h2>
+      </header>
+
+      <div class="deleteBody">
+        <p id="deleteMemberText">¿Seguro que querés eliminar este miembro?</p>
+      </div>
+
+      <footer class="modalFooter">
+        <button
+          id="btnCancelDeleteMember"
+          class="button buttonGhost"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button id="btnDeleteMember" class="button buttonDanger" type="button">
+          Eliminar
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <div
+    id="toastContainer"
+    class="toastContainer"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+  </div>
+</LayoutPlataforma>
+
+<script type="module" src="/js/miembros/miembros.js"></script>

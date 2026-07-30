@@ -19,10 +19,7 @@ const equipo = await getEquipo()
     <ul class="lista-equipo">
       {
         equipo.map((item, index) => (
-          <EquipoItem
-            integrante={item}
-            priority={index === 0}
-          />
+          <EquipoItem integrante={item} priority={index === 0} />
         ))
       }
     </ul>

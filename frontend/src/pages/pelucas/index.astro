@@ -4,6 +4,7 @@ import NavegacionPelucas from '../../components/Pelucas/NavegacionPelucas.astro'
 import Layout from '../../layouts/Layout.astro'
 import Image from 'astro/components/Image.astro'
 import ImgTaller from '../../assets/img_taller/confeccion_pelucas.avif'
+import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
 ---
 
 <Layout pag="Pelucas">
@@ -33,10 +34,7 @@ import ImgTaller from '../../assets/img_taller/confeccion_pelucas.avif'
           </p>
 
           <div class="pelucas__destacado">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2L15 8L22 9L17 14L18 22L12 19L6 22L7 14L2 9L9 8Z"
-              ></path>
-            </svg>
+            <SvgEstrella />
 
             <p>
               <strong
@@ -158,7 +156,7 @@ import ImgTaller from '../../assets/img_taller/confeccion_pelucas.avif'
   .pelucas__destacado svg {
     width: 1.75rem;
     height: 1.75rem;
-    fill: #f2b400;
+    color: #f2b400;
     flex-shrink: 0;
   }
 

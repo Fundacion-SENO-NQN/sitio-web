@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets'
 import type { ImageMetadata } from 'astro'
 import type Logro from '../../../data/interfaces/Logro'
+import SvgFlechaSimple from '../../../assets/icon-common/icon-flecha-simple.svg'
 
 interface Props {
   logro: Logro
@@ -25,27 +26,14 @@ const image: ImageMetadata =
   <input type="checkbox" />
 
   <div class="cabecera">
-    <Image
-      src={image}
-      alt={logro.titulo}
-      class="imagen-logro"
-      loading="lazy"
-    />
+    <Image src={image} alt={logro.titulo} class="imagen-logro" loading="lazy" />
 
     <div class="texto">
       <h3>{logro.titulo}</h3>
     </div>
 
     <span class="flecha" aria-hidden="true">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-      >
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      <SvgFlechaSimple />
     </span>
   </div>
 

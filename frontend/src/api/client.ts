@@ -1,4 +1,4 @@
-const API: string = 'https://sitio-web-fundacion-seno.fly.dev'
+const API: string = 'https://sitio-web-fundacion-seno.fly.dev:8080'
 
 if (!API) {
   throw new Error(
@@ -9,7 +9,6 @@ if (!API) {
 const BASE_URL: string = API.replace(/\/+$/, '')
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  console.log(BASE_URL)
   const response = await fetch(`${BASE_URL}${path}`, {
     ...init,
   })

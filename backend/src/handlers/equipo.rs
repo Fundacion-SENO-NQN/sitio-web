@@ -100,7 +100,7 @@ pub async fn create_equipo(
     }
 
     let image = image.ok_or(ApiError::BadRequest("La imagen es requerida".into()))?;
-
+    println!("{:?}", image);
     let member =
         repositories::equipo::create(&state.db, orden, nombre, apellido, puesto, descripcion)
             .await?;
@@ -250,6 +250,7 @@ pub async fn delete_equipo(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i64>,
 ) -> ApiResult<Json<Equipo>> {
+    println!("entre al delete");
     user.require(ADMIN_MIEMBROS)?;
 
     let member = repositories::equipo::delete(&state.db, id).await?;

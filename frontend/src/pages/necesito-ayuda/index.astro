@@ -7,6 +7,10 @@ import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
 import SvgMensaje from '../../assets/icon-common/icon-mensaje.svg'
 import SvgMensajeCheck from '../../assets/icon-common/icon-mensaje-check.svg'
 import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
+import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
+import SvgInformacion from '../../assets/icon-common/icon-info.svg'
+
+import SvgCasa from '../../assets/icon-voluntariado/icon-casa.svg'
 
 import SvgWhatsApp from '../../assets/icon-contacto/icon-whatsapp.svg'
 import SvgEmail from '../../assets/icon-contacto/icon-email.svg'
@@ -39,10 +43,7 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
           <a class="boton boton--principal" href="#contacto">
             Ver medios de contacto
 
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12h14"></path>
-              <path d="m13 6 6 6-6 6"></path>
-            </svg>
+            <SvgFlecha />
           </a>
 
           <a class="boton boton--secundario" href="#como-contactarnos">
@@ -149,11 +150,7 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
         <article class="motivo">
           <div class="motivo__icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M4 10 12 4l8 6"></path>
-              <path d="M6 9v11h12V9"></path>
-              <path d="M10 20v-6h4v6"></path>
-            </svg>
+            <SvgCasa />
           </div>
 
           <h3>Coordinar una visita</h3>
@@ -166,12 +163,7 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
         <article class="motivo">
           <div class="motivo__icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M12 16v.01"></path>
-              <path d="M9.8 9a2.3 2.3 0 1 1 3.6 1.9c-.9.6-1.4 1.1-1.4 2.1"
-              ></path>
-            </svg>
+            <SvgInformacion />
           </div>
 
           <h3>Conocer la Fundación</h3>
@@ -306,10 +298,7 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
       <a class="boton llamada__boton" href="/contacto">
         Contactar a la Fundación
 
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 12h14"></path>
-          <path d="m13 6 6 6-6 6"></path>
-        </svg>
+        <SvgFlecha />
       </a>
     </aside>
   </main>
@@ -449,17 +438,16 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
   .boton svg {
     width: 20px;
     flex-shrink: 0;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
   }
 
   .boton--principal {
     background: var(--help-primary-dark);
     color: #fff;
     box-shadow: 0 12px 28px rgb(37 89 127 / 22%);
+  }
+
+  .boton--principal svg {
+    transform: rotate(90deg);
   }
 
   .boton--secundario {
@@ -499,11 +487,6 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
   .ilustracion__corazon svg {
     width: 66px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.4;
   }
 
   .ilustracion__mensaje {
@@ -521,11 +504,6 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
   .ilustracion__mensaje svg {
     width: 35px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
   }
 
   .ilustracion__mensaje--uno {
@@ -570,11 +548,6 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
   .ilustracion__personas svg {
     width: 31px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
   }
 
   .contacto-directo {
@@ -703,11 +676,6 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
   .motivo__icono svg {
     width: 31px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
   }
 
   .motivo h3 {
@@ -844,11 +812,6 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
 
   .llamada__icono svg {
     width: 40px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.5;
   }
 
   .llamada .etiqueta {
@@ -871,6 +834,10 @@ import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
     border-color: #fff;
     background: #fff;
     color: var(--help-primary-dark);
+  }
+
+  .llamada__boton svg {
+    transform: rotate(90deg);
   }
 
   @media (hover: hover) {

@@ -1,0 +1,1328 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
+import SvgEmpresa from '../../../assets/icon-quiero-ayudar/icon-empresa.svg'
+import SvgCorazon from '../../../assets/icon-common/icon-corazon.svg'
+import SvgCasa from '../../../assets/icon-voluntariado/icon-casa.svg'
+import SvgCheck from '../../../assets/icon-donar-cosas/icon-check.svg'
+import SvgTarjeta from '../../../assets/icon-common/icon-tarjeta.svg'
+import SvgCaja from '../../../assets/icon-quiero-ayudar/icon-caja.svg'
+import SvgComida from '../../../assets/icon-donar-cosas/icon-comida.svg'
+import SvgCalendario from '../../../assets/icon-noticias/icon-calendario.svg'
+import SvgDocumento from '../../../assets/icon-voluntariado/icon-contrato-cuadrado.svg'
+import SvgDescargar from '../../../assets/icon-common/icon-descargar.svg'
+import SvgInformacion from '../../../assets/icon-common/icon-info.svg'
+import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
+---
+
+<Layout pag="Empresas">
+  <NavegacionQuieroAyudar pag="6" />
+  <TituloPag titulo="Empresas" />
+
+  <main class="empresas">
+    <section class="hero" aria-labelledby="titulo-empresas">
+      <div class="hero__contenido">
+        <span class="etiqueta">Empresas que acompañan</span>
+
+        <h1 id="titulo-empresas">
+          Construyamos juntos una colaboración con propósito
+        </h1>
+
+        <p class="hero__destacado">
+          Las empresas pueden colaborar con Fundación SENO mediante acuerdos
+          adaptados a sus posibilidades, recursos y objetivos solidarios.
+        </p>
+
+        <p>
+          Cada propuesta se conversa directamente con la Fundación y se
+          establece de manera particular, respetando nuestro estatuto y las
+          necesidades de ambas partes.
+        </p>
+
+        <div class="hero__acciones">
+          <a class="boton boton--principal" href="/contacto">
+            Comunicarse con la Fundación
+
+            <SvgFlecha style="transform:rotate(90deg)"/>
+          </a>
+
+          <a class="boton boton--secundario" href="#formas-colaboracion">
+            Formas de colaborar
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <div class="ilustracion">
+          <span class="ilustracion__empresa">
+            <SvgEmpresa />
+          </span>
+
+          <span class="ilustracion__corazon">
+            <SvgCorazon />
+          </span>
+
+          <span class="ilustracion__fundacion">
+            <SvgCasa/>
+          </span>
+
+          <span class="ilustracion__linea ilustracion__linea--uno"></span>
+          <span class="ilustracion__linea ilustracion__linea--dos"></span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="acuerdo-principal"
+      aria-labelledby="acuerdos-personalizados"
+    >
+      <div class="acuerdo-principal__icono" aria-hidden="true">
+        <SvgCheck />
+      </div>
+
+      <div>
+        <span class="etiqueta">Acuerdos personalizados</span>
+
+        <h2 id="acuerdos-personalizados">
+          Cada colaboración se conversa de manera particular
+        </h2>
+
+        <p>
+          No existe una única modalidad de participación. La Fundación escucha
+          la propuesta de cada empresa y acuerda las condiciones, el destino de
+          la ayuda y la documentación necesaria para llevarla adelante.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="formas-colaboracion"
+      class="colaboraciones"
+      aria-labelledby="titulo-colaboraciones"
+    >
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Distintas maneras de acompañar</span>
+
+        <h2 id="titulo-colaboraciones">¿Cómo puede colaborar una empresa?</h2>
+
+        <p>
+          Los acuerdos pueden incluir aportes económicos, bienes, alimentos,
+          servicios u otras formas de colaboración que resulten útiles para la
+          misión de Fundación SENO.
+        </p>
+      </header>
+
+      <div class="colaboraciones__grid">
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgTarjeta />
+          </div>
+
+          <h3>Donaciones monetarias</h3>
+
+          <p>
+            Aportes económicos únicos o periódicos destinados a sostener las
+            actividades y necesidades de la Fundación.
+          </p>
+        </article>
+
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgCaja />
+          </div>
+
+          <h3>Bienes y elementos</h3>
+
+          <p>
+            Muebles, equipamiento, tecnología, materiales, insumos y otros
+            objetos que puedan utilizarse en la casa o en actividades.
+          </p>
+        </article>
+
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgComida />
+          </div>
+
+          <h3>Alimentos</h3>
+
+          <p>
+            Productos alimenticios para acompañar las actividades de la
+            Fundación, las familias o las organizaciones con las que
+            colaboramos.
+          </p>
+        </article>
+
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgEngranajes />
+          </div>
+
+          <h3>Servicios y recursos</h3>
+
+          <p>
+            Trabajo profesional, transporte, difusión, impresión, logística u
+            otros servicios que permitan desarrollar un proyecto.
+          </p>
+        </article>
+
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgCalendario />
+          </div>
+
+          <h3>Eventos y campañas</h3>
+
+          <p>
+            Participación, patrocinio o provisión de recursos para eventos y
+            acciones destinadas a recaudar fondos.
+          </p>
+        </article>
+
+        <article class="colaboracion">
+          <div class="colaboracion__icono" aria-hidden="true">
+            <SvgCorazon />
+          </div>
+
+          <h3>Otras propuestas</h3>
+
+          <p>
+            También pueden presentarse otras iniciativas. Cada idea será
+            conversada y evaluada directamente con la Fundación.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="principios" aria-labelledby="titulo-principios">
+      <div class="principios__contenido">
+        <span class="etiqueta">Colaboración responsable</span>
+
+        <h2 id="titulo-principios">
+          Los acuerdos deben respetar el estatuto de la Fundación
+        </h2>
+
+        <p>
+          Toda colaboración se analiza teniendo en cuenta los objetivos, la
+          misión y las normas institucionales de Fundación SENO.
+        </p>
+
+        <p>
+          Según el tipo de propuesta, podrán establecerse condiciones, plazos,
+          documentación, responsabilidades y destinos específicos para los
+          recursos aportados.
+        </p>
+      </div>
+
+      <div class="principios__lista">
+        <div class="principio">
+          <SvgCheck />
+
+          <span>Acuerdos claros entre ambas partes</span>
+        </div>
+
+        <div class="principio">
+          <SvgCheck />
+
+          <span>Respeto por la misión institucional</span>
+        </div>
+
+        <div class="principio">
+          <SvgCheck />
+
+          <span>Destino responsable de las donaciones</span>
+        </div>
+
+        <div class="principio">
+          <SvgCheck />
+
+          <span>Comunicación directa con la Fundación</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="proceso" aria-labelledby="titulo-proceso">
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Cómo comenzar</span>
+
+        <h2 id="titulo-proceso">Un acuerdo se construye paso a paso</h2>
+
+        <p>
+          El primer paso es comunicarse para presentar la propuesta y definir
+          juntos la mejor manera de colaborar.
+        </p>
+      </header>
+
+      <div class="proceso__grid">
+        <article class="paso">
+          <span class="paso__numero">1</span>
+
+          <h3>Contacto inicial</h3>
+
+          <p>
+            La empresa se comunica con Fundación SENO y expresa su intención de
+            colaborar.
+          </p>
+        </article>
+
+        <article class="paso">
+          <span class="paso__numero">2</span>
+
+          <h3>Presentación de la propuesta</h3>
+
+          <p>
+            Se conversa sobre el tipo de aporte, sus características y las
+            posibilidades de ambas partes.
+          </p>
+        </article>
+
+        <article class="paso">
+          <span class="paso__numero">3</span>
+
+          <h3>Definición del acuerdo</h3>
+
+          <p>
+            Se establecen las condiciones, responsabilidades y documentación
+            correspondiente.
+          </p>
+        </article>
+
+        <article class="paso">
+          <span class="paso__numero">4</span>
+
+          <h3>Realización de la colaboración</h3>
+
+          <p>
+            Se coordina la entrega, transferencia, actividad o acción acordada
+            con la empresa.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="documentacion" aria-labelledby="titulo-documentacion">
+      <div class="documentacion__contenido">
+        <span class="etiqueta">Documentación institucional</span>
+
+        <h2 id="titulo-documentacion">
+          Constancia de regularidad y personería jurídica
+        </h2>
+
+        <p>
+          Algunas empresas solicitan documentación que acredite la situación
+          institucional de Fundación SENO antes de concretar una colaboración.
+        </p>
+
+        <p>
+          La constancia disponible acredita la vigencia de la personería
+          jurídica de la Fundación y contiene información sobre sus autoridades
+          y la última memoria y balance informados.
+        </p>
+
+        <div class="documentacion__acciones">
+          <a
+            class="documentacion__boton"
+            href="/documentos/constancia-regularidad-2026.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ver constancia
+
+            <SvgFlecha style="transform:rotate(45deg)" />
+          </a>
+
+          <a
+            class="documentacion__descarga"
+            href="/documentos/constancia-regularidad-2026.pdf"
+            download
+          >
+            Descargar PDF
+
+            <SvgDescargar />
+          </a>
+        </div>
+      </div>
+
+      <div class="documentacion__tarjeta">
+        <span class="documentacion__icono" aria-hidden="true">
+          <SvgDocumento />
+        </span>
+
+        <span class="documentacion__tipo">Documento institucional</span>
+        <strong>Constancia de regularidad 2026</strong>
+
+        <ul>
+          <li>Personería jurídica vigente</li>
+          <li>Autoridades informadas</li>
+          <li>Memoria y balance registrados</li>
+          <li>Emitida por Personas Jurídicas</li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="aviso-documentacion">
+      <SvgInformacion />
+
+      <p>
+        Si la empresa necesita otra constancia, convenio, información legal o
+        documentación específica, debe solicitarla directamente a Fundación
+        SENO.
+      </p>
+    </aside>
+
+    <section class="impacto" aria-labelledby="titulo-impacto">
+      <div class="impacto__visual" aria-hidden="true">
+        <span class="impacto__empresa">
+          <SvgEmpresa />
+        </span>
+
+        <span class="impacto__conexion"></span>
+
+        <span class="impacto__corazon">
+          <SvgCorazon />
+        </span>
+      </div>
+
+      <div class="impacto__contenido">
+        <span class="etiqueta">Un compromiso que genera impacto</span>
+
+        <h2 id="titulo-impacto">
+          Cada empresa puede transformar sus recursos en ayuda
+        </h2>
+
+        <p>
+          Una colaboración empresarial puede convertirse en mejoras para la
+          casa, alimentos para una actividad, herramientas de trabajo,
+          equipamiento, campañas o acompañamiento directo para las familias.
+        </p>
+
+        <p>
+          No importa si la propuesta es grande o pequeña. Lo importante es
+          construir una colaboración responsable que acompañe la misión de la
+          Fundación.
+        </p>
+      </div>
+    </section>
+
+    <aside class="llamada">
+      <div class="llamada__contenido">
+        <span class="etiqueta">Conversemos sobre la propuesta</span>
+
+        <h2>¿Tu empresa quiere colaborar con Fundación SENO?</h2>
+
+        <p>
+          Comunícate directamente con nosotros para presentar la propuesta,
+          solicitar documentación y comenzar a definir el acuerdo.
+        </p>
+      </div>
+
+      <a class="llamada__boton" href="/contacto">
+        Contactar a la Fundación
+
+        <SvgFlecha style="transform:rotate(90deg)"/>
+      </a>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .empresas {
+    --company-primary: var(--color-primary, #4178aa);
+    --company-primary-dark: var(--color-primary-hover, #25597f);
+    --company-secondary: var(--color-secondary, #d45d8c);
+    --company-text: var(--color-text, #28343e);
+    --company-muted: #667580;
+    --company-border: #dce6ed;
+    --company-background: #f5f9fb;
+    --company-success: #327a61;
+
+    width: min(1180px, calc(100% - 2rem));
+    margin: 2rem auto 5rem;
+    color: var(--company-text);
+    font-family: var(--text-font-primary, system-ui, sans-serif);
+  }
+
+  .etiqueta {
+    display: block;
+    margin-bottom: 0.65rem;
+    color: var(--company-primary-dark);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    min-height: 490px;
+    padding: clamp(2rem, 6vw, 5rem);
+    overflow: hidden;
+    border: 1px solid var(--company-border);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 88% 18%,
+        rgb(212 93 140 / 15%),
+        transparent 29%
+      ),
+      radial-gradient(circle at 8% 92%, rgb(65 120 170 / 12%), transparent 26%),
+      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
+  }
+
+  .hero::before {
+    position: absolute;
+    right: -125px;
+    bottom: -145px;
+    width: 365px;
+    aspect-ratio: 1;
+    border: 52px solid rgb(65 120 170 / 6%);
+    border-radius: 50%;
+    content: '';
+  }
+
+  .hero__contenido,
+  .hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    max-width: 760px;
+    margin: 0 0 1.3rem;
+    color: var(--company-primary-dark);
+    font-size: clamp(2.2rem, 5.2vw, 4.25rem);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .hero p {
+    max-width: 720px;
+    margin: 0.75rem 0;
+    color: var(--company-muted);
+    font-size: 1.03rem;
+    line-height: 1.75;
+  }
+
+  .hero__destacado {
+    color: var(--company-text) !important;
+    font-size: clamp(1.08rem, 2vw, 1.24rem) !important;
+    font-weight: 600;
+  }
+
+  .hero__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.7rem;
+  }
+
+  .boton,
+  .documentacion__boton,
+  .documentacion__descarga,
+  .llamada__boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    min-height: 49px;
+    padding: 0.85rem 1.3rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      transform 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .boton svg,
+  .documentacion__boton svg,
+  .documentacion__descarga svg,
+  .llamada__boton svg {
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .boton--principal {
+    background: var(--company-primary-dark);
+    color: #fff;
+    box-shadow: 0 12px 28px rgb(37 89 127 / 22%);
+  }
+
+  .boton--secundario {
+    border-color: rgb(37 89 127 / 23%);
+    background: rgb(255 255 255 / 65%);
+    color: var(--company-primary-dark);
+  }
+
+  .hero__visual {
+    display: grid;
+    place-items: center;
+    min-height: 330px;
+  }
+
+  .ilustracion {
+    position: relative;
+    width: min(100%, 330px);
+    aspect-ratio: 1;
+    border: 1px solid rgb(65 120 170 / 14%);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 65%);
+    box-shadow: 0 28px 65px rgb(37 89 127 / 15%);
+  }
+
+  .ilustracion__empresa,
+  .ilustracion__fundacion,
+  .ilustracion__corazon {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+  }
+
+  .ilustracion__empresa,
+  .ilustracion__fundacion {
+    width: 105px;
+    aspect-ratio: 1;
+    background: var(--company-primary);
+    color: #fff;
+    box-shadow: 0 18px 40px rgb(65 120 170 / 24%);
+  }
+
+  .ilustracion__empresa {
+    top: 52px;
+    left: 28px;
+  }
+
+  .ilustracion__fundacion {
+    right: 28px;
+    bottom: 52px;
+    background: var(--company-primary-dark);
+  }
+
+  .ilustracion__corazon {
+    top: 50%;
+    left: 50%;
+    width: 78px;
+    aspect-ratio: 1;
+    border: 6px solid #fff;
+    background: var(--company-secondary);
+    color: #fff;
+    box-shadow: 0 14px 30px rgb(212 93 140 / 25%);
+    transform: translate(-50%, -50%);
+  }
+
+  .ilustracion svg {
+    width: 55%;
+  }
+
+  .ilustracion__linea {
+    position: absolute;
+    z-index: 1;
+    width: 100px;
+    height: 3px;
+    background: rgb(65 120 170 / 25%);
+    transform-origin: center;
+  }
+
+  .ilustracion__linea--uno {
+    top: 130px;
+    left: 95px;
+    transform: rotate(32deg);
+  }
+
+  .ilustracion__linea--dos {
+    right: 92px;
+    bottom: 126px;
+    transform: rotate(32deg);
+  }
+
+  .acuerdo-principal {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-left: 6px solid var(--company-primary);
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+    background: #edf6fb;
+  }
+
+  .acuerdo-principal__icono {
+    display: grid;
+    place-items: center;
+    width: 59px;
+    height: 59px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--company-primary);
+    box-shadow: 0 10px 25px rgb(65 120 170 / 13%);
+  }
+
+  .acuerdo-principal__icono svg {
+    width: 30px;
+  }
+
+  .acuerdo-principal h2,
+  .principios h2,
+  .documentacion h2,
+  .impacto h2,
+  .llamada h2 {
+    margin: 0 0 0.8rem;
+    color: var(--company-primary-dark);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .acuerdo-principal p {
+    max-width: 920px;
+    margin: 0;
+    color: var(--company-muted);
+    line-height: 1.75;
+  }
+
+  .colaboraciones,
+  .proceso {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+    scroll-margin-top: 2rem;
+  }
+
+  .encabezado-seccion {
+    max-width: 730px;
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .encabezado-seccion h2 {
+    margin: 0;
+    color: var(--company-primary-dark);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .encabezado-seccion p {
+    margin: 1rem 0 0;
+    color: var(--company-muted);
+    font-size: 1.04rem;
+    line-height: 1.7;
+  }
+
+  .colaboraciones__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .colaboracion {
+    min-width: 0;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    border: 1px solid var(--company-border);
+    border-radius: 1.5rem;
+    background: #fff;
+    box-shadow: 0 14px 40px rgb(38 63 80 / 6%);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .colaboracion__icono {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 1.25rem;
+    border-radius: 1.1rem;
+    background: #edf5fa;
+    color: var(--company-primary);
+  }
+
+  .colaboracion:nth-child(even) .colaboracion__icono {
+    background: #fbeaf1;
+    color: var(--company-secondary);
+  }
+
+  .colaboracion__icono svg {
+    width: 31px;
+  }
+
+  .colaboracion h3 {
+    margin: 0 0 0.75rem;
+    color: var(--company-primary-dark);
+    font-size: 1.27rem;
+  }
+
+  .colaboracion p {
+    margin: 0;
+    color: var(--company-muted);
+    line-height: 1.65;
+  }
+
+  .principios {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 5rem);
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    border-radius: 1.8rem;
+    background: var(--company-primary-dark);
+    color: #fff;
+  }
+
+  .principios .etiqueta {
+    color: rgb(255 255 255 / 65%);
+  }
+
+  .principios h2 {
+    color: #fff;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .principios p {
+    max-width: 760px;
+    margin: 0.65rem 0;
+    color: rgb(255 255 255 / 78%);
+    line-height: 1.75;
+  }
+
+  .principios__lista {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .principio {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 7%);
+  }
+
+  .principio svg {
+    width: 25px;
+    color: var(--company-secondary);
+  }
+
+  .principio span {
+    color: #fff;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+
+  .proceso__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .paso {
+    position: relative;
+    min-width: 0;
+    padding: 2rem 1.5rem 1.5rem;
+    border: 1px solid var(--company-border);
+    border-radius: 1.4rem;
+    background: var(--company-background);
+  }
+
+  .paso__numero {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1.2rem;
+    border-radius: 1rem;
+    background: var(--company-primary);
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 900;
+    box-shadow: 0 9px 22px rgb(65 120 170 / 21%);
+  }
+
+  .paso h3 {
+    margin: 0 0 0.65rem;
+    color: var(--company-primary-dark);
+    font-size: 1.18rem;
+  }
+
+  .paso p {
+    margin: 0;
+    color: var(--company-muted);
+    line-height: 1.65;
+  }
+
+  .documentacion {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 5rem);
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    border: 1px solid var(--company-border);
+    border-radius: 1.8rem;
+    background:
+      radial-gradient(
+        circle at 95% 10%,
+        rgb(212 93 140 / 12%),
+        transparent 28%
+      ),
+      var(--company-background);
+  }
+
+  .documentacion h2 {
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .documentacion__contenido > p {
+    max-width: 760px;
+    margin: 0.65rem 0;
+    color: var(--company-muted);
+    line-height: 1.75;
+  }
+
+  .documentacion__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+
+  .documentacion__boton {
+    background: var(--company-primary-dark);
+    color: #fff;
+    box-shadow: 0 12px 28px rgb(37 89 127 / 20%);
+  }
+
+  .documentacion__descarga {
+    border-color: var(--company-primary-dark);
+    color: var(--company-primary-dark);
+  }
+
+  .documentacion__tarjeta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    border: 1px solid var(--company-border);
+    border-radius: 1.5rem;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 18px 45px rgb(38 63 80 / 10%);
+  }
+
+  .documentacion__icono {
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    margin-bottom: 1.2rem;
+    border-radius: 1.3rem;
+    background: #edf5fa;
+    color: var(--company-primary);
+  }
+
+  .documentacion__icono svg {
+    width: 42px;
+  }
+
+  .documentacion__tipo {
+    color: var(--company-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .documentacion__tarjeta strong {
+    margin-top: 0.35rem;
+    color: var(--company-primary-dark);
+    font-size: 1.2rem;
+  }
+
+  .documentacion__tarjeta ul {
+    display: grid;
+    gap: 0.65rem;
+    width: 100%;
+    margin: 1.4rem 0 0;
+    padding: 1.2rem 0 0;
+    border-top: 1px solid var(--company-border);
+    list-style: none;
+    text-align: left;
+  }
+
+  .documentacion__tarjeta li {
+    position: relative;
+    padding-left: 1.5rem;
+    color: var(--company-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .documentacion__tarjeta li::before {
+    position: absolute;
+    left: 0;
+    color: var(--company-success);
+    content: '✓';
+    font-weight: 900;
+  }
+
+  .aviso-documentacion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-top: 1.3rem;
+    padding: 1rem 1.2rem;
+    border-left: 4px solid var(--company-primary);
+    border-radius: 0.25rem 1rem 1rem 0.25rem;
+    background: #edf6fb;
+  }
+
+  .aviso-documentacion svg {
+    width: 25px;
+    flex-shrink: 0;
+    color: var(--company-primary);
+  }
+
+  .aviso-documentacion p {
+    margin: 0;
+    color: var(--company-muted);
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .impacto {
+    display: grid;
+    grid-template-columns: minmax(230px, 0.65fr) minmax(0, 1.35fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    border: 1px solid var(--company-border);
+    border-radius: 1.8rem;
+    background: #fff;
+  }
+
+  .impacto__visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .impacto__empresa,
+  .impacto__corazon {
+    display: grid;
+    place-items: center;
+    width: 90px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+
+  .impacto__empresa {
+    background: var(--company-primary);
+    color: #fff;
+  }
+
+  .impacto__corazon {
+    background: var(--company-secondary);
+    color: #fff;
+  }
+
+  .impacto__empresa svg,
+  .impacto__corazon svg {
+    width: 49px;
+  }
+
+  .impacto__conexion {
+    width: 55px;
+    height: 3px;
+    background: var(--company-border);
+  }
+
+  .impacto h2 {
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .impacto p {
+    max-width: 760px;
+    margin: 0.65rem 0;
+    color: var(--company-muted);
+    line-height: 1.75;
+  }
+
+  .llamada {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
+    border-radius: 1.8rem;
+    background: var(--company-primary-dark);
+    color: #fff;
+  }
+
+  .llamada__contenido {
+    max-width: 760px;
+  }
+
+  .llamada .etiqueta {
+    color: rgb(255 255 255 / 65%);
+  }
+
+  .llamada h2 {
+    color: #fff;
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+  }
+
+  .llamada p {
+    margin: 0;
+    color: rgb(255 255 255 / 78%);
+    line-height: 1.7;
+  }
+
+  .llamada__boton {
+    flex-shrink: 0;
+    border-color: #fff;
+    background: #fff;
+    color: var(--company-primary-dark);
+  }
+
+  @media (hover: hover) {
+    .boton--principal:hover,
+    .documentacion__boton:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 17px 35px rgb(37 89 127 / 28%);
+    }
+
+    .boton--secundario:hover,
+    .documentacion__descarga:hover {
+      background: #fff;
+      transform: translateY(-3px);
+    }
+
+    .colaboracion:hover {
+      border-color: rgb(65 120 170 / 32%);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 45px rgb(38 63 80 / 11%);
+    }
+
+    .llamada__boton:hover {
+      background: transparent;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .colaboraciones__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .proceso__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 850px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__contenido {
+      order: 2;
+    }
+
+    .hero__visual {
+      order: 1;
+      min-height: 280px;
+    }
+
+    .hero p {
+      margin-inline: auto;
+    }
+
+    .hero__acciones {
+      justify-content: center;
+    }
+
+    .ilustracion {
+      width: min(65vw, 290px);
+    }
+
+    .principios,
+    .documentacion,
+    .impacto {
+      grid-template-columns: 1fr;
+    }
+
+    .impacto__visual {
+      order: 2;
+    }
+
+    .llamada {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .empresas {
+      width: min(100% - 1rem, 1180px);
+      margin-top: 1rem;
+    }
+
+    .hero {
+      gap: 1.4rem;
+      min-height: auto;
+      padding: 1.7rem 1.2rem;
+      border-radius: 1.4rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .hero p {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .hero__visual {
+      min-height: 225px;
+    }
+
+    .ilustracion {
+      width: min(76vw, 240px);
+    }
+
+    .ilustracion__empresa,
+    .ilustracion__fundacion {
+      width: 76px;
+    }
+
+    .ilustracion__empresa {
+      top: 38px;
+      left: 20px;
+    }
+
+    .ilustracion__fundacion {
+      right: 20px;
+      bottom: 38px;
+    }
+
+    .ilustracion__corazon {
+      width: 60px;
+      border-width: 4px;
+    }
+
+    .ilustracion__linea {
+      width: 75px;
+    }
+
+    .ilustracion__linea--uno {
+      top: 100px;
+      left: 70px;
+    }
+
+    .ilustracion__linea--dos {
+      right: 67px;
+      bottom: 95px;
+    }
+
+    .hero__acciones {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .boton {
+      width: 100%;
+    }
+
+    .acuerdo-principal {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      border-left-width: 4px;
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .acuerdo-principal__icono {
+      width: 51px;
+      height: 51px;
+    }
+
+    .colaboraciones__grid,
+    .proceso__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .colaboracion,
+    .paso {
+      padding: 1.4rem;
+      border-radius: 1.2rem;
+    }
+
+    .principios,
+    .documentacion,
+    .impacto {
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .documentacion__acciones {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .documentacion__boton,
+    .documentacion__descarga {
+      width: 100%;
+    }
+
+    .impacto__empresa,
+    .impacto__corazon {
+      width: 72px;
+    }
+
+    .impacto__conexion {
+      width: 35px;
+    }
+
+    .llamada {
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .llamada__boton {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boton,
+    .documentacion__boton,
+    .documentacion__descarga,
+    .llamada__boton,
+    .colaboracion {
+      transition: none;
+    }
+  }
+</style>

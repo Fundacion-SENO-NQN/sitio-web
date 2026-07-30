@@ -18,6 +18,7 @@ import SvgRecibir from '../../../assets/icon-donar-cosas/icon-recibir.svg'
 import SvgOrdenar from '../../../assets/icon-donar-cosas/icon-ordenar.svg'
 import SvgPersonas from '../../../assets/icon-donar-cosas/icon-personas.svg'
 import SvgUser from '../../../assets/icon-common/icon-user.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
 ---
 
 <Layout pag="Donar cosas">
@@ -47,10 +48,7 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
         <a class="boton-principal" href="#que-puedo-donar">
           Ver qué puedo donar
 
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14"></path>
-            <path d="m6 13 6 6 6-6"></path>
-          </svg>
+          <SvgFlecha />
         </a>
       </div>
 
@@ -232,8 +230,8 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
         <h2 id="titulo-estado">¿En qué condiciones deben estar?</h2>
 
         <p>
-          Antes de donar, pensá si el objeto podría ser utilizado con dignidad
-          y seguridad por otra persona.
+          Antes de donar, pensá si el objeto podría ser utilizado con dignidad y
+          seguridad por otra persona.
         </p>
       </header>
 
@@ -477,19 +475,15 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
         <h2>¿Querés donar algo y no sabes si podemos recibirlo?</h2>
 
         <p>
-          Hablanos para consultar por el objeto, coordinar la
-          entrega o informarnos si se trata de algo grande que requiere
-          traslado.
+          Hablanos para consultar por el objeto, coordinar la entrega o
+          informarnos si se trata de algo grande que requiere traslado.
         </p>
       </div>
 
-      <a class="contacto__boton" href="/contacto">
+      <a class="contacto__boton" href="#contacto">
         Consultar
 
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 12h14"></path>
-          <path d="m13 6 6 6-6 6"></path>
-        </svg>
+        <SvgFlecha />
       </a>
     </aside>
   </main>
@@ -622,11 +616,14 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
   .contacto__boton svg {
     width: 20px;
     flex-shrink: 0;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
+  }
+
+  .boton-principal svg {
+    transform: rotate(180deg);
+  }
+
+  .contacto__boton svg {
+    transform: rotate(90deg);
   }
 
   .hero__visual {
@@ -1088,7 +1085,7 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
   .alimentos__advertencia svg {
     width: 25px;
     flex-shrink: 0;
-    color: var(--donar-danger)
+    color: var(--donar-danger);
   }
 
   .alimentos__advertencia p {

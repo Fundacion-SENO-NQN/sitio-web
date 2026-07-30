@@ -1,29 +1,72 @@
 <div class="footer-fin">
   <p>© 2026 Fundación S.E.N.O.</p>
+
+  <span class="separador" aria-hidden="true">•</span>
+
+  <a href="/terminos-y-condiciones"> Términos y condiciones </a>
 </div>
 
 <style>
   .footer-fin {
     box-sizing: border-box;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+
     width: 100%;
     min-height: 3rem;
     padding: 0.75rem 1rem;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
     color: var(--color-background);
     background-color: var(--color-secondary);
-  }
-
-  .footer-fin p {
-    margin: 0;
 
     font-family: var(--text-font-primary);
     font-size: clamp(0.85rem, 2vw, 1rem);
     line-height: 1.4;
     text-align: center;
+  }
+
+  .footer-fin p {
+    margin: 0;
+  }
+
+  .footer-fin a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2rem;
+
+    transition: opacity 180ms ease;
+  }
+
+  .footer-fin a:hover {
+    opacity: 0.75;
+  }
+
+  .footer-fin a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 0.2rem;
+    border-radius: 0.15rem;
+  }
+
+  @media (max-width: 28rem) {
+    .footer-fin {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .separador {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-fin a {
+      transition: none;
+    }
   }
 </style>

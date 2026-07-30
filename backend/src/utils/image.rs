@@ -5,10 +5,11 @@ use std::{
 };
 
 pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
+    println!("entre aca");
     ensure_parent_directory(&path)?;
-
+    println!("pase func rara");
     let input_format = image::guess_format(bytes)?;
-
+    println!("input_format: {:?}", input_format);
     if input_format == ImageFormat::Avif {
         // The uploaded image is already AVIF.
         // Replace the destination directly without decoding it.
@@ -20,7 +21,7 @@ pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn std::er
 
         img.save(&path)?;
     }
-
+    println!("pase if");
     Ok(path.to_string_lossy().into_owned())
 }
 

@@ -1,4 +1,4 @@
-const API = 'https://sitio-web-fundacion-seno.fly.dev'
+const API = 'https://sitio-web-fundacion-seno.fly.dev:8080'
 
 if (!API) {
   throw new Error(
@@ -217,5 +217,44 @@ export async function replaceFeaturedAchievements(logros) {
   return await request('/logros_fav', {
     method: 'PUT',
     body: JSON.stringify(logros),
+  })
+}
+
+//*
+//* MEMBERS
+//*
+
+export function getMembers() {
+  return request('/equipo')
+}
+
+export function getMember(id) {
+  return request(`/equipo/${id}`)
+}
+
+export function createMember(formData) {
+  return request('/equipo', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export function updateMember(id, formData) {
+  return request(`/equipo/${id}`, {
+    method: 'PATCH',
+    body: formData,
+  })
+}
+
+export function deleteMember(id) {
+  return request(`/equipo/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export function changeMembersOrder(items) {
+  return request('/equipo/order', {
+    method: 'PUT',
+    body: JSON.stringify(items),
   })
 }

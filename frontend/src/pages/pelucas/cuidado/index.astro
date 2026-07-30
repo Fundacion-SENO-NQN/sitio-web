@@ -7,6 +7,9 @@ import SvgPeine from '../../../assets/icon-cuidado/icon-peine.svg'
 import SvgGota from '../../../assets/icon-cuidado/icon-gota.svg'
 import SvgAire from '../../../assets/icon-cuidado/icon-aire.svg'
 import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
+import SvgPelo from '../../../assets/icon-quiero-ayudar/icon-pelo.svg'
+import SvgCuidado from '../../../assets/icon-donar-cosas/icon-cuidado.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
 ---
 
 <Layout pag="Cuidados de la peluca">
@@ -26,24 +29,13 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
         </p>
 
         <p>
-          Sequí estas recomendaciones durante el desenredado, el lavado y el
+          Seguí estas recomendaciones durante el desenredado, el lavado y el
           secado para evitar que el cabello pierda su forma o se dañe.
         </p>
       </div>
 
       <div class="presentacion__ilustracion" aria-hidden="true">
-        <svg viewBox="0 0 200 200">
-          <path
-            d="M57 104c-2-9-3-18-2-27 2-29 21-50 47-50s45 21 47 50c1 9 0 18-2 27"
-          ></path>
-          <path d="M70 78c7-5 13-13 17-23 5 12 14 20 27 24 9 3 18 3 27 1"
-          ></path>
-          <path d="M64 91c-1 24 4 51 14 76"></path>
-          <path d="M140 91c1 24-4 51-14 76"></path>
-          <path d="M78 167c8 5 16 7 24 7s16-2 24-7"></path>
-          <path d="M55 109c-4 16-4 31 0 45"></path>
-          <path d="M149 109c4 16 4 31 0 45"></path>
-        </svg>
+        <SvgPelo />
       </div>
     </section>
 
@@ -160,12 +152,7 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
 
     <section class="advertencia" aria-labelledby="tratamientos-prohibidos">
       <div class="advertencia__icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 3 2.8 19a1.4 1.4 0 0 0 1.2 2h16a1.4 1.4 0 0 0 1.2-2Z"
-          ></path>
-          <path d="M12 9v5"></path>
-          <path d="M12 18h.01"></path>
-        </svg>
+        <SvgCuidado />
       </div>
 
       <div class="advertencia__contenido">
@@ -262,10 +249,7 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
       <a href="#contacto">
         Preguntar
 
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 12h14"></path>
-          <path d="m13 6 6 6-6 6"></path>
-        </svg>
+        <SvgFlecha />
       </a>
     </aside>
   </main>
@@ -384,11 +368,6 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
 
   .presentacion__ilustracion svg {
     width: 72%;
-    fill: none;
-    stroke: var(--care-primary);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 5;
   }
 
   .recomendacion-inicial {
@@ -416,11 +395,6 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
   .recomendacion-inicial__icono svg,
   .advertencia__icono svg {
     width: 29px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
   }
 
   .recomendacion-inicial__icono {
@@ -739,11 +713,7 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
 
   .ayuda a svg {
     width: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
+    transform: rotate(90deg);
   }
 
   @media (hover: hover) {

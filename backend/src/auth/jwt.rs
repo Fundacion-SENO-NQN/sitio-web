@@ -24,6 +24,5 @@ pub fn validate_token(token: &str, secret: &str) -> Result<Claims, jsonwebtoken:
         &DecodingKey::from_secret(secret.as_bytes()),
         &Validation::default(),
     )?;
-
     Ok(data.claims)
 }
