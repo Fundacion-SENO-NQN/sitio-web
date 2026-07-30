@@ -38,7 +38,6 @@ pub async fn create_equipo(
     let mut apellido = String::new();
     let mut puesto = String::new();
     let mut descripcion = String::new();
-    let mut orden = 0_i64;
 
     let mut image: Option<Vec<u8>> = None;
 
@@ -76,15 +75,6 @@ pub async fn create_equipo(
                     .map_err(|_| ApiError::BadRequest("Descripción inválida".into()))?;
             }
 
-            Some("orden") => {
-                orden = field
-                    .text()
-                    .await
-                    .map_err(|_| ApiError::BadRequest("Orden inválida".into()))?
-                    .parse()
-                    .map_err(|_| ApiError::BadRequest("Orden debe de ser un número".into()))?;
-            }
-
             Some("image") => {
                 image = Some(
                     field
@@ -95,21 +85,75 @@ pub async fn create_equipo(
                 );
             }
 
+            /*
+             * Ignore unexpected multipart fields,
+             * including a frontend-provided `orden`.
+             */
             _ => {}
         }
     }
-    println!("antes del image");
-    let image = image.ok_or(ApiError::BadRequest("La imagen es requerida".into()))?;
-    println!("{:?}", image);
-    let member =
-        repositories::equipo::create(&state.db, orden, nombre, apellido, puesto, descripcion)
-            .await?;
 
-    utils::image::save_image(
-        utils::equipo::path_team_img(member.id).map_err(|_| ApiError::InternalServerError)?,
-        &image,
-    )
-    .map_err(|_| ApiError::InternalServerError)?;
+    let nombre = nombre.trim();
+    let apellido = apellido.trim();
+    let puesto = puesto.trim();
+    let descripcion = descripcion.trim();
+
+    if nombre.is_empty() {
+        return Err(ApiError::BadRequest("El nombre es requerido".into()));
+    }
+
+    if apellido.is_empty() {
+        return Err(ApiError::BadRequest("El apellido es requerido".into()));
+    }
+
+    if puesto.is_empty() {
+        return Err(ApiError::BadRequest("El puesto es requerido".into()));
+    }
+
+    if descripcion.is_empty() {
+        return Err(ApiError::BadRequest("La descripción es requerida".into()));
+    }
+
+    let image = image.ok_or_else(|| ApiError::BadRequest("La imagen es requerida".into()))?;
+
+    if image.is_empty() {
+        return Err(ApiError::BadRequest("La imagen está vacía".into()));
+    }
+
+    let member =
+        repositories::equipo::create(&state.db, nombre, apellido, puesto, descripcion).await?;
+
+    let image_path = utils::equipo::path_team_img(member.id).map_err(|error| {
+        eprintln!(
+            "Error building image path for member {}: {}",
+            member.id, error,
+        );
+
+        ApiError::InternalServerError
+    })?;
+
+    let save_result =
+        utils::image::save_image(image_path, &image).map_err(|error| error.to_string());
+
+    if let Err(error_message) = save_result {
+        eprintln!(
+            "Error saving image for member {}: {}",
+            member.id, error_message,
+        );
+
+        /*
+         * error_message is a String, which is Send,
+         * so it can safely exist across this await.
+         */
+        if let Err(delete_error) = repositories::equipo::delete(&state.db, member.id).await {
+            eprintln!(
+                "Could not roll back member {} after image error.",
+                member.id,
+            );
+        }
+
+        return Err(ApiError::InternalServerError);
+    }
 
     Ok((StatusCode::CREATED, Json(member)))
 }
@@ -227,10 +271,22 @@ pub async fn change_order_equipo(
 ) -> ApiResult<StatusCode> {
     user.require(ADMIN_MIEMBROS)?;
 
+    if request.is_empty() {
+        return Err(ApiError::BadRequest(
+            "Debe proporcionar al menos un miembro.".into(),
+        ));
+    }
+
     let mut ids = std::collections::HashSet::new();
     let mut orders = std::collections::HashSet::new();
 
     for item in &request {
+        if item.orden < 0 {
+            return Err(ApiError::BadRequest(
+                "El orden no puede ser negativo.".into(),
+            ));
+        }
+
         if !ids.insert(item.id) {
             return Err(ApiError::BadRequest("Id de miembro duplicado.".into()));
         }
@@ -250,15 +306,21 @@ pub async fn delete_equipo(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i64>,
 ) -> ApiResult<Json<Equipo>> {
-    println!("entre al delete");
     user.require(ADMIN_MIEMBROS)?;
 
     let member = repositories::equipo::delete(&state.db, id).await?;
 
-    utils::image::delete_image(
-        utils::equipo::path_team_img(member.id).map_err(|_| ApiError::InternalServerError)?,
-    )
-    .map_err(|_| ApiError::InternalServerError)?;
+    let image_path =
+        utils::equipo::path_team_img(member.id).map_err(|_| ApiError::InternalServerError)?;
+
+    if let Err(error) = utils::image::delete_image(image_path) {
+        /*
+         * The database deletion already succeeded.
+         * An orphan file is less serious than incorrectly
+         * reporting that the member still exists.
+         */
+        eprintln!("Could not delete image for member {}: {}", member.id, error,);
+    }
 
     Ok(Json(member))
 }

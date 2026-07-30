@@ -1,4 +1,4 @@
-import { refreshMembers, getNextMemberOrder } from './miembros.js'
+import { refreshMembers } from './miembros.js'
 
 import { createMember, updateMember } from '../common/api.js'
 
@@ -214,8 +214,6 @@ async function submitMemberForm(event) {
 
       showToast('El miembro fue actualizado correctamente.', 'success')
     } else {
-      data.orden = getNextMemberOrder()
-
       const formData = buildMemberFormData(data)
 
       await createMember(formData)

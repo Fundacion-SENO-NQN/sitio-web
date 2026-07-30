@@ -9,10 +9,6 @@ export function buildMemberFormData(data) {
 
   formData.append('descripcion', data.descripcion.trim())
 
-  if (data.orden !== undefined && data.orden !== null) {
-    formData.append('orden', String(data.orden))
-  }
-
   if (data.image instanceof File) {
     formData.append('image', data.image)
   }

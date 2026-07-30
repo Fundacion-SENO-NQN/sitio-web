@@ -187,14 +187,6 @@ function sortFilteredMembers() {
    HELPERS
 ========================================================== */
 
-export function getNextMemberOrder() {
-  if (members.length === 0) {
-    return 0
-  }
-
-  return Math.max(...members.map((member) => member.orden)) + 1
-}
-
 export function getMemberById(id) {
   return members.find((member) => member.id === id)
 }
