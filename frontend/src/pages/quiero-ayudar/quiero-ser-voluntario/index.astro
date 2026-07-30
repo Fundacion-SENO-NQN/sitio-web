@@ -371,8 +371,8 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
         <h2 id="titulo-formulario">Cuéntanos sobre ti</h2>
 
         <p>
-          Completa el formulario para que podamos comunicarnos
-          con vos por correo electrónico y coordinar los detalles.
+          Completa el formulario para que podamos comunicarnos con vos por
+          correo electrónico y coordinar los detalles.
         </p>
 
         <div class="solicitud__dato">
@@ -584,23 +584,37 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
 </Layout>
 
 <script>
-  const form = document.getElementById('form-voluntariado') as HTMLFormElement
-  const estado = document.getElementById('estado-formulario') as HTMLElement
-  const boton = document.getElementById('boton-enviar') as HTMLButtonElement
+  const form: HTMLFormElement = document.getElementById(
+    'form-voluntariado',
+  ) as HTMLFormElement
+  const estado: HTMLElement = document.getElementById(
+    'estado-formulario',
+  ) as HTMLElement
+  const boton: HTMLButtonElement = document.getElementById(
+    'boton-enviar',
+  ) as HTMLButtonElement
 
-  const apiUrl = import.meta.env.PUBLIC_API_URL
+  const apiUrl: string = 'https://sitio-web-fundacion-seno.fly.dev'
 
-  const inputNombre = document.getElementById('nombre') as HTMLInputElement
-  const inputApellido = document.getElementById('apellido') as HTMLInputElement
-  const inputLocalidad = document.getElementById(
+  const inputNombre: HTMLInputElement = document.getElementById(
+    'nombre',
+  ) as HTMLInputElement
+  const inputApellido: HTMLInputElement = document.getElementById(
+    'apellido',
+  ) as HTMLInputElement
+  const inputLocalidad: HTMLInputElement = document.getElementById(
     'localidad',
   ) as HTMLInputElement
-  const inputEmail = document.getElementById('email') as HTMLInputElement
-  const inputDescripcion = document.getElementById(
+  const inputEmail: HTMLInputElement = document.getElementById(
+    'email',
+  ) as HTMLInputElement
+  const inputDescripcion: HTMLInputElement = document.getElementById(
     'descripcion',
   ) as HTMLInputElement
-  const selectTipo = document.getElementById('tipo') as HTMLSelectElement
-  const inputAutorizacion = document.getElementById(
+  const selectTipo: HTMLSelectElement = document.getElementById(
+    'tipo',
+  ) as HTMLSelectElement
+  const inputAutorizacion: HTMLInputElement = document.getElementById(
     'autorizacion',
   ) as HTMLInputElement
 
@@ -696,7 +710,8 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
     boton.disabled = !(
       arrInputs.every((item): boolean => item.value.length > 0) &&
       selectTipo.value !== '' &&
-      inputAutorizacion.checked && form.checkValidity()
+      inputAutorizacion.checked &&
+      form.checkValidity()
     )
   }
 
@@ -1545,10 +1560,10 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
   }
 
   .formulario button:disabled {
-    cursor:no-drop;
+    cursor: no-drop;
     opacity: 0.72;
   }
-  
+
   .formulario button:disabled.cargando {
     cursor: wait;
   }
