@@ -19,14 +19,14 @@ import ItemQuieroAyudar from './ItemQuieroAyudar.astro'
 <style>
   .navegacion {
     box-sizing: border-box;
-    width: min(100%, 80rem);
+    width: min(100%, 75rem);
     margin-inline: auto;
     padding-inline: clamp(0.75rem, 3vw, 2rem);
   }
 
   .navegacion__lista {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
     gap: clamp(0.75rem, 2vw, 1.25rem);
 
     width: 100%;
@@ -38,26 +38,24 @@ import ItemQuieroAyudar from './ItemQuieroAyudar.astro'
   }
 
   .navegacion__item {
+    display: flex;
     min-width: 0;
   }
 
-  /*
-   * Hace que el enlace o elemento principal de ItemQuieroAyudar
-   * ocupe toda la celda.
-   */
-  .navegacion__item :global(a) {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
+  @media (max-width: 42rem) {
+    .navegacion__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
-  @media (max-width: 35rem) {
+  @media (max-width: 27rem) {
     .navegacion {
-      padding-inline: 0.75rem;
+      padding-inline: 0.5rem;
     }
 
     .navegacion__lista {
       grid-template-columns: 1fr;
+      gap: 0.65rem;
     }
   }
 </style>
