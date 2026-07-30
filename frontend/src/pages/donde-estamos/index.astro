@@ -3,6 +3,10 @@ import Layout from '../../layouts/Layout.astro'
 
 import TituloPag from '../../components/Common/TituloPag.astro'
 import Ubicacion from '../../components/Common/Ubicacion.astro'
+
+import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
+import SvgReloj from '../../assets/icon-common/icon-reloj.svg'
+import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
 ---
 
 <Layout pag="¿Dónde estamos?">
@@ -23,10 +27,7 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
         <address class="datos">
           <div class="dato">
             <span class="dato__icono" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path>
-                <circle cx="12" cy="10" r="2.5"></circle>
-              </svg>
+              <SvgUbicacion />
             </span>
 
             <div>
@@ -41,10 +42,7 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 
           <div class="dato">
             <span class="dato__icono" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9"></circle>
-                <path d="M12 7v5l3 2"></path>
-              </svg>
+              <SvgReloj />
             </span>
 
             <div>
@@ -76,11 +74,7 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 
     <aside class="aviso">
       <span class="aviso__icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path
-            d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.7-5A7 7 0 0 1 3 12V9a6 6 0 0 1 6-6h6a6 6 0 0 1 6 6Z"
-          ></path>
-        </svg>
+        <SvgMensajeVacio />
       </span>
 
       <p>
@@ -175,11 +169,6 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 
   .dato__icono svg {
     width: 1.6rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
   }
 
   .dato__titulo {
@@ -224,11 +213,6 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 
   .ubicacion__enlace svg {
     width: 1.2rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
   }
 
   .ubicacion__mapa {
@@ -277,11 +261,7 @@ import Ubicacion from '../../components/Common/Ubicacion.astro'
 
   .aviso__icono svg {
     width: 1.4rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
+    transform: scaleX(-1);
   }
 
   .aviso p {
