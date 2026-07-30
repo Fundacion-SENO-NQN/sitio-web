@@ -1,14 +1,17 @@
 ---
 import { Image } from 'astro:assets'
 import type { ImageMetadata } from 'astro'
+import { intersection } from 'astro:schema'
 
 interface Props {
   integrante: {
-    img: string | number
+    id: number
+    order:number
     nombre: string
     apellido: string
     puesto: string
     descripcion: string
+    created_at: Date
   }
   priority?: boolean
 }
@@ -24,7 +27,9 @@ const images: Record<string, ImageMetadata> = import.meta.glob(
 )
 
 const image: ImageMetadata =
-  images[`../../../assets/img_equipo/${integrante.img}.avif`]
+  images[`../../../assets/img_equipo/${integrante.id}.avif`]
+
+console.log(integrante)
 ---
 
 <li class="integrante">
