@@ -1,4 +1,4 @@
-const API: string = 'https://sitio-web-fundacion-seno.fly.dev:8080'
+const API: string = 'https://sitio-web-fundacion-seno.fly.dev'
 
 if (!API) {
   throw new Error(
