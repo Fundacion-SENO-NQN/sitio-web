@@ -3,19 +3,80 @@ import Layout from '../../../layouts/Layout.astro'
 
 import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
 import ItemLogro from '../../../components/QuienesSomos/Logros/ItemLogro.astro'
-
-import type Logro from '../../../data/interfaces/Logro'
 import TituloPag from '../../../components/Common/TituloPag.astro'
 
-import { getLogros } from "../../../api/logros";
+import type Logro from '../../../data/interfaces/Logro'
 
-const logros = await getLogros();
+import { getLogros } from '../../../api/logros'
+
+const logros: Logro[] = await getLogros()
 ---
 
 <Layout pag="Logros">
   <NavegacionQuienesSomos pag="3" />
+
   <TituloPag titulo="Logros" />
-  <main>
-    {logros.map((item: Logro) => <ItemLogro logro={item} />)}
+
+  <main class="main-logros">
+    {
+      logros.length > 0 ? (
+        <section class="lista-logros" aria-label="Logros de Fundación SENO">
+          {logros.map((item: Logro) => (
+            <ItemLogro logro={item} />
+          ))}
+        </section>
+      ) : (
+        <p class="sin-resultados">Todavía no hay logros publicados.</p>
+      )
+    }
   </main>
 </Layout>
+
+<style>
+  .main-logros {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 1000px);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  .lista-logros {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .sin-resultados {
+    width: min(100%, 45rem);
+    margin: 2rem auto 0;
+    padding: clamp(1rem, 3vw, 1.5rem);
+
+    border: 1px solid var(--color-primary-light);
+    border-radius: 1rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 30%,
+      transparent
+    );
+
+    color: var(--color-text);
+
+    font-family: var(--text-font-primary);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  @media (max-width: 500px) {
+    .main-logros {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
+    }
+
+    .lista-logros {
+      gap: 1rem;
+    }
+  }
+</style>

@@ -8,8 +8,27 @@ import Donaciones from '../../../components/QuieroAyudar/Donaciones.astro'
 
 <Layout pag="Donar">
   <NavegacionQuieroAyudar pag="1" />
+
   <TituloPag titulo="Donar" />
-  <main>
+
+  <main class="main-donar">
     <Donaciones />
   </main>
 </Layout>
+
+<style>
+  .main-donar {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 1200px);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  @media (max-width: 500px) {
+    .main-donar {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
+    }
+  }
+</style>

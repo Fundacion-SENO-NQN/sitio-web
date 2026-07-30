@@ -1,72 +1,154 @@
 ---
-const { pag, navigation, inicio } = Astro.props
-const numPag = parseInt(pag)
-
 import type Navigation from '../../data/interfaces/Navigation'
+
+interface Props {
+  pag: string | number
+  navigation: Navigation[]
+  inicio: string
+}
+
+const { pag, navigation, inicio } = Astro.props
+
+const numPag = Number.parseInt(String(pag), 10)
 ---
 
-<nav class="nav">
+<nav class="subnav" aria-label="Navegación de esta sección">
   <ul class="lista-nav">
     {
       navigation.map((item: Navigation, index: number) => {
-        if (numPag === index + 1) {
-          return (
-            <a href={'/' + inicio + '/'}>
-              <li>Atrás</li>
+        const isCurrentPage = numPag === index + 1
+
+        const href = isCurrentPage ? `/${inicio}/` : item.href
+
+        const name = isCurrentPage ? 'Atrás' : item.name
+
+        return (
+          <li>
+            <a
+              href={href}
+              aria-label={isCurrentPage ? `Volver a ${inicio}` : undefined}
+            >
+              {name}
             </a>
-          )
-        } else {
-          return (
-            <a href={item.href}>
-              <li>{item.name}</li>
-            </a>
-          )
-        }
+          </li>
+        )
       })
     }
   </ul>
 </nav>
 
 <style>
-  .nav {
-    width: 100%;
+  .subnav {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 950px);
+    margin: clamp(1rem, 3vw, 2rem) auto 0;
+
+    font-family: var(--text-font-primary);
     display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .lista-nav {
-    background-color: var(--color-primary-light);
-    height: 4rem;
-    width: max-content;
-    font-size: 1.1rem;
-    list-style: none;
-    display: flex;
-    justify-content: center;
+    box-sizing: border-box;
+
+    width: 100%;
     margin: 0;
-    border-radius: 1.3rem;
-    padding: 0;
+    padding: 0.3rem;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: 0.3rem;
+
     overflow: hidden;
+
+    border-radius: 1.3rem;
+    background-color: var(--color-primary-light);
+
+    list-style: none;
+  }
+
+  .lista-nav li {
+    min-width: 0;
+
+    display: flex;
   }
 
   .lista-nav a {
-    color: var(--color-text);
-    text-decoration: none;
-    font-family: var(--text-font-primary);
-    width: 7rem;
-    text-align: center;
-    height: 100%;
-    width: 9rem;
+    box-sizing: border-box;
+
+    width: 100%;
+    min-height: 3.4rem;
+    padding: 0.75rem 1rem;
+
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
+    border-radius: 1rem;
+
+    color: var(--color-text);
+    background-color: transparent;
+
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
     transition:
       background-color 0.3s ease,
-      color 0.3s ease;
+      color 0.3s ease,
+      transform 0.2s ease;
   }
 
   .lista-nav a:hover {
-    background-color: var(--color-primary-hover);
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
+  }
+
+  .lista-nav a:focus-visible {
+    outline: 2px solid var(--color-primary-hover);
+    outline-offset: -3px;
+  }
+
+  @media (hover: hover) {
+    .lista-nav a:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .subnav {
+      width: calc(100% - 1.25rem);
+    }
+
+    .lista-nav {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      border-radius: 1rem;
+    }
+
+    .lista-nav a {
+      min-height: 3.2rem;
+      padding: 0.65rem 0.5rem;
+
+      border-radius: 0.75rem;
+      font-size: 0.92rem;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .lista-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lista-nav a {
+      transition: none;
+    }
+
+    .lista-nav a:hover {
+      transform: none;
+    }
   }
 </style>

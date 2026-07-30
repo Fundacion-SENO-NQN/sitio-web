@@ -1,12 +1,17 @@
 ---
-const { titulo } = Astro.props
-
 import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+
+interface Props {
+  titulo: string
+}
+
+const { titulo } = Astro.props
 ---
 
 <div class="titulo-seccion">
   <h1>{titulo}</h1>
-  <div class="decoracion">
+
+  <div class="decoracion" aria-hidden="true">
     <span class="linea"></span>
 
     <SvgCorazon class="icono" />
@@ -17,42 +22,58 @@ import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
 
 <style>
   .titulo-seccion {
-    width: min(900px, 90%);
-    margin: 2rem auto;
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 900px);
+    margin: clamp(1.5rem, 5vw, 3rem) auto;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-  }
-
-  .decoracion {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .linea {
-    flex: 1;
-    height: 2px;
-    background: var(--color-primary-light);
-  }
-
-  .icono {
-    width: 1.8rem;
-    height: 1.8rem;
-    color: var(--color-primary-hover);
-    flex-shrink: 0;
+    gap: clamp(0.7rem, 2vw, 1rem);
   }
 
   h1 {
     margin: 0;
 
+    color: var(--color-primary-hover);
+
     font-family: var(--text-font-primary);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(2rem, 7vw, 3rem);
     font-weight: 700;
+    line-height: 1.15;
     text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .decoracion {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 2vw, 1rem);
+  }
+
+  .linea {
+    height: 2px;
+
+    flex: 1;
+
+    background-color: var(--color-primary-light);
+  }
+
+  .icono {
+    width: clamp(1.4rem, 5vw, 1.8rem);
+    height: clamp(1.4rem, 5vw, 1.8rem);
+
+    flex-shrink: 0;
 
     color: var(--color-primary-hover);
+  }
+
+  @media (max-width: 400px) {
+    .titulo-seccion {
+      width: calc(100% - 1.25rem);
+    }
   }
 </style>

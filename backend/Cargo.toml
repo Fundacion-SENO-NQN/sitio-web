@@ -27,3 +27,10 @@ sqlx = { version = "0.9.0", features = [
     "uuid",
 ] }
 thiserror = "2"
+validator = { version = "0.21", features = ["derive"] }
+lettre = { version = "0.11.22", default-features = false, features = [
+    "builder",
+    "smtp-transport",
+    "pool",
+    "tokio1-rustls-tls",
+] }

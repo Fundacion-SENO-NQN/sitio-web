@@ -1,0 +1,1103 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import TituloPag from '../../components/Common/TituloPag.astro'
+
+import SvgUser from '../../assets/icon-common/icon-user.svg'
+import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+import SvgMensaje from '../../assets/icon-common/icon-mensaje.svg'
+import SvgMensajeCheck from '../../assets/icon-common/icon-mensaje-check.svg'
+import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
+
+import SvgWhatsApp from '../../assets/icon-contacto/icon-whatsapp.svg'
+import SvgEmail from '../../assets/icon-contacto/icon-email.svg'
+import SvgTelefono from '../../assets/icon-contacto/icon-telefono.svg'
+import SvgFacebook from '../../assets/icon-contacto/icon-facebook.svg'
+import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
+---
+
+<Layout pag="Necesito ayuda">
+  <TituloPag titulo="Necesito ayuda" />
+
+  <main class="ayuda">
+    <section class="hero" aria-labelledby="titulo-ayuda">
+      <div class="hero__contenido">
+        <span class="etiqueta">Estamos para acompañarte</span>
+
+        <h1 id="titulo-ayuda">Puedes comunicarte directamente con nosotros</h1>
+
+        <p class="hero__destacado">
+          Pueden contactarnos por cualquiera de nuestros medios de comunicación
+          o redes sociales.
+        </p>
+
+        <p>
+          Podés escribirnos para realizar una consulta, contarnos tu situación,
+          coordinar una visita o conversar sobre la ayuda que necesitas.
+        </p>
+
+        <div class="hero__acciones">
+          <a class="boton boton--principal" href="#contacto">
+            Ver medios de contacto
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="m13 6 6 6-6 6"></path>
+            </svg>
+          </a>
+
+          <a class="boton boton--secundario" href="#como-contactarnos">
+            Cómo podemos ayudarte
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <div class="ilustracion">
+          <span class="ilustracion__mensaje ilustracion__mensaje--uno">
+            <SvgMensaje />
+          </span>
+
+          <span class="ilustracion__corazon">
+            <SvgCorazon />
+          </span>
+
+          <span class="ilustracion__mensaje ilustracion__mensaje--dos">
+            <SvgMensajeCheck />
+          </span>
+
+          <div class="ilustracion__personas">
+            <span>
+              <SvgUser />
+            </span>
+
+            <span>
+              <SvgUser />
+            </span>
+
+            <span>
+              <SvgUser />
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contacto-directo" aria-labelledby="contacto-directo">
+      <div class="contacto-directo__icono" aria-hidden="true">
+        <SvgMensajeVacio />
+      </div>
+
+      <div>
+        <span class="etiqueta">Contacto directo</span>
+        <h2 id="contacto-directo">
+          Podés escribirnos por el medio que prefieras
+        </h2>
+
+        <p>
+          Podés comunicarte mediante teléfono, WhatsApp, correo electrónico o
+          cualquiera de las redes sociales de Fundación SENO.
+        </p>
+
+        <p>
+          Utilizá el canal que te resulte más cómodo para contarnos el motivo de
+          tu consulta y comenzar a coordinar la ayuda.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="como-contactarnos"
+      class="motivos"
+      aria-labelledby="titulo-motivos"
+    >
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Podés contactarnos para</span>
+        <h2 id="titulo-motivos">Estamos disponibles para las familias</h2>
+
+        <p>
+          La comunicación puede iniciarse directamente, según la necesidad o
+          consulta de cada familia.
+        </p>
+      </header>
+
+      <div class="motivos__grid">
+        <article class="motivo">
+          <div class="motivo__icono" aria-hidden="true">
+            <SvgCorazon />
+          </div>
+
+          <h3>Solicitar ayuda</h3>
+
+          <p>
+            Podés comunicarte para conversar sobre la situación de tu familia y
+            coordinar la ayuda con la Fundación.
+          </p>
+        </article>
+
+        <article class="motivo">
+          <div class="motivo__icono" aria-hidden="true">
+            <SvgMensaje />
+          </div>
+
+          <h3>Realizar una consulta</h3>
+
+          <p>
+            Podés escribirnos para aclarar dudas, pedir información o consultar
+            sobre las actividades y formas de acompañamiento.
+          </p>
+        </article>
+
+        <article class="motivo">
+          <div class="motivo__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 10 12 4l8 6"></path>
+              <path d="M6 9v11h12V9"></path>
+              <path d="M10 20v-6h4v6"></path>
+            </svg>
+          </div>
+
+          <h3>Coordinar una visita</h3>
+
+          <p>
+            También podés comunicarte con nosotros para consultar y acordar
+            previamente una visita.
+          </p>
+        </article>
+
+        <article class="motivo">
+          <div class="motivo__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 16v.01"></path>
+              <path d="M9.8 9a2.3 2.3 0 1 1 3.6 1.9c-.9.6-1.4 1.1-1.4 2.1"
+              ></path>
+            </svg>
+          </div>
+
+          <h3>Conocer la Fundación</h3>
+
+          <p>
+            Si deseas conocer mejor nuestro trabajo, puedes contactarnos para
+            recibir información y resolver tus inquietudes.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="proceso" aria-labelledby="titulo-proceso">
+      <div class="proceso__introduccion">
+        <span class="etiqueta">Un contacto sencillo</span>
+        <h2 id="titulo-proceso">¿Cómo comienza el acompañamiento?</h2>
+
+        <p>
+          El primer paso es comunicarse con la Fundación. A partir de esa
+          conversación podremos conocer la consulta y coordinar cómo continuar.
+        </p>
+      </div>
+
+      <div class="proceso__pasos">
+        <article class="paso">
+          <span class="paso__numero">1</span>
+
+          <div class="paso__contenido">
+            <h3>Comunícate</h3>
+            <p>
+              Escríbinos mediante cualquiera de nuestros canales de contacto o
+              redes sociales.
+            </p>
+          </div>
+        </article>
+
+        <article class="paso">
+          <span class="paso__numero">2</span>
+
+          <div class="paso__contenido">
+            <h3>Contanos el motivo</h3>
+            <p>
+              Indícanos si necesitas realizar una consulta, coordinar una visita
+              o conversar sobre una posible ayuda.
+            </p>
+          </div>
+        </article>
+
+        <article class="paso">
+          <span class="paso__numero">3</span>
+
+          <div class="paso__contenido">
+            <h3>Coordinamos contigo</h3>
+            <p>
+              La Fundación continuará la comunicación para acordar cómo avanzar
+              según cada situación.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="canales" aria-labelledby="titulo-canales">
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Eligí el medio más cómodo</span>
+        <h2 id="titulo-canales">Podés encontrarnos en distintos canales</h2>
+
+        <p>
+          Todos nuestros medios de comunicación permiten iniciar una consulta
+          con la Fundación.
+        </p>
+      </header>
+
+      <div class="canales__lista">
+        <div class="canal">
+          <span class="canal__icono" aria-hidden="true">
+            <SvgWhatsApp />
+          </span>
+
+          <span>WhatsApp</span>
+        </div>
+
+        <div class="canal">
+          <span class="canal__icono" aria-hidden="true">
+            <SvgInstagram />
+          </span>
+
+          <span>Instagram</span>
+        </div>
+
+        <div class="canal">
+          <span class="canal__icono" aria-hidden="true">
+            <SvgFacebook />
+          </span>
+
+          <span>Facebook</span>
+        </div>
+
+        <div class="canal">
+          <span class="canal__icono" aria-hidden="true">
+            <SvgEmail />
+          </span>
+
+          <span>Correo electrónico</span>
+        </div>
+
+        <div class="canal">
+          <span class="canal__icono" aria-hidden="true">
+            <SvgTelefono />
+          </span>
+
+          <span>Teléfono</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="llamada">
+      <div class="llamada__icono" aria-hidden="true">
+        <SvgCorazon />
+      </div>
+
+      <div class="llamada__contenido">
+        <span class="etiqueta">Fundación SENO</span>
+        <h2>Estamos disponibles para recibir tu mensaje</h2>
+
+        <p>
+          Comunícate con nosotros mediante el canal que prefieras para realizar
+          tu consulta o comenzar a coordinar la ayuda.
+        </p>
+      </div>
+
+      <a class="boton llamada__boton" href="/contacto">
+        Contactar a la Fundación
+
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </a>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .ayuda {
+    --help-primary: var(--color-primary, #4178aa);
+    --help-primary-dark: var(--color-primary-hover, #25597f);
+    --help-secondary: var(--color-secondary, #d45d8c);
+    --help-text: var(--color-text, #28343e);
+    --help-muted: #667580;
+    --help-border: #dce6ed;
+    --help-background: #f5f9fb;
+
+    width: min(1180px, calc(100% - 2rem));
+    margin: 2rem auto 5rem;
+    color: var(--help-text);
+    font-family: var(--text-font-primary, system-ui, sans-serif);
+  }
+
+  .etiqueta {
+    display: block;
+    margin-bottom: 0.65rem;
+    color: var(--help-primary-dark);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    min-height: 480px;
+    padding: clamp(2rem, 6vw, 5rem);
+    overflow: hidden;
+    border: 1px solid var(--help-border);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 88% 16%,
+        rgb(212 93 140 / 16%),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 10% 90%,
+        rgb(65 120 170 / 12%),
+        transparent 25%
+      ),
+      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
+  }
+
+  .hero::before,
+  .hero::after {
+    position: absolute;
+    border-radius: 50%;
+    content: '';
+    pointer-events: none;
+  }
+
+  .hero::before {
+    right: -120px;
+    bottom: -150px;
+    width: 360px;
+    aspect-ratio: 1;
+    border: 50px solid rgb(65 120 170 / 6%);
+  }
+
+  .hero::after {
+    top: -80px;
+    left: 38%;
+    width: 180px;
+    aspect-ratio: 1;
+    background: rgb(255 255 255 / 45%);
+  }
+
+  .hero__contenido,
+  .hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    max-width: 760px;
+    margin: 0 0 1.3rem;
+    color: var(--help-primary-dark);
+    font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .hero p {
+    max-width: 720px;
+    margin: 0.75rem 0;
+    color: var(--help-muted);
+    font-size: 1.03rem;
+    line-height: 1.75;
+  }
+
+  .hero .hero__destacado {
+    color: var(--help-text);
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
+    font-weight: 600;
+  }
+
+  .hero__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.7rem;
+  }
+
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    min-height: 49px;
+    padding: 0.85rem 1.3rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      transform 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .boton svg {
+    width: 20px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .boton--principal {
+    background: var(--help-primary-dark);
+    color: #fff;
+    box-shadow: 0 12px 28px rgb(37 89 127 / 22%);
+  }
+
+  .boton--secundario {
+    border-color: rgb(37 89 127 / 23%);
+    background: rgb(255 255 255 / 60%);
+    color: var(--help-primary-dark);
+  }
+
+  .hero__visual {
+    display: grid;
+    place-items: center;
+    min-height: 330px;
+  }
+
+  .ilustracion {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(100%, 330px);
+    aspect-ratio: 1;
+    border: 1px solid rgb(65 120 170 / 14%);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 65%);
+    box-shadow: 0 28px 65px rgb(37 89 127 / 15%);
+  }
+
+  .ilustracion__corazon {
+    display: grid;
+    place-items: center;
+    width: 120px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--help-primary);
+    color: #fff;
+    box-shadow: 0 20px 40px rgb(65 120 170 / 28%);
+  }
+
+  .ilustracion__corazon svg {
+    width: 66px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+  }
+
+  .ilustracion__mensaje {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    aspect-ratio: 1;
+    border: 6px solid #fff;
+    border-radius: 50%;
+    background: #fbeaf1;
+    color: var(--help-secondary);
+    box-shadow: 0 14px 30px rgb(37 89 127 / 14%);
+  }
+
+  .ilustracion__mensaje svg {
+    width: 35px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  .ilustracion__mensaje--uno {
+    top: 16px;
+    left: 25px;
+    transform: rotate(-7deg) scaleX(-1);
+  }
+
+  .ilustracion__mensaje--dos {
+    top: 44px;
+    right: 5px;
+    background: #ecf5fa;
+    color: var(--help-primary);
+    transform: rotate(7deg);
+  }
+
+  .ilustracion__personas {
+    position: absolute;
+    right: 0;
+    bottom: 22px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ilustracion__personas span {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    aspect-ratio: 1;
+    margin-left: -10px;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    background: var(--help-background);
+    color: var(--help-primary);
+    box-shadow: 0 9px 22px rgb(37 89 127 / 10%);
+  }
+
+  .ilustracion__personas span:first-child {
+    margin-left: 0;
+  }
+
+  .ilustracion__personas svg {
+    width: 31px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  .contacto-directo {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-left: 6px solid var(--help-primary);
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+    background: #edf6fb;
+  }
+
+  .contacto-directo__icono {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--help-primary);
+    box-shadow: 0 10px 25px rgb(65 120 170 / 13%);
+  }
+
+  .contacto-directo__icono svg {
+    width: 30px;
+    transform: scaleX(-1);
+  }
+
+  .contacto-directo h2,
+  .proceso h2,
+  .llamada h2 {
+    margin: 0 0 0.8rem;
+    color: var(--help-primary-dark);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .contacto-directo p {
+    max-width: 920px;
+    margin: 0.4rem 0;
+    color: var(--help-muted);
+    line-height: 1.7;
+  }
+
+  .motivos,
+  .proceso,
+  .canales {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .motivos {
+    scroll-margin-top: 2rem;
+  }
+
+  .encabezado-seccion {
+    max-width: 730px;
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .encabezado-seccion h2 {
+    margin: 0;
+    color: var(--help-primary-dark);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .encabezado-seccion p {
+    margin: 1rem 0 0;
+    color: var(--help-muted);
+    font-size: 1.04rem;
+    line-height: 1.7;
+  }
+
+  .motivos__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .motivo {
+    position: relative;
+    min-width: 0;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    overflow: hidden;
+    border: 1px solid var(--help-border);
+    border-radius: 1.5rem;
+    background: #fff;
+    box-shadow: 0 14px 40px rgb(38 63 80 / 6%);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .motivo::after {
+    position: absolute;
+    right: -40px;
+    bottom: -50px;
+    width: 125px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--help-primary);
+    content: '';
+    opacity: 0.05;
+  }
+
+  .motivo__icono {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 1.25rem;
+    border-radius: 1.1rem;
+    background: #edf5fa;
+    color: var(--help-primary);
+  }
+
+  .motivo:nth-child(even) .motivo__icono {
+    background: #fbeaf1;
+    color: var(--help-secondary);
+  }
+
+  .motivo__icono svg {
+    width: 31px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  .motivo h3 {
+    margin: 0 0 0.75rem;
+    color: var(--help-primary-dark);
+    font-size: 1.3rem;
+  }
+
+  .motivo p {
+    margin: 0;
+    color: var(--help-muted);
+    line-height: 1.65;
+  }
+
+  .proceso {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.7fr) minmax(0, 1.3fr);
+    gap: clamp(2rem, 7vw, 6rem);
+    align-items: start;
+  }
+
+  .proceso__introduccion {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .proceso__introduccion p {
+    margin: 0;
+    color: var(--help-muted);
+    line-height: 1.75;
+  }
+
+  .proceso__pasos {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .paso {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.3rem;
+    padding: 1.5rem;
+    border: 1px solid var(--help-border);
+    border-radius: 1.3rem;
+    background: var(--help-background);
+  }
+
+  .paso__numero {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 1rem;
+    background: var(--help-primary);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 900;
+    box-shadow: 0 9px 23px rgb(65 120 170 / 22%);
+  }
+
+  .paso h3 {
+    margin: 0 0 0.45rem;
+    color: var(--help-primary-dark);
+    font-size: 1.25rem;
+  }
+
+  .paso p {
+    margin: 0;
+    color: var(--help-muted);
+    line-height: 1.65;
+  }
+
+  .canales__lista {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .canal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+    padding: 1.5rem 1rem;
+    border: 1px solid var(--help-border);
+    border-radius: 1.3rem;
+    background: #fff;
+    color: var(--help-primary-dark);
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .canal__icono {
+    display: grid;
+    place-items: center;
+    width: 55px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--help-background);
+    color: var(--help-primary);
+  }
+
+  .canal:nth-child(even) .canal__icono {
+    background: #fbeaf1;
+    color: var(--help-secondary);
+  }
+
+  .canal__icono svg {
+    width: 28px;
+  }
+
+  .llamada {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
+    border-radius: 1.8rem;
+    background: var(--help-primary-dark);
+    color: #fff;
+  }
+
+  .llamada__icono {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--help-secondary);
+  }
+
+  .llamada__icono svg {
+    width: 40px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .llamada .etiqueta {
+    color: rgb(255 255 255 / 65%);
+  }
+
+  .llamada h2 {
+    color: #fff;
+  }
+
+  .llamada p {
+    max-width: 730px;
+    margin: 0;
+    color: rgb(255 255 255 / 78%);
+    line-height: 1.7;
+  }
+
+  .llamada__boton {
+    flex-shrink: 0;
+    border-color: #fff;
+    background: #fff;
+    color: var(--help-primary-dark);
+  }
+
+  @media (hover: hover) {
+    .boton--principal:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 17px 35px rgb(37 89 127 / 29%);
+    }
+
+    .boton--secundario:hover {
+      background: #fff;
+      transform: translateY(-3px);
+    }
+
+    .motivo:hover {
+      border-color: rgb(65 120 170 / 32%);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 45px rgb(38 63 80 / 11%);
+    }
+
+    .llamada__boton:hover {
+      background: transparent;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .motivos__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .canales__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .llamada {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .llamada__boton {
+      grid-column: 1 / -1;
+      width: fit-content;
+      margin-left: calc(72px + 1.5rem);
+    }
+  }
+
+  @media (max-width: 850px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__contenido {
+      order: 2;
+    }
+
+    .hero__visual {
+      order: 1;
+      min-height: 280px;
+    }
+
+    .hero p {
+      margin-inline: auto;
+    }
+
+    .hero__acciones {
+      justify-content: center;
+    }
+
+    .ilustracion {
+      width: min(65vw, 290px);
+    }
+
+    .proceso {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .proceso__introduccion {
+      position: static;
+      max-width: 730px;
+      text-align: center;
+      margin-inline: auto;
+    }
+
+    .canales__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .ayuda {
+      width: min(100% - 1rem, 1180px);
+      margin-top: 1rem;
+    }
+
+    .hero {
+      gap: 1.5rem;
+      min-height: auto;
+      padding: 1.7rem 1.2rem;
+      border-radius: 1.4rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .hero p {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .hero__visual {
+      min-height: 230px;
+    }
+
+    .ilustracion {
+      width: min(75vw, 245px);
+    }
+
+    .ilustracion__corazon {
+      width: 90px;
+    }
+
+    .ilustracion__corazon svg {
+      width: 50px;
+    }
+
+    .ilustracion__mensaje {
+      width: 58px;
+      border-width: 4px;
+    }
+
+    .ilustracion__mensaje svg {
+      width: 28px;
+    }
+
+    .ilustracion__personas span {
+      width: 47px;
+      border-width: 4px;
+    }
+
+    .ilustracion__personas svg {
+      width: 25px;
+    }
+
+    .hero__acciones {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .boton {
+      width: 100%;
+    }
+
+    .contacto-directo {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      border-left-width: 4px;
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .contacto-directo__icono {
+      width: 52px;
+      height: 52px;
+    }
+
+    .motivos__grid,
+    .canales__lista {
+      grid-template-columns: 1fr;
+    }
+
+    .motivo {
+      min-height: auto;
+      padding: 1.4rem;
+    }
+
+    .paso {
+      gap: 1rem;
+      padding: 1.3rem;
+    }
+
+    .paso__numero {
+      width: 45px;
+      height: 45px;
+      border-radius: 0.85rem;
+      font-size: 1.05rem;
+    }
+
+    .canal {
+      flex-direction: row;
+      justify-content: flex-start;
+      padding: 1rem 1.2rem;
+      text-align: left;
+    }
+
+    .canal__icono {
+      width: 48px;
+      flex-shrink: 0;
+    }
+
+    .llamada {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .llamada__icono {
+      width: 60px;
+    }
+
+    .llamada__icono svg {
+      width: 34px;
+    }
+
+    .llamada__boton {
+      grid-column: auto;
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boton,
+    .motivo {
+      transition: none;
+    }
+  }
+</style>

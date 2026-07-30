@@ -1,3 +1,4 @@
+use crate::services::email::EmailService;
 use crate::{
     handlers::{equipo, img_donation, logro, logro_fav, noticia},
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
@@ -24,10 +25,12 @@ mod error;
 mod handlers;
 mod models;
 mod repositories;
+mod services;
 mod utils;
 
 #[derive(Debug)]
 pub struct AppState {
+    pub email: EmailService,
     pub db: PgPool,
     pub news: RwLock<Vec<Noticia>>,
     pub team: RwLock<Vec<Equipo>>,
@@ -90,8 +93,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let db = db::connection::connect().await?;
 
+    let email = EmailService::from_env().expect("No se pudo configurar el servicio de correo");
+
     let state = Arc::new(AppState {
         db,
+        email,
         news: RwLock::new(Vec::new()),
         team: RwLock::new(Vec::new()),
         logros: RwLock::new(Vec::new()),
@@ -102,6 +108,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
      * ====================================================== */
 
     let app = Router::new()
+        .route(
+            "/voluntariado/solicitud",
+            post(handlers::voluntariado::create_solicitud),
+        )
         // Fly.io health endpoint
         .route("/health", get(|| async { "OK" }))
         // Noticias

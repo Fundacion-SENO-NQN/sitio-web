@@ -6,3 +6,4 @@ pub mod noticia;
 pub mod role;
 pub mod service;
 pub mod user;
+pub mod voluntariado;

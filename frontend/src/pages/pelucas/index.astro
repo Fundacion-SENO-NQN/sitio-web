@@ -2,6 +2,8 @@
 import TituloPag from '../../components/Common/TituloPag.astro'
 import NavegacionPelucas from '../../components/Pelucas/NavegacionPelucas.astro'
 import Layout from '../../layouts/Layout.astro'
+import Image from 'astro/components/Image.astro'
+import ImgTaller from '../../assets/img_taller/confeccion_pelucas.avif'
 ---
 
 <Layout pag="Pelucas">
@@ -11,9 +13,10 @@ import Layout from '../../layouts/Layout.astro'
     <section class="pelucas">
       <div class="pelucas__hero">
         <div class="pelucas__imagen">
-          <img
-            src="/img/pelucas/taller.avif"
+          <Image
+            src={ImgTaller}
             alt="Voluntarias confeccionando pelucas"
+            loading="eager"
           />
         </div>
 

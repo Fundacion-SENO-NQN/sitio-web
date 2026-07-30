@@ -7,11 +7,37 @@ import ListaDescripcion from '../../components/QuienesSomos/ListaDescripcion.ast
 import TituloPag from '../../components/Common/TituloPag.astro'
 ---
 
-<Layout pag="¿Quienes somos?">
+<Layout pag="¿Quiénes somos?">
   <NavegacionQuienesSomos pag="0" />
-  <TituloPag titulo="¿Quienes somos?" />
-  <main>
-    <Descripcion />
+
+  <TituloPag titulo="¿Quiénes somos?" />
+
+  <main class="main-quienes-somos">
+    <section class="introduccion" aria-label="Presentación de Fundación SENO">
+      <Descripcion />
+    </section>
+
     <ListaDescripcion />
   </main>
 </Layout>
+
+<style>
+  .main-quienes-somos {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 1200px);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  .introduccion {
+    width: 100%;
+  }
+
+  @media (max-width: 500px) {
+    .main-quienes-somos {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
+    }
+  }
+</style>

@@ -5,38 +5,51 @@ import { misiones } from '../../../data/mision/mision'
 import type Mision from '../../../data/interfaces/Mision'
 ---
 
-<li>
-  <h3 class="titulo-mision">¿Cual es nuestra misión?</h3>
+<li class="mision">
+  <h2 class="titulo-mision">¿Cuál es nuestra misión?</h2>
+
   <ul class="lista-mision">
     {misiones.map((item: Mision) => <ItemMision mision={item} />)}
   </ul>
 </li>
 
 <style>
+  .mision {
+    width: 100%;
+  }
+
   .titulo-mision {
-    text-align: center;
+    margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+
+    color: var(--color-primary-hover);
+
     font-family: var(--text-font-primary);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.2;
+    text-align: center;
   }
 
   .lista-mision {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
     display: grid;
+    grid-template-columns: repeat(3, minmax(min(100%, 18rem), 1fr));
+    align-items: stretch;
 
-    justify-items: center;
-
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
-    column-gap: 2rem;
+    list-style: none;
   }
 
-  @media screen and (min-width: 1200px) {
+  @media (max-width: 1000px) {
     .lista-mision {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, minmax(min(100%, 18rem), 1fr));
     }
   }
 
-  @media screen and (min-width: 1700px) {
+  @media (max-width: 650px) {
     .lista-mision {
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

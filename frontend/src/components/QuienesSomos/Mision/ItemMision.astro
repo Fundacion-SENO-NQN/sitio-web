@@ -1,4 +1,10 @@
 ---
+import type Mision from '../../../data/interfaces/Mision'
+
+interface Props {
+  mision: Mision
+}
+
 const { mision } = Astro.props
 
 const icons: Record<string, string> = import.meta.glob(
@@ -14,44 +20,55 @@ const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
 ---
 
 <li class="item-lista">
-  <div class="inicio-borde"></div>
+  <div class="inicio-borde" aria-hidden="true"></div>
+
   <div class="contenedor-titulo">
-    <h4 class="titulo">{mision.titulo}</h4>
+    <h3 class="titulo">{mision.titulo}</h3>
   </div>
+
   <div class="contenedor-contenido">
-    <p>
-      {mision.contenido}
-    </p>
-    <Fragment set:html={icono} />
+    <p>{mision.contenido}</p>
+
+    <div class="icono-mision" aria-hidden="true">
+      <Fragment set:html={icono} />
+    </div>
   </div>
 </li>
 
 <style>
   .item-lista {
-    width: min-content;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
     display: flex;
     flex-direction: column;
+
     font-family: var(--text-font-primary);
   }
 
   .inicio-borde {
-    position: relative;
-    height: 2rem;
-    width: 100%;
-    z-index: 100;
-    border-left: 1px solid var(--color-primary);
+    width: 1px;
+    height: 1.5rem;
+    margin-left: 2rem;
+
+    flex-shrink: 0;
+
+    background-color: var(--color-primary);
   }
 
   .contenedor-titulo {
+    box-sizing: border-box;
+
+    width: 100%;
+    padding: 0.3rem;
+
     position: relative;
-    height: 2.8rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
-    outline: 1px solid var(--color-primary);
-    border-radius: 11rem;
-    right: 1rem;
+    z-index: 1;
+
+    border: 1px solid var(--color-primary);
+    border-radius: 999px;
+    background-color: var(--color-background);
   }
 
   .contenedor-titulo::before {
@@ -59,51 +76,126 @@ const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
     height: 120%;
     width: 100%;
     top: 50%;
+    z-index: -1;
     transform: translatey(-50%);
-    left: calc(1rem + 1px);
+    left: 2rem;
     position: absolute;
     background-color: var(--color-background);
   }
 
-  .contenedor-titulo h4 {
-    align-items: center;
-    display: flex;
-  }
-
   .titulo {
+    box-sizing: border-box;
+
+    width: 100%;
+    min-height: 3rem;
     margin: 0;
-    width: 15rem;
-    height: 2.3rem;
-    padding: 0.3rem;
-    padding-inline: 0.7rem;
-    border-radius: 10rem;
-    position: relative;
-    background-color: var(--color-primary);
+    padding: 0.7rem 1rem;
+
     display: flex;
     align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    background-color: var(--color-primary);
+
+    color: var(--color-background);
+
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
 
   .contenedor-contenido {
+    box-sizing: border-box;
+
+    min-width: 0;
+    height: 100%;
+    margin-left: 2rem;
+    padding: 1.25rem 1rem 1rem 1.5rem;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    padding: 0.7rem;
+
     border-left: 1px solid var(--color-primary);
   }
 
   .contenedor-contenido p {
-    margin: 0;
-    margin-bottom: 1rem;
-    height: min-content;
+    width: 100%;
+    margin: 0 0 1.5rem;
+
+    color: var(--color-text);
+
+    line-height: 1.65;
+    overflow-wrap: anywhere;
   }
 
-  .contenedor-contenido :global(svg) {
-    height: 5rem;
-    color: var(--color-primary);
-    stroke-width: 5;
+  .icono-mision {
     margin-top: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-primary);
+  }
+
+  .icono-mision :global(svg) {
+    width: clamp(3.75rem, 9vw, 5rem);
+    height: clamp(3.75rem, 9vw, 5rem);
+
+    display: block;
+
+    color: inherit;
+    stroke-width: 5;
+  }
+
+  @media (hover: hover) {
+    .item-lista {
+      transition: transform 0.25s ease;
+    }
+
+    .item-lista:hover {
+      transform: translateY(-3px);
+    }
+
+    .item-lista:hover .titulo {
+      background-color: var(--color-primary-hover);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .inicio-borde {
+      height: 1rem;
+      margin-left: 1rem;
+    }
+
+    .contenedor-contenido {
+      margin-left: 1rem;
+      padding: 1rem 0.75rem 0.75rem 1.1rem;
+    }
+
+    .titulo {
+      min-height: 2.8rem;
+      padding: 0.65rem 0.85rem;
+    }
+
+    .contenedor-contenido p {
+      margin-bottom: 1rem;
+
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .item-lista {
+      transition: none;
+    }
+
+    .item-lista:hover {
+      transform: none;
+    }
   }
 </style>

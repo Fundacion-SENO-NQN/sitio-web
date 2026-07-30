@@ -4,6 +4,7 @@ import CarouselDonaciones from '../components/Inicio/CarouselDonaciones.astro'
 import TituloPag from '../components/Common/TituloPag.astro'
 import ItemNoticia from '../components/Noticias/ItemNoticia.astro'
 import ItemLogro from '../components/QuienesSomos/Logros/ItemLogro.astro'
+
 import type Noticia from '../data/interfaces/Noticia'
 import type Logro from '../data/interfaces/Logro'
 
@@ -16,32 +17,100 @@ const noticias = await getUltimasNoticias()
 
 <Layout pag="Inicio">
   <TituloPag titulo="Inicio" />
+
   <CarouselDonaciones />
-  <main>
-    <h2>Logros destacados</h2>
-    <section class="logros-destacados">
-      {logrosFav.map((item: Logro) => <ItemLogro logro={item} />)}
+
+  <main class="main-inicio">
+    <section class="seccion-inicio" aria-labelledby="titulo-logros-destacados">
+      <h2 class="titulo-contenido" id="titulo-logros-destacados">
+        Logros destacados
+      </h2>
+
+      <div class="logros-destacados">
+        {logrosFav.map((item: Logro) => <ItemLogro logro={item} />)}
+      </div>
     </section>
-    <h2>Últimas noticias</h2>
-    <section class="ultimas-noticias">
-      {noticias.map((item: Noticia) => <ItemNoticia noticia={item} />)}
+
+    <section class="seccion-inicio" aria-labelledby="titulo-ultimas-noticias">
+      <h2 class="titulo-contenido" id="titulo-ultimas-noticias">
+        Últimas noticias
+      </h2>
+
+      <div class="ultimas-noticias">
+        {
+          noticias.map((item: Noticia, index: number) => (
+            <ItemNoticia noticia={item} priority={index === 0} />
+          ))
+        }
+      </div>
     </section>
   </main>
 </Layout>
 
 <style>
-  h2 {
-    font-family: var(--text-font-primary);
-    text-align: center;
+  .main-inicio {
+    box-sizing: border-box;
+
+    width: min(calc(100% - 2rem), 1200px);
+    margin-inline: auto;
+    padding-block: clamp(3rem, 7vw, 6rem);
+  }
+
+  .seccion-inicio {
+    width: 100%;
+  }
+
+  .seccion-inicio + .seccion-inicio {
+    margin-top: clamp(4rem, 8vw, 7rem);
+  }
+
+  .titulo-contenido {
+    margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+
     color: var(--color-primary-hover);
-    font-size: 1.7rem;
+
+    font-family: var(--text-font-primary);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .logros-destacados {
+    width: min(100%, 900px);
+    margin-inline: auto;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
   }
 
   .ultimas-noticias {
+    width: 100%;
+
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    align-items: stretch;
     justify-items: center;
-    gap: 2rem;
-    margin-top: 2rem;
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  @media (max-width: 600px) {
+    .main-inicio {
+      width: min(calc(100% - 1.25rem), 1200px);
+      padding-block: 2.5rem 4rem;
+    }
+
+    .seccion-inicio + .seccion-inicio {
+      margin-top: 4rem;
+    }
+
+    .logros-destacados {
+      gap: 1rem;
+    }
+
+    .ultimas-noticias {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
   }
 </style>

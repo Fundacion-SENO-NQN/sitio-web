@@ -7,3 +7,4 @@ pub mod metodo_donacion;
 pub mod noticia;
 pub mod service;
 pub mod user;
+pub mod voluntariado;

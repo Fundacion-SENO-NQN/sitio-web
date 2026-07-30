@@ -17,6 +17,7 @@ pub enum ApiError {
     BadRequest(String),
     Conflict(String),
     InternalServerError,
+    ServiceUnavailable(String),
 }
 
 impl IntoResponse for ApiError {
@@ -58,6 +59,13 @@ impl IntoResponse for ApiError {
                     error: "Error interno del servidor".into(),
                 }),
             ),
+
+            ApiError::ServiceUnavailable(message) => {(
+                StatusCode::SERVICE_UNAVAILABLE,
+                Json(ErrorResponse {
+                    error: message
+                }),
+            )},
         }
         .into_response()
     }
