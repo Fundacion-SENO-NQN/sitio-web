@@ -1,11 +1,8 @@
 ---
-import { Image } from 'astro:assets'
-import type { ImageMetadata } from 'astro'
-
 interface Props {
   integrante: {
     id: number
-    order:number
+    order: number
     nombre: string
     apellido: string
     puesto: string
@@ -17,35 +14,33 @@ interface Props {
 
 const { integrante, priority = false } = Astro.props
 
-const images: Record<string, ImageMetadata> = import.meta.glob(
-  '../../../../public/img_equipo/*.avif',
-  {
-    eager: true,
-    import: 'default',
-  },
-)
+const R2_PUBLIC_URL = import.meta.env.PUBLIC_IMG_URL
 
-const image: ImageMetadata =
-  images[`../../../../public/img_equipo/${integrante.id}.avif`]
-
-console.log(integrante)
+const imageUrl = `${R2_PUBLIC_URL}/img_equipo/${integrante.id}.avif`
 ---
 
 <li class="integrante">
   <div class="imagen-container">
-    <Image
-      src={image}
+    <img
+      src={imageUrl}
       alt={`Foto de ${integrante.nombre} ${integrante.apellido}`}
       class="imagen-integrante"
       loading={priority ? 'eager' : 'lazy'}
-      priority={priority}
+      fetchpriority={priority ? 'high' : 'auto'}
+      decoding="async"
     />
   </div>
 
   <div class="contenido">
     <header class="cabecera">
-      <h2>{integrante.nombre} {integrante.apellido}</h2>
-      <p class="puesto">{integrante.puesto}</p>
+      <h2>
+        {integrante.nombre}
+        {integrante.apellido}
+      </h2>
+
+      <p class="puesto">
+        {integrante.puesto}
+      </p>
     </header>
 
     <div class="descripcion">
