@@ -31,5 +31,5 @@ backend/Dockerfile
 
 test/
 
-frontend/.vscode
-frontend/.wrangler
+.vscode/
+.wrangler/

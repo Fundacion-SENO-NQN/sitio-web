@@ -2,7 +2,7 @@
 import LayoutPlataforma from '../../layouts/LayoutPlataforma.astro'
 import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
 import '../../style/service-card.css'
-import PantallaCarga from '../../components/Common/PantallaCarga.astro'
+import ModalCarga from '../../components/Common/ModalCarga.astro'
 ---
 
 <LayoutPlataforma>
@@ -16,7 +16,7 @@ import PantallaCarga from '../../components/Common/PantallaCarga.astro'
     </button>
   </header>
   <main id="main">
-    <PantallaCarga />
+    <ModalCarga />
   </main>
 </LayoutPlataforma>
 
@@ -54,9 +54,9 @@ import PantallaCarga from '../../components/Common/PantallaCarga.astro'
     })
 
     const pantallaCarga = document.getElementById(
-      'pantalla-carga',
+      'modal-carga',
     ) as HTMLDivElement
-    pantallaCarga.style.display = 'none'
+    pantallaCarga.remove()
   } catch (err) {
     console.error(err)
     console.error('Error al obtener los permisos del usuario')

@@ -228,7 +228,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
             WHERE id = $1
             "#,
         )
-        .bind(member.id)
+        .bind(member.id + 1)
         .execute(&mut *tx)
         .await?;
 
