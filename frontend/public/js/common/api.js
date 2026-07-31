@@ -1,10 +1,11 @@
 const API = import.meta.env.PUBLIC_API_URL
 
-if (!API) {
+console.log(import.meta.env)
+
+if (!API)
   throw new Error(
-    'PUBLIC_API_URL is not configured. Add it to the environment variables.',
+    'PUBLIC_API_URL is not configured. Add it to the environment variables.'
   )
-}
 
 const BASE_URL = API.replace(/\/+$/, '')
 
@@ -15,14 +16,14 @@ function token() {
 async function request(url, options = {}) {
   const headers = {
     Authorization: `Bearer ${token()}`,
-    ...(options.headers ?? {}),
+    ...(options.headers ?? {})
   }
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json'
   }
   const response = await fetch(BASE_URL + url, {
     ...options,
-    headers,
+    headers
   })
   if (!response.ok) {
     let message = response.statusText
@@ -64,34 +65,34 @@ export async function getUser(id) {
 export async function createUser(user) {
   return await request('/users', {
     method: 'POST',
-    body: JSON.stringify(user),
+    body: JSON.stringify(user)
   })
 }
 
 export async function updateUser(id, user) {
   return await request(`/users/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(user),
+    body: JSON.stringify(user)
   })
 }
 
 export async function deleteUser(id) {
   return await request(`/users/${id}`, {
-    method: 'DELETE',
+    method: 'DELETE'
   })
 }
 
 export async function setUserActive(id, active) {
   return await request(`/user/state/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(active),
+    body: JSON.stringify(active)
   })
 }
 
 export async function changePassword(id, password) {
   return await request(`/users/password/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(password),
+    body: JSON.stringify(password)
   })
 }
 
@@ -110,20 +111,20 @@ export async function getRole(id) {
 export async function createRole(role) {
   return await request('/roles-services', {
     method: 'POST',
-    body: JSON.stringify(role),
+    body: JSON.stringify(role)
   })
 }
 
 export async function updateRole(id, role) {
   return await request(`/roles/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(role),
+    body: JSON.stringify(role)
   })
 }
 
 export async function deleteRole(id) {
   return await request(`/roles/${id}`, {
-    method: 'DELETE',
+    method: 'DELETE'
   })
 }
 
@@ -142,7 +143,7 @@ export async function uploadDonationImage(file) {
 
   return await request('/img_donacion', {
     method: 'PUT',
-    body: formData,
+    body: formData
   })
 }
 
@@ -161,27 +162,27 @@ export async function getAchievement(id) {
 export async function createAchievement(formData) {
   return await request('/logros', {
     method: 'POST',
-    body: formData,
+    body: formData
   })
 }
 
 export async function updateAchievement(id, formData) {
   return await request(`/logros/${id}`, {
     method: 'PATCH',
-    body: formData,
+    body: formData
   })
 }
 
 export async function deleteAchievement(id) {
   return await request(`/logros/${id}`, {
-    method: 'DELETE',
+    method: 'DELETE'
   })
 }
 
 export async function changeAchievementsOrder(order) {
   return await request('/logros/order', {
     method: 'PUT',
-    body: JSON.stringify(order),
+    body: JSON.stringify(order)
   })
 }
 
@@ -202,21 +203,21 @@ export async function createFeaturedAchievement(logro_id, orden) {
     method: 'POST',
     body: JSON.stringify({
       logro_id,
-      orden,
-    }),
+      orden
+    })
   })
 }
 
 export async function deleteFeaturedAchievement(id) {
   return await request(`/logros_fav/${id}`, {
-    method: 'DELETE',
+    method: 'DELETE'
   })
 }
 
 export async function replaceFeaturedAchievements(logros) {
   return await request('/logros_fav', {
     method: 'PUT',
-    body: JSON.stringify(logros),
+    body: JSON.stringify(logros)
   })
 }
 
@@ -235,27 +236,27 @@ export function getMember(id) {
 export function createMember(formData) {
   return request('/equipo', {
     method: 'POST',
-    body: formData,
+    body: formData
   })
 }
 
 export function updateMember(id, formData) {
   return request(`/equipo/${id}`, {
     method: 'PATCH',
-    body: formData,
+    body: formData
   })
 }
 
 export function deleteMember(id) {
   return request(`/equipo/${id}`, {
-    method: 'DELETE',
+    method: 'DELETE'
   })
 }
 
 export function changeMembersOrder(items) {
   return request('/equipo/order', {
     method: 'PUT',
-    body: JSON.stringify(items),
+    body: JSON.stringify(items)
   })
 }
 
@@ -268,82 +269,50 @@ export function getEventos() {
 }
 
 export function getEventoById(id) {
-  return request(
-    `/eventos/${id}`,
-  )
+  return request(`/eventos/${id}`)
 }
 
-export function createEvento(
-  formData,
-) {
+export function createEvento(formData) {
   if (!(formData instanceof FormData)) {
-    throw new TypeError(
-      'createEvento requiere un FormData.',
-    )
+    throw new TypeError('createEvento requiere un FormData.')
   }
 
   return request('/eventos', {
     method: 'POST',
-    body: formData,
+    body: formData
   })
 }
 
-export function patchEvento(
-  id,
-  formData,
-) {
+export function patchEvento(id, formData) {
   if (!(formData instanceof FormData)) {
-    throw new TypeError(
-      'patchEvento requiere un FormData.',
-    )
+    throw new TypeError('patchEvento requiere un FormData.')
   }
 
-  return request(
-    `/eventos/${id}`,
-    {
-      method: 'PATCH',
-      body: formData,
-    },
-  )
+  return request(`/eventos/${id}`, {
+    method: 'PATCH',
+    body: formData
+  })
 }
 
 export function deleteEvento(id) {
-  return request(
-    `/eventos/${id}`,
-    {
-      method: 'DELETE',
-    },
-  )
+  return request(`/eventos/${id}`, {
+    method: 'DELETE'
+  })
 }
 
-export function changeOrderEventos(
-  cambios,
-) {
-  if (
-    !Array.isArray(cambios) ||
-    cambios.length === 0
-  ) {
-    throw new TypeError(
-      'Debe proporcionarse al menos un cambio de orden.',
-    )
+export function changeOrderEventos(cambios) {
+  if (!Array.isArray(cambios) || cambios.length === 0) {
+    throw new TypeError('Debe proporcionarse al menos un cambio de orden.')
   }
 
   for (const cambio of cambios) {
-    if (
-      !Number.isInteger(cambio.orden) ||
-      cambio.orden < 0
-    ) {
-      throw new TypeError(
-        'El orden del evento no es válido.',
-      )
+    if (!Number.isInteger(cambio.orden) || cambio.orden < 0) {
+      throw new TypeError('El orden del evento no es válido.')
     }
   }
 
-  return request(
-    '/eventos/order',
-    {
-      method: 'PUT',
-      body: JSON.stringify(cambios),
-    },
-  )
+  return request('/eventos/order', {
+    method: 'PUT',
+    body: JSON.stringify(cambios)
+  })
 }
