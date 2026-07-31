@@ -1,4 +1,4 @@
-const API: string = 'https://sitio-web-fundacion-seno.fly.dev'
+const API: string = import.meta.env.PUBLIC_API_URL
 
 if (!API) {
   throw new Error(
