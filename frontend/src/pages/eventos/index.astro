@@ -1,0 +1,148 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import TituloPag from '../../components/Common/TituloPag.astro'
+import ItemEvento from '../../components/Eventos/ItemEvento.astro'
+
+import type Evento from '../../data/interfaces/Evento'
+
+const API_URL = (
+  import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
+).replace(/\/+$/, '')
+
+let eventos: Evento[] = []
+let error = false
+
+try {
+  const response = await fetch(`${API_URL}/eventos`)
+
+  if (!response.ok) {
+    throw new Error(`Error ${response.status}`)
+  }
+
+  eventos = await response.json()
+
+  eventos.sort((eventoA, eventoB) => eventoA.orden - eventoB.orden)
+} catch (fetchError) {
+  console.error('No se pudieron cargar los eventos:', fetchError)
+
+  error = true
+}
+---
+
+<Layout pag="Eventos">
+  <TituloPag titulo="Eventos" />
+
+  <main class="eventos-page">
+    <section class="presentacion">
+      <p>
+        Conocé las actividades, encuentros y campañas organizadas por Fundación
+        S.E.N.O.
+      </p>
+
+      <p>
+        Cada evento es una oportunidad para acompañar, compartir y construir una
+        comunidad más solidaria.
+      </p>
+    </section>
+
+    {
+      error ? (
+        <section class="estado">
+          <h2>No pudimos cargar los eventos</h2>
+
+          <p>Intentá ingresar nuevamente más tarde.</p>
+        </section>
+      ) : eventos.length === 0 ? (
+        <section class="estado">
+          <h2>Todavía no hay eventos publicados</h2>
+
+          <p>
+            Cuando haya una nueva actividad, la vas a encontrar en esta página.
+          </p>
+        </section>
+      ) : (
+        <section
+          class="lista-eventos"
+          aria-label="Eventos de Fundación S.E.N.O."
+        >
+          {eventos.map((evento, index) => (
+            <ItemEvento evento={evento} priority={index < 2} />
+          ))}
+        </section>
+      )
+    }
+  </main>
+</Layout>
+
+<style>
+  .eventos-page {
+    box-sizing: border-box;
+
+    width: min(100%, 76rem);
+    min-width: 0;
+    margin-inline: auto;
+    padding: 0 clamp(1rem, 4vw, 2rem) clamp(2rem, 6vw, 4rem);
+
+    font-family: var(--text-font-primary);
+  }
+
+  .presentacion {
+    max-width: 48rem;
+    margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+
+    color: var(--color-text);
+
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .presentacion p {
+    margin: 0;
+  }
+
+  .presentacion p + p {
+    margin-top: 0.5rem;
+  }
+
+  .lista-eventos {
+    width: 100%;
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .estado {
+    box-sizing: border-box;
+
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(2rem, 7vw, 4rem);
+
+    border: 1px dashed var(--color-secondary-light);
+    border-radius: 1rem;
+
+    background-color: rgba(21, 130, 203, 0.04);
+
+    text-align: center;
+  }
+
+  .estado h2 {
+    margin: 0;
+
+    color: var(--color-secondary-hover);
+
+    font-size: clamp(1.25rem, 4vw, 1.7rem);
+  }
+
+  .estado p {
+    margin: 0.75rem 0 0;
+
+    color: var(--color-grey);
+
+    line-height: 1.6;
+  }
+</style>

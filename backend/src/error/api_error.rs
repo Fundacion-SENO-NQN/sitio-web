@@ -4,12 +4,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
+use std::fmt;
 
 #[derive(Serialize)]
 pub struct ErrorResponse {
     pub error: String,
 }
 
+#[derive(Debug)]
 pub enum ApiError {
     Unauthorized,
     Forbidden,
@@ -18,6 +20,29 @@ pub enum ApiError {
     Conflict(String),
     InternalServerError,
     ServiceUnavailable(String),
+}
+
+impl fmt::Display for ApiError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ApiError::BadRequest(message) => {
+                write!(formatter, "Bad request: {message}")
+            }
+
+            ApiError::NotFound => {
+                write!(formatter, "Resource not found")
+            }
+
+            ApiError::InternalServerError => {
+                write!(formatter, "Internal server error")
+            }
+
+            // Add your remaining variants here.
+            other => {
+                write!(formatter, "{other:?}")
+            }
+        }
+    }
 }
 
 impl IntoResponse for ApiError {
@@ -60,12 +85,10 @@ impl IntoResponse for ApiError {
                 }),
             ),
 
-            ApiError::ServiceUnavailable(message) => {(
+            ApiError::ServiceUnavailable(message) => (
                 StatusCode::SERVICE_UNAVAILABLE,
-                Json(ErrorResponse {
-                    error: message
-                }),
-            )},
+                Json(ErrorResponse { error: message }),
+            ),
         }
         .into_response()
     }

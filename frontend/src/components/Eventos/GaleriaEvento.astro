@@ -1,0 +1,381 @@
+---
+interface Props {
+  eventoId: number
+  titulo: string
+  cantidad: number
+}
+
+const { eventoId, titulo, cantidad } = Astro.props
+
+const IMG_URL: string = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
+
+const cantidadImagenes: number = Math.max(1, cantidad)
+
+const imagenes: string[] = Array.from(
+  {
+    length: cantidadImagenes,
+  },
+  (_, index) => `${IMG_URL}/img_eventos/${eventoId}/${index}.avif`,
+)
+---
+
+<section
+  class="galeria"
+  data-galeria-evento
+  aria-label={`Galería de ${titulo}`}
+>
+  <div class="visor">
+    {
+      imagenes.map((imagen, index) => (
+        <img
+          src={imagen}
+          alt={`Imagen ${index + 1} de ${titulo}`}
+          class:list={[
+            'imagen-principal',
+            {
+              activa: index === 0,
+            },
+          ]}
+          data-imagen-principal
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchpriority={index === 0 ? 'high' : 'auto'}
+          decoding="async"
+          width="1600"
+          height="1000"
+        />
+      ))
+    }
+
+    {
+      imagenes.length > 1 && (
+        <>
+          <button
+            class="control control-anterior"
+            type="button"
+            aria-label="Mostrar imagen anterior"
+            data-galeria-anterior
+          >
+            ‹
+          </button>
+
+          <button
+            class="control control-siguiente"
+            type="button"
+            aria-label="Mostrar imagen siguiente"
+            data-galeria-siguiente
+          >
+            ›
+          </button>
+
+          <span class="contador" aria-live="polite" data-galeria-contador>
+            1 / {imagenes.length}
+          </span>
+        </>
+      )
+    }
+  </div>
+
+  {
+    imagenes.length > 1 && (
+      <div class="miniaturas" aria-label="Seleccionar una imagen">
+        {imagenes.map((imagen, index) => (
+          <button
+            class:list={[
+              'miniatura',
+              {
+                activa: index === 0,
+              },
+            ]}
+            type="button"
+            aria-label={`Mostrar imagen ${index + 1}`}
+            aria-current={index === 0 ? 'true' : undefined}
+            data-galeria-miniatura={index}
+          >
+            <img src={imagen} alt="" loading="lazy" decoding="async" />
+          </button>
+        ))}
+      </div>
+    )
+  }
+</section>
+
+<script>
+  ;(
+    Array.from(
+      document.querySelectorAll('[data-galeria-evento]'),
+    ) as HTMLElement[]
+  ).forEach((galeria: HTMLElement): void => {
+    const imagenes: HTMLImageElement[] = Array.from(
+      galeria.querySelectorAll('[data-imagen-principal]'),
+    )
+
+    const miniaturas: HTMLButtonElement[] = Array.from(
+      galeria.querySelectorAll('[data-galeria-miniatura]'),
+    )
+
+    const botonAnterior: HTMLButtonElement = galeria.querySelector(
+      '[data-galeria-anterior]',
+    ) as HTMLButtonElement
+
+    const botonSiguiente: HTMLButtonElement = galeria.querySelector(
+      '[data-galeria-siguiente]',
+    ) as HTMLButtonElement
+
+    const contador: HTMLSpanElement = galeria.querySelector(
+      '[data-galeria-contador]',
+    ) as HTMLSpanElement
+
+    let indiceActual: number = 0
+
+    function mostrarImagen(indice: number): void {
+      if (imagenes.length === 0) return
+
+      indiceActual = (indice + imagenes.length) % imagenes.length
+
+      imagenes.forEach(
+        (imagen: HTMLImageElement, indiceImagen: number): void => {
+          imagen.classList.toggle('activa', indiceImagen === indiceActual)
+        },
+      )
+
+      miniaturas.forEach(
+        (miniatura: HTMLButtonElement, indiceMiniatura: number) => {
+          const activa: boolean = indiceMiniatura === indiceActual
+
+          miniatura.classList.toggle('activa', activa)
+
+          if (activa) miniatura.setAttribute('aria-current', 'true')
+          else miniatura.removeAttribute('aria-current')
+        },
+      )
+
+      if (contador) {
+        contador.textContent = `${indiceActual + 1} / ${imagenes.length}`
+      }
+    }
+
+    botonAnterior?.addEventListener('click', () => {
+      mostrarImagen(indiceActual - 1)
+    })
+
+    botonSiguiente?.addEventListener('click', () => {
+      mostrarImagen(indiceActual + 1)
+    })
+
+    miniaturas.forEach((miniatura, index) => {
+      miniatura.addEventListener('click', () => {
+        mostrarImagen(index)
+      })
+    })
+
+    document.addEventListener('keydown', (event: KeyboardEvent): void => {
+      if (event.target === galeria) {
+        if (event.key === 'ArrowLeft') mostrarImagen(indiceActual - 1)
+
+        if (event.key === 'ArrowRight') mostrarImagen(indiceActual + 1)
+      }
+    })
+  })
+</script>
+
+<style>
+  .galeria {
+    width: 100%;
+    min-width: 0;
+
+    font-family: var(--text-font-primary);
+  }
+
+  .visor {
+    position: relative;
+
+    width: 100%;
+
+    overflow: hidden;
+
+    border: 1px solid var(--color-light-grey);
+    border-radius: 1rem;
+
+    background-color: var(--color-text);
+    box-shadow: var(--shadow);
+  }
+
+  .imagen-principal {
+    width: 100%;
+    height: auto;
+    max-height: 42rem;
+    aspect-ratio: 16 / 10;
+
+    display: none;
+
+    object-fit: contain;
+    object-position: center;
+
+    background-color: var(--color-text);
+  }
+
+  .imagen-principal.activa {
+    display: block;
+  }
+
+  .control {
+    width: 2.8rem;
+    height: 2.8rem;
+    padding: 0;
+
+    position: absolute;
+    top: 50%;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+    border-radius: 50%;
+
+    color: white;
+    background-color: rgba(0, 0, 0, 0.55);
+
+    font-family: inherit;
+    font-size: 2rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .control:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .control:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  .control-anterior {
+    left: 1rem;
+  }
+
+  .control-siguiente {
+    right: 1rem;
+  }
+
+  .contador {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+
+    padding: 0.35rem 0.65rem;
+
+    border-radius: 2rem;
+
+    color: white;
+    background-color: rgba(0, 0, 0, 0.6);
+
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .miniaturas {
+    margin-top: 0.75rem;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    gap: 0.65rem;
+  }
+
+  .miniatura {
+    box-sizing: border-box;
+
+    min-width: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    border: 2px solid transparent;
+    border-radius: 0.7rem;
+
+    background: none;
+
+    cursor: pointer;
+
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .miniatura img {
+    width: 100%;
+    height: 5rem;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .miniatura:not(.activa) {
+    opacity: 0.7;
+  }
+
+  .miniatura.activa {
+    border-color: var(--color-secondary);
+    opacity: 1;
+  }
+
+  .miniatura:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  .miniatura:focus-visible {
+    outline: 3px solid var(--color-secondary-light);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 560px) {
+    .imagen-principal {
+      aspect-ratio: 4 / 3;
+    }
+
+    .control {
+      width: 2.35rem;
+      height: 2.35rem;
+
+      font-size: 1.65rem;
+    }
+
+    .control-anterior {
+      left: 0.55rem;
+    }
+
+    .control-siguiente {
+      right: 0.55rem;
+    }
+
+    .contador {
+      right: 0.55rem;
+      bottom: 0.55rem;
+    }
+
+    .miniatura img {
+      height: 4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .control,
+    .miniatura {
+      transition: none;
+    }
+  }
+</style>

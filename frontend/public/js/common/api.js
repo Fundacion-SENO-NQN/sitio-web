@@ -258,3 +258,92 @@ export function changeMembersOrder(items) {
     body: JSON.stringify(items),
   })
 }
+
+//*
+//* EVENTS
+//*
+
+export function getEventos() {
+  return request('/eventos')
+}
+
+export function getEventoById(id) {
+  return request(
+    `/eventos/${id}`,
+  )
+}
+
+export function createEvento(
+  formData,
+) {
+  if (!(formData instanceof FormData)) {
+    throw new TypeError(
+      'createEvento requiere un FormData.',
+    )
+  }
+
+  return request('/eventos', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export function patchEvento(
+  id,
+  formData,
+) {
+  if (!(formData instanceof FormData)) {
+    throw new TypeError(
+      'patchEvento requiere un FormData.',
+    )
+  }
+
+  return request(
+    `/eventos/${id}`,
+    {
+      method: 'PATCH',
+      body: formData,
+    },
+  )
+}
+
+export function deleteEvento(id) {
+  return request(
+    `/eventos/${id}`,
+    {
+      method: 'DELETE',
+    },
+  )
+}
+
+export function changeOrderEventos(
+  cambios,
+) {
+  if (
+    !Array.isArray(cambios) ||
+    cambios.length === 0
+  ) {
+    throw new TypeError(
+      'Debe proporcionarse al menos un cambio de orden.',
+    )
+  }
+
+  for (const cambio of cambios) {
+    if (
+      !Number.isInteger(cambio.orden) ||
+      cambio.orden < 0
+    ) {
+      throw new TypeError(
+        'El orden del evento no es válido.',
+      )
+    }
+  }
+
+  return request(
+    '/eventos/order',
+    {
+      method: 'PUT',
+      body: JSON.stringify(cambios),
+    },
+  )
+}

@@ -1,0 +1,440 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/eventos.css'
+---
+
+<LayoutPlataforma>
+  <HeaderPlataforma
+    title="Eventos"
+    content="Manejo de los eventos mostrados en el sitio Web"
+  />
+  <main class="eventos-admin">
+    <section class="herramientas" aria-label="Herramientas de eventos">
+      <button id="btn-nuevo-evento" class="boton boton-principal" type="button">
+        <span aria-hidden="true">+</span>
+
+        Nuevo evento
+      </button>
+      <label class="buscador">
+        <span class="sr-only"> Buscar eventos </span>
+
+        <span class="icono-busqueda" aria-hidden="true"> ⌕ </span>
+
+        <input
+          id="buscar-eventos"
+          type="search"
+          placeholder="Buscar por título, lugar o descripción..."
+          autocomplete="off"
+        />
+      </label>
+
+      <div class="resumen">
+        <span id="cantidad-eventos"> 0 eventos </span>
+      </div>
+    </section>
+
+    <section class="contenedor-tabla">
+      <div id="estado-cargando" class="estado-tabla">
+        <div class="spinner" aria-hidden="true"></div>
+
+        <p>Cargando eventos...</p>
+      </div>
+
+      <div id="estado-error" class="estado-tabla oculto">
+        <span class="estado-icono" aria-hidden="true"> ! </span>
+
+        <h2>No se pudieron cargar los eventos</h2>
+
+        <p>Revisá la conexión con el servidor e intentá nuevamente.</p>
+
+        <button
+          id="btn-reintentar-eventos"
+          class="boton boton-secundario"
+          type="button"
+        >
+          Reintentar
+        </button>
+      </div>
+
+      <div id="estado-vacio" class="estado-tabla oculto">
+        <span class="estado-icono" aria-hidden="true"> 📅 </span>
+
+        <h2>No hay eventos publicados</h2>
+
+        <p>Creá el primer evento para que aparezca en el sitio web.</p>
+
+        <button
+          id="btn-primer-evento"
+          class="boton boton-principal"
+          type="button"
+        >
+          Crear evento
+        </button>
+      </div>
+
+      <div id="tabla-wrapper" class="tabla-wrapper oculto">
+        <table class="tabla-eventos">
+          <thead>
+            <tr>
+              <th scope="col"> Orden </th>
+
+              <th scope="col"> Imagen </th>
+
+              <th scope="col"> Evento </th>
+
+              <th scope="col"> Fecha y horario </th>
+
+              <th scope="col"> Lugar </th>
+
+              <th scope="col"> Imágenes </th>
+
+              <th scope="col"> Enlace </th>
+
+              <th scope="col"> Acciones </th>
+            </tr>
+          </thead>
+
+          <tbody id="tabla-eventos-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       MODAL CREAR / EDITAR
+  ====================================================== -->
+
+  <div
+    id="modal-evento"
+    class="modal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-evento-titulo"
+  >
+    <div class="modal-fondo" data-cerrar-modal-evento></div>
+
+    <div class="modal-contenido modal-evento-contenido">
+      <header class="modal-cabecera">
+        <div>
+          <span class="modal-seccion"> Administración de eventos </span>
+
+          <h2 id="modal-evento-titulo">Nuevo evento</h2>
+        </div>
+
+        <button
+          id="btn-cerrar-modal-evento"
+          class="boton-cerrar"
+          type="button"
+          aria-label="Cerrar ventana"
+        >
+          ×
+        </button>
+      </header>
+
+      <form id="form-evento" class="form-evento">
+        <div class="form-contenido">
+          <section
+            class="form-seccion"
+            aria-labelledby="datos-principales-titulo"
+          >
+            <header class="form-seccion-cabecera">
+              <div>
+                <h3 id="datos-principales-titulo">Información principal</h3>
+
+                <p>Estos datos se mostrarán en la página pública del evento.</p>
+              </div>
+            </header>
+
+            <div class="form-grid">
+              <label class="campo campo-completo">
+                <span class="campo-label">
+                  Título
+                  <span aria-hidden="true">*</span>
+                </span>
+
+                <input
+                  id="evento-titulo"
+                  name="titulo"
+                  type="text"
+                  maxlength="180"
+                  placeholder="Ej.: Torta Infantil del Niño Oncológico"
+                  required
+                />
+
+                <span class="campo-ayuda">
+                  Nombre con el que aparecerá publicado el evento.
+                </span>
+              </label>
+
+              <label class="campo campo-completo">
+                <span class="campo-label">
+                  Descripción
+                  <span aria-hidden="true">*</span>
+                </span>
+
+                <textarea
+                  id="evento-descripcion"
+                  name="descripcion"
+                  maxlength="6000"
+                  placeholder="Escribí la información completa del evento..."
+                  required></textarea>
+
+                <span class="campo-ayuda">
+                  Podés utilizar saltos de línea y emojis.
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-seccion" aria-labelledby="datos-evento-titulo">
+            <header class="form-seccion-cabecera">
+              <div>
+                <h3 id="datos-evento-titulo">Fecha y ubicación</h3>
+
+                <p>Todos estos campos son opcionales.</p>
+              </div>
+            </header>
+
+            <div class="form-grid">
+              <label class="campo">
+                <span class="campo-label">
+                  Fecha
+                  <span class="opcional"> opcional </span>
+                </span>
+
+                <input
+                  id="evento-fecha"
+                  name="fecha"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Ej.: 8 de agosto de 2026"
+                />
+              </label>
+
+              <label class="campo">
+                <span class="campo-label">
+                  Horario
+                  <span class="opcional"> opcional </span>
+                </span>
+
+                <input
+                  id="evento-horario"
+                  name="horario"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Ej.: De 12:00 a 18:00 hs"
+                />
+              </label>
+
+              <label class="campo campo-completo">
+                <span class="campo-label">
+                  Lugar
+                  <span class="opcional"> opcional </span>
+                </span>
+
+                <input
+                  id="evento-lugar"
+                  name="lugar"
+                  type="text"
+                  maxlength="220"
+                  placeholder="Ej.: Gimnasio EPET N.° 8 - Neuquén Capital"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-seccion" aria-labelledby="enlace-evento-titulo">
+            <header class="form-seccion-cabecera">
+              <div>
+                <h3 id="enlace-evento-titulo">Enlace externo</h3>
+
+                <p>
+                  Podés agregar un formulario de inscripción, una publicación o
+                  cualquier página relacionada.
+                </p>
+              </div>
+            </header>
+
+            <div class="form-grid">
+              <label class="campo">
+                <span class="campo-label">
+                  URL
+                  <span class="opcional"> opcional </span>
+                </span>
+
+                <input
+                  id="evento-url"
+                  name="url"
+                  type="url"
+                  maxlength="1000"
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label class="campo">
+                <span class="campo-label">
+                  Texto del botón
+                  <span class="opcional"> opcional </span>
+                </span>
+
+                <input
+                  id="evento-url-titulo"
+                  name="url_titulo"
+                  type="text"
+                  maxlength="160"
+                  placeholder="Ej.: Formulario de inscripción"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section
+            class="form-seccion"
+            aria-labelledby="imagenes-evento-titulo"
+          >
+            <header class="form-seccion-cabecera">
+              <div>
+                <h3 id="imagenes-evento-titulo">Imágenes</h3>
+
+                <p id="texto-ayuda-imagenes">
+                  Seleccioná entre 1 y 10 imágenes para el evento.
+                </p>
+              </div>
+            </header>
+
+            <label
+              id="zona-subida-imagenes"
+              class="zona-subida"
+              for="evento-imagenes"
+            >
+              <input
+                id="evento-imagenes"
+                name="images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                multiple
+              />
+
+              <span class="subida-icono" aria-hidden="true"> + </span>
+
+              <strong> Seleccionar imágenes </strong>
+
+              <span> También podés arrastrarlas hasta esta zona </span>
+
+              <small> JPG, PNG, WebP o AVIF · máximo 10 imágenes </small>
+            </label>
+
+            <div
+              id="imagenes-seleccionadas"
+              class="galeria-preview oculto"
+              aria-label="Imágenes seleccionadas"
+            >
+            </div>
+
+            <div
+              id="imagenes-actuales-contenedor"
+              class="imagenes-actuales oculto"
+            >
+              <div class="imagenes-actuales-cabecera">
+                <h4>Imágenes actuales</h4>
+
+                <p>
+                  Si seleccionás nuevas imágenes, reemplazarán completamente las
+                  actuales.
+                </p>
+              </div>
+
+              <div
+                id="imagenes-actuales"
+                class="galeria-preview"
+                aria-label="Imágenes actuales del evento"
+              >
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="modal-footer">
+          <button
+            id="btn-cancelar-evento"
+            class="boton boton-cancelar"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button
+            id="btn-guardar-evento"
+            class="boton boton-principal"
+            type="submit"
+          >
+            Guardar evento
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL ELIMINAR
+  ====================================================== -->
+
+  <div
+    id="modal-eliminar-evento"
+    class="modal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-eliminar-titulo"
+  >
+    <div class="modal-fondo" data-cerrar-modal-eliminar></div>
+
+    <div class="modal-contenido modal-eliminar-contenido">
+      <header class="modal-cabecera">
+        <h2 id="modal-eliminar-titulo">Eliminar evento</h2>
+
+        <button
+          id="btn-cerrar-modal-eliminar"
+          class="boton-cerrar"
+          type="button"
+          aria-label="Cerrar ventana"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="eliminar-contenido">
+        <span class="eliminar-icono" aria-hidden="true"> ! </span>
+
+        <h3>¿Seguro que querés eliminar este evento?</h3>
+
+        <p id="texto-eliminar-evento">
+          El evento y todas sus imágenes serán eliminados permanentemente.
+        </p>
+
+        <p class="advertencia">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <footer class="modal-footer">
+        <button
+          id="btn-cancelar-eliminar"
+          class="boton boton-cancelar"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btn-confirmar-eliminar"
+          class="boton boton-peligro"
+          type="button"
+        >
+          Eliminar evento
+        </button>
+      </footer>
+    </div>
+  </div>
+</LayoutPlataforma>
+
+<script is:inline type="module" src="/js/eventos/eventos.js"></script>

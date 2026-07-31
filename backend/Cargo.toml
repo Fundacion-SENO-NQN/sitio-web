@@ -34,3 +34,5 @@ lettre = { version = "0.11.22", default-features = false, features = [
     "pool",
     "tokio1-rustls-tls",
 ] }
+aws-config = { version = "1.10.1", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1.140.0"

@@ -1,0 +1,323 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import GaleriaEvento from '../../components/Eventos/GaleriaEvento.astro'
+
+import type Evento from '../../data/interfaces/Evento'
+
+const API_URL: string = (
+  import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
+).replace(/\/+$/, '')
+
+const id: number = Number(Astro.params.id)
+
+if (!Number.isInteger(id) || id <= 0) return Astro.redirect('/eventos')
+
+let evento: Evento
+
+try {
+  const response: Response = await fetch(`${API_URL}/eventos/${id}`)
+
+  if (response.status === 404) return Astro.redirect('/eventos')
+
+  if (!response.ok) throw new Error(`Error ${response.status}`)
+
+  evento = await response.json()
+} catch (error) {
+  console.error('No se pudo cargar el evento:', error)
+
+  return Astro.redirect('/eventos')
+}
+---
+
+<Layout pag={evento.titulo}>
+  <main class="evento-page">
+    <nav aria-label="Navegación">
+      <a class="volver" href="/eventos">
+        <span aria-hidden="true"> ← </span>
+
+        Volver a eventos
+      </a>
+    </nav>
+
+    <article class="evento">
+      <div class="galeria-container">
+        <GaleriaEvento
+          eventoId={evento.id}
+          titulo={evento.titulo}
+          cantidad={evento.cant_img}
+        />
+      </div>
+
+      <div class="contenido">
+        <header class="cabecera">
+          <span class="categoria"> Evento </span>
+
+          <h1>{evento.titulo}</h1>
+        </header>
+
+        {
+          (evento.fecha || evento.horario || evento.lugar) && (
+            <dl class="datos">
+              {evento.fecha && (
+                <div class="dato">
+                  <dt>
+                    <span aria-hidden="true">📅</span>
+                    Fecha
+                  </dt>
+
+                  <dd>{evento.fecha}</dd>
+                </div>
+              )}
+
+              {evento.horario && (
+                <div class="dato">
+                  <dt>
+                    <span aria-hidden="true">🕒</span>
+                    Horario
+                  </dt>
+
+                  <dd>{evento.horario}</dd>
+                </div>
+              )}
+
+              {evento.lugar && (
+                <div class="dato">
+                  <dt>
+                    <span aria-hidden="true">📍</span>
+                    Lugar
+                  </dt>
+
+                  <dd>{evento.lugar}</dd>
+                </div>
+              )}
+            </dl>
+          )
+        }
+
+        <section class="descripcion" aria-label="Descripción del evento">
+          {
+            evento.descripcion
+              .split('\n')
+              .filter((parrafo) => parrafo.trim().length > 0)
+              .map((parrafo) => <p>{parrafo}</p>)
+          }
+        </section>
+
+        {
+          evento.url && (
+            <div class="acciones">
+              <a
+                class="enlace-evento"
+                href={evento.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {evento.url_titulo || 'Más información'}
+
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .evento-page {
+    box-sizing: border-box;
+
+    width: min(100%, 76rem);
+    min-width: 0;
+    margin-inline: auto;
+    padding: clamp(1rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem)
+      clamp(2rem, 6vw, 4rem);
+
+    font-family: var(--text-font-primary);
+  }
+
+  .volver {
+    width: fit-content;
+    margin-bottom: clamp(1rem, 3vw, 1.5rem);
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    color: var(--color-secondary-hover);
+
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .volver:hover {
+    text-decoration: underline;
+  }
+
+  .evento {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.15fr)
+      minmax(18rem, 0.85fr);
+    align-items: start;
+    gap: clamp(1.5rem, 5vw, 3rem);
+  }
+
+  .galeria-container {
+    min-width: 0;
+  }
+
+  .contenido {
+    min-width: 0;
+  }
+
+  .cabecera {
+    margin-bottom: 1.4rem;
+  }
+
+  .categoria {
+    margin-bottom: 0.5rem;
+
+    display: block;
+
+    color: var(--color-secondary-hover);
+
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+  }
+
+  .datos {
+    margin: 0 0 1.5rem;
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+
+    border-left: 4px solid var(--color-secondary);
+    border-radius: 0.75rem;
+
+    background-color: rgba(21, 130, 203, 0.06);
+  }
+
+  .dato {
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns:
+      minmax(5.5rem, auto)
+      minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  dt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+
+    color: var(--color-secondary-hover);
+
+    font-weight: 800;
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+
+    color: var(--color-text);
+
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .descripcion {
+    color: var(--color-text);
+
+    line-height: 1.75;
+  }
+
+  .descripcion p {
+    margin: 0 0 1rem;
+
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .descripcion p:last-child {
+    margin-bottom: 0;
+  }
+
+  .acciones {
+    margin-top: 1.5rem;
+  }
+
+  .enlace-evento {
+    width: fit-content;
+    padding: 0.8rem 1.15rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: 0.75rem;
+
+    color: white;
+    background-color: var(--color-secondary);
+
+    font-weight: 750;
+    text-decoration: none;
+
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .enlace-evento:hover {
+    background-color: var(--color-secondary-hover);
+    transform: translateY(-2px);
+  }
+
+  .enlace-evento:focus-visible {
+    outline: 3px solid var(--color-secondary-light);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 880px) {
+    .evento {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 460px) {
+    .dato {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem;
+    }
+
+    .enlace-evento {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .enlace-evento {
+      transition: none;
+    }
+  }
+</style>

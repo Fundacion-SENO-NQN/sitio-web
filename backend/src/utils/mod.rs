@@ -3,3 +3,4 @@ pub mod equipo;
 pub mod image;
 pub mod logro;
 pub mod noticia;
+pub mod r2;

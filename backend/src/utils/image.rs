@@ -1,8 +1,11 @@
 use image::ImageFormat;
 use std::{
     fs,
+    io::Cursor,
     path::{Path, PathBuf},
 };
+
+pub type ImageResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
     println!("entre aca");
@@ -39,4 +42,24 @@ pub fn delete_image(image_path: PathBuf) -> Result<(), Box<dyn std::error::Error
         return Err(err.into());
     }
     Ok(())
+}
+
+pub fn convert_to_avif(bytes: &[u8]) -> ImageResult<Vec<u8>> {
+    let input_format = image::guess_format(bytes)?;
+
+    /*
+     * Avoid decoding AVIF when the uploaded image is
+     * already in the desired format.
+     */
+    if input_format == ImageFormat::Avif {
+        return Ok(bytes.to_vec());
+    }
+
+    let image = image::load_from_memory_with_format(bytes, input_format)?;
+
+    let mut output = Cursor::new(Vec::new());
+
+    image.write_to(&mut output, ImageFormat::Avif)?;
+
+    Ok(output.into_inner())
 }

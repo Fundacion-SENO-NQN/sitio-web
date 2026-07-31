@@ -1,10 +1,11 @@
 use crate::services::email::EmailService;
 use crate::{
-    handlers::{equipo, img_donation, logro, logro_fav, noticia},
+    handlers::{equipo, evento, img_donation, logro, logro_fav, noticia},
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
 };
 use axum::{
     Router,
+    extract::DefaultBodyLimit,
     http::{
         HeaderValue, Method,
         header::{AUTHORIZATION, CONTENT_TYPE},
@@ -28,13 +29,13 @@ mod repositories;
 mod services;
 mod utils;
 
-#[derive(Debug)]
 pub struct AppState {
     pub email: EmailService,
     pub db: PgPool,
     pub news: RwLock<Vec<Noticia>>,
     pub team: RwLock<Vec<Equipo>>,
     pub logros: RwLock<Vec<Logro>>,
+    pub r2: utils::r2::R2Storage,
 }
 
 #[tokio::main]
@@ -95,12 +96,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let email = EmailService::from_env().expect("No se pudo configurar el servicio de correo");
 
+    let r2 = utils::r2::R2Storage::from_env()
+        .await
+        .expect("No se pudo cargar r2");
+
     let state = Arc::new(AppState {
         db,
         email,
         news: RwLock::new(Vec::new()),
         team: RwLock::new(Vec::new()),
         logros: RwLock::new(Vec::new()),
+        r2,
     });
 
     /* ========================================================
@@ -224,8 +230,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .patch(handlers::metodo_donacion::patch_metodo_donacion)
                 .delete(handlers::metodo_donacion::delete_metodo_donacion),
         )
+        .route("/eventos/order", put(evento::change_order_eventos))
+        .route(
+            "/eventos",
+            get(evento::get_all_eventos).post(evento::create_evento),
+        )
+        .route(
+            "/eventos/{id}",
+            get(evento::get_evento_by_id)
+                .patch(evento::patch_evento)
+                .delete(evento::delete_evento),
+        )
         // Shared state and middleware
         .with_state(state)
+        .layer(DefaultBodyLimit::max(130 * 1024 * 1024))
         .layer(cors);
 
     /* ========================================================
