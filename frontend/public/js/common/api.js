@@ -1,6 +1,6 @@
+console.log(import.meta.env)
 const API = import.meta.env.PUBLIC_API_URL
 
-console.log(import.meta.env)
 
 if (!API)
   throw new Error(
