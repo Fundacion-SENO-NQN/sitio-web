@@ -50,7 +50,7 @@ function createImageCell(achievement) {
 
   img.className = 'achievementImage'
 
-  img.src = `../src/assets/img_logros/${achievement.id}.avif`
+  img.src = `/img_logros/${achievement.id}.avif`
 
   img.loading = 'lazy'
 
