@@ -13,7 +13,7 @@ interface Props {
 const { noticia, priority = false } = Astro.props
 
 const images: Record<string, ImageMetadata> = import.meta.glob(
-  '../../assets/img_noticias/*.avif',
+  '../../public/img_noticias/*.avif',
   {
     eager: true,
     import: 'default',
@@ -21,7 +21,7 @@ const images: Record<string, ImageMetadata> = import.meta.glob(
 )
 
 const image: ImageMetadata =
-  images[`../../assets/img_noticias/${noticia.id}.avif`]
+  images[`../../public/img_noticias/${noticia.id}.avif`]
 ---
 
 <article class="noticia-card">

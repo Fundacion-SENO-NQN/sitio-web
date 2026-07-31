@@ -19,7 +19,7 @@ interface Props {
 const { integrante, priority = false } = Astro.props
 
 const images: Record<string, ImageMetadata> = import.meta.glob(
-  '../../../assets/img_equipo/*.avif',
+  '../../../public/img_equipo/*.avif',
   {
     eager: true,
     import: 'default',
@@ -27,7 +27,7 @@ const images: Record<string, ImageMetadata> = import.meta.glob(
 )
 
 const image: ImageMetadata =
-  images[`../../../assets/img_equipo/${integrante.id}.avif`]
+  images[`../../../public/img_equipo/${integrante.id}.avif`]
 
 console.log(integrante)
 ---

@@ -11,7 +11,7 @@ interface Props {
 const { logro } = Astro.props
 
 const images: Record<string, ImageMetadata> = import.meta.glob(
-  '../../../assets/img_logros/*.avif',
+  '../../../public/img_logros/*.avif',
   {
     eager: true,
     import: 'default',
@@ -19,7 +19,7 @@ const images: Record<string, ImageMetadata> = import.meta.glob(
 )
 
 const image: ImageMetadata =
-  images[`../../../assets/img_logros/${logro.id}.avif`]
+  images[`../../../public/img_logros/${logro.id}.avif`]
 ---
 
 <label class="logro">
