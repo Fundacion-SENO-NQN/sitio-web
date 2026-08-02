@@ -50,8 +50,8 @@ FROM debian:bookworm-slim AS runtime
 
 RUN apt-get update \
     && apt-get install -y \
-        --no-install-recommends \
-        ca-certificates \
+    --no-install-recommends \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

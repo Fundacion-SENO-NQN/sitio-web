@@ -120,20 +120,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         // Fly.io health endpoint
         .route("/health", get(|| async { "OK" }))
-        // Noticias
-        .route(
-            "/noticias",
-            get(noticia::get_all_news).post(noticia::create_news),
-        )
-        .route(
-            "/noticias/{id}",
-            get(noticia::get_new_by_id)
-                .delete(noticia::delete_new)
-                .patch(noticia::patch_news),
-        )
-        .route("/noticias/order", put(noticia::change_order_news))
-        .route("/ultimas_noticias", get(noticia::get_last_4_news))
-        // Equipo
         .route(
             "/equipo",
             get(equipo::get_all_equipo).post(equipo::create_equipo),
@@ -241,6 +227,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .patch(evento::patch_evento)
                 .delete(evento::delete_evento),
         )
+        .merge(noticia::routes())
         // Shared state and middleware
         .with_state(state)
         .layer(DefaultBodyLimit::max(130 * 1024 * 1024))

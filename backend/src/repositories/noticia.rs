@@ -1,308 +1,419 @@
-use crate::{
-    error::api_error::{ApiError, ApiResult},
-    models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
-};
-use sqlx::PgPool;
+use std::collections::HashSet;
+
+use sqlx::{PgPool, Postgres, QueryBuilder};
+
+use crate::models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia};
+
+const NOTICIAS_ORDER_LOCK: i64 = 982_451_653;
 
 /* ==========================================================
-   GET ALL
+   OBTENER TODAS
 ========================================================== */
 
-pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Noticia>> {
-    let noticias = sqlx::query_as::<_, Noticia>(
+pub async fn get_all(pool: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>(
         r#"
-            SELECT
-                id,
-                orden,
-                titulo,
-                fecha,
-                contenido,
-                created_at
-            FROM noticias
-            ORDER BY orden
-            "#,
+        SELECT
+            id,
+            created_at,
+            fecha,
+            titulo,
+            orden,
+            contenido,
+            cant_img
+        FROM noticias
+        ORDER BY orden ASC
+        "#,
     )
-    .fetch_all(db)
-    .await?;
-
-    Ok(noticias)
+    .fetch_all(pool)
+    .await
 }
 
 /* ==========================================================
-   GET BY ID
+   OBTENER POR ID
 ========================================================== */
 
-pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Noticia>> {
-    let noticia = sqlx::query_as::<_, Noticia>(
+pub async fn get_by_id(pool: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>(
         r#"
-            SELECT
-                id,
-                orden,
-                titulo,
-                fecha,
-                contenido,
-                created_at
-            FROM noticias
-            WHERE id = $1
-            "#,
+        SELECT
+            id,
+            created_at,
+            fecha,
+            titulo,
+            orden,
+            contenido,
+            cant_img
+        FROM noticias
+        WHERE id = $1
+        "#,
     )
     .bind(id)
-    .fetch_optional(db)
-    .await?;
-
-    Ok(noticia)
+    .fetch_optional(pool)
+    .await
 }
 
 /* ==========================================================
-   CREATE
+   CREAR
 ========================================================== */
 
-pub async fn create(db: &PgPool, titulo: &str, fecha: &str, contenido: &str) -> ApiResult<Noticia> {
-    let mut tx = db.begin().await?;
+pub async fn create(
+    pool: &PgPool,
+    fecha: String,
+    titulo: String,
+    contenido: String,
+    cant_img: i64,
+) -> Result<Noticia, sqlx::Error> {
+    let mut transaction = pool.begin().await?;
 
     /*
-     * Prevent two concurrent creations from calculating the
-     * same MAX(orden) + 1 value.
+     * Evita que dos noticias creadas simultáneamente
+     * intenten utilizar el mismo orden.
      */
     sqlx::query(
         r#"
-        LOCK TABLE noticias IN EXCLUSIVE MODE
+        SELECT pg_advisory_xact_lock($1)
         "#,
     )
-    .execute(&mut *tx)
+    .bind(NOTICIAS_ORDER_LOCK)
+    .execute(&mut *transaction)
+    .await?;
+
+    let next_order = sqlx::query_scalar::<_, i64>(
+        r#"
+            SELECT
+                COALESCE(
+                    MAX(orden),
+                    -1
+                ) + 1
+            FROM noticias
+            "#,
+    )
+    .fetch_one(&mut *transaction)
     .await?;
 
     let noticia = sqlx::query_as::<_, Noticia>(
         r#"
-            INSERT INTO noticias
-            (
-                orden,
-                titulo,
+            INSERT INTO noticias (
                 fecha,
-                contenido
+                titulo,
+                orden,
+                contenido,
+                cant_img
             )
-            SELECT
-                COALESCE(MAX(orden), -1) + 1,
+            VALUES (
                 $1,
                 $2,
-                $3
-            FROM noticias
+                $3,
+                $4,
+                $5
+            )
             RETURNING
                 id,
-                orden,
-                titulo,
+                created_at,
                 fecha,
+                titulo,
+                orden,
                 contenido,
-                created_at
+                cant_img
             "#,
     )
-    .bind(titulo)
     .bind(fecha)
+    .bind(titulo)
+    .bind(next_order)
     .bind(contenido)
-    .fetch_one(&mut *tx)
+    .bind(cant_img)
+    .fetch_one(&mut *transaction)
     .await?;
 
-    tx.commit().await?;
+    transaction.commit().await?;
 
     Ok(noticia)
 }
 
 /* ==========================================================
-   UPDATE
+   ACTUALIZAR
 ========================================================== */
 
-pub async fn update(db: &PgPool, id: i64, update: UpdateNoticia) -> ApiResult<Noticia> {
-    /*
-     * `orden` is intentionally ignored here. Ordering must
-     * only be changed through PUT /noticias/order.
-     */
-    let UpdateNoticia {
-        titulo,
-        contenido,
-        orden: _,
-    } = update;
+pub async fn update(
+    pool: &PgPool,
+    id: i64,
+    changes: UpdateNoticia,
+) -> Result<Option<Noticia>, sqlx::Error> {
+    let has_changes = changes.fecha.is_some()
+        || changes.titulo.is_some()
+        || changes.contenido.is_some()
+        || changes.cant_img.is_some();
 
-    let noticia = sqlx::query_as::<_, Noticia>(
+    if !has_changes {
+        return get_by_id(pool, id).await;
+    }
+
+    let mut query = QueryBuilder::<Postgres>::new("UPDATE noticias SET ");
+
+    {
+        let mut fields = query.separated(", ");
+
+        if let Some(fecha) = changes.fecha {
+            fields.push("fecha = ").push_bind(fecha);
+        }
+
+        if let Some(titulo) = changes.titulo {
+            fields.push("titulo = ").push_bind(titulo);
+        }
+
+        if let Some(contenido) = changes.contenido {
+            fields.push("contenido = ").push_bind(contenido);
+        }
+
+        if let Some(cant_img) = changes.cant_img {
+            fields.push("cant_img = ").push_bind(cant_img);
+        }
+    }
+
+    query.push(" WHERE id = ").push_bind(id).push(
         r#"
-            UPDATE noticias
-            SET
-                titulo = COALESCE($1, titulo),
-                contenido = COALESCE($2, contenido)
-            WHERE id = $3
             RETURNING
                 id,
-                orden,
-                titulo,
+                created_at,
                 fecha,
+                titulo,
+                orden,
                 contenido,
-                created_at
+                cant_img
             "#,
-    )
-    .bind(titulo)
-    .bind(contenido)
-    .bind(id)
-    .fetch_optional(db)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    );
 
-    Ok(noticia)
+    query.build_query_as::<Noticia>().fetch_optional(pool).await
 }
 
 /* ==========================================================
-   DELETE
+   ELIMINAR Y COMPACTAR ORDEN
 ========================================================== */
 
-pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Noticia> {
-    let mut tx = db.begin().await?;
+pub async fn delete(pool: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Error> {
+    let mut transaction = pool.begin().await?;
 
-    /*
-     * Lock ordering operations while deleting and compacting.
-     */
     sqlx::query(
         r#"
-        LOCK TABLE noticias IN EXCLUSIVE MODE
+        SELECT pg_advisory_xact_lock($1)
         "#,
     )
-    .execute(&mut *tx)
+    .bind(NOTICIAS_ORDER_LOCK)
+    .execute(&mut *transaction)
     .await?;
 
     let noticia = sqlx::query_as::<_, Noticia>(
         r#"
-            DELETE FROM noticias
-            WHERE id = $1
-            RETURNING
+            SELECT
                 id,
-                orden,
-                titulo,
+                created_at,
                 fecha,
+                titulo,
+                orden,
                 contenido,
-                created_at
+                cant_img
+            FROM noticias
+            WHERE id = $1
+            FOR UPDATE
             "#,
     )
     .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    .fetch_optional(&mut *transaction)
+    .await?;
+
+    let Some(noticia) = noticia else {
+        transaction.rollback().await?;
+
+        return Ok(None);
+    };
+
+    sqlx::query(
+        r#"
+        DELETE FROM noticias
+        WHERE id = $1
+        "#,
+    )
+    .bind(id)
+    .execute(&mut *transaction)
+    .await?;
 
     /*
-     * Save the current positions before moving them to
-     * temporary negative values.
+     * Las posiciones superiores se mueven temporalmente
+     * fuera del rango utilizado para evitar conflictos
+     * con la restricción UNIQUE.
      */
-    let following_news = sqlx::query_as::<_, (i64, i64)>(
+    let temporary_base = sqlx::query_scalar::<_, i64>(
+        r#"
+            SELECT
+                COALESCE(
+                    MAX(orden),
+                    0
+                ) + 1000
+            FROM noticias
+            "#,
+    )
+    .fetch_one(&mut *transaction)
+    .await?;
+
+    sqlx::query(
+        r#"
+        UPDATE noticias
+        SET orden = orden + $1
+        WHERE orden > $2
+        "#,
+    )
+    .bind(temporary_base)
+    .bind(noticia.orden)
+    .execute(&mut *transaction)
+    .await?;
+
+    sqlx::query(
+        r#"
+        UPDATE noticias
+        SET orden = orden - $1 - 1
+        WHERE orden >= $1
+        "#,
+    )
+    .bind(temporary_base)
+    .execute(&mut *transaction)
+    .await?;
+
+    transaction.commit().await?;
+
+    Ok(Some(noticia))
+}
+
+/* ==========================================================
+   CAMBIAR ORDEN
+========================================================== */
+
+pub async fn change_order(
+    pool: &PgPool,
+    changes: &[ChangeOrderNoticia],
+) -> Result<(), ChangeOrderError> {
+    if changes.is_empty() {
+        return Err(ChangeOrderError::Invalid(
+            "Debe enviarse al menos un cambio.".to_string(),
+        ));
+    }
+
+    let mut received_ids = HashSet::new();
+
+    let mut received_orders = HashSet::new();
+
+    for change in changes {
+        if change.id <= 0 {
+            return Err(ChangeOrderError::Invalid(
+                "Uno de los ids no es válido.".to_string(),
+            ));
+        }
+
+        if change.orden < 0 {
+            return Err(ChangeOrderError::Invalid(
+                "El orden no puede ser negativo.".to_string(),
+            ));
+        }
+
+        if !received_ids.insert(change.id) {
+            return Err(ChangeOrderError::Invalid("Hay ids repetidos.".to_string()));
+        }
+
+        if !received_orders.insert(change.orden) {
+            return Err(ChangeOrderError::Invalid(
+                "Hay órdenes repetidos.".to_string(),
+            ));
+        }
+    }
+
+    let mut transaction = pool.begin().await.map_err(ChangeOrderError::Database)?;
+
+    sqlx::query(
+        r#"
+        SELECT pg_advisory_xact_lock($1)
+        "#,
+    )
+    .bind(NOTICIAS_ORDER_LOCK)
+    .execute(&mut *transaction)
+    .await
+    .map_err(ChangeOrderError::Database)?;
+
+    let total = sqlx::query_scalar::<_, i64>(
+        r#"
+            SELECT COUNT(*)
+            FROM noticias
+            "#,
+    )
+    .fetch_one(&mut *transaction)
+    .await
+    .map_err(ChangeOrderError::Database)?;
+
+    for change in changes {
+        if change.orden >= total {
+            return Err(ChangeOrderError::Invalid(format!(
+                "El orden {} está fuera del rango.",
+                change.orden,
+            )));
+        }
+    }
+
+    let ids = changes.iter().map(|change| change.id).collect::<Vec<_>>();
+
+    let current_rows = sqlx::query_as::<_, (i64, i64)>(
         r#"
             SELECT
                 id,
                 orden
             FROM noticias
-            WHERE orden > $1
-            ORDER BY orden
+            WHERE id = ANY($1)
+            FOR UPDATE
             "#,
     )
-    .bind(noticia.orden)
-    .fetch_all(&mut *tx)
-    .await?;
+    .bind(&ids)
+    .fetch_all(&mut *transaction)
+    .await
+    .map_err(ChangeOrderError::Database)?;
 
-    /*
-     * Move every affected row outside the valid order range.
-     * Using the row ID prevents collisions, including when an
-     * order is zero.
-     */
-    for (following_id, _) in &following_news {
-        sqlx::query(
-            r#"
-            UPDATE noticias
-            SET orden = -id - 1
-            WHERE id = $1
-            "#,
-        )
-        .bind(following_id)
-        .execute(&mut *tx)
-        .await?;
+    if current_rows.len() != changes.len() {
+        return Err(ChangeOrderError::NotFound);
     }
 
     /*
-     * Compact the order sequence.
+     * Para cambiar solamente dos posiciones, los órdenes
+     * nuevos deben ser los mismos órdenes que ya ocupaban
+     * las noticias seleccionadas.
      *
-     * Example:
-     * 0, 1, 2, 3
-     *
-     * Delete order 1:
-     * 0, 2, 3
-     *
-     * Final:
-     * 0, 1, 2
+     * Esto evita pisar una noticia que no fue enviada.
      */
-    for (following_id, previous_order) in following_news {
-        sqlx::query(
-            r#"
-            UPDATE noticias
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(previous_order - 1)
-        .bind(following_id)
-        .execute(&mut *tx)
-        .await?;
+    let current_orders = current_rows
+        .iter()
+        .map(|(_, order)| *order)
+        .collect::<HashSet<_>>();
+
+    if current_orders != received_orders {
+        return Err(ChangeOrderError::Invalid(
+            "Los órdenes enviados no coinciden con las posiciones actuales.".to_string(),
+        ));
     }
 
-    tx.commit().await?;
-
-    Ok(noticia)
-}
-
-/* ==========================================================
-   CHANGE ORDER
-========================================================== */
-
-pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderNoticia>) -> ApiResult<()> {
-    let mut tx = db.begin().await?;
-
-    /*
-     * Prevent concurrent creation, deletion, or order changes
-     * from modifying the same ordering sequence.
-     */
-    sqlx::query(
+    let temporary_base = sqlx::query_scalar::<_, i64>(
         r#"
-        LOCK TABLE noticias IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    /*
-     * Move selected rows to temporary negative values.
-     *
-     * Do not use:
-     *
-     *     orden = -new_order
-     *
-     * because -0 is still 0 and can violate the UNIQUE
-     * constraint.
-     */
-    for noticia in &order {
-        let result = sqlx::query(
-            r#"
-            UPDATE noticias
-            SET orden = -id - 1
-            WHERE id = $1
+            SELECT
+                COALESCE(
+                    MAX(orden),
+                    0
+                ) + 1000
+            FROM noticias
             "#,
-        )
-        .bind(noticia.id)
-        .execute(&mut *tx)
-        .await?;
-
-        if result.rows_affected() != 1 {
-            return Err(ApiError::NotFound);
-        }
-    }
+    )
+    .fetch_one(&mut *transaction)
+    .await
+    .map_err(ChangeOrderError::Database)?;
 
     /*
-     * Apply the final positions. If a target order belongs to
-     * an unaffected row, PostgreSQL rejects the change and the
-     * complete transaction rolls back.
+     * Primero movemos las noticias a posiciones temporales.
      */
-    for noticia in &order {
+    for (index, change) in changes.iter().enumerate() {
         sqlx::query(
             r#"
             UPDATE noticias
@@ -310,38 +421,46 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderNoticia>) -> ApiRes
             WHERE id = $2
             "#,
         )
-        .bind(noticia.orden)
-        .bind(noticia.id)
-        .execute(&mut *tx)
-        .await?;
+        .bind(temporary_base + index as i64)
+        .bind(change.id)
+        .execute(&mut *transaction)
+        .await
+        .map_err(ChangeOrderError::Database)?;
     }
 
-    tx.commit().await?;
+    /*
+     * Después aplicamos las posiciones definitivas.
+     */
+    for change in changes {
+        sqlx::query(
+            r#"
+            UPDATE noticias
+            SET orden = $1
+            WHERE id = $2
+            "#,
+        )
+        .bind(change.orden)
+        .bind(change.id)
+        .execute(&mut *transaction)
+        .await
+        .map_err(ChangeOrderError::Database)?;
+    }
+
+    transaction
+        .commit()
+        .await
+        .map_err(ChangeOrderError::Database)?;
 
     Ok(())
 }
 
 /* ==========================================================
-   GET LAST FOUR
+   ERRORES DE ORDEN
 ========================================================== */
 
-pub async fn get_last_4(db: &PgPool) -> ApiResult<Vec<Noticia>> {
-    let noticias = sqlx::query_as::<_, Noticia>(
-        r#"
-            SELECT
-                id,
-                orden,
-                titulo,
-                fecha,
-                contenido,
-                created_at
-            FROM noticias
-            ORDER BY created_at DESC
-            LIMIT 4
-            "#,
-    )
-    .fetch_all(db)
-    .await?;
-
-    Ok(noticias)
+#[derive(Debug)]
+pub enum ChangeOrderError {
+    Invalid(String),
+    NotFound,
+    Database(sqlx::Error),
 }

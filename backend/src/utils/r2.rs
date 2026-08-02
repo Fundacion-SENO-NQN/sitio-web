@@ -75,4 +75,35 @@ impl R2Storage {
 
         Ok(())
     }
+
+    pub async fn delete_objects(
+        &self,
+        keys: &[String],
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        if keys.is_empty() {
+            return Ok(());
+        }
+
+        let objects = keys
+            .iter()
+            .map(|key| {
+                aws_sdk_s3::types::ObjectIdentifier::builder()
+                    .key(key)
+                    .build()
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        let delete = aws_sdk_s3::types::Delete::builder()
+            .set_objects(Some(objects))
+            .build()?;
+
+        self.client
+            .delete_objects()
+            .bucket(&self.bucket)
+            .delete(delete)
+            .send()
+            .await?;
+
+        Ok(())
+    }
 }

@@ -1,4 +1,4 @@
-use image::ImageFormat;
+use image::{GenericImageView, ImageFormat, imageops::FilterType};
 use std::{
     fs,
     io::Cursor,
@@ -8,11 +8,8 @@ use std::{
 pub type ImageResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
-    println!("entre aca");
     ensure_parent_directory(&path)?;
-    println!("pase func rara");
     let input_format = image::guess_format(bytes)?;
-    println!("input_format: {:?}", input_format);
     if input_format == ImageFormat::Avif {
         // The uploaded image is already AVIF.
         // Replace the destination directly without decoding it.
@@ -24,7 +21,6 @@ pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn std::er
 
         img.save(&path)?;
     }
-    println!("pase if");
     Ok(path.to_string_lossy().into_owned())
 }
 
@@ -44,18 +40,22 @@ pub fn delete_image(image_path: PathBuf) -> Result<(), Box<dyn std::error::Error
     Ok(())
 }
 
-pub fn convert_to_avif(bytes: &[u8]) -> ImageResult<Vec<u8>> {
-    let input_format = image::guess_format(bytes)?;
+const MAX_IMAGE_DIMENSION: u32 = 1920;
 
-    /*
-     * Avoid decoding AVIF when the uploaded image is
-     * already in the desired format.
-     */
-    if input_format == ImageFormat::Avif {
-        return Ok(bytes.to_vec());
-    }
+pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, image::ImageError> {
+    let original = image::load_from_memory(bytes)?;
 
-    let image = image::load_from_memory_with_format(bytes, input_format)?;
+    let (width, height) = original.dimensions();
+
+    let image = if width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION {
+        original.resize(
+            MAX_IMAGE_DIMENSION,
+            MAX_IMAGE_DIMENSION,
+            FilterType::Lanczos3,
+        )
+    } else {
+        original
+    };
 
     let mut output = Cursor::new(Vec::new());
 
