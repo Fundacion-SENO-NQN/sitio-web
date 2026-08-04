@@ -12,190 +12,228 @@ const icons = import.meta.glob<string>(
   {
     query: '?raw',
     import: 'default',
-    eager: true,
-  },
+    eager: true
+  }
 )
 
 const iconPath = `../../assets/icon-quiero-ayudar/${item.img}.svg`
+
 const icono = icons[iconPath]
+
+const normalizePath = (path: string): string => {
+  const cleanPath = path.split(/[?#]/, 1)[0]
+
+  return cleanPath.replace(/\/+$/, '') || '/'
+}
+
+const currentPath = normalizePath(Astro.url.pathname)
+
+const itemPath = normalizePath(item.href)
+
+const isCurrent =
+  item.href.startsWith('/') &&
+  (currentPath === itemPath ||
+    (itemPath !== '/' && currentPath.startsWith(`${itemPath}/`)))
 ---
 
-<a class="item" href={item.href}>
-  <span class="item__titulo">
+<a
+  class:list={[
+    'help-option',
+    {
+      'help-option--current': isCurrent
+    }
+  ]}
+  href={item.href}
+  aria-current={isCurrent ? 'page' : undefined}
+>
+  <span class="help-option__title">
     {item.name}
   </span>
 
-  <span class="item__icono" aria-hidden="true">
+  <span class="help-option__icon" aria-hidden="true">
     {
       icono ? (
         <Fragment set:html={icono} />
       ) : (
-        <span class="item__sin-icono">?</span>
+        <span class="help-option__fallback">?</span>
       )
     }
   </span>
 </a>
 
 <style>
-  .item {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-
+  .help-option {
     width: 100%;
     min-width: 0;
     min-height: 8rem;
 
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
     overflow: hidden;
-    border: 1px solid var(--color-primary-hover);
-    border-radius: 0.8rem;
-    background-color: var(--color-background);
+
     color: var(--color-primary);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary-hover);
+
+    border-radius: var(--radius-small);
+
+    box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.06);
 
     text-decoration: none;
 
-    box-shadow: 0 0.3rem 1rem rgb(0 0 0 / 6%);
-
     transition:
-      background-color 200ms ease,
-      border-color 200ms ease,
-      color 200ms ease,
-      transform 200ms ease,
-      box-shadow 200ms ease;
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .item__titulo {
-    box-sizing: border-box;
+  .help-option__title {
+    min-height: 3rem;
+
+    padding: 0.55rem 0.75rem;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    min-height: 3rem;
-    padding: 0.55rem 0.75rem;
-
-    background-color: var(--color-primary-hover);
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
 
     font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-    font-weight: 700;
-    line-height: 1.25;
+
+    font-weight: 750;
+    line-height: 1.3;
     text-align: center;
     text-wrap: balance;
   }
 
-  .item__icono {
-    display: grid;
-    flex: 1;
-    place-items: center;
-
+  .help-option__icon {
     min-height: 5rem;
+
     padding: 1rem;
 
+    display: grid;
+    place-items: center;
+
+    flex: 1 1 auto;
+
     color: var(--color-primary);
+    background-color: var(--color-background);
+
+    transition:
+      color var(--transition),
+      background-color var(--transition);
   }
 
-  .item__icono :global(svg) {
-    display: block;
+  .help-option__icon :global(svg) {
     width: clamp(2.8rem, 6vw, 4rem);
+
     height: clamp(2.8rem, 6vw, 4rem);
 
     color: currentColor;
 
-    transition:
-      color 200ms ease,
-      transform 200ms ease;
+    transition: transform var(--transition);
   }
 
-  /*
-   * Permite que los SVG que usan currentColor
-   * hereden correctamente el color de la tarjeta.
-   */
-  .item__icono :global(svg *) {
+  .help-option__icon :global(svg *) {
     vector-effect: non-scaling-stroke;
   }
 
-  .item__sin-icono {
-    display: grid;
-    place-items: center;
-
+  .help-option__fallback {
     width: 3rem;
     height: 3rem;
 
+    display: grid;
+    place-items: center;
+
     border: 2px solid currentColor;
+
     border-radius: 50%;
 
     font-size: 1.4rem;
     font-weight: 800;
   }
 
-  .item:hover {
-    border-color: var(--color-primary-hover);
-    background-color: var(--color-primary-hover);
+  .help-option:hover,
+  .help-option--current {
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
 
-    transform: translateY(-0.25rem);
-    box-shadow: 0 0.8rem 1.5rem rgb(0 0 0 / 13%);
+    border-color: var(--color-primary-hover);
+
+    box-shadow: 0 0.8rem 1.5rem rgba(0, 0, 0, 0.13);
   }
 
-  .item:hover .item__icono :global(svg) {
-    transform: scale(1.08);
+  .help-option:hover .help-option__icon,
+  .help-option--current .help-option__icon {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
   }
 
-  .item:focus-visible {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 3px;
+  .help-option:focus-visible {
+    outline: none;
+
+    box-shadow:
+      0 0 0 3px var(--color-primary-light),
+      0 0.8rem 1.5rem rgba(0, 0, 0, 0.13);
   }
 
-  /*
-   * En celulares pequeños, cada tarjeta se muestra
-   * horizontalmente para ocupar menos altura.
-   */
+  @media (hover: hover) {
+    .help-option:hover {
+      transform: translateY(-0.25rem);
+    }
+
+    .help-option:hover .help-option__icon :global(svg) {
+      transform: scale(1.08);
+    }
+  }
+
   @media (max-width: 27rem) {
-    .item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 4.5rem;
+    .help-option {
       min-height: 4.5rem;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        4.5rem;
+
       border-radius: 0.7rem;
     }
 
-    .item__titulo {
-      justify-content: flex-start;
+    .help-option__title {
       min-height: 4.5rem;
+
       padding: 0.75rem 1rem;
+
+      justify-content: flex-start;
 
       font-size: 0.95rem;
       text-align: left;
     }
 
-    .item__icono {
+    .help-option__icon {
       min-height: 4.5rem;
-      padding: 0.65rem;
 
-      background-color: var(--color-background);
-      color: var(--color-primary);
+      padding: 0.65rem;
     }
 
-    .item__icono :global(svg) {
+    .help-option__icon :global(svg) {
       width: 2.5rem;
       height: 2.5rem;
-    }
-
-    .item:hover .item__icono {
-      background-color: var(--color-primary-hover);
-      color: var(--color-background);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .item,
-    .item__icono :global(svg) {
+    .help-option,
+    .help-option__icon,
+    .help-option__icon :global(svg) {
       transition: none;
-    }
-
-    .item:hover,
-    .item:hover .item__icono :global(svg) {
-      transform: none;
     }
   }
 </style>

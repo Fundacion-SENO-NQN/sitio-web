@@ -9,26 +9,40 @@ interface Props {
 
 const { pag, navigation, inicio } = Astro.props
 
-const numPag = Number.parseInt(String(pag), 10)
+const pageNumber = Number.parseInt(String(pag), 10)
+
+const normalizedStart = inicio.replace(/^\/+/, '').replace(/\/+$/, '')
+
+const sectionHref = `/${normalizedStart}/`
 ---
 
 <nav class="subnav" aria-label="Navegación de esta sección">
-  <ul class="lista-nav">
+  <ul class="subnav-list">
     {
       navigation.map((item: Navigation, index: number) => {
-        const isCurrentPage = numPag === index + 1
-
-        const href = isCurrentPage ? `/${inicio}/` : item.href
-
-        const name = isCurrentPage ? 'Atrás' : item.name
+        const isCurrentPage = pageNumber === index + 1
 
         return (
-          <li>
+          <li class="subnav-item">
             <a
-              href={href}
-              aria-label={isCurrentPage ? `Volver a ${inicio}` : undefined}
+              class:list={[
+                'subnav-link',
+                {
+                  'subnav-link--back': isCurrentPage
+                }
+              ]}
+              href={isCurrentPage ? sectionHref : item.href}
+              aria-label={
+                isCurrentPage ? 'Volver al inicio de esta sección' : undefined
+              }
             >
-              {name}
+              {isCurrentPage && (
+                <span class="subnav-back-icon" aria-hidden="true">
+                  ←
+                </span>
+              )}
+
+              <span>{isCurrentPage ? 'Atrás' : item.name}</span>
             </a>
           </li>
         )
@@ -39,80 +53,95 @@ const numPag = Number.parseInt(String(pag), 10)
 
 <style>
   .subnav {
-    box-sizing: border-box;
+    width: min(calc(100% - 2rem), 59.375rem);
 
-    width: min(calc(100% - 2rem), 950px);
     margin: clamp(1rem, 3vw, 2rem) auto 0;
-
-    font-family: var(--text-font-primary);
-    display: flex;
   }
 
-  .lista-nav {
-    box-sizing: border-box;
-
+  .subnav-list {
     width: 100%;
-    margin: 0;
     padding: 0.3rem;
 
     display: grid;
+
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+
     gap: 0.3rem;
 
     overflow: hidden;
 
-    border-radius: 1.3rem;
     background-color: var(--color-primary-light);
 
-    list-style: none;
+    border-radius: 1.3rem;
   }
 
-  .lista-nav li {
+  .subnav-item {
     min-width: 0;
 
     display: flex;
   }
 
-  .lista-nav a {
-    box-sizing: border-box;
-
+  .subnav-link {
     width: 100%;
+    min-width: 0;
     min-height: 3.4rem;
+
     padding: 0.75rem 1rem;
 
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.45rem;
+
+    color: var(--color-text);
+
+    background-color: transparent;
 
     border-radius: 1rem;
 
-    color: var(--color-text);
-    background-color: transparent;
-
     font-size: clamp(0.95rem, 2vw, 1.1rem);
+
+    font-weight: 600;
     line-height: 1.25;
     text-align: center;
     text-decoration: none;
     overflow-wrap: anywhere;
 
     transition:
-      background-color 0.3s ease,
-      color 0.3s ease,
-      transform 0.2s ease;
+      color 200ms ease,
+      background-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease;
   }
 
-  .lista-nav a:hover {
+  .subnav-link:hover {
     color: var(--color-background);
+
     background-color: var(--color-primary-hover);
   }
 
-  .lista-nav a:focus-visible {
-    outline: 2px solid var(--color-primary-hover);
-    outline-offset: -3px;
+  .subnav-link:focus-visible {
+    outline: none;
+
+    box-shadow: inset 0 0 0 3px var(--color-primary-hover);
+  }
+
+  .subnav-link--back {
+    color: var(--color-primary-hover);
+
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .subnav-back-icon {
+    flex: 0 0 auto;
+
+    font-size: 1.15em;
+    font-weight: 800;
+    line-height: 1;
   }
 
   @media (hover: hover) {
-    .lista-nav a:hover {
+    .subnav-link:hover {
       transform: translateY(-1px);
     }
   }
@@ -122,32 +151,29 @@ const numPag = Number.parseInt(String(pag), 10)
       width: calc(100% - 1.25rem);
     }
 
-    .lista-nav {
-      grid-template-columns: repeat(1, minmax(0, 1fr));
+    .subnav-list {
+      grid-template-columns: minmax(0, 1fr);
+
       border-radius: 1rem;
     }
 
-    .lista-nav a {
+    .subnav-link {
       min-height: 3.2rem;
-      padding: 0.65rem 0.5rem;
+
+      padding: 0.65rem 0.75rem;
 
       border-radius: 0.75rem;
+
       font-size: 0.92rem;
     }
   }
 
-  @media (max-width: 340px) {
-    .lista-nav {
-      grid-template-columns: 1fr;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .lista-nav a {
+    .subnav-link {
       transition: none;
     }
 
-    .lista-nav a:hover {
+    .subnav-link:hover {
       transform: none;
     }
   }

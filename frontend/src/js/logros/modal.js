@@ -1,155 +1,257 @@
-import { createAchievement, updateAchievement } from '../common/api.js'
+import { createFormModalController } from '../common/modalController.js'
 
-import { modalCarga, refreshAchievements } from './logros.js'
+import { focusSoon, requireElement } from '../common/dom.js'
 
 import { buildAchievementFormData } from './formData.js'
 
-import { showToast } from '../common/toast.js'
+/* ==========================================================
+   MODAL FACTORY
+========================================================== */
 
-/* ============================================================
- * DOM
- * ========================================================== */
+export function createLogroModal({
+  create,
+  update,
+  refresh,
+  imagePicker,
+  setLoading
+} = {}) {
+  validarConfiguracion({
+    create,
+    update,
+    refresh,
+    imagePicker,
+    setLoading
+  })
 
-const modal = document.getElementById('achievementModal')
+  /* ========================================================
+     ELEMENTOS
+  ======================================================== */
 
-const form = document.getElementById('achievementForm')
+  const titleInput = requireElement('#title', 'campo de título del logro')
 
-const title = document.getElementById('modalTitle')
+  const contentInput = requireElement(
+    '#description',
+    'campo de descripción del logro'
+  )
 
-const titulo = document.getElementById('title')
+  /* ========================================================
+     PETICIONES
+  ======================================================== */
 
-const contenido = document.getElementById('description')
+  async function crearLogro(formData) {
+    setLoading(true)
+    imagePicker.setDisabled(true)
 
-const fecha = document.getElementById('date')
-
-const image = document.getElementById('image')
-
-const btnCancel = document.getElementById('btnCancel')
-
-/* ============================================================
- * STATE
- * ========================================================== */
-
-let editingAchievement = null
-
-/* ============================================================
- * EVENTS
- * ========================================================== */
-
-export function registerModalEvents() {
-  btnCancel.onclick = closeModal
-
-  modal.onclick = (e) => {
-    if (e.target === modal) {
-      closeModal()
+    try {
+      return await create(formData)
+    } finally {
+      imagePicker.setDisabled(false)
+      setLoading(false)
     }
   }
 
-  form.addEventListener('submit', submitForm)
-}
+  async function actualizarLogro(id, formData) {
+    setLoading(true)
+    imagePicker.setDisabled(true)
 
-/* ============================================================
- * OPEN
- * ========================================================== */
-
-export function openCreateAchievementModal() {
-  editingAchievement = null
-
-  title.textContent = 'Crear logro'
-
-  form.reset()
-
-  openModal()
-}
-
-export function openEditAchievementModal(achievement) {
-  editingAchievement = achievement
-
-  title.textContent = 'Editar logro'
-
-  titulo.value = achievement.titulo
-
-  contenido.value = achievement.contenido
-
-  /*
-      If later you add a date field to the backend,
-      assign it here.
-  */
-
-  image.value = ''
-
-  openModal()
-}
-
-/* ============================================================
- * SUBMIT
- * ========================================================== */
-
-async function submitForm(e) {
-  e.preventDefault()
-  modalCarga.hidden = false
-  try {
-    validate()
-
-    const data = {
-      titulo: titulo.value.trim(),
-
-      contenido: contenido.value.trim(),
-
-      orden: editingAchievement ? editingAchievement.orden : 0,
-
-      image: image.files.length > 0 ? image.files[0] : null,
+    try {
+      return await update(id, formData)
+    } finally {
+      imagePicker.setDisabled(false)
+      setLoading(false)
     }
-
-    const formData = buildAchievementFormData(data)
-
-    if (editingAchievement == null) {
-      await createAchievement(formData)
-
-      showToast('Logro creado.', 'success')
-    } else {
-      await updateAchievement(editingAchievement.id, formData)
-
-      showToast('Logro actualizado.', 'success')
-    }
-
-    closeModal()
-
-    await refreshAchievements()
-  } catch (err) {
-    showToast(err.message, 'error')
   }
-  modalCarga.hidden = true
+
+  async function recargarLogros() {
+    setLoading(true)
+
+    try {
+      return await refresh({
+        showLoading: false
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /* ========================================================
+     CONTROLADOR
+  ======================================================== */
+
+  return createFormModalController({
+    modal: '#achievementModal',
+
+    form: '#achievementForm',
+
+    titleElement: '#modalTitle',
+
+    cancelButtons: ['#btnCancel'],
+
+    /*
+     * El propio contenedor del modal funciona como fondo.
+     */
+    hiddenClass: 'hidden',
+
+    createTitle: 'Crear logro',
+
+    editTitle: 'Editar logro',
+
+    createButtonText: 'Crear logro',
+
+    editButtonText: 'Guardar cambios',
+
+    creatingText: 'Creando logro...',
+
+    updatingText: 'Guardando cambios...',
+
+    createSuccessMessage: 'Logro creado.',
+
+    updateSuccessMessage: 'Logro actualizado.',
+
+    errorMessage: 'No se pudo guardar el logro.',
+
+    create: crearLogro,
+
+    update: actualizarLogro,
+
+    refresh: recargarLogros,
+
+    focusElement: titleInput,
+
+    disableFormWhileSubmitting: true,
+
+    validate({ editing }) {
+      validarFormulario({
+        editing,
+        titleInput,
+        contentInput,
+        imagePicker
+      })
+    },
+
+    buildPayload({ item, editing }) {
+      return buildAchievementFormData({
+        titulo: titleInput.value,
+
+        contenido: contentInput.value,
+
+        /*
+         * Conserva la posición al editar.
+         *
+         * La implementación original enviaba 0 al crear.
+         */
+        orden: editing ? Number(item?.orden) : 0,
+
+        image: imagePicker.files[0] ?? null
+      })
+    },
+
+    populate(_form, logro) {
+      titleInput.value = logro.titulo ?? ''
+
+      contentInput.value = logro.contenido ?? ''
+    },
+
+    clear(form) {
+      form.reset()
+
+      imagePicker.setDisabled(false)
+      imagePicker.reset()
+      imagePicker.setRequired(false)
+    },
+
+    onOpenCreate() {
+      imagePicker.setRequired(true)
+    },
+
+    onOpenEdit() {
+      /*
+       * No seleccionar una imagen nueva mantiene la imagen
+       * actual del logro.
+       */
+      imagePicker.setRequired(false)
+    },
+
+    onClose() {
+      imagePicker.setDisabled(false)
+      imagePicker.reset()
+      imagePicker.setRequired(false)
+    }
+  })
 }
 
-/* ============================================================
- * VALIDATION
- * ========================================================== */
+/* ==========================================================
+   VALIDACIÓN
+========================================================== */
 
-function validate() {
-  if (titulo.value.trim().length < 3) throw new Error('El título es muy corto.')
+function validarFormulario({ editing, titleInput, contentInput, imagePicker }) {
+  const titulo = titleInput.value.trim()
 
-  if (contenido.value.trim().length < 10)
+  if (titulo.length < 3) {
+    focusSoon(titleInput, {
+      selectText: true
+    })
+
+    throw new Error('El título es muy corto.')
+  }
+
+  const contenido = contentInput.value.trim()
+
+  if (contenido.length < 10) {
+    focusSoon(contentInput)
+
     throw new Error('La descripción es muy corta.')
+  }
 
-  if (editingAchievement == null && image.files.length === 0)
-    throw new Error('La imagen es requerida.')
+  imagePicker.validate()
+
+  if (!editing)
+    try {
+      imagePicker.requireFiles('La imagen es requerida.')
+    } catch (error) {
+      imagePicker.focus()
+
+      throw error
+    }
 }
 
-/* ============================================================
- * MODAL
- * ========================================================== */
+/* ==========================================================
+   CONFIGURACIÓN
+========================================================== */
 
-function openModal() {
-  modal.classList.remove('hidden')
+function validarConfiguracion({
+  create,
+  update,
+  refresh,
+  imagePicker,
+  setLoading
+}) {
+  const funciones = {
+    create,
+    update,
+    refresh,
+    setLoading
+  }
 
-  titulo.focus()
-}
+  for (const [nombre, funcion] of Object.entries(funciones)) {
+    if (typeof funcion !== 'function')
+      throw new TypeError(`createLogroModal requiere ${nombre}.`)
+  }
 
-function closeModal() {
-  editingAchievement = null
+  if (!imagePicker)
+    throw new TypeError('createLogroModal requiere imagePicker.')
 
-  form.reset()
+  const metodosRequeridos = [
+    'validate',
+    'requireFiles',
+    'setRequired',
+    'setDisabled',
+    'reset',
+    'focus'
+  ]
 
-  modal.classList.add('hidden')
+  for (const metodo of metodosRequeridos) {
+    if (typeof imagePicker[metodo] !== 'function')
+      throw new TypeError(`imagePicker no implementa ${metodo}().`)
+  }
 }

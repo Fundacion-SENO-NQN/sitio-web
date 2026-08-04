@@ -8,72 +8,81 @@ interface Props {
 const { titulo } = Astro.props
 ---
 
-<div class="titulo-seccion">
-  <h1>{titulo}</h1>
+<header class="page-title">
+  <h1 class="page-title__heading">{titulo}</h1>
 
-  <div class="decoracion" aria-hidden="true">
-    <span class="linea"></span>
+  <div class="page-title__decoration" aria-hidden="true">
+    <span class="page-title__line"></span>
 
-    <SvgCorazon class="icono" />
+    <SvgCorazon class="page-title__icon" />
 
-    <span class="linea"></span>
+    <span class="page-title__line"></span>
   </div>
-</div>
+</header>
 
 <style>
-  .titulo-seccion {
-    box-sizing: border-box;
+  .page-title {
+    width: min(calc(100% - 2rem), 56.25rem);
 
-    width: min(calc(100% - 2rem), 900px);
     margin: clamp(1.5rem, 5vw, 3rem) auto;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+
     gap: clamp(0.7rem, 2vw, 1rem);
   }
 
-  h1 {
+  .page-title__heading {
     margin: 0;
 
     color: var(--color-primary-hover);
 
-    font-family: var(--text-font-primary);
     font-size: clamp(2rem, 7vw, 3rem);
-    font-weight: 700;
+
+    font-weight: 750;
     line-height: 1.15;
     text-align: center;
+    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
-  .decoracion {
+  .page-title__decoration {
     width: 100%;
 
     display: flex;
     align-items: center;
+
     gap: clamp(0.6rem, 2vw, 1rem);
   }
 
-  .linea {
+  .page-title__line {
     height: 2px;
 
-    flex: 1;
+    flex: 1 1 auto;
 
     background-color: var(--color-primary-light);
+
+    border-radius: 999px;
   }
 
-  .icono {
+  .page-title__icon {
     width: clamp(1.4rem, 5vw, 1.8rem);
+
     height: clamp(1.4rem, 5vw, 1.8rem);
 
-    flex-shrink: 0;
+    flex: 0 0 auto;
 
     color: var(--color-primary-hover);
   }
 
   @media (max-width: 400px) {
-    .titulo-seccion {
+    .page-title {
       width: calc(100% - 1.25rem);
+    }
+
+    .page-title__heading {
+      font-size: clamp(1.75rem, 10vw, 2.25rem);
     }
   }
 </style>

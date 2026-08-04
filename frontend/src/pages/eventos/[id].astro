@@ -3,241 +3,469 @@ export const prerender = false
 
 import Layout from '../../layouts/Layout.astro'
 import GaleriaEvento from '../../components/Eventos/GaleriaEvento.astro'
+import Breadcrumbs from '../../components/Common/Breadcrumbs.astro'
+import JsonLd from '../../components/SEO/JsonLd.astro'
 
 import type Evento from '../../data/interfaces/Evento'
 
-const API_URL: string = (
+import { createSeoDescription, toIsoDate } from '../../utils/seo'
+
+const API_URL = (
   import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
 ).replace(/\/+$/, '')
 
-const id: number = Number(Astro.params.id)
+type PageState = 'ready' | 'not-found' | 'error'
 
-if (!Number.isInteger(id) || id <= 0) return Astro.redirect('/eventos')
-
-let evento: Evento
-
-try {
-  const response: Response = await fetch(`${API_URL}/eventos/${id}`)
-
-  if (response.status === 404) return Astro.redirect('/eventos')
-
-  if (!response.ok) throw new Error(`Error ${response.status}`)
-
-  evento = await response.json()
-} catch (error) {
-  console.error('No se pudo cargar el evento:', error)
-
-  return Astro.redirect('/eventos')
+type EventoSeo = Evento & {
+  start_at?: string | Date | null
+  end_at?: string | Date | null
+  previous_start_at?: string | Date | null
+  updated_at?: string | Date | null
+  location_name?: string | null
+  street_address?: string | null
+  address_locality?: string | null
+  address_region?: string | null
+  postal_code?: string | null
+  address_country?: string | null
+  event_status?: 'scheduled' | 'cancelled' | 'postponed' | 'rescheduled'
+  image_url?: string | null
+  image_urls?: string[] | null
 }
+
+const parsedId = Number(Astro.params.id)
+
+let pageState: PageState = 'ready'
+let evento: EventoSeo | null = null
+
+if (!Number.isInteger(parsedId) || parsedId <= 0) {
+  pageState = 'not-found'
+  Astro.response.status = 404
+} else {
+  try {
+    const response = await fetch(`${API_URL}/eventos/${parsedId}`)
+
+    if (response.status === 404) {
+      pageState = 'not-found'
+      Astro.response.status = 404
+    } else if (!response.ok) {
+      throw new Error(`La API respondió con estado ${response.status}`)
+    } else {
+      const data: unknown = await response.json()
+
+      if (!data || typeof data !== 'object') {
+        throw new TypeError('La respuesta del evento no es válida')
+      }
+
+      evento = data as EventoSeo
+    }
+  } catch (error) {
+    pageState = 'error'
+    Astro.response.status = 503
+
+    console.error('No se pudo cargar el evento:', error)
+  }
+}
+
+if (pageState !== 'ready') {
+  Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
+  Astro.response.headers.set('Cache-Control', 'no-store')
+} else
+  Astro.response.headers.set(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=3600'
+  )
+
+const paragraphs = evento?.descripcion
+  ? evento.descripcion
+      .split(/\r?\n/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+  : []
+
+const normalizeExternalUrl = (value?: string | null): string | null => {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.href
+      : null
+  } catch {
+    return null
+  }
+}
+
+const normalizeImageUrl = (value?: string | null): string | null => {
+  if (!value) return null
+
+  try {
+    return new URL(value, Astro.site ?? 'https://fundacionseno.org').href
+  } catch {
+    return null
+  }
+}
+
+const eventExternalUrl = normalizeExternalUrl(evento?.url)
+
+const pageTitle =
+  evento?.titulo ??
+  (pageState === 'not-found' ? 'Evento no encontrado' : 'Evento no disponible')
+
+const pageDescription = createSeoDescription(
+  evento?.descripcion,
+  evento
+    ? `${evento.titulo}. Conocé la información de este evento de Fundación SENO.`
+    : 'Información de eventos de Fundación SENO.'
+)
+
+const site = Astro.site ?? new URL('https://fundacionseno.org')
+const homeUrl = new URL('/', site).href
+const pageUrl = evento
+  ? new URL(`/eventos/${evento.id}`, site).href
+  : new URL(Astro.url.pathname, site).href
+const organizationId = `${homeUrl}#organization`
+
+const startDate = toIsoDate(evento?.start_at)
+const endDate = toIsoDate(evento?.end_at)
+const previousStartDate = toIsoDate(evento?.previous_start_at)
+
+const eventImages = [
+  ...(Array.isArray(evento?.image_urls) ? evento.image_urls : []),
+  evento?.image_url
+]
+  .map((image) => normalizeImageUrl(image))
+  .filter((image): image is string => Boolean(image))
+
+const eventStatusMap = {
+  scheduled: 'https://schema.org/EventScheduled',
+  cancelled: 'https://schema.org/EventCancelled',
+  postponed: 'https://schema.org/EventPostponed',
+  rescheduled: 'https://schema.org/EventRescheduled'
+} as const
+
+const hasStructuredLocation = Boolean(
+  evento?.location_name &&
+  evento?.street_address &&
+  evento?.address_locality &&
+  evento?.address_region &&
+  evento?.address_country
+)
+
+const eventSchema =
+  evento && startDate && hasStructuredLocation
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+        '@id': `${pageUrl}#event`,
+        name: evento.titulo,
+        description: pageDescription,
+        url: pageUrl,
+        startDate,
+        ...(endDate ? { endDate } : {}),
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        eventStatus: eventStatusMap[evento.event_status ?? 'scheduled'],
+        ...(previousStartDate && evento.event_status === 'rescheduled'
+          ? { previousStartDate }
+          : {}),
+        location: {
+          '@type': 'Place',
+          name: evento.location_name,
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: evento.street_address,
+            addressLocality: evento.address_locality,
+            addressRegion: evento.address_region,
+            addressCountry: evento.address_country,
+            ...(evento.postal_code ? { postalCode: evento.postal_code } : {})
+          }
+        },
+        ...(eventImages.length > 0 ? { image: eventImages } : {}),
+        organizer: {
+          '@type': 'Organization',
+          '@id': organizationId,
+          name: 'Fundación SENO',
+          url: homeUrl
+        }
+      }
+    : null
 ---
 
-<Layout pag={evento.titulo}>
-  <main class="evento-page">
-    <nav aria-label="Navegación">
-      <a class="volver" href="/eventos">
-        <span aria-hidden="true"> ← </span>
+<Layout
+  pag={pageTitle}
+  seoTitle={evento ? `${evento.titulo} | Eventos Fundación SENO` : pageTitle}
+  description={pageDescription}
+  image={eventImages[0]}
+  noindex={pageState !== 'ready'}
+>
+  {eventSchema && <JsonLd data={eventSchema} />}
 
-        Volver a eventos
+  {
+    evento && (
+      <Breadcrumbs
+        items={[
+          {
+            name: 'Inicio',
+            href: '/'
+          },
+          {
+            name: 'Eventos',
+            href: '/eventos'
+          },
+          {
+            name: evento.titulo
+          }
+        ]}
+      />
+    )
+  }
+
+  <main class="event-detail-page">
+    <nav
+      class="event-detail-page__navigation"
+      aria-label="Navegación de eventos"
+    >
+      <a class="event-detail-page__back" href="/eventos/">
+        <span aria-hidden="true">←</span>
+        <span>Volver a eventos</span>
       </a>
     </nav>
 
-    <article class="evento">
-      <div class="galeria-container">
-        <GaleriaEvento
-          eventoId={evento.id}
-          titulo={evento.titulo}
-          cantidad={evento.cant_img}
-        />
-      </div>
+    {
+      evento ? (
+        <article class="event-detail" aria-labelledby="event-title">
+          <div class="event-detail__gallery">
+            <GaleriaEvento
+              eventoId={evento.id}
+              titulo={evento.titulo}
+              cantidad={evento.cant_img}
+            />
+          </div>
 
-      <div class="contenido">
-        <header class="cabecera">
-          <span class="categoria"> Evento </span>
+          <div class="event-detail__content">
+            <header class="event-detail__header">
+              <p class="event-detail__category">Evento</p>
 
-          <h1>{evento.titulo}</h1>
-        </header>
+              <h1 id="event-title">{evento.titulo}</h1>
+            </header>
 
-        {
-          (evento.fecha || evento.horario || evento.lugar) && (
-            <dl class="datos">
-              {evento.fecha && (
-                <div class="dato">
-                  <dt>
-                    <span aria-hidden="true">📅</span>
-                    Fecha
-                  </dt>
+            {(evento.fecha || evento.horario || evento.lugar) && (
+              <dl class="event-detail__metadata">
+                {evento.fecha && (
+                  <div class="event-detail__metadata-item">
+                    <dt>
+                      <span aria-hidden="true">📅</span>
+                      <span>Fecha</span>
+                    </dt>
+                    <dd>{evento.fecha}</dd>
+                  </div>
+                )}
 
-                  <dd>{evento.fecha}</dd>
-                </div>
-              )}
+                {evento.horario && (
+                  <div class="event-detail__metadata-item">
+                    <dt>
+                      <span aria-hidden="true">🕒</span>
+                      <span>Horario</span>
+                    </dt>
+                    <dd>{evento.horario}</dd>
+                  </div>
+                )}
 
-              {evento.horario && (
-                <div class="dato">
-                  <dt>
-                    <span aria-hidden="true">🕒</span>
-                    Horario
-                  </dt>
+                {evento.lugar && (
+                  <div class="event-detail__metadata-item">
+                    <dt>
+                      <span aria-hidden="true">📍</span>
+                      <span>Lugar</span>
+                    </dt>
+                    <dd>{evento.lugar}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
 
-                  <dd>{evento.horario}</dd>
-                </div>
-              )}
-
-              {evento.lugar && (
-                <div class="dato">
-                  <dt>
-                    <span aria-hidden="true">📍</span>
-                    Lugar
-                  </dt>
-
-                  <dd>{evento.lugar}</dd>
-                </div>
-              )}
-            </dl>
-          )
-        }
-
-        <section class="descripcion" aria-label="Descripción del evento">
-          {
-            evento.descripcion
-              .split('\n')
-              .filter((parrafo) => parrafo.trim().length > 0)
-              .map((parrafo) => <p>{parrafo}</p>)
-          }
-        </section>
-
-        {
-          evento.url && (
-            <div class="acciones">
-              <a
-                class="enlace-evento"
-                href={evento.url}
-                target="_blank"
-                rel="noopener noreferrer"
+            {paragraphs.length > 0 && (
+              <section
+                class="event-detail__description"
+                aria-label="Descripción del evento"
               >
-                {evento.url_titulo || 'Más información'}
+                {paragraphs.map((paragraph) => (
+                  <p>{paragraph}</p>
+                ))}
+              </section>
+            )}
 
-                <span aria-hidden="true">↗</span>
-              </a>
-            </div>
-          )
-        }
-      </div>
-    </article>
+            {eventExternalUrl && (
+              <div class="event-detail__actions">
+                <a
+                  class="event-detail__external-link"
+                  href={eventExternalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${evento.url_titulo || 'Más información'} sobre ${evento.titulo} en una pestaña nueva`}
+                >
+                  <span>{evento.url_titulo || 'Más información'}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            )}
+          </div>
+        </article>
+      ) : (
+        <section
+          class:list={[
+            'event-detail-status',
+            {
+              'event-detail-status--error': pageState === 'error'
+            }
+          ]}
+          role={pageState === 'error' ? 'alert' : 'status'}
+        >
+          <h1>{pageTitle}</h1>
+
+          <p>
+            {pageState === 'not-found'
+              ? 'El evento que buscás no existe o ya no se encuentra publicado.'
+              : 'No pudimos obtener la información del evento. Intentá nuevamente más tarde.'}
+          </p>
+
+          <a href="/eventos/">Ver todos los eventos</a>
+        </section>
+      )
+    }
   </main>
 </Layout>
 
 <style>
-  .evento-page {
-    box-sizing: border-box;
-
+  .event-detail-page {
     width: min(100%, 76rem);
     min-width: 0;
+
     margin-inline: auto;
+
     padding: clamp(1rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem)
       clamp(2rem, 6vw, 4rem);
-
-    font-family: var(--text-font-primary);
   }
 
-  .volver {
-    width: fit-content;
+  .event-detail-page__navigation {
     margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .event-detail-page__back {
+    width: fit-content;
 
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
 
     color: var(--color-secondary-hover);
 
     font-weight: 700;
+    line-height: 1.4;
     text-decoration: none;
+
+    transition:
+      color var(--transition),
+      transform var(--transition);
   }
 
-  .volver:hover {
+  .event-detail-page__back:hover {
+    color: var(--color-secondary);
+
     text-decoration: underline;
   }
 
-  .evento {
+  .event-detail-page__back:focus-visible {
+    outline: none;
+
+    border-radius: 0.2rem;
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
+  }
+
+  .event-detail {
     display: grid;
+
     grid-template-columns:
       minmax(0, 1.15fr)
       minmax(18rem, 0.85fr);
+
     align-items: start;
+
     gap: clamp(1.5rem, 5vw, 3rem);
   }
 
-  .galeria-container {
+  .event-detail__gallery,
+  .event-detail__content {
     min-width: 0;
   }
 
-  .contenido {
-    min-width: 0;
-  }
-
-  .cabecera {
+  .event-detail__header {
     margin-bottom: 1.4rem;
   }
 
-  .categoria {
+  .event-detail__category {
     margin-bottom: 0.5rem;
-
-    display: block;
 
     color: var(--color-secondary-hover);
 
     font-size: 0.82rem;
     font-weight: 800;
+    line-height: 1.3;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  h1 {
-    margin: 0;
-
+  .event-detail__header h1 {
     color: var(--color-primary-hover);
 
     font-size: clamp(1.9rem, 5vw, 3rem);
+
     line-height: 1.12;
+    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
-  .datos {
-    margin: 0 0 1.5rem;
+  .event-detail__metadata {
+    margin-bottom: 1.5rem;
+
     padding: 1rem;
 
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
 
-    border-left: 4px solid var(--color-secondary);
-    border-radius: 0.75rem;
-
     background-color: rgba(21, 130, 203, 0.06);
+
+    border-left: 4px solid var(--color-secondary);
+
+    border-radius: var(--radius-small);
   }
 
-  .dato {
+  .event-detail__metadata-item {
     min-width: 0;
 
     display: grid;
+
     grid-template-columns:
       minmax(5.5rem, auto)
       minmax(0, 1fr);
+
     gap: 0.75rem;
   }
 
-  dt {
+  .event-detail__metadata dt {
     display: flex;
     align-items: flex-start;
-    gap: 0.4rem;
+    gap: 0.45rem;
 
     color: var(--color-secondary-hover);
 
     font-weight: 800;
+    line-height: 1.5;
   }
 
-  dd {
+  .event-detail__metadata dd {
     min-width: 0;
-    margin: 0;
 
     color: var(--color-text);
 
@@ -245,29 +473,28 @@ try {
     overflow-wrap: anywhere;
   }
 
-  .descripcion {
+  .event-detail__description {
     color: var(--color-text);
 
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .descripcion p {
-    margin: 0 0 1rem;
+  .event-detail__description p + p {
+    margin-top: 1rem;
+  }
 
-    white-space: pre-line;
+  .event-detail__description p {
     overflow-wrap: anywhere;
   }
 
-  .descripcion p:last-child {
-    margin-bottom: 0;
-  }
-
-  .acciones {
+  .event-detail__actions {
     margin-top: 1.5rem;
   }
 
-  .enlace-evento {
+  .event-detail__external-link {
     width: fit-content;
+
     padding: 0.8rem 1.15rem;
 
     display: inline-flex;
@@ -275,48 +502,128 @@ try {
     justify-content: center;
     gap: 0.5rem;
 
-    border-radius: 0.75rem;
-
-    color: white;
+    color: var(--color-background);
     background-color: var(--color-secondary);
 
-    font-weight: 750;
+    border: 1px solid var(--color-secondary);
+
+    border-radius: var(--radius-small);
+
+    font-weight: 700;
+    line-height: 1.3;
     text-decoration: none;
 
     transition:
-      background-color 0.2s ease,
-      transform 0.2s ease;
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .enlace-evento:hover {
+  .event-detail__external-link:hover {
     background-color: var(--color-secondary-hover);
-    transform: translateY(-2px);
+
+    border-color: var(--color-secondary-hover);
   }
 
-  .enlace-evento:focus-visible {
-    outline: 3px solid var(--color-secondary-light);
-    outline-offset: 3px;
+  .event-detail__external-link:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
+  }
+
+  .event-detail-status {
+    width: min(100%, 42rem);
+
+    margin: clamp(2rem, 8vw, 5rem) auto;
+
+    padding: clamp(2rem, 7vw, 4rem);
+
+    color: var(--color-text);
+    background-color: rgba(21, 130, 203, 0.05);
+
+    border: 1px dashed var(--color-secondary-light);
+
+    border-radius: var(--radius);
+
+    text-align: center;
+  }
+
+  .event-detail-status--error {
+    background-color: rgba(211, 47, 47, 0.06);
+
+    border-color: rgba(211, 47, 47, 0.4);
+  }
+
+  .event-detail-status h1 {
+    color: var(--color-secondary-hover);
+
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .event-detail-status--error h1 {
+    color: #b42318;
+  }
+
+  .event-detail-status p {
+    margin-top: 0.75rem;
+
+    color: #667580;
+
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .event-detail-status a {
+    margin-top: 1.25rem;
+
+    padding: 0.75rem 1rem;
+
+    display: inline-flex;
+
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+
+    border-radius: var(--radius-small);
+
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .event-detail-page__back:hover {
+      transform: translateX(-0.2rem);
+    }
+
+    .event-detail__external-link:hover {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 880px) {
-    .evento {
+    .event-detail {
       grid-template-columns: minmax(0, 1fr);
     }
   }
 
   @media (max-width: 460px) {
-    .dato {
+    .event-detail__metadata-item {
       grid-template-columns: minmax(0, 1fr);
+
       gap: 0.25rem;
     }
 
-    .enlace-evento {
+    .event-detail__external-link {
       width: 100%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .enlace-evento {
+    .event-detail-page__back,
+    .event-detail__external-link {
       transition: none;
     }
   }

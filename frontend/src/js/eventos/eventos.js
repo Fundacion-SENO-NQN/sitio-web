@@ -1,376 +1,265 @@
-import {
-  getEventos,
-} from '../common/api.js'
+import { createListController } from '../common/listController.js'
 
-import {
-  renderEventos,
-} from './table.js'
+import { createOrderController } from '../common/orderController.js'
 
-import {
-  abrirModalCrearEvento,
-  registrarEventosModal,
-} from './modal.js'
+import { eventsApi } from '../common/resources.js'
 
-import {
-  registrarEventosEliminar,
-} from './delete.js'
+import { showToast } from '../common/toast.js'
 
-/* ==========================================================
-   ESTADO
-========================================================== */
+import { createEventosTable } from './table.js'
 
-export let eventos = []
-export let eventosFiltrados = []
+import { createEventoModal } from './modal.js'
 
-let cargando = false
+import { createEventoDeleteController } from './delete.js'
+
+import { eventImagePicker } from './images.js'
 
 /* ==========================================================
-   ELEMENTOS
+   RENDERIZADOR
 ========================================================== */
 
-const inputBusqueda =
-  document.getElementById(
-    'buscar-eventos',
-  )
+/*
+ * listController necesita recibir un renderizador durante
+ * su creación.
+ *
+ * El renderizador definitivo se construye más abajo, después
+ * de crear los controladores de orden, edición y eliminación.
+ *
+ * Esta función intermedia evita dependencias circulares entre:
+ *
+ * eventos.js
+ * table.js
+ * modal.js
+ * delete.js
+ */
+let renderEventos = () => {}
 
-const cantidadEventos =
-  document.getElementById(
-    'cantidad-eventos',
-  )
+/* ==========================================================
+   LISTA
+========================================================== */
 
-const estadoCargando =
-  document.getElementById(
-    'estado-cargando',
-  )
+export const eventosController = createListController({
+  load: eventsApi.list,
 
-const estadoError =
-  document.getElementById(
-    'estado-error',
-  )
+  render(context) {
+    renderEventos(context)
+  },
 
-const estadoVacio =
-  document.getElementById(
-    'estado-vacio',
-  )
+  searchInput: '#buscar-eventos',
 
-const tablaWrapper =
-  document.getElementById(
-    'tabla-wrapper',
-  )
+  countElement: '#cantidad-eventos',
 
-const botonNuevoEvento =
-  document.getElementById(
-    'btn-nuevo-evento',
-  )
+  loadingElement: '#estado-cargando',
 
-const botonPrimerEvento =
-  document.getElementById(
-    'btn-primer-evento',
-  )
+  errorElement: '#estado-error',
 
-const botonReintentar =
-  document.getElementById(
-    'btn-reintentar-eventos',
-  )
+  emptyElement: '#estado-vacio',
+
+  tableElement: '#tabla-wrapper',
+
+  retryButton: '#btn-reintentar-eventos',
+
+  createButtons: ['#btn-nuevo-evento', '#btn-primer-evento'],
+
+  onCreate() {
+    eventoModal.openCreate()
+  },
+
+  searchValues(evento) {
+    return [
+      evento.titulo,
+      evento.descripcion,
+      evento.lugar,
+      evento.fecha,
+      evento.horario,
+      evento.url,
+      evento.url_titulo
+    ]
+  },
+
+  sorters: {
+    order(eventoA, eventoB) {
+      return Number(eventoA.orden) - Number(eventoB.orden)
+    },
+
+    title(eventoA, eventoB) {
+      return String(eventoA.titulo ?? '').localeCompare(
+        String(eventoB.titulo ?? ''),
+        'es-AR',
+        {
+          sensitivity: 'base'
+        }
+      )
+    },
+
+    createdAt(eventoA, eventoB) {
+      return (
+        obtenerTimestamp(eventoA.created_at) -
+        obtenerTimestamp(eventoB.created_at)
+      )
+    }
+  },
+
+  defaultSort: 'order',
+
+  defaultAscending: true,
+
+  messages: {
+    emptyTitle: 'No hay eventos publicados',
+
+    emptyDescription:
+      'Creá el primer evento para que aparezca en el sitio web.',
+
+    noResultsTitle: 'No se encontraron eventos',
+
+    noResultsDescription: 'Probá buscar con otras palabras.',
+
+    loadError: 'No se pudieron cargar los eventos.'
+  },
+
+  singular: 'evento',
+
+  plural: 'eventos',
+
+  onError(error) {
+    showToast(
+      error instanceof Error
+        ? error.message
+        : 'No se pudieron cargar los eventos.',
+      'error'
+    )
+  }
+})
+
+/* ==========================================================
+   ORDEN
+========================================================== */
+
+export const eventosOrderController = createOrderController({
+  listController: eventosController,
+
+  changeOrder: eventsApi.changeOrder,
+
+  refresh: eventosController.refresh,
+
+  optimistic: true,
+
+  refreshAfterChange: true,
+
+  refreshAfterError: true,
+
+  errorMessage: 'No se pudo cambiar el orden de los eventos.'
+})
+
+/* ==========================================================
+   MODAL DE CREACIÓN Y EDICIÓN
+========================================================== */
+
+export const eventoModal = createEventoModal({
+  create: eventsApi.create,
+
+  update: eventsApi.update,
+
+  refresh: eventosController.refresh,
+
+  imagePicker: eventImagePicker
+})
+
+/* ==========================================================
+   MODAL DE ELIMINACIÓN
+========================================================== */
+
+export const eventoDeleteController = createEventoDeleteController({
+  remove: eventsApi.remove,
+
+  refresh: eventosController.refresh
+})
+
+/* ==========================================================
+   TABLA
+========================================================== */
+
+renderEventos = createEventosTable({
+  orderController: eventosOrderController,
+
+  onEdit(evento) {
+    eventoModal.openEdit(evento)
+  },
+
+  onDelete(evento) {
+    eventoDeleteController.open(evento)
+  }
+})
+
+/* ==========================================================
+   EXPORTACIONES DE COMPATIBILIDAD
+========================================================== */
+
+/*
+ * Estas funciones permiten que otros módulos continúen
+ * utilizando nombres similares a los anteriores sin volver
+ * a importar ni modificar directamente los arrays.
+ */
+
+export function refreshEventos(options) {
+  return eventosController.refresh(options)
+}
+
+export function aplicarFiltros() {
+  return eventosController.applyFilters()
+}
+
+export function obtenerEventos() {
+  return eventosController.items
+}
+
+export function obtenerEventosFiltrados() {
+  return eventosController.filteredItems
+}
+
+export function obtenerEventoPorId(id) {
+  return eventosController.getById(id)
+}
 
 /* ==========================================================
    INICIALIZACIÓN
 ========================================================== */
 
 async function init() {
-  registrarEventosGenerales()
-  registrarEventosModal()
-  registrarEventosEliminar()
-
-  await refreshEventos()
-}
-
-/* ==========================================================
-   CARGAR EVENTOS
-========================================================== */
-
-export async function refreshEventos() {
-  if (cargando) {
-    return
-  }
-
-  cargando = true
-
-  mostrarEstadoCargando()
+  /*
+   * Cada controlador registra sus eventos una sola vez.
+   */
+  eventImagePicker.initialize()
+  eventoModal.initialize()
+  eventoDeleteController.initialize()
 
   try {
-    const respuesta =
-      await getEventos()
-
-    eventos =
-      Array.isArray(respuesta)
-        ? respuesta
-        : []
-
-    ordenarEventosPorOrden()
-
-    aplicarFiltros()
+    await eventosController.initialize()
   } catch (error) {
+    /*
+     * listController ya mostró el estado de error y ejecutó
+     * onError. Capturamos el rechazo para evitar una promesa
+     * no controlada durante la carga inicial.
+     */
     console.error(
-      'No se pudieron cargar los eventos:',
-      error,
+      'Falló la inicialización de la administración de eventos:',
+      error
     )
-
-    eventos = []
-    eventosFiltrados = []
-
-    mostrarEstadoError()
-    actualizarCantidad()
-  } finally {
-    cargando = false
   }
 }
 
 /* ==========================================================
-   FILTROS
+   HELPERS
 ========================================================== */
 
-export function aplicarFiltros() {
-  const busqueda =
-    inputBusqueda?.value
-      .trim()
-      .toLocaleLowerCase('es-AR') ?? ''
-
-  if (!busqueda) {
-    eventosFiltrados = [
-      ...eventos,
-    ]
-  } else {
-    eventosFiltrados =
-      eventos.filter((evento) => {
-        const textoBuscable = [
-          evento.titulo,
-          evento.descripcion,
-          evento.lugar,
-          evento.fecha,
-          evento.horario,
-          evento.url_titulo,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLocaleLowerCase('es-AR')
-
-        return textoBuscable.includes(
-          busqueda,
-        )
-      })
+function obtenerTimestamp(value) {
+  if (!value) {
+    return 0
   }
 
-  eventosFiltrados.sort(
-    (eventoA, eventoB) =>
-      eventoA.orden -
-      eventoB.orden,
-  )
+  const timestamp = new Date(value).getTime()
 
-  actualizarCantidad()
-  renderizarEstadoActual()
-}
-
-/* ==========================================================
-   EVENTOS GENERALES
-========================================================== */
-
-function registrarEventosGenerales() {
-  inputBusqueda?.addEventListener(
-    'input',
-    aplicarFiltros,
-  )
-
-  botonNuevoEvento?.addEventListener(
-    'click',
-    abrirModalCrearEvento,
-  )
-
-  botonPrimerEvento?.addEventListener(
-    'click',
-    abrirModalCrearEvento,
-  )
-
-  botonReintentar?.addEventListener(
-    'click',
-    refreshEventos,
-  )
-}
-
-/* ==========================================================
-   ESTADOS VISUALES
-========================================================== */
-
-function renderizarEstadoActual() {
-  ocultarTodosLosEstados()
-
-  /*
-   * No hay eventos en la base de datos.
-   */
-  if (eventos.length === 0) {
-    estadoVacio?.classList.remove(
-      'oculto',
-    )
-
-    return
-  }
-
-  /*
-   * Hay eventos, pero ninguno coincide con la búsqueda.
-   */
-  if (eventosFiltrados.length === 0) {
-    mostrarEstadoSinResultados()
-
-    return
-  }
-
-  tablaWrapper?.classList.remove(
-    'oculto',
-  )
-
-  renderEventos()
-}
-
-function mostrarEstadoCargando() {
-  ocultarTodosLosEstados()
-
-  estadoCargando?.classList.remove(
-    'oculto',
-  )
-}
-
-function mostrarEstadoError() {
-  ocultarTodosLosEstados()
-
-  estadoError?.classList.remove(
-    'oculto',
-  )
-}
-
-function mostrarEstadoSinResultados() {
-  ocultarTodosLosEstados()
-
-  if (!estadoVacio) {
-    return
-  }
-
-  const titulo =
-    estadoVacio.querySelector('h2')
-
-  const descripcion =
-    estadoVacio.querySelector('p')
-
-  if (titulo) {
-    titulo.textContent =
-      'No se encontraron eventos'
-  }
-
-  if (descripcion) {
-    descripcion.textContent =
-      'Probá buscar con otras palabras.'
-  }
-
-  botonPrimerEvento?.classList.add(
-    'oculto',
-  )
-
-  estadoVacio.classList.remove(
-    'oculto',
-  )
-}
-
-function ocultarTodosLosEstados() {
-  estadoCargando?.classList.add(
-    'oculto',
-  )
-
-  estadoError?.classList.add(
-    'oculto',
-  )
-
-  estadoVacio?.classList.add(
-    'oculto',
-  )
-
-  tablaWrapper?.classList.add(
-    'oculto',
-  )
-
-  restaurarEstadoVacio()
-}
-
-function restaurarEstadoVacio() {
-  if (!estadoVacio) {
-    return
-  }
-
-  const titulo =
-    estadoVacio.querySelector('h2')
-
-  const descripcion =
-    estadoVacio.querySelector('p')
-
-  if (titulo) {
-    titulo.textContent =
-      'No hay eventos publicados'
-  }
-
-  if (descripcion) {
-    descripcion.textContent =
-      'Creá el primer evento para que aparezca en el sitio web.'
-  }
-
-  botonPrimerEvento?.classList.remove(
-    'oculto',
-  )
-}
-
-/* ==========================================================
-   CANTIDAD
-========================================================== */
-
-function actualizarCantidad() {
-  if (!cantidadEventos) {
-    return
-  }
-
-  const cantidadTotal =
-    eventos.length
-
-  const cantidadVisible =
-    eventosFiltrados.length
-
-  const hayBusqueda =
-    Boolean(
-      inputBusqueda?.value.trim(),
-    )
-
-  if (
-    hayBusqueda &&
-    cantidadVisible !== cantidadTotal
-  ) {
-    cantidadEventos.textContent =
-      `${cantidadVisible} de ${cantidadTotal} eventos`
-
-    return
-  }
-
-  cantidadEventos.textContent =
-    cantidadTotal === 1
-      ? '1 evento'
-      : `${cantidadTotal} eventos`
-}
-
-/* ==========================================================
-   ORDEN
-========================================================== */
-
-function ordenarEventosPorOrden() {
-  eventos.sort(
-    (eventoA, eventoB) =>
-      eventoA.orden -
-      eventoB.orden,
-  )
+  return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
 /* ==========================================================

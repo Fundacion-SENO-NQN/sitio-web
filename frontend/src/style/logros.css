@@ -1,275 +1,77 @@
 /* ==========================================================
+   ACHIEVEMENTS ADMINISTRATION
+
+   Estilos específicos de la administración de logros.
+   Los componentes compartidos se importan desde common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
    PAGE
 ========================================================== */
 
 .logrosPage {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 2rem;
-
-  padding: 2rem;
-
-  min-height: 100%;
-
-  background: var(--color-background);
-}
-
-.pageHeader {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 2rem;
-}
-
-.pageHeader h1 {
-  margin: 0;
-
-  font-size: 2rem;
-
-  font-weight: 700;
-
-  color: var(--color-text);
-}
-
-.pageHeader p {
-  margin-top: 0.5rem;
-
-  color: var(--color-grey);
+  --admin-table-cell-padding: 1rem;
 }
 
 /* ==========================================================
    TOOLBAR
 ========================================================== */
 
-.toolbar {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 1rem;
-
-  flex-wrap: wrap;
-}
-
-.toolbarLeft,
-.toolbarRight {
-  display: flex;
-
-  align-items: center;
-
-  gap: 0.75rem;
-
-  flex-wrap: wrap;
-}
-
-/* ==========================================================
-   SEARCH
-========================================================== */
-
-.search {
-  width: 340px;
-
-  max-width: 100%;
-
-  padding: 0.8rem 1rem;
-
-  border: var(--border);
-
-  border-radius: var(--radius);
-
-  outline: none;
-
-  font-size: 0.95rem;
-
-  transition: var(--transition);
-
-  background: white;
-}
-
-.search:focus {
-  border-color: var(--color-secondary);
-
-  box-shadow: 0 0 0 3px rgba(21, 130, 203, 0.15);
-}
-
-/* ==========================================================
-   BUTTONS
-========================================================== */
-
-.button {
-  border: none;
-
-  border-radius: var(--radius);
-
-  padding: 0.8rem 1.3rem;
-
-  cursor: pointer;
-
-  transition: var(--transition);
-
-  font-weight: 600;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 0.5rem;
-}
-
-.buttonPrimary {
-  background: var(--color-primary);
-
-  color: white;
-}
-
-.buttonPrimary:hover {
-  background: var(--color-primary-hover);
-}
-
-.buttonSecondary {
-  background: var(--color-secondary);
-
-  color: white;
-}
-
-.buttonSecondary:hover {
-  background: var(--color-secondary-hover);
-}
-
-.buttonDanger {
-  background: var(--color-red);
-
-  color: white;
-}
-
-.buttonDanger:hover {
-  filter: brightness(0.9);
-}
-
-.buttonGhost {
-  background: white;
-
-  border: var(--border);
-
-  color: var(--color-text);
-}
-
-.buttonGhost:hover {
-  background: var(--table-row-hover);
-}
-
-.button:disabled {
-  opacity: 0.5;
-
-  cursor: not-allowed;
+.logrosPage .search {
+  width: min(100%, 21.25rem);
 }
 
 /* ==========================================================
    TABLE
 ========================================================== */
 
-.tableContainer {
-  background: white;
-
-  border-radius: var(--radius);
-
-  overflow: hidden;
-
-  box-shadow: var(--shadow);
-
-  border: var(--border);
-}
-
-.tableWrapper {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-
-  border-collapse: collapse;
-
-  min-width: 1100px;
-}
-
-.table thead {
-  background: #f5f5f5;
-}
-
-.table th {
-  padding: 1rem;
-
-  text-align: left;
-
-  font-size: 0.9rem;
-
-  font-weight: 700;
-
-  color: var(--color-text);
-
-  white-space: nowrap;
-
-  user-select: none;
-}
-
-.table th.sortable {
-  cursor: pointer;
-
-  transition: var(--transition);
-}
-
-.table th.sortable:hover {
-  color: var(--color-secondary);
-}
-
-.table td {
-  padding: 1rem;
-
-  vertical-align: middle;
-
-  border-top: 1px solid #ececec;
-}
-
-.table tbody tr {
-  transition: var(--transition);
-}
-
-.table tbody tr:hover {
-  background: var(--table-row-hover);
+.logrosPage .table {
+  min-width: 68.75rem;
 }
 
 /* ==========================================================
-   IMAGE
+   ACHIEVEMENT IMAGE
 ========================================================== */
 
-.logroImage {
-  width: 90px;
+.logrosPage :where(.achievementImage, .logroImage) {
+  width: 5.625rem;
 
-  height: 60px;
+  height: 3.75rem;
+
+  display: block;
 
   object-fit: cover;
 
-  border-radius: var(--radius-small);
+  object-position: center;
 
-  border: var(--border);
+  background-color: var(--admin-surface-muted);
 
-  display: block;
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+}
+
+.logrosPage :where(.achievementImageError, .logroImageError) {
+  background: linear-gradient(
+    135deg,
+    var(--admin-surface-muted),
+    var(--admin-surface)
+  );
+
+  opacity: 0.75;
 }
 
 /* ==========================================================
-   TITLE
+   ACHIEVEMENT INFORMATION
 ========================================================== */
 
-.logroTitle {
+.logrosPage :where(.achievementInfo, .logroTitle) {
+  min-width: 16rem;
+
+  max-width: 27rem;
+
   display: flex;
 
   flex-direction: column;
@@ -277,631 +79,399 @@
   gap: 0.35rem;
 }
 
-.logroTitle strong {
-  color: var(--color-text);
+.logrosPage .achievementTitle,
+.logrosPage .logroTitle strong {
+  color: var(--admin-text);
 
-  font-size: 0.95rem;
+  font-size: 0.96rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
 }
 
-.logroTitle small {
-  color: var(--color-grey);
+.logrosPage .achievementDescription,
+.logrosPage .logroTitle small {
+  width: min(100%, 25rem);
+
+  margin: 0;
+
+  display: -webkit-box;
 
   overflow: hidden;
 
-  text-overflow: ellipsis;
+  color: var(--admin-text-muted);
 
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
+  font-size: 0.88rem;
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
 
   -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2;
 }
 
 /* ==========================================================
    ORDER
 ========================================================== */
 
-.orderCell {
-  display: flex;
-
-  align-items: center;
-
-  gap: 0.5rem;
-}
-
-.orderValue {
-  width: 32px;
-
-  text-align: center;
-
-  font-weight: bold;
-}
-
-.orderButtons {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 0.25rem;
-}
-
-.orderButton {
-  width: 28px;
-
-  height: 28px;
-
-  border: none;
-
-  border-radius: 6px;
-
-  cursor: pointer;
-
-  background: var(--color-light-grey);
-
-  transition: var(--transition);
+.logrosPage .orderCell {
+  min-width: 5rem;
 
   display: flex;
 
   align-items: center;
 
-  justify-content: center;
+  gap: 0.35rem;
+}
+
+/*
+ * El renderizador refactorizado crea directamente dos
+ * .tableButton dentro de .orderCell.
+ */
+.logrosPage .orderCell .tableButton {
+  width: 1.8rem;
+
+  min-width: 1.8rem;
+
+  height: 1.8rem;
+
+  min-height: 1.8rem;
+
+  padding: 0;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-surface);
+
+  border-color: var(--admin-border-color);
 
   font-size: 0.8rem;
+
+  font-weight: 800;
 }
 
-.orderButton:hover:not(:disabled) {
-  background: var(--color-secondary);
+.logrosPage .orderCell .tableButton:hover:not(:disabled) {
+  color: var(--admin-text-on-color);
 
-  color: white;
-}
+  background-color: var(--color-secondary);
 
-.orderButton:disabled {
-  opacity: 0.35;
-
-  cursor: not-allowed;
+  border-color: var(--color-secondary);
 }
 
 /* ==========================================================
-   FEATURED
+   FEATURED STATUS
 ========================================================== */
 
-.featuredBadge {
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 0.35rem 0.7rem;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-
-  font-weight: 600;
-
-  background: var(--color-primary-light);
+.logrosPage .featuredBadge {
+  min-width: 3.4rem;
 
   color: var(--color-primary-hover);
+
+  background-color: var(--color-primary-light);
+
+  border-color: rgba(73, 107, 36, 0.18);
 }
 
-.notFeaturedBadge {
-  display: inline-flex;
+.logrosPage :where(.normalBadge, .notFeaturedBadge) {
+  min-width: 3.4rem;
 
-  align-items: center;
+  color: var(--admin-text-muted);
 
-  justify-content: center;
+  background-color: var(--admin-surface-muted);
 
-  padding: 0.35rem 0.7rem;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-
-  font-weight: 600;
-
-  background: #ececec;
-
-  color: var(--color-grey);
+  border-color: var(--admin-border-color);
 }
 
 /* ==========================================================
    ACTIONS
 ========================================================== */
 
-.actions {
-  display: flex;
-
-  gap: 0.5rem;
-
-  justify-content: flex-end;
-}
-
-.tableButton {
-  border: none;
-
-  border-radius: var(--radius-small);
-
-  padding: 0.45rem 0.8rem;
-
-  cursor: pointer;
-
-  font-size: 0.85rem;
-
-  font-weight: 600;
-
-  transition: var(--transition);
-
-  color: white;
-}
-
-.tableButton.edit {
-  background: var(--color-secondary);
-}
-
-.tableButton.edit:hover {
-  background: var(--color-secondary-hover);
-}
-
-.tableButton.delete {
-  background: var(--color-red);
-}
-
-.tableButton.delete:hover {
-  filter: brightness(0.9);
-}
-
-.tableButton.secondary {
-  background: var(--color-grey);
-}
-
-.tableButton.secondary:hover {
-  background: #777;
+.logrosPage .actions {
+  min-width: 10.5rem;
 }
 
 /* ==========================================================
-   EMPTY
+   ACHIEVEMENT MODAL
 ========================================================== */
 
-.emptyState {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 1rem;
-
-  padding: 4rem;
-
-  color: var(--color-grey);
-
-  text-align: center;
+#achievementModal :where(.modalContent, .modal-contenido),
+.achievementModalContent {
+  width: min(100%, 47.5rem);
 }
 
-.emptyState h2 {
-  margin: 0;
-
-  color: var(--color-text);
-}
-
-.emptyState p {
-  margin: 0;
-}
-
-/* ==========================================================
-   MODALS
-========================================================== */
-
-.modal {
-  position: fixed;
-
-  inset: 0;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 2rem;
-
-  background: var(--modal-background);
-
-  z-index: 1000;
-
-  opacity: 1;
-
-  transition: var(--transition);
-}
-
-.modal.hidden {
-  opacity: 0;
-
-  pointer-events: none;
-}
-
-.modalContent {
+#achievementForm {
   width: 100%;
 
-  max-width: 760px;
-
-  max-height: 90vh;
-
-  overflow-y: auto;
-
-  background: white;
-
-  border-radius: var(--radius);
-
-  box-shadow: var(--shadow);
-
-  animation: modalAppear 0.2s ease;
-}
-
-@keyframes modalAppear {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ==========================================================
-   MODAL HEADER
-========================================================== */
-
-.modalHeader {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  padding: 1.5rem 2rem;
-
-  border-bottom: var(--border);
-}
-
-.modalHeader h2 {
-  margin: 0;
-
-  font-size: 1.4rem;
-
-  color: var(--color-text);
-}
-
-.modalClose {
-  width: 42px;
-
-  height: 42px;
-
-  border: none;
-
-  border-radius: 50%;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  font-size: 1.3rem;
-
-  transition: var(--transition);
-}
-
-.modalClose:hover {
-  background: var(--table-row-hover);
-}
-
-/* ==========================================================
-   FORM
-========================================================== */
-
-.form {
   display: flex;
 
   flex-direction: column;
-
-  gap: 1.5rem;
-
-  padding: 2rem;
 }
 
-.formGrid {
-  display: grid;
-
-  grid-template-columns: repeat(2, 1fr);
-
-  gap: 1.25rem;
-}
-
-.formGroup {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 0.45rem;
-}
-
-.formGroup.full {
-  grid-column: 1 / -1;
-}
-
-.formGroup label {
-  font-size: 0.9rem;
-
-  font-weight: 600;
-
-  color: var(--color-text);
-}
-
-.formGroup input,
-.formGroup textarea,
-.formGroup select {
-  padding: 0.9rem 1rem;
-
-  border: var(--border);
-
-  border-radius: var(--radius-small);
-
-  outline: none;
-
-  font-size: 0.95rem;
-
-  transition: var(--transition);
-
-  background: white;
-
-  font-family: inherit;
-}
-
-.formGroup textarea {
-  resize: vertical;
-
-  min-height: 170px;
-
-  line-height: 1.5;
-}
-
-.formGroup input:focus,
-.formGroup textarea:focus,
-.formGroup select:focus {
-  border-color: var(--color-secondary);
-
-  box-shadow: 0 0 0 3px rgba(21, 130, 203, 0.15);
+#achievementForm textarea {
+  min-height: 10.625rem;
 }
 
 /* ==========================================================
-   IMAGE UPLOAD
+   ACHIEVEMENT IMAGE UPLOAD
 ========================================================== */
 
-.imageUpload {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 1rem;
-
-  border: 2px dashed var(--color-light-grey);
-
-  border-radius: var(--radius);
-
-  min-height: 220px;
-
-  padding: 2rem;
-
-  cursor: pointer;
-
-  transition: var(--transition);
-
-  text-align: center;
+.logrosPage .imageUpload {
+  min-height: 13.75rem;
 }
 
-.imageUpload:hover {
-  border-color: var(--color-secondary);
-
-  background: rgba(21, 130, 203, 0.04);
-}
-
-.imageUpload.dragover {
-  border-color: var(--color-primary);
-
-  background: rgba(131, 192, 67, 0.08);
-}
-
-.imageUpload input {
-  display: none;
-}
-
-.imageUpload p {
-  margin: 0;
-
-  color: var(--color-grey);
-}
-
-.imagePreview {
+.logrosPage .imagePreview {
   width: 100%;
 
-  max-height: 260px;
+  max-height: 16.25rem;
 
   object-fit: cover;
 
-  border-radius: var(--radius-small);
-
-  display: block;
-
-  border: var(--border);
-}
-
-/* ==========================================================
-   MODAL FOOTER
-========================================================== */
-
-.modalFooter {
-  display: flex;
-
-  justify-content: flex-end;
-
-  gap: 0.75rem;
-
-  padding: 1.5rem 2rem;
-
-  border-top: var(--border);
+  object-position: center;
 }
 
 /* ==========================================================
    DELETE MODAL
 ========================================================== */
 
-.deleteModal {
-  max-width: 480px;
-}
-
-.deleteBody {
-  padding: 2rem;
-
-  text-align: center;
-}
-
-.deleteBody h3 {
-  margin: 0 0 1rem;
-
-  color: var(--color-red);
-}
-
-.deleteBody p {
-  margin: 0;
-
-  color: var(--color-grey);
-
-  line-height: 1.6;
+#deleteModal :where(.modalContent, .modal-contenido, .deleteModal) {
+  width: min(100%, 30rem);
 }
 
 /* ==========================================================
-   FEATURED ACHIEVEMENTS
+   FEATURED MODAL
 ========================================================== */
 
-.featuredList {
+#featuredModal :where(.modalContent, .modal-contenido),
+.featuredModalContent {
+  width: min(100%, 47.5rem);
+}
+
+/* ==========================================================
+   FEATURED LIST
+========================================================== */
+
+:where(.featuredList, #featuredContainer) {
+  width: 100%;
+
+  padding: clamp(1rem, 4vw, 2rem);
+
   display: flex;
 
   flex-direction: column;
 
-  gap: 0.75rem;
+  gap: var(--admin-space);
 }
 
+/* ==========================================================
+   FEATURED ROW
+========================================================== */
+
 .featuredRow {
-  display: flex;
+  width: 100%;
 
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 1rem;
+  min-width: 0;
 
   padding: 1rem 1.25rem;
 
-  border: var(--border);
-
-  border-radius: var(--radius-small);
-
-  transition: var(--transition);
-
-  background: white;
-}
-
-.featuredRow:hover {
-  background: var(--table-row-hover);
-}
-
-.featuredInfo {
-  flex: 1;
-
   display: flex;
-
-  flex-direction: column;
-
-  gap: 0.35rem;
-}
-
-.featuredInfo strong {
-  color: var(--color-text);
-
-  font-size: 0.95rem;
-}
-
-.featuredInfo small {
-  color: var(--color-grey);
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-
-  -webkit-box-orient: vertical;
-}
-
-.featuredPosition {
-  min-width: 36px;
-
-  height: 36px;
-
-  display: flex;
-
-  justify-content: center;
 
   align-items: center;
 
+  justify-content: space-between;
+
+  gap: var(--admin-space-medium);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+
+  transition:
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+.featuredRow:hover {
+  background-color: var(--admin-table-row-hover);
+
+  border-color: var(--color-secondary-light);
+
+  box-shadow: var(--admin-shadow-small);
+
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   FEATURED INFORMATION
+========================================================== */
+
+.featuredInfo {
+  min-width: 0;
+
+  flex: 1 1 auto;
+
+  color: var(--admin-text);
+
+  font-size: 0.95rem;
+
+  font-weight: 700;
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+.featuredInfo strong {
+  color: var(--admin-text);
+
+  font-size: 0.95rem;
+
+  font-weight: 750;
+}
+
+.featuredInfo small {
+  margin-top: 0.25rem;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.84rem;
+
+  line-height: 1.45;
+
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2;
+}
+
+/* ==========================================================
+   FEATURED POSITION
+========================================================== */
+
+.featuredPosition {
+  width: 2.25rem;
+
+  height: 2.25rem;
+
+  min-width: 2.25rem;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-primary);
+
   border-radius: 50%;
 
-  background: var(--color-primary);
+  font-size: 0.84rem;
 
-  color: white;
+  font-weight: 800;
 
-  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+
+  line-height: 1;
 }
+
+/* ==========================================================
+   FEATURED ACTIONS
+========================================================== */
 
 .featuredActions {
   display: flex;
 
-  gap: 0.5rem;
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: var(--admin-space-small);
+
+  flex: 0 0 auto;
 }
 
-#achievementForm {
-  display: flex;
-  flex-direction: column;
+.featuredRow .tableButton {
+  flex: 0 0 auto;
+}
+
+/* ==========================================================
+   FEATURED EMPTY STATE
+========================================================== */
+
+.featuredEmpty {
+  width: 100%;
+
+  margin: 0;
+
+  padding: 2.5rem 1rem;
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-soft);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius);
+
+  text-align: center;
+
+  line-height: 1.55;
 }
 
 /* ==========================================================
    DRAG HANDLE
+
+   Se conserva para compatibilidad aunque el controlador
+   actual utilice botones de añadir y remover.
 ========================================================== */
 
 .dragHandle {
-  cursor: grab;
+  flex: 0 0 auto;
+
+  color: var(--admin-text-muted);
 
   font-size: 1.2rem;
 
-  color: var(--color-grey);
+  line-height: 1;
+
+  cursor: grab;
 
   user-select: none;
 
-  transition: var(--transition);
+  transition:
+    color var(--admin-transition),
+    transform var(--admin-transition);
 }
 
 .dragHandle:hover {
   color: var(--color-secondary);
+
+  transform: scale(1.08);
 }
 
 .dragHandle:active {
@@ -909,232 +479,136 @@
 }
 
 /* ==========================================================
-   LOADING
+   EMPTY STATE
 ========================================================== */
 
-.loading {
-  display: flex;
+.logrosPage .emptyState::before {
+  content: '🏆';
 
-  justify-content: center;
+  display: block;
 
-  align-items: center;
+  font-size: 3rem;
 
-  padding: 3rem;
-
-  color: var(--color-grey);
-
-  font-weight: 600;
+  line-height: 1;
 }
 
-.spinner {
-  width: 28px;
-
-  height: 28px;
-
-  border-radius: 50%;
-
-  border: 3px solid var(--color-light-grey);
-
-  border-top-color: var(--color-secondary);
-
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.logrosPage .emptyState:has(.emptyStateIcon)::before {
+  content: none;
 }
 
 /* ==========================================================
-   TOAST
-========================================================== */
-
-.toastContainer {
-  position: fixed;
-
-  right: 2rem;
-
-  bottom: 2rem;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 0.75rem;
-
-  z-index: 9999;
-}
-
-.toast {
-  min-width: 320px;
-
-  max-width: 420px;
-
-  padding: 1rem 1.25rem;
-
-  border-radius: var(--radius);
-
-  color: white;
-
-  font-weight: 600;
-
-  box-shadow: var(--shadow);
-
-  transform: translateX(120%);
-
-  transition: 0.25s ease;
-}
-
-.toast.show {
-  transform: translateX(0);
-}
-
-.toast.success {
-  background: var(--color-primary);
-}
-
-.toast.error {
-  background: var(--color-red);
-}
-
-.toast.warning {
-  background: var(--color-yellow);
-
-  color: var(--color-text);
-}
-
-.toast.info {
-  background: var(--color-secondary);
-}
-
-/* ==========================================================
-   SCROLLBAR
-========================================================== */
-
-.modalContent::-webkit-scrollbar {
-  width: 10px;
-}
-
-.modalContent::-webkit-scrollbar-thumb {
-  background: var(--color-light-grey);
-
-  border-radius: 999px;
-}
-
-.modalContent::-webkit-scrollbar-thumb:hover {
-  background: var(--color-grey);
-}
-
-/* ==========================================================
-   RESPONSIVE
+   RESPONSIVE — LARGE TABLET
 ========================================================== */
 
 @media (max-width: 1200px) {
-  .table {
-    min-width: 950px;
+  .logrosPage .table {
+    min-width: 59.375rem;
+  }
+
+  .logrosPage :where(.achievementInfo, .logroTitle) {
+    min-width: 14rem;
+
+    max-width: 22rem;
   }
 }
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
 
 @media (max-width: 900px) {
-  .pageHeader {
-    flex-direction: column;
-
-    align-items: flex-start;
+  .logrosPage .table {
+    min-width: 57rem;
   }
 
-  .toolbar {
-    flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .toolbarLeft,
-  .toolbarRight {
-    width: 100%;
-  }
-
-  .search {
-    width: 100%;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
+  .logrosPage .achievementDescription {
+    width: 20rem;
   }
 }
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
 
 @media (max-width: 700px) {
   .logrosPage {
-    padding: 1rem;
+    --admin-table-cell-padding: 0.8rem;
   }
 
-  .modal {
-    padding: 1rem;
+  .logrosPage .table {
+    min-width: 54rem;
   }
 
-  .modalContent {
-    max-height: 95vh;
-  }
+  .logrosPage .actions {
+    min-width: 7.5rem;
 
-  .modalHeader,
-  .modalFooter,
-  .form {
-    padding: 1.25rem;
-  }
+    align-items: stretch;
 
-  .actions {
     flex-direction: column;
   }
 
-  .tableButton {
+  .logrosPage .actions .tableButton {
     width: 100%;
   }
 
   .featuredRow {
-    flex-direction: column;
-
     align-items: stretch;
+
+    flex-wrap: wrap;
   }
 
-  .featuredActions {
+  .featuredInfo {
+    flex-basis: calc(100% - 3.5rem);
+  }
+
+  .featuredActions,
+  .featuredRow > .tableButton {
     width: 100%;
-
-    justify-content: flex-end;
   }
 
-  .toastContainer {
-    right: 1rem;
-
-    left: 1rem;
-
-    bottom: 1rem;
-  }
-
-  .toast {
-    min-width: auto;
-
-    max-width: none;
+  .featuredActions .tableButton,
+  .featuredRow > .tableButton {
+    width: 100%;
   }
 }
 
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
 @media (max-width: 500px) {
-  .pageHeader h1 {
+  .logrosPage .pageHeader h1 {
     font-size: 1.5rem;
   }
 
-  .button {
-    width: 100%;
+  .logrosPage .imageUpload {
+    min-height: 11rem;
   }
 
-  .modalFooter {
-    flex-direction: column-reverse;
+  .logrosPage .imagePreview {
+    max-height: 14rem;
   }
 
-  .modalFooter .button {
-    width: 100%;
+  .featuredRow {
+    padding: 0.9rem;
+  }
+
+  .featuredPosition {
+    width: 2rem;
+
+    height: 2rem;
+
+    min-width: 2rem;
   }
 }
 
-img {
-  height: 4rem;
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .featuredRow,
+  .dragHandle {
+    transition: none;
+  }
 }

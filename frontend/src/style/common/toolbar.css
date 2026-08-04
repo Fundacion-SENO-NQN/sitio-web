@@ -1,0 +1,622 @@
+/* ==========================================================
+   ADMIN TOOLBAR
+
+   Clases recomendadas:
+   - .adminToolbar
+   - .adminToolbarLeft
+   - .adminToolbarRight
+   - .adminSearchWrapper
+   - .adminSearch
+   - .adminSummary
+   - .adminTabs
+   - .adminTab
+
+   Se mantienen los nombres existentes para evitar tener que
+   modificar inmediatamente todas las páginas.
+========================================================== */
+
+/* ==========================================================
+   TOOLBAR
+========================================================== */
+
+:where(.adminToolbar, .toolbar, .herramientas) {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--admin-space-medium);
+
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   TOOLBAR GROUPS
+========================================================== */
+
+:where(
+  .adminToolbarLeft,
+  .adminToolbarRight,
+  .toolbarLeft,
+  .toolbarRight,
+  .herramientas-izquierda,
+  .herramientas-derecha
+) {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space);
+
+  flex-wrap: wrap;
+}
+
+:where(.adminToolbarLeft, .toolbarLeft, .herramientas-izquierda) {
+  flex: 1 1 20rem;
+}
+
+:where(.adminToolbarRight, .toolbarRight, .herramientas-derecha) {
+  flex: 0 1 auto;
+
+  justify-content: flex-end;
+}
+
+/* ==========================================================
+   SEARCH WRAPPER
+========================================================== */
+
+:where(.adminSearchWrapper, .searchWrapper, .buscador) {
+  width: min(100%, 34rem);
+  min-width: 0;
+
+  position: relative;
+
+  display: block;
+
+  flex: 1 1 18rem;
+}
+
+/* ==========================================================
+   SEARCH INPUT
+========================================================== */
+
+:where(
+  .adminSearch,
+  .search,
+  .buscador input,
+  .toolbar input[type='search'],
+  .toolbar #searchUsers,
+  .toolbar #searchRoles
+) {
+  appearance: none;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 2.9rem;
+
+  padding: 0.75rem 1rem;
+
+  display: block;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius);
+
+  outline: none;
+
+  font: inherit;
+  font-size: var(--admin-control-font-size);
+  line-height: 1.4;
+
+  box-shadow: var(--admin-shadow-small);
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+/*
+ * Cuando existe un ícono a la izquierda, se deja espacio
+ * suficiente para que no se superponga con el texto.
+ */
+:where(.buscador, .adminSearchWrapper.hasIcon, .searchWrapper.hasIcon)
+  :where(.adminSearch, .search, input) {
+  padding-left: 2.8rem;
+}
+
+:where(
+  .adminSearch,
+  .search,
+  .buscador input,
+  .toolbar input[type='search'],
+  .toolbar #searchUsers,
+  .toolbar #searchRoles
+)::placeholder {
+  color: var(--admin-text-muted);
+
+  opacity: 1;
+}
+
+:where(
+    .adminSearch,
+    .search,
+    .buscador input,
+    .toolbar input[type='search'],
+    .toolbar #searchUsers,
+    .toolbar #searchRoles
+  ):hover:not(:disabled) {
+  border-color: var(--admin-text-muted);
+}
+
+:where(
+  .adminSearch,
+  .search,
+  .buscador input,
+  .toolbar input[type='search'],
+  .toolbar #searchUsers,
+  .toolbar #searchRoles
+):focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(
+  .adminSearch,
+  .search,
+  .buscador input,
+  .toolbar input[type='search'],
+  .toolbar #searchUsers,
+  .toolbar #searchRoles
+):disabled {
+  color: var(--admin-text-muted);
+  background-color: var(--admin-surface-muted);
+
+  opacity: 0.7;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   SEARCH ICON
+========================================================== */
+
+:where(.adminSearchIcon, .searchIcon, .icono-busqueda) {
+  position: absolute;
+  top: 50%;
+  left: 0.95rem;
+  z-index: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.2rem;
+  height: 1.2rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 1.2rem;
+  line-height: 1;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+/* ==========================================================
+   NATIVE SEARCH CLEAR BUTTON
+========================================================== */
+
+:where(
+  .adminSearch,
+  .search,
+  .buscador input,
+  .toolbar input[type='search']
+)::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+/* ==========================================================
+   SUMMARY / COUNTER
+========================================================== */
+
+:where(.adminSummary, .toolbarSummary, .resumen, .resultsSummary) {
+  flex: 0 0 auto;
+
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.4;
+
+  white-space: nowrap;
+}
+
+:where(.adminSummary, .toolbarSummary, .resumen, .resultsSummary) strong {
+  color: var(--admin-text);
+
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   FILTER GROUP
+========================================================== */
+
+:where(.adminFilters, .toolbarFilters, .filtros) {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space);
+
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   SELECT FILTER
+========================================================== */
+
+:where(.adminFilterSelect, .filterSelect, .filtro-select) {
+  appearance: none;
+
+  min-height: var(--admin-control-height);
+  padding: 0.7rem 2.5rem 0.7rem 0.9rem;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius);
+
+  outline: none;
+
+  font: inherit;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    background-color var(--admin-transition);
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--admin-text-muted) 50%),
+    linear-gradient(135deg, var(--admin-text-muted) 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 1rem) calc(50% - 0.15rem),
+    calc(100% - 0.7rem) calc(50% - 0.15rem);
+
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+
+  background-repeat: no-repeat;
+}
+
+:where(.adminFilterSelect, .filterSelect, .filtro-select):hover:not(:disabled) {
+  border-color: var(--admin-text-muted);
+}
+
+:where(.adminFilterSelect, .filterSelect, .filtro-select):focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.adminFilterSelect, .filterSelect, .filtro-select):disabled {
+  color: var(--admin-text-muted);
+  background-color: var(--admin-surface-muted);
+
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   TABS CONTAINER
+
+   Utilizado principalmente por administración de usuarios
+   para alternar entre usuarios y roles.
+========================================================== */
+
+:where(.adminTabs, .tabs, .tabList) {
+  width: fit-content;
+  max-width: 100%;
+
+  padding: 0.3rem;
+
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+
+  overflow-x: auto;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface-muted);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius);
+
+  scrollbar-width: thin;
+}
+
+/* ==========================================================
+   TAB
+========================================================== */
+
+:where(.adminTab, .tab) {
+  appearance: none;
+
+  min-height: 2.5rem;
+  padding: 0.6rem 1.15rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-small);
+
+  flex: 0 0 auto;
+
+  border: 1px solid transparent;
+  border-radius: calc(var(--admin-radius) - 0.2rem);
+
+  color: var(--admin-text-muted);
+  background-color: transparent;
+
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.adminTab, .tab):hover:not(:disabled):not(.active):not(
+    [aria-selected='true']
+  ) {
+  color: var(--color-secondary-hover);
+  background-color: var(--admin-secondary-hover-soft);
+}
+
+:where(.adminTab, .tab):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.adminTab, .tab).active,
+:where(.adminTab, .tab)[aria-selected='true'] {
+  color: var(--admin-text-on-color);
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+
+  box-shadow: 0 4px 12px rgba(21, 130, 203, 0.22);
+}
+
+:where(.adminTab, .tab):disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   TAB COUNTER
+========================================================== */
+
+:where(.adminTabCount, .tabCount) {
+  min-width: 1.4rem;
+  min-height: 1.4rem;
+  padding-inline: 0.35rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--admin-radius-pill);
+
+  color: var(--color-secondary-hover);
+  background-color: var(--admin-secondary-soft);
+
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(.adminTab, .tab).active :where(.adminTabCount, .tabCount),
+:where(.adminTab, .tab)[aria-selected='true']
+  :where(.adminTabCount, .tabCount) {
+  color: var(--admin-text-on-color);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================
+   TOOLBAR SEPARATOR
+========================================================== */
+
+:where(.adminToolbarSeparator, .toolbarSeparator) {
+  width: 1px;
+  height: 2rem;
+
+  flex: 0 0 auto;
+
+  background-color: var(--admin-border-color);
+}
+
+/* ==========================================================
+   COMPACT TOOLBAR
+========================================================== */
+
+:where(.adminToolbarCompact, .toolbarCompact) {
+  gap: var(--admin-space);
+}
+
+:where(.adminToolbarCompact, .toolbarCompact) :where(.adminSearch, .search) {
+  min-height: 2.6rem;
+  padding-block: 0.6rem;
+}
+
+/* ==========================================================
+   STICKY TOOLBAR
+========================================================== */
+
+:where(.adminToolbarSticky, .toolbarSticky) {
+  position: sticky;
+  top: 0;
+  z-index: var(--admin-z-sticky);
+
+  padding-block: var(--admin-space);
+
+  background-color: color-mix(
+    in srgb,
+    var(--admin-background) 92%,
+    transparent
+  );
+
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 960px) {
+  :where(.adminToolbar, .toolbar, .herramientas) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(
+    .adminToolbarLeft,
+    .adminToolbarRight,
+    .toolbarLeft,
+    .toolbarRight,
+    .herramientas-izquierda,
+    .herramientas-derecha,
+    .adminSearchWrapper,
+    .searchWrapper,
+    .buscador
+  ) {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  :where(.adminToolbarRight, .toolbarRight, .herramientas-derecha) {
+    justify-content: flex-end;
+  }
+
+  :where(.adminSummary, .toolbarSummary, .resumen, .resultsSummary) {
+    width: 100%;
+
+    text-align: right;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.adminToolbar, .toolbar, .herramientas) {
+    gap: var(--admin-space);
+  }
+
+  :where(
+    .adminToolbarLeft,
+    .adminToolbarRight,
+    .toolbarLeft,
+    .toolbarRight,
+    .herramientas-izquierda,
+    .herramientas-derecha
+  ) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(.adminToolbarRight, .toolbarRight, .herramientas-derecha)
+    > :where(.button, .boton, .adminButton) {
+    width: 100%;
+  }
+
+  :where(.adminFilters, .toolbarFilters, .filtros) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(.adminFilterSelect, .filterSelect, .filtro-select) {
+    width: 100%;
+  }
+
+  :where(.adminSummary, .toolbarSummary, .resumen, .resultsSummary) {
+    text-align: left;
+    white-space: normal;
+  }
+
+  :where(.adminTabs, .tabs, .tabList) {
+    width: 100%;
+  }
+
+  :where(.adminTab, .tab) {
+    flex: 1 0 auto;
+  }
+
+  :where(.adminToolbarSeparator, .toolbarSeparator) {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  :where(.adminTabs, .tabs, .tabList) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(.adminTab, .tab) {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .adminSearch,
+    .search,
+    .buscador input,
+    .adminFilterSelect,
+    .filterSelect,
+    .filtro-select,
+    .adminTab,
+    .tab
+  ) {
+    transition: none;
+  }
+}

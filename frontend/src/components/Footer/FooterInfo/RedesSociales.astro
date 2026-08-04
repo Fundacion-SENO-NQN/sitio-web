@@ -4,114 +4,120 @@ import SvgInstagram from '../../../assets/icon-contacto/icon-instagram.svg'
 import SvgWhatsApp from '../../../assets/icon-contacto/icon-whatsapp.svg'
 ---
 
-<nav class="nav-redes-sociales" aria-label="Redes sociales de Fundación SENO">
-  <ul class="lista-redes-sociales">
+<nav class="social-nav" aria-label="Redes sociales de Fundación SENO">
+  <ul class="social-nav__list">
     <li>
       <a
+        class="social-nav__link"
         href="https://www.facebook.com/fundacionseno2017"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Visitar Facebook de Fundación SENO"
+        aria-label="Visitar Facebook de Fundación SENO en una pestaña nueva"
       >
-        <SvgFacebook />
+        <SvgFacebook class="social-nav__icon" aria-hidden="true" />
       </a>
     </li>
 
     <li>
       <a
+        class="social-nav__link"
         href="https://www.instagram.com/fundacionseno"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Visitar Instagram de Fundación SENO"
+        aria-label="Visitar Instagram de Fundación SENO en una pestaña nueva"
       >
-        <SvgInstagram />
+        <SvgInstagram class="social-nav__icon" aria-hidden="true" />
       </a>
     </li>
 
     <li>
       <a
+        class="social-nav__link"
         href="https://api.whatsapp.com/send?phone=542994564725&text=Hola%20Fundaci%C3%B3n%20SENO"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Contactar a Fundación SENO por WhatsApp"
+        aria-label="Contactar a Fundación SENO por WhatsApp en una pestaña nueva"
       >
-        <SvgWhatsApp />
+        <SvgWhatsApp class="social-nav__icon" aria-hidden="true" />
       </a>
     </li>
   </ul>
 </nav>
 
 <style>
-  .nav-redes-sociales {
+  .social-nav {
     width: 100%;
-    max-width: 16rem;
+    max-width: 14rem;
   }
 
-  .lista-redes-sociales {
-    margin: 0;
-    padding: 0;
-
+  .social-nav__list {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 1rem;
-
-    list-style: none;
   }
 
-  .lista-redes-sociales a {
+  .social-nav__link {
     width: 2.75rem;
     height: 2.75rem;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-grid;
+    place-items: center;
 
-    border-radius: 50%;
+    color: var(--color-secondary);
     background-color: var(--color-secondary-light);
 
+    border: 1px solid transparent;
+
+    border-radius: 50%;
+
     transition:
-      background-color 0.3s ease,
-      transform 0.2s ease;
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .lista-redes-sociales svg {
-    width: 1.75rem;
-    height: 1.75rem;
+  .social-nav__icon {
+    width: 1.65rem;
+    height: 1.65rem;
 
-    fill: var(--color-secondary);
-
-    transition: fill 0.3s ease;
+    fill: currentColor;
   }
 
-  .lista-redes-sociales a:hover {
+  .social-nav__link:hover {
+    color: var(--color-background);
     background-color: var(--color-secondary);
-    transform: translateY(-2px);
+
+    border-color: var(--color-secondary);
   }
 
-  .lista-redes-sociales a:hover svg {
-    fill: var(--color-background);
+  .social-nav__link:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
   }
 
-  .lista-redes-sociales a:focus-visible {
-    outline: 2px solid var(--color-secondary);
-    outline-offset: 3px;
+  @media (hover: hover) {
+    .social-nav__link:hover {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 1100px) {
-    .nav-redes-sociales {
+    .social-nav {
       margin-inline: auto;
+    }
+
+    .social-nav__list {
+      justify-content: center;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lista-redes-sociales a,
-    .lista-redes-sociales svg {
+    .social-nav__link {
       transition: none;
-    }
-
-    .lista-redes-sociales a:hover {
-      transform: none;
     }
   }
 </style>

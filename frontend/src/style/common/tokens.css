@@ -1,0 +1,168 @@
+/* ==========================================================
+   ADMIN DESIGN TOKENS
+
+   Este archivo debe cargarse después de general.css.
+   Solo contiene variables compartidas.
+========================================================== */
+
+:root {
+  /* ========================================================
+     SURFACES
+  ======================================================== */
+
+  --admin-surface: #ffffff;
+  --admin-surface-soft: #f4f7f9;
+  --admin-surface-muted: #eef2f5;
+  --admin-surface-hover: #f1f7fb;
+
+  --admin-background: var(--color-background);
+
+  /* ========================================================
+     TEXT
+  ======================================================== */
+
+  --admin-text: var(--color-text);
+
+  --admin-text-muted: var(--color-grey);
+
+  --admin-text-on-color: #ffffff;
+
+  /* ========================================================
+     BORDERS
+  ======================================================== */
+
+  --admin-border-color: var(--color-light-grey);
+
+  --admin-border: 1px solid var(--admin-border-color);
+
+  --admin-border-soft: 1px solid #ececec;
+
+  /* ========================================================
+     RADII
+  ======================================================== */
+
+  --admin-radius-xs: 0.4rem;
+
+  --admin-radius-small: 0.5rem;
+
+  --admin-radius: 0.875rem;
+
+  --admin-radius-large: 1.25rem;
+
+  --admin-radius-pill: 999px;
+
+  /* ========================================================
+     SPACING
+  ======================================================== */
+
+  --admin-space-xs: 0.25rem;
+
+  --admin-space-small: 0.5rem;
+
+  --admin-space: 0.75rem;
+
+  --admin-space-medium: 1rem;
+
+  --admin-space-large: 1.5rem;
+
+  --admin-space-xl: 2rem;
+
+  /* ========================================================
+     CONTROLS
+  ======================================================== */
+
+  --admin-control-height: 2.75rem;
+
+  --admin-control-padding: 0.75rem 1rem;
+
+  --admin-control-font-size: 0.95rem;
+
+  /* ========================================================
+     TABLES
+  ======================================================== */
+
+  --admin-table-header: var(--admin-surface-soft);
+
+  --admin-table-row-hover: var(--admin-surface-hover);
+
+  --admin-table-divider: #ececec;
+
+  --admin-table-cell-padding: 1rem;
+
+  /* ========================================================
+     BRAND SOFT COLORS
+  ======================================================== */
+
+  --admin-primary-soft: rgba(131, 192, 67, 0.1);
+
+  --admin-primary-ring: rgba(131, 192, 67, 0.18);
+
+  --admin-secondary-soft: rgba(21, 130, 203, 0.1);
+
+  --admin-secondary-hover-soft: rgba(21, 130, 203, 0.06);
+
+  --admin-secondary-ring: rgba(21, 130, 203, 0.18);
+
+  --admin-danger-soft: rgba(211, 47, 47, 0.09);
+
+  --admin-danger-border: rgba(211, 47, 47, 0.26);
+
+  --admin-warning-soft: rgba(221, 221, 34, 0.16);
+
+  /* ========================================================
+     FOCUS
+  ======================================================== */
+
+  --admin-focus: 0 0 0 3px var(--admin-secondary-ring);
+
+  --admin-focus-inset: inset 0 0 0 3px var(--admin-secondary-ring);
+
+  /* ========================================================
+     SHADOWS
+  ======================================================== */
+
+  --admin-shadow: var(--shadow);
+
+  --admin-shadow-small: 0 4px 14px rgba(0, 0, 0, 0.06);
+
+  --admin-shadow-button: 0 8px 22px rgba(21, 130, 203, 0.2);
+
+  --admin-shadow-danger: 0 8px 22px rgba(211, 47, 47, 0.2);
+
+  --admin-shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.28);
+
+  --admin-shadow-toast: 0 14px 32px rgba(0, 0, 0, 0.22);
+
+  /* ========================================================
+     OVERLAYS
+  ======================================================== */
+
+  --admin-modal-background: rgba(0, 0, 0, 0.58);
+
+  --admin-sticky-background: rgba(255, 255, 255, 0.96);
+
+  --admin-backdrop-blur: blur(4px);
+
+  /* ========================================================
+     ANIMATION
+  ======================================================== */
+
+  --admin-transition-duration: 180ms;
+
+  --admin-transition-timing: ease;
+
+  --admin-transition: var(--admin-transition-duration)
+    var(--admin-transition-timing);
+
+  /* ========================================================
+     LAYERS
+  ======================================================== */
+
+  --admin-z-sticky: 10;
+
+  --admin-z-modal: 1000;
+
+  --admin-z-toast: 2000;
+
+  --admin-z-loading: 3000;
+}

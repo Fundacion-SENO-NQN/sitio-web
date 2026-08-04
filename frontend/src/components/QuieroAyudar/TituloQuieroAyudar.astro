@@ -1,9 +1,35 @@
-<h3>Querés ayudar? Perfecto! Selecciona como te gustaría ayudar</h3>
+<header class="help-options-title">
+  <h2>¿Querés ayudar? ¡Perfecto!</h2>
+
+  <p>Elegí la forma en la que te gustaría colaborar con Fundación SENO.</p>
+</header>
 
 <style>
-  h3 {
-    font-family: var(--text-font-primary);
+  .help-options-title {
+    width: min(calc(100% - 2rem), 47.5rem);
+
+    margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+
     text-align: center;
-    font-size: 1.7rem;
+  }
+
+  .help-options-title h2 {
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.4rem, 4vw, 1.9rem);
+
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .help-options-title p {
+    margin-top: 0.65rem;
+
+    color: var(--color-text);
+
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+
+    line-height: 1.6;
+    text-wrap: pretty;
   }
 </style>

@@ -1,0 +1,450 @@
+---
+export const prerender = false
+
+import type Noticia from '../../data/interfaces/Noticia'
+
+import Layout from '../../layouts/Layout.astro'
+import TituloPag from '../../components/Common/TituloPag.astro'
+import JsonLd from '../../components/SEO/JsonLd.astro'
+import Breadcrumbs from '../../components/Common/Breadcrumbs.astro'
+
+import IconCalendario from '../../assets/icon-noticias/icon-calendario.svg'
+
+import { createSeoDescription, plainText, toIsoDate } from '../../utils/seo'
+
+type PageState = 'ready' | 'not-found' | 'error'
+
+type NoticiaSeo = Noticia & {
+  created_at?: string | Date | null
+  updated_at?: string | Date | null
+}
+
+const API_URL = (
+  import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
+).replace(/\/+$/, '')
+
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
+
+const parsedId = Number(Astro.params.id)
+
+let pageState: PageState = 'ready'
+let noticia: NoticiaSeo | null = null
+
+if (!Number.isInteger(parsedId) || parsedId <= 0) {
+  pageState = 'not-found'
+  Astro.response.status = 404
+} else {
+  try {
+    const response = await fetch(`${API_URL}/noticias/${parsedId}`)
+
+    if (response.status === 404) {
+      pageState = 'not-found'
+      Astro.response.status = 404
+    } else if (!response.ok) {
+      throw new Error(`La API respondió con estado ${response.status}`)
+    } else {
+      const data: unknown = await response.json()
+
+      if (!data || typeof data !== 'object') {
+        throw new TypeError('La respuesta de la noticia no es válida')
+      }
+
+      noticia = data as NoticiaSeo
+    }
+  } catch (error) {
+    pageState = 'error'
+    Astro.response.status = 503
+
+    console.error('No se pudo cargar la noticia:', error)
+  }
+}
+
+if (pageState !== 'ready') {
+  Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
+  Astro.response.headers.set('Cache-Control', 'no-store')
+} else {
+  Astro.response.headers.set(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=3600'
+  )
+}
+
+const site = Astro.site ?? new URL('https://fundacionseno.org')
+const homeUrl = new URL('/', site).href
+const pageUrl = noticia
+  ? new URL(`/noticias/${noticia.id}`, site).href
+  : new URL(Astro.url.pathname, site).href
+
+const organizationId = `${homeUrl}#organization`
+const websiteId = `${homeUrl}#website`
+const logoUrl = new URL('/img/seo/logo-fundacion-seno.png', site).href
+
+const imageUrl = noticia
+  ? `${IMG_URL}/img_noticias/${noticia.id}.avif`
+  : undefined
+
+const description = createSeoDescription(
+  noticia?.content,
+  noticia
+    ? `Conocé esta noticia de Fundación SENO: ${noticia.titulo}.`
+    : 'Información de noticias de Fundación SENO.'
+)
+
+const datePublished = toIsoDate(noticia?.created_at)
+const dateModified = toIsoDate(noticia?.updated_at) ?? datePublished
+
+const pageTitle =
+  noticia?.titulo ??
+  (pageState === 'not-found'
+    ? 'Noticia no encontrada'
+    : 'Noticia no disponible')
+
+const contentParagraphs = String(noticia?.content ?? '')
+  .split(/\r?\n\s*\r?\n/)
+  .map((paragraph) => paragraph.trim())
+  .filter(Boolean)
+
+const newsSchema =
+  noticia && imageUrl
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        '@id': `${pageUrl}#article`,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': pageUrl
+        },
+        url: pageUrl,
+        headline: noticia.titulo,
+        description,
+        articleBody: plainText(noticia.content),
+        image: [imageUrl],
+        ...(datePublished ? { datePublished } : {}),
+        ...(dateModified ? { dateModified } : {}),
+        inLanguage: 'es-AR',
+        articleSection: 'Noticias',
+        isAccessibleForFree: true,
+        author: {
+          '@type': 'Organization',
+          '@id': organizationId,
+          name: 'Fundación SENO',
+          url: homeUrl
+        },
+        publisher: {
+          '@type': 'Organization',
+          '@id': organizationId,
+          name: 'Fundación SENO',
+          url: homeUrl,
+          logo: {
+            '@type': 'ImageObject',
+            url: logoUrl,
+            contentUrl: logoUrl,
+            width: 512,
+            height: 512
+          }
+        },
+        isPartOf: {
+          '@id': websiteId
+        }
+      }
+    : null
+---
+
+<Layout
+  pag={pageTitle}
+  seoTitle={noticia ? `${noticia.titulo} | Noticias Fundación SENO` : pageTitle}
+  description={description}
+  image={imageUrl}
+  noindex={pageState !== 'ready'}
+  ogType={noticia ? 'article' : 'website'}
+  publishedTime={datePublished}
+  modifiedTime={dateModified}
+>
+  {newsSchema && <JsonLd data={newsSchema} />}
+
+  {
+    noticia && (
+      <Breadcrumbs
+        items={[
+          {
+            name: 'Inicio',
+            href: '/'
+          },
+          {
+            name: 'Noticias',
+            href: '/noticias'
+          },
+          {
+            name: noticia.titulo
+          }
+        ]}
+      />
+    )
+  }
+
+  {
+    noticia ? (
+      <>
+        <TituloPag titulo={noticia.titulo} />
+
+        <main class="news-detail">
+          <article class="news-article">
+            {noticia.fecha && (
+              <header class="news-article__header">
+                <p class="news-article__date">
+                  <span class="news-article__date-icon" aria-hidden="true">
+                    <IconCalendario />
+                  </span>
+
+                  {datePublished ? (
+                    <time datetime={datePublished}>{noticia.fecha}</time>
+                  ) : (
+                    <span>{noticia.fecha}</span>
+                  )}
+                </p>
+              </header>
+            )}
+
+            {imageUrl && (
+              <figure class="news-article__figure">
+                <img
+                  class="news-article__image"
+                  src={imageUrl}
+                  alt={`Imagen de la noticia ${noticia.titulo}`}
+                  width="1600"
+                  height="1000"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </figure>
+            )}
+
+            <div class="news-article__content">
+              {contentParagraphs.length > 0 ? (
+                contentParagraphs.map((paragraph) => <p>{paragraph}</p>)
+              ) : (
+                <p>La información de esta noticia no está disponible.</p>
+              )}
+            </div>
+
+            <footer class="news-article__footer">
+              <a class="news-article__back" href="/noticias">
+                <span aria-hidden="true">←</span>
+                Volver a noticias
+              </a>
+            </footer>
+          </article>
+        </main>
+      </>
+    ) : (
+      <main class="news-detail">
+        <section
+          class:list={[
+            'news-detail-status',
+            {
+              'news-detail-status--error': pageState === 'error'
+            }
+          ]}
+          role={pageState === 'error' ? 'alert' : 'status'}
+        >
+          <h1>{pageTitle}</h1>
+
+          <p>
+            {pageState === 'not-found'
+              ? 'La noticia que buscás no existe o ya no se encuentra publicada.'
+              : 'No pudimos obtener la información de la noticia. Intentá nuevamente más tarde.'}
+          </p>
+
+          <a href="/noticias">Ver todas las noticias</a>
+        </section>
+      </main>
+    )
+  }
+</Layout>
+
+<style>
+  .news-detail {
+    width: min(calc(100% - 2rem), 65rem);
+    margin: 2rem auto clamp(4rem, 8vw, 7rem);
+  }
+
+  .news-article {
+    overflow: hidden;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-light-grey);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .news-article__header {
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1.25rem, 5vw, 3rem);
+  }
+
+  .news-article__date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667580;
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .news-article__date-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    color: var(--color-primary-hover);
+  }
+
+  .news-article__date-icon :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .news-article__figure {
+    width: 100%;
+    background-color: var(--color-secondary-light);
+  }
+
+  .news-article__image {
+    width: 100%;
+    height: auto;
+    max-height: 40rem;
+    display: block;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .news-article__content {
+    width: min(100%, 50rem);
+    margin-inline: auto;
+    padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 3rem);
+  }
+
+  .news-article__content p {
+    color: var(--color-text);
+    font-size: clamp(1rem, 2vw, 1.08rem);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  .news-article__content p + p {
+    margin-top: 1.4rem;
+  }
+
+  .news-article__footer {
+    padding: 1.25rem clamp(1.25rem, 5vw, 3rem);
+    border-top: 1px solid var(--color-light-grey);
+  }
+
+  .news-article__back {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary-hover);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .news-article__back span {
+    transition: transform var(--transition);
+  }
+
+  .news-article__back:focus-visible,
+  .news-detail-status a:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+    border-radius: 0.2rem;
+  }
+
+  .news-detail-status {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(2rem, 7vw, 4rem);
+    color: var(--color-text);
+    background-color: rgba(21, 130, 203, 0.05);
+    border: 1px dashed var(--color-primary-light);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+
+  .news-detail-status--error {
+    background-color: rgba(211, 47, 47, 0.06);
+    border-color: rgba(211, 47, 47, 0.4);
+  }
+
+  .news-detail-status h1 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .news-detail-status--error h1 {
+    color: #b42318;
+  }
+
+  .news-detail-status p {
+    margin-top: 0.75rem;
+    color: #667580;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .news-detail-status a {
+    margin-top: 1.25rem;
+    padding: 0.75rem 1rem;
+    display: inline-flex;
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-radius: var(--radius-small);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .news-article__back:hover {
+      text-decoration: underline;
+    }
+
+    .news-article__back:hover span {
+      transform: translateX(-0.2rem);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .news-detail {
+      width: calc(100% - 1rem);
+      margin-top: 1rem;
+    }
+
+    .news-article {
+      border-radius: var(--radius-small);
+    }
+
+    .news-article__image {
+      aspect-ratio: 4 / 3;
+    }
+
+    .news-article__content {
+      padding: 1.75rem 1.1rem;
+    }
+
+    .news-article__footer {
+      padding: 1.1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .news-article__back span {
+      transition: none;
+    }
+  }
+</style>

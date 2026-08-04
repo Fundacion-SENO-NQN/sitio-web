@@ -2,24 +2,63 @@
 import Layout from '../../layouts/Layout.astro'
 
 import TituloPag from '../../components/Common/TituloPag.astro'
-import NavegacionQuieroAyudar from '../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
 import CarouselDonaciones from '../../components/Inicio/CarouselDonaciones.astro'
+import NavegacionQuieroAyudar from '../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
 import OpcionesQuieroAyudar from '../../components/QuieroAyudar/OpcionesQuieroAyudar.astro'
 import TituloQuieroAyudar from '../../components/QuieroAyudar/TituloQuieroAyudar.astro'
 ---
 
-<Layout pag="Quiero ayudar">
+<Layout
+  pag="Quiero ayudar"
+  seoTitle="Cómo ayudar a Fundación SENO Neuquén"
+  description="Conocé las distintas maneras de colaborar con Fundación SENO mediante donaciones, voluntariado, aportes mensuales y acuerdos institucionales."
+>
   <NavegacionQuieroAyudar pag="0" />
+
   <TituloPag titulo="Quiero ayudar" />
-  <CarouselDonaciones />
-  <main>
-    <TituloQuieroAyudar />
-    <OpcionesQuieroAyudar />
+
+  <main class="help-page">
+    <section
+      class="help-page__donations"
+      aria-label="Donaciones recibidas por Fundación SENO"
+    >
+      <CarouselDonaciones />
+    </section>
+
+    <section
+      class="help-page__options"
+      aria-label="Formas de colaborar con Fundación SENO"
+    >
+      <TituloQuieroAyudar />
+
+      <OpcionesQuieroAyudar />
+    </section>
   </main>
 </Layout>
 
 <style>
-  p {
-    font-family: var(--text-font-primary);
+  .help-page {
+    width: 100%;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  .help-page__donations,
+  .help-page__options {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .help-page__options {
+    margin-top: clamp(3rem, 8vw, 6rem);
+  }
+
+  @media (max-width: 500px) {
+    .help-page {
+      padding-bottom: 3rem;
+    }
+
+    .help-page__options {
+      margin-top: 3rem;
+    }
   }
 </style>

@@ -1,0 +1,853 @@
+/* ==========================================================
+   ADMIN FORMS
+
+   Clases recomendadas:
+   - .form
+   - .formContent
+   - .formSection
+   - .formSectionHeader
+   - .formGrid
+   - .formGroup
+   - .fieldLabel
+   - .fieldHelp
+   - .fieldOptional
+
+   Se conservan alias para los módulos existentes.
+========================================================== */
+
+/* ==========================================================
+   FORM ROOT
+========================================================== */
+
+:where(.form, .form-evento, .form-noticia, .form-miembro, .adminForm) {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  color: var(--admin-text);
+}
+
+/* ==========================================================
+   FORM CONTENT
+========================================================== */
+
+:where(.formContent, .form-contenido, .adminFormContent) {
+  width: 100%;
+  min-width: 0;
+
+  padding: clamp(1.15rem, 4vw, 2rem);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-large);
+}
+
+/*
+ * Los formularios que utilizan directamente .formGrid no
+ * necesitan una segunda capa con padding.
+ */
+:where(.modalContent, .modal-contenido, .adminModalContent)
+  > :where(.form, .form-evento, .adminForm)
+  > :where(.formGrid, .form-grid, .adminFormGrid) {
+  padding: clamp(1.15rem, 4vw, 2rem);
+}
+
+/* ==========================================================
+   FORM SECTION
+========================================================== */
+
+:where(.formSection, .form-seccion, .adminFormSection) {
+  width: 100%;
+  min-width: 0;
+
+  padding: clamp(1rem, 3vw, 1.35rem);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface-soft);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius);
+}
+
+/* ==========================================================
+   FORM SECTION HEADER
+========================================================== */
+
+:where(.formSectionHeader, .form-seccion-cabecera, .adminFormSectionHeader) {
+  margin-bottom: var(--admin-space-medium);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+:where(.formSectionHeader, .form-seccion-cabecera, .adminFormSectionHeader)
+  :is(h2, h3, h4, p) {
+  margin: 0;
+}
+
+:where(.formSectionHeader, .form-seccion-cabecera, .adminFormSectionHeader)
+  :is(h2, h3, h4) {
+  color: var(--color-secondary-hover);
+
+  font-size: 1.05rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+}
+
+:where(.formSectionHeader, .form-seccion-cabecera, .adminFormSectionHeader) p {
+  max-width: 45rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.85rem;
+
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   FORM GRID
+========================================================== */
+
+:where(.formGrid, .form-grid, .adminFormGrid) {
+  width: 100%;
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 1.25rem;
+}
+
+/* ==========================================================
+   GRID VARIANTS
+========================================================== */
+
+:where(.formGridSingle, .form-grid-una-columna, .adminFormGridSingle) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:where(.formGridThree, .form-grid-tres-columnas, .adminFormGridThree) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ==========================================================
+   FORM GROUP
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* ==========================================================
+   FULL WIDTH GROUP
+========================================================== */
+
+:where(.formGroup.full, .formGroupFull, .campo-completo, .adminFormGroupFull) {
+  grid-column: 1 / -1;
+}
+
+/* ==========================================================
+   INLINE GROUP
+========================================================== */
+
+:where(.formGroupInline, .campo-en-linea, .adminFormGroupInline) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--admin-space);
+}
+
+/* ==========================================================
+   FIELD LABEL
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :where(label, .fieldLabel, .campo-label, .adminFieldLabel):not(
+    .imageUpload,
+    .zona-subida,
+    .serviceOption
+  ) {
+  color: var(--admin-text);
+
+  font-size: 0.88rem;
+
+  font-weight: 700;
+
+  line-height: 1.35;
+}
+
+/* ==========================================================
+   REQUIRED MARK
+========================================================== */
+
+:where(.fieldRequired, .campo-requerido, .adminFieldRequired) {
+  color: var(--color-red);
+
+  font-weight: 800;
+}
+
+:where(.campo-label)
+  > span:not(.opcional, .fieldOptional, .adminFieldOptional) {
+  color: var(--color-red);
+}
+
+/* ==========================================================
+   OPTIONAL MARK
+========================================================== */
+
+:where(.fieldOptional, .opcional, .adminFieldOptional) {
+  margin-left: 0.25rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.75rem;
+
+  font-weight: 500;
+}
+
+/* ==========================================================
+   FORM CONTROLS
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(
+    input:not([type='checkbox']):not([type='radio']):not([type='file']),
+    textarea,
+    select
+  ),
+:where(.formControl, .campo-control, .adminFormControl) {
+  appearance: none;
+
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: var(--admin-control-height);
+
+  padding: 0.82rem 0.95rem;
+
+  display: block;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+
+  outline: none;
+
+  font: inherit;
+
+  font-size: 0.95rem;
+
+  line-height: 1.45;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition);
+}
+
+/* ==========================================================
+   CONTROL HOVER
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(
+    input:not([type='checkbox']):not([type='radio']):not([type='file']),
+    textarea,
+    select
+  ):hover:not(:disabled):not([readonly]),
+:where(.formControl, .campo-control, .adminFormControl):hover:not(
+    :disabled
+  ):not([readonly]) {
+  border-color: var(--admin-text-muted);
+}
+
+/* ==========================================================
+   CONTROL FOCUS
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(
+    input:not([type='checkbox']):not([type='radio']):not([type='file']),
+    textarea,
+    select
+  ):focus,
+:where(.formControl, .campo-control, .adminFormControl):focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+/* ==========================================================
+   PLACEHOLDER
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) > :is(input, textarea)::placeholder,
+:where(.formControl, .campo-control, .adminFormControl)::placeholder {
+  color: var(--admin-text-muted);
+
+  opacity: 1;
+}
+
+/* ==========================================================
+   TEXTAREA
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) > textarea,
+:where(
+  textarea.formControl,
+  textarea.campo-control,
+  textarea.adminFormControl
+) {
+  min-height: 10rem;
+
+  resize: vertical;
+}
+
+:where(.formGroup, .campo, .adminFormGroup) > textarea.large,
+:where(
+  textarea.formControlLarge,
+  textarea.campo-control-grande,
+  textarea.adminFormControlLarge
+) {
+  min-height: 13rem;
+}
+
+/* ==========================================================
+   SELECT
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) > select,
+:where(select.formControl, select.campo-control, select.adminFormControl) {
+  padding-right: 2.6rem;
+
+  cursor: pointer;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--admin-text-muted) 50%),
+    linear-gradient(135deg, var(--admin-text-muted) 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 1.05rem) calc(50% - 0.15rem),
+    calc(100% - 0.72rem) calc(50% - 0.15rem);
+
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+
+  background-repeat: no-repeat;
+}
+
+/* ==========================================================
+   DATE AND TIME CONTROLS
+========================================================== */
+
+:where(input[type='date'], input[type='time'], input[type='datetime-local']) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   DISABLED CONTROL
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(input, textarea, select):disabled,
+:where(.formControl, .campo-control, .adminFormControl):disabled {
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-muted);
+
+  opacity: 0.7;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   READ-ONLY CONTROL
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) > :is(input, textarea)[readonly],
+:where(.formControl, .campo-control, .adminFormControl)[readonly] {
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-soft);
+
+  cursor: default;
+}
+
+/* ==========================================================
+   AUTOFILL
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup) > input:-webkit-autofill {
+  -webkit-text-fill-color: var(--admin-text);
+
+  box-shadow: 0 0 0 1000px var(--admin-surface) inset;
+
+  transition: background-color 9999s ease-out;
+}
+
+/* ==========================================================
+   FIELD HELP
+========================================================== */
+
+:where(.fieldHelp, .campo-ayuda, .adminFieldHelp) {
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.78rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   FIELD COUNTER
+========================================================== */
+
+:where(.fieldCounter, .contador-campo, .adminFieldCounter) {
+  align-self: flex-end;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.75rem;
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   FIELD ERROR
+========================================================== */
+
+:where(.fieldError, .campo-error, .adminFieldError) {
+  margin: 0;
+
+  display: none;
+
+  color: var(--color-red);
+
+  font-size: 0.78rem;
+
+  font-weight: 650;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   INVALID FIELD
+
+   Se recomienda aplicar:
+   - aria-invalid="true"
+   - .invalid
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(input, textarea, select)[aria-invalid='true'],
+:where(.formControl, .campo-control, .adminFormControl).invalid {
+  border-color: var(--color-red);
+
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.14);
+}
+
+:where(.formGroup, .campo, .adminFormGroup):has(
+    > :is(input, textarea, select)[aria-invalid='true']
+  )
+  :where(.fieldError, .campo-error, .adminFieldError) {
+  display: block;
+}
+
+/*
+ * Compatibilidad con la validación HTML nativa.
+ *
+ * Solo se muestra después de que el usuario haya escrito
+ * algo para evitar marcar todos los campos al abrir el modal.
+ */
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(input, textarea):invalid:not(:placeholder-shown):not(:focus) {
+  border-color: var(--color-red);
+}
+
+/* ==========================================================
+   VALID FIELD
+========================================================== */
+
+:where(.formGroup, .campo, .adminFormGroup)
+  > :is(input, textarea, select)[aria-invalid='false'].valid,
+:where(.formControl, .campo-control, .adminFormControl).valid {
+  border-color: var(--color-primary);
+}
+
+/* ==========================================================
+   CHECKBOX AND RADIO GROUP
+========================================================== */
+
+:where(.choiceGroup, .grupo-opciones, .adminChoiceGroup) {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: var(--admin-space-small);
+}
+
+/* ==========================================================
+   CHECKBOX / RADIO OPTION
+========================================================== */
+
+:where(.choiceOption, .opcion-seleccion, .adminChoiceOption) {
+  min-width: 0;
+
+  padding: 0.7rem 0.8rem;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+:where(.choiceOption, .opcion-seleccion, .adminChoiceOption):hover {
+  background-color: var(--admin-secondary-hover-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+:where(.choiceOption, .opcion-seleccion, .adminChoiceOption):focus-within {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.choiceOption, .opcion-seleccion, .adminChoiceOption) input {
+  width: 1.1rem;
+
+  height: 1.1rem;
+
+  margin-top: 0.1rem;
+
+  flex: 0 0 auto;
+
+  accent-color: var(--color-secondary);
+
+  cursor: pointer;
+}
+
+/* ==========================================================
+   SERVICES CONTAINER
+
+   Utilizado por el modal de creación y edición de roles.
+========================================================== */
+
+:where(.servicesContainer, #servicesContainer, .adminServicesContainer) {
+  width: 100%;
+
+  max-height: 19rem;
+
+  padding: var(--admin-space-small);
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+
+  gap: var(--admin-space-small);
+
+  overflow-y: auto;
+
+  background-color: var(--admin-surface-soft);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius);
+
+  scrollbar-color: var(--admin-border-color) transparent;
+
+  scrollbar-width: thin;
+}
+
+/* ==========================================================
+   SERVICE OPTION
+========================================================== */
+
+.serviceOption {
+  min-width: 0;
+
+  padding: 0.75rem;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+.serviceOption:hover {
+  background-color: var(--admin-secondary-hover-soft);
+
+  border-color: var(--color-secondary-light);
+
+  transform: translateY(-1px);
+}
+
+.serviceOption:focus-within {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+.serviceOption input {
+  width: 1.1rem;
+
+  height: 1.1rem;
+
+  margin-top: 0.05rem;
+
+  flex: 0 0 auto;
+
+  accent-color: var(--color-secondary);
+
+  cursor: pointer;
+}
+
+.serviceOption span {
+  min-width: 0;
+
+  color: var(--admin-text);
+
+  font-size: 0.86rem;
+
+  font-weight: 650;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   EMPTY SERVICES
+========================================================== */
+
+:where(.servicesEmpty, .servicios-vacios, .adminServicesEmpty) {
+  grid-column: 1 / -1;
+
+  margin: 0;
+
+  padding: 1.5rem;
+
+  color: var(--admin-text-muted);
+
+  text-align: center;
+
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   FORM MESSAGE
+========================================================== */
+
+:where(.formMessage, .mensaje-formulario, .adminFormMessage) {
+  margin: 0;
+
+  padding: 0.8rem 1rem;
+
+  border: 1px solid transparent;
+
+  border-radius: var(--admin-radius-small);
+
+  font-size: 0.85rem;
+
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   MESSAGE INFO
+========================================================== */
+
+:where(.formMessageInfo, .mensaje-formulario-info, .adminFormMessageInfo) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+/* ==========================================================
+   MESSAGE SUCCESS
+========================================================== */
+
+:where(
+  .formMessageSuccess,
+  .mensaje-formulario-exito,
+  .adminFormMessageSuccess
+) {
+  color: var(--color-primary-hover);
+
+  background-color: var(--admin-primary-soft);
+
+  border-color: var(--color-primary-light);
+}
+
+/* ==========================================================
+   MESSAGE ERROR
+========================================================== */
+
+:where(.formMessageError, .mensaje-formulario-error, .adminFormMessageError) {
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--admin-danger-border);
+}
+
+/* ==========================================================
+   FORM BUSY STATE
+========================================================== */
+
+:where(
+  .form,
+  .form-evento,
+  .form-noticia,
+  .form-miembro,
+  .adminForm
+)[aria-busy='true'] {
+  cursor: progress;
+}
+
+:where(
+    .form,
+    .form-evento,
+    .form-noticia,
+    .form-miembro,
+    .adminForm
+  )[aria-busy='true']
+  :is(input, textarea, select, button) {
+  pointer-events: none;
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  :where(
+    .formGrid,
+    .form-grid,
+    .adminFormGrid,
+    .formGridThree,
+    .form-grid-tres-columnas,
+    .adminFormGridThree
+  ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :where(
+    .formGroup.full,
+    .formGroupFull,
+    .campo-completo,
+    .adminFormGroupFull
+  ) {
+    grid-column: auto;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.formContent, .form-contenido, .adminFormContent) {
+    padding: 1rem;
+
+    gap: var(--admin-space-medium);
+  }
+
+  :where(.modalContent, .modal-contenido, .adminModalContent)
+    > :where(.form, .form-evento, .adminForm)
+    > :where(.formGrid, .form-grid, .adminFormGrid) {
+    padding: 1rem;
+  }
+
+  :where(.formSection, .form-seccion, .adminFormSection) {
+    padding: 0.9rem;
+  }
+
+  :where(.formGroupInline, .campo-en-linea, .adminFormGroupInline) {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  :where(.servicesContainer, #servicesContainer, .adminServicesContainer) {
+    grid-template-columns: minmax(0, 1fr);
+
+    max-height: 16rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.formGroup, .campo, .adminFormGroup) > :is(input, textarea, select),
+  :where(
+    .formControl,
+    .campo-control,
+    .adminFormControl,
+    .choiceOption,
+    .opcion-seleccion,
+    .adminChoiceOption,
+    .serviceOption
+  ) {
+    transition: none;
+  }
+}

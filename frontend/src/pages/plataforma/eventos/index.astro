@@ -5,45 +5,68 @@ import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
 import '../../../style/eventos.css'
 ---
 
-<LayoutPlataforma>
+<LayoutPlataforma titulo="Eventos">
   <HeaderPlataforma
     title="Eventos"
-    content="Manejo de los eventos mostrados en el sitio Web"
+    content="Administrá los eventos que se muestran en el sitio web."
   />
-  <main class="eventos-admin">
-    <section class="herramientas" aria-label="Herramientas de eventos">
-      <button id="btn-nuevo-evento" class="boton boton-principal" type="button">
+
+  <main class="adminPage eventos-admin">
+    <section
+      class="toolbar herramientas"
+      aria-label="Herramientas de administración de eventos"
+    >
+      <button
+        id="btn-nuevo-evento"
+        class="button buttonPrimary boton boton-principal"
+        type="button"
+      >
         <span aria-hidden="true">+</span>
-
-        Nuevo evento
+        <span>Nuevo evento</span>
       </button>
-      <label class="buscador">
-        <span class="sr-only"> Buscar eventos </span>
 
-        <span class="icono-busqueda" aria-hidden="true"> ⌕ </span>
+      <label class="searchField buscador" for="buscar-eventos">
+        <span class="srOnly sr-only"> Buscar eventos </span>
+
+        <span class="searchFieldIcon icono-busqueda" aria-hidden="true">
+          ⌕
+        </span>
 
         <input
           id="buscar-eventos"
           type="search"
           placeholder="Buscar por título, lugar o descripción..."
           autocomplete="off"
+          aria-describedby="cantidad-eventos"
         />
       </label>
 
-      <div class="resumen">
+      <div class="toolbarSummary resumen" aria-live="polite" aria-atomic="true">
         <span id="cantidad-eventos"> 0 eventos </span>
       </div>
     </section>
 
-    <section class="contenedor-tabla">
-      <div id="estado-cargando" class="estado-tabla">
+    <section
+      class="tableContainer contenedor-tabla"
+      aria-label="Listado de eventos"
+    >
+      <div
+        id="estado-cargando"
+        class="tableState estado-tabla"
+        role="status"
+        aria-live="polite"
+      >
         <div class="spinner" aria-hidden="true"></div>
 
         <p>Cargando eventos...</p>
       </div>
 
-      <div id="estado-error" class="estado-tabla oculto">
-        <span class="estado-icono" aria-hidden="true"> ! </span>
+      <div
+        id="estado-error"
+        class="tableState tableStateError estado-tabla oculto"
+        role="alert"
+      >
+        <span class="tableStateIcon estado-icono" aria-hidden="true"> ! </span>
 
         <h2>No se pudieron cargar los eventos</h2>
 
@@ -51,15 +74,19 @@ import '../../../style/eventos.css'
 
         <button
           id="btn-reintentar-eventos"
-          class="boton boton-secundario"
+          class="button buttonSecondary boton boton-secundario"
           type="button"
         >
           Reintentar
         </button>
       </div>
 
-      <div id="estado-vacio" class="estado-tabla oculto">
-        <span class="estado-icono" aria-hidden="true"> 📅 </span>
+      <div
+        id="estado-vacio"
+        class="tableState estado-tabla oculto"
+        role="status"
+      >
+        <span class="tableStateIcon estado-icono" aria-hidden="true"> 📅 </span>
 
         <h2>No hay eventos publicados</h2>
 
@@ -67,32 +94,29 @@ import '../../../style/eventos.css'
 
         <button
           id="btn-primer-evento"
-          class="boton boton-principal"
+          class="button buttonPrimary boton boton-principal"
           type="button"
         >
           Crear evento
         </button>
       </div>
 
-      <div id="tabla-wrapper" class="tabla-wrapper oculto">
-        <table class="tabla-eventos">
+      <div id="tabla-wrapper" class="tableWrapper tabla-wrapper oculto">
+        <table class="dataTable tabla-eventos">
+          <caption class="srOnly sr-only">
+            Eventos publicados en el sitio web
+          </caption>
+
           <thead>
             <tr>
-              <th scope="col"> Orden </th>
-
-              <th scope="col"> Imagen </th>
-
-              <th scope="col"> Evento </th>
-
-              <th scope="col"> Fecha y horario </th>
-
-              <th scope="col"> Lugar </th>
-
-              <th scope="col"> Imágenes </th>
-
-              <th scope="col"> Enlace </th>
-
-              <th scope="col"> Acciones </th>
+              <th scope="col">Orden</th>
+              <th scope="col">Imagen</th>
+              <th scope="col">Evento</th>
+              <th scope="col">Fecha y horario</th>
+              <th scope="col">Lugar</th>
+              <th scope="col">Imágenes</th>
+              <th scope="col">Enlace</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
 
@@ -103,7 +127,7 @@ import '../../../style/eventos.css'
   </main>
 
   <!-- =====================================================
-       MODAL CREAR / EDITAR
+       MODAL CREAR / EDITAR EVENTO
   ====================================================== -->
 
   <div
@@ -112,34 +136,40 @@ import '../../../style/eventos.css'
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-evento-titulo"
+    tabindex="-1"
   >
-    <div class="modal-fondo" data-cerrar-modal-evento></div>
+    <div
+      class="modalBackdrop modal-fondo"
+      data-cerrar-modal-evento
+      aria-hidden="true"
+    >
+    </div>
 
-    <div class="modal-contenido modal-evento-contenido">
-      <header class="modal-cabecera">
+    <div class="modalContent modal-contenido modal-evento-contenido">
+      <header class="modalHeader modal-cabecera">
         <div>
-          <span class="modal-seccion"> Administración de eventos </span>
+          <p class="modalEyebrow modal-seccion">Administración de eventos</p>
 
           <h2 id="modal-evento-titulo">Nuevo evento</h2>
         </div>
 
         <button
           id="btn-cerrar-modal-evento"
-          class="boton-cerrar"
+          class="iconButton boton-cerrar"
           type="button"
-          aria-label="Cerrar ventana"
+          aria-label="Cerrar ventana de evento"
         >
-          ×
+          <span aria-hidden="true">×</span>
         </button>
       </header>
 
-      <form id="form-evento" class="form-evento">
-        <div class="form-contenido">
+      <form id="form-evento" class="adminForm form-evento" autocomplete="off">
+        <div class="formContent form-contenido">
           <section
-            class="form-seccion"
+            class="formSection form-seccion"
             aria-labelledby="datos-principales-titulo"
           >
-            <header class="form-seccion-cabecera">
+            <header class="formSectionHeader form-seccion-cabecera">
               <div>
                 <h3 id="datos-principales-titulo">Información principal</h3>
 
@@ -147,11 +177,12 @@ import '../../../style/eventos.css'
               </div>
             </header>
 
-            <div class="form-grid">
-              <label class="campo campo-completo">
-                <span class="campo-label">
+            <div class="formGrid form-grid">
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
                   Título
-                  <span aria-hidden="true">*</span>
+
+                  <span class="requiredMark" aria-hidden="true"> * </span>
                 </span>
 
                 <input
@@ -163,33 +194,38 @@ import '../../../style/eventos.css'
                   required
                 />
 
-                <span class="campo-ayuda">
+                <span class="formHelp campo-ayuda">
                   Nombre con el que aparecerá publicado el evento.
                 </span>
               </label>
 
-              <label class="campo campo-completo">
-                <span class="campo-label">
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
                   Descripción
-                  <span aria-hidden="true">*</span>
+
+                  <span class="requiredMark" aria-hidden="true"> * </span>
                 </span>
 
                 <textarea
                   id="evento-descripcion"
                   name="descripcion"
                   maxlength="6000"
+                  rows="9"
                   placeholder="Escribí la información completa del evento..."
                   required></textarea>
 
-                <span class="campo-ayuda">
+                <span class="formHelp campo-ayuda">
                   Podés utilizar saltos de línea y emojis.
                 </span>
               </label>
             </div>
           </section>
 
-          <section class="form-seccion" aria-labelledby="datos-evento-titulo">
-            <header class="form-seccion-cabecera">
+          <section
+            class="formSection form-seccion"
+            aria-labelledby="datos-evento-titulo"
+          >
+            <header class="formSectionHeader form-seccion-cabecera">
               <div>
                 <h3 id="datos-evento-titulo">Fecha y ubicación</h3>
 
@@ -197,11 +233,12 @@ import '../../../style/eventos.css'
               </div>
             </header>
 
-            <div class="form-grid">
-              <label class="campo">
-                <span class="campo-label">
+            <div class="formGrid form-grid">
+              <label class="formField campo">
+                <span class="formLabel campo-label">
                   Fecha
-                  <span class="opcional"> opcional </span>
+
+                  <span class="optionalLabel opcional"> Opcional </span>
                 </span>
 
                 <input
@@ -213,10 +250,11 @@ import '../../../style/eventos.css'
                 />
               </label>
 
-              <label class="campo">
-                <span class="campo-label">
+              <label class="formField campo">
+                <span class="formLabel campo-label">
                   Horario
-                  <span class="opcional"> opcional </span>
+
+                  <span class="optionalLabel opcional"> Opcional </span>
                 </span>
 
                 <input
@@ -224,14 +262,15 @@ import '../../../style/eventos.css'
                   name="horario"
                   type="text"
                   maxlength="120"
-                  placeholder="Ej.: De 12:00 a 18:00 hs"
+                  placeholder="Ej.: De 12:00 a 18:00 h"
                 />
               </label>
 
-              <label class="campo campo-completo">
-                <span class="campo-label">
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
                   Lugar
-                  <span class="opcional"> opcional </span>
+
+                  <span class="optionalLabel opcional"> Opcional </span>
                 </span>
 
                 <input
@@ -239,14 +278,17 @@ import '../../../style/eventos.css'
                   name="lugar"
                   type="text"
                   maxlength="220"
-                  placeholder="Ej.: Gimnasio EPET N.° 8 - Neuquén Capital"
+                  placeholder="Ej.: Gimnasio EPET N.º 8, Neuquén Capital"
                 />
               </label>
             </div>
           </section>
 
-          <section class="form-seccion" aria-labelledby="enlace-evento-titulo">
-            <header class="form-seccion-cabecera">
+          <section
+            class="formSection form-seccion"
+            aria-labelledby="enlace-evento-titulo"
+          >
+            <header class="formSectionHeader form-seccion-cabecera">
               <div>
                 <h3 id="enlace-evento-titulo">Enlace externo</h3>
 
@@ -257,26 +299,29 @@ import '../../../style/eventos.css'
               </div>
             </header>
 
-            <div class="form-grid">
-              <label class="campo">
-                <span class="campo-label">
+            <div class="formGrid form-grid">
+              <label class="formField campo">
+                <span class="formLabel campo-label">
                   URL
-                  <span class="opcional"> opcional </span>
+
+                  <span class="optionalLabel opcional"> Opcional </span>
                 </span>
 
                 <input
                   id="evento-url"
                   name="url"
                   type="url"
+                  inputmode="url"
                   maxlength="1000"
                   placeholder="https://..."
                 />
               </label>
 
-              <label class="campo">
-                <span class="campo-label">
+              <label class="formField campo">
+                <span class="formLabel campo-label">
                   Texto del botón
-                  <span class="opcional"> opcional </span>
+
+                  <span class="optionalLabel opcional"> Opcional </span>
                 </span>
 
                 <input
@@ -291,10 +336,10 @@ import '../../../style/eventos.css'
           </section>
 
           <section
-            class="form-seccion"
+            class="formSection form-seccion"
             aria-labelledby="imagenes-evento-titulo"
           >
-            <header class="form-seccion-cabecera">
+            <header class="formSectionHeader form-seccion-cabecera">
               <div>
                 <h3 id="imagenes-evento-titulo">Imágenes</h3>
 
@@ -306,7 +351,7 @@ import '../../../style/eventos.css'
 
             <label
               id="zona-subida-imagenes"
-              class="zona-subida"
+              class="imagePicker zona-subida"
               for="evento-imagenes"
             >
               <input
@@ -314,10 +359,13 @@ import '../../../style/eventos.css'
                 name="images"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/avif"
+                aria-describedby="texto-ayuda-imagenes"
                 multiple
               />
 
-              <span class="subida-icono" aria-hidden="true"> + </span>
+              <span class="imagePickerIcon subida-icono" aria-hidden="true">
+                +
+              </span>
 
               <strong> Seleccionar imágenes </strong>
 
@@ -328,16 +376,17 @@ import '../../../style/eventos.css'
 
             <div
               id="imagenes-seleccionadas"
-              class="galeria-preview oculto"
+              class="imagePreviewGrid galeria-preview oculto"
               aria-label="Imágenes seleccionadas"
+              aria-live="polite"
             >
             </div>
 
             <div
               id="imagenes-actuales-contenedor"
-              class="imagenes-actuales oculto"
+              class="currentImages imagenes-actuales oculto"
             >
-              <div class="imagenes-actuales-cabecera">
+              <div class="currentImagesHeader imagenes-actuales-cabecera">
                 <h4>Imágenes actuales</h4>
 
                 <p>
@@ -348,7 +397,7 @@ import '../../../style/eventos.css'
 
               <div
                 id="imagenes-actuales"
-                class="galeria-preview"
+                class="imagePreviewGrid galeria-preview"
                 aria-label="Imágenes actuales del evento"
               >
               </div>
@@ -356,10 +405,10 @@ import '../../../style/eventos.css'
           </section>
         </div>
 
-        <footer class="modal-footer">
+        <footer class="modalFooter modal-footer">
           <button
             id="btn-cancelar-evento"
-            class="boton boton-cancelar"
+            class="button buttonGhost boton boton-cancelar"
             type="button"
           >
             Cancelar
@@ -367,7 +416,7 @@ import '../../../style/eventos.css'
 
           <button
             id="btn-guardar-evento"
-            class="boton boton-principal"
+            class="button buttonPrimary boton boton-principal"
             type="submit"
           >
             Guardar evento
@@ -378,7 +427,7 @@ import '../../../style/eventos.css'
   </div>
 
   <!-- =====================================================
-       MODAL ELIMINAR
+       MODAL ELIMINAR EVENTO
   ====================================================== -->
 
   <div
@@ -387,25 +436,34 @@ import '../../../style/eventos.css'
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-eliminar-titulo"
+    aria-describedby="texto-eliminar-evento"
+    tabindex="-1"
   >
-    <div class="modal-fondo" data-cerrar-modal-eliminar></div>
+    <div
+      class="modalBackdrop modal-fondo"
+      data-cerrar-modal-eliminar
+      aria-hidden="true"
+    >
+    </div>
 
-    <div class="modal-contenido modal-eliminar-contenido">
-      <header class="modal-cabecera">
+    <div class="modalContent modal-contenido modal-eliminar-contenido">
+      <header class="modalHeader modal-cabecera">
         <h2 id="modal-eliminar-titulo">Eliminar evento</h2>
 
         <button
           id="btn-cerrar-modal-eliminar"
-          class="boton-cerrar"
+          class="iconButton boton-cerrar"
           type="button"
-          aria-label="Cerrar ventana"
+          aria-label="Cerrar ventana de eliminación"
         >
-          ×
+          <span aria-hidden="true">×</span>
         </button>
       </header>
 
-      <div class="eliminar-contenido">
-        <span class="eliminar-icono" aria-hidden="true"> ! </span>
+      <div class="deleteConfirmation eliminar-contenido">
+        <span class="deleteConfirmationIcon eliminar-icono" aria-hidden="true">
+          !
+        </span>
 
         <h3>¿Seguro que querés eliminar este evento?</h3>
 
@@ -413,13 +471,15 @@ import '../../../style/eventos.css'
           El evento y todas sus imágenes serán eliminados permanentemente.
         </p>
 
-        <p class="advertencia">Esta acción no se puede deshacer.</p>
+        <p class="dangerMessage advertencia">
+          Esta acción no se puede deshacer.
+        </p>
       </div>
 
-      <footer class="modal-footer">
+      <footer class="modalFooter modal-footer">
         <button
           id="btn-cancelar-eliminar"
-          class="boton boton-cancelar"
+          class="button buttonGhost boton boton-cancelar"
           type="button"
         >
           Cancelar
@@ -427,7 +487,7 @@ import '../../../style/eventos.css'
 
         <button
           id="btn-confirmar-eliminar"
-          class="boton boton-peligro"
+          class="button buttonDanger boton boton-peligro"
           type="button"
         >
           Eliminar evento

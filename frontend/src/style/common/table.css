@@ -1,0 +1,1173 @@
+/* ==========================================================
+   ADMIN TABLES
+
+   Clases recomendadas:
+   - .tableContainer
+   - .tableWrapper
+   - .table
+   - .orderCell
+   - .orderValue
+   - .tableImage
+   - .tableInfo
+   - .tableBadge
+   - .emptyState
+
+   Se mantienen alias para las páginas actuales.
+========================================================== */
+
+/* ==========================================================
+   TABLE CONTAINER
+========================================================== */
+
+:where(.tableContainer, .contenedor-tabla, .adminTableContainer) {
+  width: 100%;
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius-large);
+
+  box-shadow: var(--admin-shadow);
+}
+
+/* ==========================================================
+   TABLE SCROLL WRAPPER
+========================================================== */
+
+:where(.tableWrapper, .tabla-wrapper, .adminTableWrapper) {
+  width: 100%;
+  min-width: 0;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  overscroll-behavior-inline: contain;
+
+  scrollbar-color: var(--admin-border-color) transparent;
+
+  scrollbar-width: thin;
+}
+
+:where(.tableWrapper, .tabla-wrapper, .adminTableWrapper)::-webkit-scrollbar {
+  height: 0.625rem;
+}
+
+:where(
+  .tableWrapper,
+  .tabla-wrapper,
+  .adminTableWrapper
+)::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+:where(
+  .tableWrapper,
+  .tabla-wrapper,
+  .adminTableWrapper
+)::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border-color);
+
+  border: 2px solid var(--admin-surface);
+
+  border-radius: var(--admin-radius-pill);
+}
+
+:where(
+    .tableWrapper,
+    .tabla-wrapper,
+    .adminTableWrapper
+  )::-webkit-scrollbar-thumb:hover {
+  background-color: var(--admin-text-muted);
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+:where(
+  .table,
+  .tabla-eventos,
+  .tabla-noticias,
+  .tabla-miembros,
+  .tabla-usuarios,
+  .tabla-roles,
+  .adminTable
+) {
+  width: 100%;
+  min-width: 64rem;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/*
+ * Algunas páginas necesitan más espacio debido a la cantidad
+ * de columnas.
+ */
+:where(.tabla-eventos, .tabla-noticias, .table.tableWide, .adminTableWide) {
+  min-width: 76rem;
+}
+
+/* ==========================================================
+   TABLE CELLS
+========================================================== */
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  :is(th, td) {
+  padding: var(--admin-table-cell-padding);
+
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* ==========================================================
+   TABLE HEADER
+========================================================== */
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  thead {
+  background-color: var(--admin-table-header);
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-table-header);
+
+  border-bottom: 1px solid var(--admin-border-color);
+
+  font-size: 0.8rem;
+
+  font-weight: 750;
+
+  line-height: 1.3;
+
+  letter-spacing: 0.025em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   TABLE BODY
+========================================================== */
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  td {
+  color: var(--admin-text);
+  border-bottom: 1px solid var(--admin-table-divider);
+
+  font-size: 0.9rem;
+
+  line-height: 1.45;
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  tbody
+  tr {
+  background-color: var(--admin-surface);
+
+  transition:
+    background-color var(--admin-transition),
+    opacity var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  tbody
+  tr:hover {
+  background-color: var(--admin-table-row-hover);
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  tbody
+  tr:last-child
+  td {
+  border-bottom: 0;
+}
+
+/* ==========================================================
+   ROW STATES
+========================================================== */
+
+:where(.table, .adminTable) tbody tr.currentUser {
+  background-color: var(--admin-secondary-hover-soft);
+}
+
+:where(.table, .adminTable) tbody tr.currentRole {
+  background-color: var(--admin-primary-soft);
+}
+
+:where(.table, .adminTable) tbody tr.inactiveUser {
+  opacity: 0.65;
+}
+
+:where(.table, .adminTable) tbody tr.inactiveUser:hover {
+  opacity: 0.85;
+}
+
+/* ==========================================================
+   SORTABLE HEADER
+========================================================== */
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  th.sortable {
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  th.sortable:hover {
+  color: var(--color-secondary);
+
+  background-color: var(--admin-secondary-soft);
+}
+
+:where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  )
+  th.sortable:focus-visible {
+  z-index: 3;
+
+  outline: none;
+
+  box-shadow: var(--admin-focus-inset);
+}
+
+:where(.table, .adminTable) th[aria-sort='ascending'],
+:where(.table, .adminTable) th[aria-sort='descending'] {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+}
+
+/* ==========================================================
+   SORT INDICATOR
+========================================================== */
+
+.sortIndicator,
+.adminSortIndicator {
+  margin-left: 0.35rem;
+
+  display: inline-block;
+
+  color: var(--color-secondary);
+
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+th[aria-sort='ascending'] .sortIndicator::before,
+th[aria-sort='ascending'] .adminSortIndicator::before {
+  content: '▲';
+}
+
+th[aria-sort='descending'] .sortIndicator::before,
+th[aria-sort='descending'] .adminSortIndicator::before {
+  content: '▼';
+}
+
+/* ==========================================================
+   ORDER CELL
+========================================================== */
+
+:where(
+  .orderCell,
+  .orden-evento,
+  .orden-noticia,
+  .orden-miembro,
+  .adminOrderCell
+) {
+  min-width: 5.25rem;
+
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* ==========================================================
+   ORDER VALUE
+========================================================== */
+
+:where(.orderValue, .numero-orden, .adminOrderValue) {
+  min-width: 2rem;
+  height: 2rem;
+  padding-inline: 0.4rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-radius: var(--admin-radius-small);
+
+  font-weight: 750;
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   GENERIC TABLE IMAGE
+========================================================== */
+
+:where(
+  .tableImage,
+  .adminTableImage,
+  .achievementImage,
+  .logroImage,
+  .memberImage,
+  .imagen-evento-tabla,
+  .imagen-noticia-tabla
+) {
+  display: block;
+
+  width: 5.5rem;
+  height: 3.75rem;
+
+  object-fit: cover;
+  object-position: center;
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-muted);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+}
+
+/* ==========================================================
+   MEMBER IMAGE
+========================================================== */
+
+.memberImage {
+  width: 4.5rem;
+  height: 4.5rem;
+
+  border: 2px solid var(--admin-surface);
+
+  border-radius: 0;
+
+  box-shadow:
+    0 0 0 1px var(--admin-border-color),
+    0 5px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================
+   IMAGE ERROR STATE
+========================================================== */
+
+:where(
+  .tableImageError,
+  .adminTableImageError,
+  .achievementImageError,
+  .logroImageError,
+  .memberImageError,
+  .imagen-evento-error,
+  .imagen-noticia-error
+) {
+  background: linear-gradient(
+    135deg,
+    var(--admin-surface-muted),
+    var(--admin-surface)
+  );
+
+  opacity: 0.75;
+}
+
+/* ==========================================================
+   GENERIC INFORMATION CELL
+========================================================== */
+
+:where(
+  .tableInfo,
+  .adminTableInfo,
+  .info-evento,
+  .info-noticia,
+  .memberInfo,
+  .logroTitle,
+  .achievementInfo
+) {
+  min-width: 10rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+:where(
+    .tableInfo,
+    .adminTableInfo,
+    .info-evento,
+    .info-noticia,
+    .memberInfo,
+    .logroTitle,
+    .achievementInfo
+  )
+  strong {
+  color: var(--admin-text);
+
+  font-size: 0.96rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+:where(
+    .tableInfo,
+    .adminTableInfo,
+    .info-evento,
+    .info-noticia,
+    .memberInfo,
+    .logroTitle,
+    .achievementInfo
+  )
+  :is(p, small) {
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   ACHIEVEMENT INFORMATION
+
+   Compatibilidad con el renderizador refactorizado.
+========================================================== */
+
+.achievementTitle {
+  color: var(--admin-text);
+
+  font-size: 0.96rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.achievementDescription {
+  width: min(100%, 24rem);
+  margin-top: 0.3rem;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: var(--admin-text-muted);
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+
+  -webkit-box-orient: vertical;
+
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+}
+
+/* ==========================================================
+   MEMBER INFORMATION
+========================================================== */
+
+.memberInfo {
+  min-width: 10rem;
+}
+
+.memberPosition {
+  max-width: 14rem;
+
+  color: var(--color-secondary-hover);
+
+  font-weight: 650;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+.memberDescription {
+  width: min(100%, 23rem);
+  margin: 0;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: #555555;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+
+  -webkit-box-orient: vertical;
+
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+}
+
+.memberDate {
+  color: var(--admin-text-muted);
+
+  font-size: 0.86rem;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   DATE AND TIME
+========================================================== */
+
+:where(
+  .tableDateTime,
+  .fecha-horario-evento,
+  .fecha-horario-noticia,
+  .adminTableDateTime
+) {
+  min-width: 9rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+:where(
+    .tableDateTime,
+    .fecha-horario-evento,
+    .fecha-horario-noticia,
+    .adminTableDateTime
+  )
+  span {
+  color: var(--admin-text);
+
+  font-weight: 650;
+
+  font-variant-numeric: tabular-nums;
+}
+
+:where(
+    .tableDateTime,
+    .fecha-horario-evento,
+    .fecha-horario-noticia,
+    .adminTableDateTime
+  )
+  small {
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+}
+
+/* ==========================================================
+   LOCATION
+========================================================== */
+
+:where(.tableLocation, .lugar-evento, .adminTableLocation) {
+  max-width: 15rem;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   IMAGE COUNT
+========================================================== */
+
+:where(.tableCount, .cantidad-imagenes, .adminTableCount) {
+  text-align: center;
+
+  font-weight: 750;
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   TABLE LINKS
+========================================================== */
+
+:where(.tableLink, .enlace-tabla, .adminTableLink) {
+  color: var(--color-secondary-hover);
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  overflow-wrap: anywhere;
+}
+
+:where(.tableLink, .enlace-tabla, .adminTableLink):hover {
+  color: var(--color-secondary);
+
+  text-decoration: underline;
+}
+
+:where(.tableLink, .enlace-tabla, .adminTableLink):focus-visible {
+  outline: none;
+
+  border-radius: var(--admin-radius-xs);
+
+  box-shadow: var(--admin-focus);
+}
+
+/* ==========================================================
+   BADGES
+========================================================== */
+
+:where(
+  .tableBadge,
+  .adminTableBadge,
+  .roleBadge,
+  .serviceBadge,
+  .featuredBadge,
+  .normalBadge,
+  .notFeaturedBadge
+) {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 1.8rem;
+  padding: 0.35rem 0.7rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+
+  border-radius: var(--admin-radius-pill);
+
+  font-size: 0.8rem;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  text-align: center;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   FEATURED BADGE
+========================================================== */
+
+.featuredBadge {
+  color: var(--color-primary-hover);
+
+  background-color: var(--color-primary-light);
+
+  border-color: rgba(73, 107, 36, 0.15);
+}
+
+/* ==========================================================
+   NOT FEATURED BADGE
+========================================================== */
+
+:where(.normalBadge, .notFeaturedBadge) {
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-muted);
+
+  border-color: var(--admin-border-color);
+}
+
+/* ==========================================================
+   ROLE BADGE
+========================================================== */
+
+.roleBadge {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+/* ==========================================================
+   SERVICE BADGES
+========================================================== */
+
+.roleServices {
+  max-width: 32rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  flex-wrap: wrap;
+}
+
+.serviceBadge {
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface-soft);
+
+  border-color: var(--admin-border-color);
+
+  font-size: 0.76rem;
+}
+
+/* ==========================================================
+   USER CELL
+========================================================== */
+
+.userCell {
+  min-width: 13rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.userCell .avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-radius: 50%;
+
+  font-size: 0.82rem;
+
+  font-weight: 800;
+
+  letter-spacing: 0.03em;
+
+  text-transform: uppercase;
+}
+
+.userCell .name {
+  color: var(--admin-text);
+
+  font-weight: 750;
+
+  line-height: 1.35;
+}
+
+.userCell .username {
+  margin-top: 0.15rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+}
+
+.usernameValue,
+.emailValue {
+  max-width: 16rem;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   STATUS SWITCH
+========================================================== */
+
+.switch {
+  width: 3rem;
+  height: 1.65rem;
+
+  position: relative;
+
+  display: inline-flex;
+
+  flex: 0 0 auto;
+}
+
+.switch input {
+  width: 1px;
+  height: 1px;
+
+  position: absolute;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.switch .slider {
+  position: absolute;
+  inset: 0;
+
+  background-color: var(--admin-border-color);
+
+  border-radius: var(--admin-radius-pill);
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition);
+}
+
+.switch .slider::before {
+  content: '';
+
+  width: 1.25rem;
+  height: 1.25rem;
+
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+
+  background-color: var(--admin-surface);
+
+  border-radius: 50%;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+
+  transition: transform var(--admin-transition);
+}
+
+.switch input:checked + .slider {
+  background-color: var(--color-primary);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(1.35rem);
+}
+
+.switch input:focus-visible + .slider {
+  box-shadow: var(--admin-focus);
+}
+
+.switch input:disabled + .slider {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+.switch.loading .slider::after {
+  content: '';
+
+  width: 0.75rem;
+  height: 0.75rem;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  border: 2px solid rgba(255, 255, 255, 0.65);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+
+  animation: adminTableSwitchSpinner 0.7s linear infinite;
+}
+
+@keyframes adminTableSwitchSpinner {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+:where(.emptyState, .estado-tabla, .adminEmptyState) {
+  width: 100%;
+  min-height: 19rem;
+  padding: clamp(2rem, 7vw, 4rem);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space);
+
+  color: var(--admin-text-muted);
+
+  background: radial-gradient(
+    circle at center,
+    var(--admin-secondary-hover-soft),
+    transparent 68%
+  );
+
+  text-align: center;
+}
+
+:where(.emptyState, .estado-tabla, .adminEmptyState) :is(h2, h3, p) {
+  margin: 0;
+}
+
+:where(.emptyState, .estado-tabla, .adminEmptyState) :is(h2, h3) {
+  color: var(--color-secondary-hover);
+
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+
+  line-height: 1.3;
+}
+
+:where(.emptyState, .estado-tabla, .adminEmptyState) p {
+  max-width: 32rem;
+
+  color: var(--admin-text-muted);
+
+  line-height: 1.55;
+}
+
+/* ==========================================================
+   EMPTY ICON
+========================================================== */
+
+:where(.emptyStateIcon, .estado-icono, .adminEmptyStateIcon) {
+  width: 4rem;
+  height: 4rem;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  font-size: 2rem;
+
+  font-weight: 800;
+}
+
+/* ==========================================================
+   TABLE LOADING
+========================================================== */
+
+.tableLoading,
+.adminTableLoading {
+  width: 100%;
+  min-height: 15rem;
+  padding: 3rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space);
+
+  color: var(--admin-text-muted);
+
+  font-weight: 650;
+
+  text-align: center;
+}
+
+/* ==========================================================
+   COMPACT TABLE
+========================================================== */
+
+:where(.tableCompact, .adminTableCompact) :is(th, td) {
+  padding: 0.65rem 0.75rem;
+}
+
+/* ==========================================================
+   CENTERED COLUMN
+========================================================== */
+
+:where(.tableCellCenter, .adminTableCellCenter) {
+  text-align: center !important;
+}
+
+/* ==========================================================
+   NUMERIC COLUMN
+========================================================== */
+
+:where(.tableCellNumeric, .adminTableCellNumeric) {
+  text-align: right !important;
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 900px) {
+  :where(
+    .table,
+    .tabla-eventos,
+    .tabla-noticias,
+    .tabla-miembros,
+    .tabla-usuarios,
+    .tabla-roles,
+    .adminTable
+  ) {
+    min-width: 58rem;
+  }
+
+  :where(.tabla-eventos, .tabla-noticias, .table.tableWide, .adminTableWide) {
+    min-width: 68rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :where(.tableContainer, .contenedor-tabla, .adminTableContainer) {
+    border-radius: var(--admin-radius);
+  }
+
+  :where(
+      .table,
+      .tabla-eventos,
+      .tabla-noticias,
+      .tabla-miembros,
+      .tabla-usuarios,
+      .tabla-roles,
+      .adminTable
+    )
+    :is(th, td) {
+    padding: 0.8rem;
+  }
+
+  :where(.emptyState, .estado-tabla, .adminEmptyState) {
+    min-height: 16rem;
+
+    padding: 2rem 1rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+      .table,
+      .tabla-eventos,
+      .tabla-noticias,
+      .tabla-miembros,
+      .tabla-usuarios,
+      .tabla-roles,
+      .adminTable
+    )
+    tbody
+    tr,
+  .switch .slider,
+  .switch .slider::before {
+    transition: none;
+  }
+
+  .switch.loading .slider::after {
+    animation: none;
+  }
+}

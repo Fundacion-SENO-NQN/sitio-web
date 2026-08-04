@@ -7,72 +7,94 @@ interface Props {
 
 const { eventoId, titulo, cantidad } = Astro.props
 
-const IMG_URL: string = (
+const IMG_URL = (
   import.meta.env.PUBLIC_IMG_URL ??
   'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
 ).replace(/\/+$/, '')
 
-const cantidadImagenes: number = Math.max(1, cantidad)
+const cantidadImagenes = Math.max(
+  1,
+  Number.isFinite(cantidad) ? Math.floor(cantidad) : 1
+)
 
-const imagenes: string[] = Array.from(
-  {
-    length: cantidadImagenes,
-  },
-  (_, index) => `${IMG_URL}/img_eventos/${eventoId}/${index}.avif`,
+const imagenes = Array.from(
+  { length: cantidadImagenes },
+  (_, index) => `${IMG_URL}/img_eventos/${eventoId}/${index}.avif`
 )
 ---
 
 <section
-  class="galeria"
-  data-galeria-evento
-  aria-label={`Galería de ${titulo}`}
+  class="event-gallery"
+  data-event-gallery
+  aria-label={`Galería de imágenes de ${titulo}`}
+  aria-roledescription="carrusel"
+  tabindex={imagenes.length > 1 ? 0 : undefined}
 >
-  <div class="visor">
+  <div class="event-gallery__viewport">
     {
-      imagenes.map((imagen, index) => (
-        <img
-          src={imagen}
-          alt={`Imagen ${index + 1} de ${titulo}`}
-          class:list={[
-            'imagen-principal',
-            {
-              activa: index === 0,
-            },
-          ]}
-          data-imagen-principal
-          loading={index === 0 ? 'eager' : 'lazy'}
-          fetchpriority={index === 0 ? 'high' : 'auto'}
-          decoding="async"
-          width="1600"
-          height="1000"
-        />
-      ))
+      imagenes.map((imagen, index) => {
+        const isActive = index === 0
+
+        return (
+          <img
+            class:list={[
+              'event-gallery__image',
+              {
+                'event-gallery__image--active': isActive
+              }
+            ]}
+            src={imagen}
+            alt={`Imagen ${index + 1} de ${titulo}`}
+            data-gallery-image
+            data-gallery-index={index}
+            hidden={!isActive}
+            aria-hidden={isActive ? 'false' : 'true'}
+            loading={isActive ? 'eager' : 'lazy'}
+            fetchpriority={isActive ? 'high' : 'auto'}
+            decoding="async"
+            draggable="false"
+            width="1600"
+            height="1000"
+          />
+        )
+      })
     }
 
     {
       imagenes.length > 1 && (
         <>
           <button
-            class="control control-anterior"
+            class="
+              event-gallery__control
+              event-gallery__control--previous
+            "
             type="button"
             aria-label="Mostrar imagen anterior"
-            data-galeria-anterior
+            data-gallery-previous
           >
-            ‹
+            <span aria-hidden="true">‹</span>
           </button>
 
           <button
-            class="control control-siguiente"
+            class="
+              event-gallery__control
+              event-gallery__control--next
+            "
             type="button"
             aria-label="Mostrar imagen siguiente"
-            data-galeria-siguiente
+            data-gallery-next
           >
-            ›
+            <span aria-hidden="true">›</span>
           </button>
 
-          <span class="contador" aria-live="polite" data-galeria-contador>
+          <p
+            class="event-gallery__counter"
+            aria-live="polite"
+            aria-atomic="true"
+            data-gallery-counter
+          >
             1 / {imagenes.length}
-          </span>
+          </p>
         </>
       )
     }
@@ -80,136 +102,199 @@ const imagenes: string[] = Array.from(
 
   {
     imagenes.length > 1 && (
-      <div class="miniaturas" aria-label="Seleccionar una imagen">
-        {imagenes.map((imagen, index) => (
-          <button
-            class:list={[
-              'miniatura',
-              {
-                activa: index === 0,
-              },
-            ]}
-            type="button"
-            aria-label={`Mostrar imagen ${index + 1}`}
-            aria-current={index === 0 ? 'true' : undefined}
-            data-galeria-miniatura={index}
-          >
-            <img src={imagen} alt="" loading="lazy" decoding="async" />
-          </button>
-        ))}
+      <div
+        class="event-gallery__thumbnails"
+        aria-label="Seleccionar imagen de la galería"
+      >
+        {imagenes.map((imagen, index) => {
+          const isActive = index === 0
+
+          return (
+            <button
+              class:list={[
+                'event-gallery__thumbnail',
+                {
+                  'event-gallery__thumbnail--active': isActive
+                }
+              ]}
+              type="button"
+              aria-label={`Mostrar imagen ${index + 1} de ${imagenes.length}`}
+              aria-pressed={isActive ? 'true' : 'false'}
+              data-gallery-thumbnail
+              data-gallery-index={index}
+            >
+              <img
+                src={imagen}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                width="240"
+                height="150"
+              />
+            </button>
+          )
+        })}
       </div>
     )
   }
 </section>
 
 <script>
-  ;(
-    Array.from(
-      document.querySelectorAll('[data-galeria-evento]'),
-    ) as HTMLElement[]
-  ).forEach((galeria: HTMLElement): void => {
-    const imagenes: HTMLImageElement[] = Array.from(
-      galeria.querySelectorAll('[data-imagen-principal]'),
+  const galleries = document.querySelectorAll<HTMLElement>(
+    '[data-event-gallery]'
+  )
+
+  galleries.forEach((gallery) => {
+    const images = Array.from(
+      gallery.querySelectorAll<HTMLImageElement>('[data-gallery-image]')
     )
 
-    const miniaturas: HTMLButtonElement[] = Array.from(
-      galeria.querySelectorAll('[data-galeria-miniatura]'),
+    const thumbnails = Array.from(
+      gallery.querySelectorAll<HTMLButtonElement>('[data-gallery-thumbnail]')
     )
 
-    const botonAnterior: HTMLButtonElement = galeria.querySelector(
-      '[data-galeria-anterior]',
-    ) as HTMLButtonElement
+    const previousButton = gallery.querySelector<HTMLButtonElement>(
+      '[data-gallery-previous]'
+    )
 
-    const botonSiguiente: HTMLButtonElement = galeria.querySelector(
-      '[data-galeria-siguiente]',
-    ) as HTMLButtonElement
+    const nextButton = gallery.querySelector<HTMLButtonElement>(
+      '[data-gallery-next]'
+    )
 
-    const contador: HTMLSpanElement = galeria.querySelector(
-      '[data-galeria-contador]',
-    ) as HTMLSpanElement
+    const counter = gallery.querySelector<HTMLElement>('[data-gallery-counter]')
 
-    let indiceActual: number = 0
+    if (images.length <= 1) return
 
-    function mostrarImagen(indice: number): void {
-      if (imagenes.length === 0) return
+    let currentIndex = 0
 
-      indiceActual = (indice + imagenes.length) % imagenes.length
+    const normalizeIndex = (index: number): number =>
+      (index + images.length) % images.length
 
-      imagenes.forEach(
-        (imagen: HTMLImageElement, indiceImagen: number): void => {
-          imagen.classList.toggle('activa', indiceImagen === indiceActual)
-        },
-      )
+    const showImage = (
+      requestedIndex: number,
+      focusThumbnail = false
+    ): void => {
+      currentIndex = normalizeIndex(requestedIndex)
 
-      miniaturas.forEach(
-        (miniatura: HTMLButtonElement, indiceMiniatura: number) => {
-          const activa: boolean = indiceMiniatura === indiceActual
+      images.forEach((image, index) => {
+        const isActive = index === currentIndex
 
-          miniatura.classList.toggle('activa', activa)
+        image.hidden = !isActive
 
-          if (activa) miniatura.setAttribute('aria-current', 'true')
-          else miniatura.removeAttribute('aria-current')
-        },
-      )
+        image.classList.toggle('event-gallery__image--active', isActive)
 
-      if (contador) {
-        contador.textContent = `${indiceActual + 1} / ${imagenes.length}`
+        image.setAttribute('aria-hidden', String(!isActive))
+      })
+
+      thumbnails.forEach((thumbnail, index) => {
+        const isActive = index === currentIndex
+
+        thumbnail.classList.toggle('event-gallery__thumbnail--active', isActive)
+
+        thumbnail.setAttribute('aria-pressed', String(isActive))
+      })
+
+      if (counter) {
+        counter.textContent = `${currentIndex + 1} / ${images.length}`
+      }
+
+      const activeThumbnail = thumbnails[currentIndex]
+
+      activeThumbnail?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      })
+
+      if (focusThumbnail) {
+        activeThumbnail?.focus()
       }
     }
 
-    botonAnterior?.addEventListener('click', () => {
-      mostrarImagen(indiceActual - 1)
+    previousButton?.addEventListener('click', () => {
+      showImage(currentIndex - 1)
     })
 
-    botonSiguiente?.addEventListener('click', () => {
-      mostrarImagen(indiceActual + 1)
+    nextButton?.addEventListener('click', () => {
+      showImage(currentIndex + 1)
     })
 
-    miniaturas.forEach((miniatura, index) => {
-      miniatura.addEventListener('click', () => {
-        mostrarImagen(index)
+    thumbnails.forEach((thumbnail) => {
+      thumbnail.addEventListener('click', () => {
+        const index = Number.parseInt(thumbnail.dataset.galleryIndex ?? '', 10)
+
+        if (!Number.isNaN(index)) {
+          showImage(index)
+        }
       })
     })
 
-    document.addEventListener('keydown', (event: KeyboardEvent): void => {
-      if (event.target === galeria) {
-        if (event.key === 'ArrowLeft') mostrarImagen(indiceActual - 1)
+    gallery.addEventListener('keydown', (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          showImage(currentIndex - 1)
+          break
 
-        if (event.key === 'ArrowRight') mostrarImagen(indiceActual + 1)
+        case 'ArrowRight':
+          event.preventDefault()
+          showImage(currentIndex + 1)
+          break
+
+        case 'Home':
+          event.preventDefault()
+          showImage(0, true)
+          break
+
+        case 'End':
+          event.preventDefault()
+          showImage(images.length - 1, true)
+          break
       }
     })
   })
 </script>
 
 <style>
-  .galeria {
+  .event-gallery {
     width: 100%;
     min-width: 0;
-
-    font-family: var(--text-font-primary);
   }
 
-  .visor {
-    position: relative;
+  .event-gallery:focus-visible {
+    outline: none;
+  }
 
+  .event-gallery__viewport {
     width: 100%;
+
+    position: relative;
 
     overflow: hidden;
 
-    border: 1px solid var(--color-light-grey);
-    border-radius: 1rem;
-
+    color: var(--color-background);
     background-color: var(--color-text);
+
+    border: 1px solid var(--color-light-grey);
+
+    border-radius: var(--radius);
+
     box-shadow: var(--shadow);
   }
 
-  .imagen-principal {
+  .event-gallery:focus-visible .event-gallery__viewport {
+    outline: 3px solid var(--color-primary);
+
+    outline-offset: 3px;
+  }
+
+  .event-gallery__image {
     width: 100%;
     height: auto;
     max-height: 42rem;
-    aspect-ratio: 16 / 10;
 
-    display: none;
+    aspect-ratio: 16 / 10;
 
     object-fit: contain;
     object-position: center;
@@ -217,11 +302,11 @@ const imagenes: string[] = Array.from(
     background-color: var(--color-text);
   }
 
-  .imagen-principal.activa {
-    display: block;
+  .event-gallery__image[hidden] {
+    display: none;
   }
 
-  .control {
+  .event-gallery__control {
     width: 2.8rem;
     height: 2.8rem;
     padding: 0;
@@ -232,13 +317,14 @@ const imagenes: string[] = Array.from(
     display: grid;
     place-items: center;
 
-    border: 0;
+    color: #ffffff;
+
+    background-color: rgba(0, 0, 0, 0.58);
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
     border-radius: 50%;
 
-    color: white;
-    background-color: rgba(0, 0, 0, 0.55);
-
-    font-family: inherit;
     font-size: 2rem;
     line-height: 1;
 
@@ -246,135 +332,179 @@ const imagenes: string[] = Array.from(
 
     transform: translateY(-50%);
 
+    backdrop-filter: blur(4px);
+
     transition:
-      background-color 0.2s ease,
-      transform 0.2s ease;
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .control:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+  .event-gallery__control:hover {
+    background-color: rgba(0, 0, 0, 0.82);
+
+    border-color: rgba(255, 255, 255, 0.6);
   }
 
-  .control:focus-visible {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 3px;
+  .event-gallery__control:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary);
   }
 
-  .control-anterior {
+  .event-gallery__control--previous {
     left: 1rem;
   }
 
-  .control-siguiente {
+  .event-gallery__control--next {
     right: 1rem;
   }
 
-  .contador {
+  .event-gallery__counter {
+    margin: 0;
+    padding: 0.35rem 0.7rem;
+
     position: absolute;
     right: 1rem;
     bottom: 1rem;
 
-    padding: 0.35rem 0.65rem;
+    color: #ffffff;
 
-    border-radius: 2rem;
+    background-color: rgba(0, 0, 0, 0.68);
 
-    color: white;
-    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 
-    font-size: 0.85rem;
-    font-weight: 700;
+    border-radius: 999px;
+
+    font-size: 0.82rem;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+
+    backdrop-filter: blur(4px);
   }
 
-  .miniaturas {
+  .event-gallery__thumbnails {
+    width: 100%;
     margin-top: 0.75rem;
+    padding: 0.15rem 0.1rem 0.4rem;
 
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    display: flex;
     gap: 0.65rem;
+
+    overflow-x: auto;
+
+    scroll-snap-type: x proximity;
+    scrollbar-color: var(--color-light-grey) transparent;
+    scrollbar-width: thin;
   }
 
-  .miniatura {
-    box-sizing: border-box;
+  .event-gallery__thumbnail {
+    width: clamp(5rem, 15vw, 7rem);
 
-    min-width: 0;
+    min-width: clamp(5rem, 15vw, 7rem);
+
     padding: 0;
 
     overflow: hidden;
 
-    border: 2px solid transparent;
-    border-radius: 0.7rem;
+    flex: 0 0 auto;
 
-    background: none;
+    background-color: var(--color-light-grey);
+
+    border: 2px solid transparent;
+    border-radius: var(--radius-small);
+
+    opacity: 0.65;
 
     cursor: pointer;
 
+    scroll-snap-align: start;
+
     transition:
-      border-color 0.2s ease,
-      transform 0.2s ease,
-      opacity 0.2s ease;
+      border-color var(--transition),
+      box-shadow var(--transition),
+      opacity var(--transition),
+      transform var(--transition);
   }
 
-  .miniatura img {
+  .event-gallery__thumbnail img {
     width: 100%;
-    height: 5rem;
-
-    display: block;
+    height: 4.75rem;
 
     object-fit: cover;
     object-position: center;
   }
 
-  .miniatura:not(.activa) {
-    opacity: 0.7;
-  }
-
-  .miniatura.activa {
+  .event-gallery__thumbnail--active {
     border-color: var(--color-secondary);
+
+    opacity: 1;
+
+    box-shadow: 0 0 0 2px var(--color-secondary-light);
+  }
+
+  .event-gallery__thumbnail:hover {
     opacity: 1;
   }
 
-  .miniatura:hover {
-    opacity: 1;
-    transform: translateY(-2px);
+  .event-gallery__thumbnail:focus-visible {
+    outline: none;
+
+    border-color: var(--color-secondary);
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
   }
 
-  .miniatura:focus-visible {
-    outline: 3px solid var(--color-secondary-light);
-    outline-offset: 2px;
+  @media (hover: hover) {
+    .event-gallery__control:hover {
+      transform: translateY(-50%) scale(1.06);
+    }
+
+    .event-gallery__thumbnail:hover {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 560px) {
-    .imagen-principal {
+    .event-gallery__image {
       aspect-ratio: 4 / 3;
     }
 
-    .control {
+    .event-gallery__control {
       width: 2.35rem;
       height: 2.35rem;
 
       font-size: 1.65rem;
     }
 
-    .control-anterior {
+    .event-gallery__control--previous {
       left: 0.55rem;
     }
 
-    .control-siguiente {
+    .event-gallery__control--next {
       right: 0.55rem;
     }
 
-    .contador {
+    .event-gallery__counter {
       right: 0.55rem;
       bottom: 0.55rem;
     }
 
-    .miniatura img {
-      height: 4rem;
+    .event-gallery__thumbnail {
+      width: 5rem;
+      min-width: 5rem;
+    }
+
+    .event-gallery__thumbnail img {
+      height: 3.8rem;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .control,
-    .miniatura {
+    .event-gallery__control,
+    .event-gallery__thumbnail {
       transition: none;
     }
   }

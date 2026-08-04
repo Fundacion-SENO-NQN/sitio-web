@@ -1,5 +1,7 @@
 const MAX_IMAGES = 10
 
+const MAX_IMAGE_SIZE = 12 * 1024 * 1024
+
 const VALID_IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -7,63 +9,61 @@ const VALID_IMAGE_TYPES = new Set([
   'image/avif'
 ])
 
-/**
- * Construye el FormData utilizado para crear o editar
- * un evento.
- *
- * En edición:
- * - Los campos vacíos opcionales se envían como texto vacío
- *   para que el backend los guarde como NULL.
- * - Si no hay imágenes nuevas, no se envía "images" y se
- *   conservan las imágenes actuales.
- * - Si hay imágenes nuevas, reemplazan todas las actuales.
- */
-export function buildEventoFormData({
+/* ==========================================================
+   FORM DATA
+========================================================== */
+
+export function buildEventFormData({
   titulo,
   descripcion,
-  lugar,
-  fecha,
-  horario,
-  url,
-  urlTitulo,
-  images = []
-}) {
-  const tituloLimpio = cleanRequiredText(titulo, 'El título es requerido.')
 
-  const descripcionLimpia = cleanRequiredText(
+  lugar = '',
+  fecha = '',
+  horario = '',
+
+  url = '',
+
+  /*
+   * Aceptamos ambos nombres para facilitar la migración del
+   * código anterior.
+   */
+  urlTitulo = '',
+  urlTitle = '',
+
+  images = []
+} = {}) {
+  const cleanTitle = cleanRequiredText(titulo, 'El título es requerido.')
+
+  const cleanDescription = cleanRequiredText(
     descripcion,
     'La descripción es requerida.'
   )
 
-  const imagenes = Array.from(images)
+  const cleanUrl = cleanOptionalText(url)
 
-  validateImages(imagenes)
+  const cleanUrlTitle = cleanOptionalText(urlTitulo || urlTitle)
 
-  const urlLimpia = cleanOptionalText(url)
+  const normalizedImages = normalizeImages(images)
 
-  const urlTituloLimpio = cleanOptionalText(urlTitulo)
+  validateEventImages(normalizedImages)
 
-  if (urlTituloLimpio && !urlLimpia) {
-    throw new Error(
-      'No podés agregar un texto para el botón sin ingresar una URL.'
-    )
-  }
+  validateEventUrl({
+    url: cleanUrl,
 
-  if (urlLimpia && !isValidHttpUrl(urlLimpia)) {
-    throw new Error('La URL debe comenzar con http:// o https://.')
-  }
+    urlTitle: cleanUrlTitle
+  })
 
   const formData = new FormData()
 
-  formData.append('titulo', tituloLimpio)
+  formData.append('titulo', cleanTitle)
 
-  formData.append('descripcion', descripcionLimpia)
+  formData.append('descripcion', cleanDescription)
 
   /*
-   * Estos campos siempre se envían.
+   * Estos campos se agregan incluso cuando están vacíos.
    *
-   * Si están vacíos, el backend los transforma en NULL.
-   * Esto permite eliminar un valor existente durante PATCH.
+   * De esta manera, durante un PATCH, el backend puede
+   * reemplazar el valor existente por NULL.
    */
   formData.append('lugar', cleanOptionalText(lugar))
 
@@ -72,62 +72,117 @@ export function buildEventoFormData({
   formData.append('horario', cleanOptionalText(horario))
 
   /*
-   * Una URL vacía durante PATCH elimina la relación
-   * con url_eventos.
+   * Una URL vacía permite eliminar el enlace anteriormente
+   * relacionado con el evento.
    */
-  formData.append('url', urlLimpia)
+  formData.append('url', cleanUrl)
 
-  formData.append('url_titulo', urlTituloLimpio)
+  formData.append('url_titulo', cleanUrlTitle)
 
   /*
-   * El backend acepta varias imágenes usando el mismo
-   * nombre de campo.
+   * Axum recibe todas las imágenes mediante campos con el
+   * mismo nombre.
+   *
+   * Si no hay imágenes nuevas, no se agrega ningún campo
+   * "images" y se conservan las imágenes actuales.
    */
-  imagenes.forEach((image) => {
+  normalizedImages.forEach((image) => {
     formData.append('images', image, image.name)
   })
 
   return formData
 }
 
+/*
+ * Alias temporal para archivos que todavía utilicen el
+ * nombre anterior en español.
+ */
+export const buildEventoFormData = buildEventFormData
+
 /* ==========================================================
-   VALIDACIÓN DE IMÁGENES
+   IMAGE VALIDATION
 ========================================================== */
 
-export function validateImages(images) {
-  if (!Array.isArray(images)) {
+export function validateEventImages(images) {
+  if (!Array.isArray(images))
     throw new TypeError('La lista de imágenes no es válida.')
-  }
 
-  if (images.length > MAX_IMAGES) {
+  if (images.length > MAX_IMAGES)
     throw new Error(`Podés seleccionar como máximo ${MAX_IMAGES} imágenes.`)
-  }
 
   images.forEach((image, index) => {
-    if (!(image instanceof File)) {
-      throw new TypeError(`La imagen ${index + 1} no es un archivo válido.`)
-    }
-
-    if (!VALID_IMAGE_TYPES.has(image.type)) {
-      throw new Error(`La imagen ${index + 1} no tiene un formato permitido.`)
-    }
-
-    if (image.size === 0) {
-      throw new Error(`La imagen ${index + 1} está vacía.`)
-    }
+    validateEventImage(image, index)
   })
+
+  return images
+}
+
+/*
+ * Alias compatible con el modal anterior.
+ */
+export const validateImages = validateEventImages
+
+function validateEventImage(image, index) {
+  const position = index + 1
+
+  if (!(image instanceof File))
+    throw new TypeError(`La imagen ${position} no es un archivo válido.`)
+
+  if (!VALID_IMAGE_TYPES.has(image.type))
+    throw new Error(`La imagen ${position} no tiene un formato permitido.`)
+
+  if (image.size === 0) throw new Error(`La imagen ${position} está vacía.`)
+
+  if (image.size > MAX_IMAGE_SIZE)
+    throw new Error(`La imagen ${position} supera el límite de 12 MB.`)
 }
 
 /* ==========================================================
-   HELPERS
+   URL VALIDATION
+========================================================== */
+
+export function validateEventUrl({ url, urlTitle } = {}) {
+  const cleanUrl = cleanOptionalText(url)
+
+  const cleanUrlTitle = cleanOptionalText(urlTitle)
+
+  if (cleanUrlTitle && !cleanUrl)
+    throw new Error(
+      'No podés agregar un texto para el botón sin ingresar una URL.'
+    )
+
+  if (cleanUrl && !isValidHttpUrl(cleanUrl))
+    throw new Error('La URL debe comenzar con http:// o https://.')
+
+  return true
+}
+
+/* ==========================================================
+   FILE NORMALIZATION
+========================================================== */
+
+function normalizeImages(images) {
+  if (images === null || images === undefined) return []
+
+  /*
+   * Admite FileList, arreglos y el arreglo expuesto por
+   * createImagePicker().
+   */
+  try {
+    return Array.from(images)
+  } catch {
+    throw new TypeError('La lista de imágenes no es válida.')
+  }
+}
+
+/* ==========================================================
+   TEXT
 ========================================================== */
 
 function cleanRequiredText(value, errorMessage) {
   const cleaned = String(value ?? '').trim()
 
-  if (!cleaned) {
-    throw new Error(errorMessage)
-  }
+  if (!cleaned) throw new Error(errorMessage)
 
   return cleaned
 }
@@ -135,6 +190,10 @@ function cleanRequiredText(value, errorMessage) {
 function cleanOptionalText(value) {
   return String(value ?? '').trim()
 }
+
+/* ==========================================================
+   URL
+========================================================== */
 
 function isValidHttpUrl(value) {
   try {

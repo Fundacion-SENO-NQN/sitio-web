@@ -1,229 +1,437 @@
 ---
-import MainNav from './Header/MainNav.astro'
 import BtnQuieroAyudar from './Header/BtnQuieroAyudar.astro'
 import Logo from './Header/Logo.astro'
+import MainNav from './Header/MainNav.astro'
 ---
 
-<header class="header" data-header>
-  <Logo />
+<site-header class="site-header">
+  <header class="site-header__bar">
+    <Logo />
 
-  <button
-    class="menu-button"
-    type="button"
-    aria-label="Abrir menú de navegación"
-    aria-expanded="false"
-    aria-controls="header-navigation"
-    data-menu-button
-  >
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
+    <button
+      class="site-header__menu-button"
+      type="button"
+      aria-label="Abrir menú de navegación"
+      aria-expanded="false"
+      aria-controls="header-navigation"
+      data-menu-button
+    >
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
 
-  <div class="header-navigation" id="header-navigation" data-menu>
-    <MainNav />
-    <BtnQuieroAyudar />
-  </div>
-</header>
+    <div class="site-header__navigation" id="header-navigation" data-menu>
+      <MainNav />
+
+      <BtnQuieroAyudar />
+    </div>
+  </header>
+</site-header>
 
 <script>
-  const header = document.querySelector<HTMLElement>('[data-header]')
-  const menuButton =
-    header?.querySelector<HTMLButtonElement>('[data-menu-button]')
-  const menu = header?.querySelector<HTMLElement>('[data-menu]')
+  class SiteHeader extends HTMLElement {
+    private menuButton: HTMLButtonElement | null = null
+    private menu: HTMLElement | null = null
 
-  const closeMenu = () => {
-    if (!header || !menuButton) return
+    private abortController: AbortController | null = null
 
-    header.classList.remove('menu-open')
-    menuButton.setAttribute('aria-expanded', 'false')
-    menuButton.setAttribute('aria-label', 'Abrir menú de navegación')
+    private desktopMediaQuery = window.matchMedia('(min-width: 1101px)')
+
+    connectedCallback(): void {
+      if (this.abortController) return
+
+      this.menuButton =
+        this.querySelector<HTMLButtonElement>('[data-menu-button]')
+
+      this.menu = this.querySelector<HTMLElement>('[data-menu]')
+
+      if (!this.menuButton || !this.menu) {
+        return
+      }
+
+      this.abortController = new AbortController()
+
+      const { signal } = this.abortController
+
+      this.dataset.enhanced = ''
+
+      this.menuButton.addEventListener('click', this.handleMenuButtonClick, {
+        signal
+      })
+
+      this.menu.addEventListener('click', this.handleMenuClick, { signal })
+
+      document.addEventListener('click', this.handleDocumentClick, { signal })
+
+      document.addEventListener('keydown', this.handleDocumentKeydown, {
+        signal
+      })
+
+      this.desktopMediaQuery.addEventListener(
+        'change',
+        this.handleViewportChange
+      )
+
+      this.synchronizeViewport()
+    }
+
+    disconnectedCallback(): void {
+      this.abortController?.abort()
+      this.abortController = null
+
+      this.desktopMediaQuery.removeEventListener(
+        'change',
+        this.handleViewportChange
+      )
+
+      delete this.dataset.enhanced
+      delete this.dataset.menuOpen
+    }
+
+    private isDesktop(): boolean {
+      return this.desktopMediaQuery.matches
+    }
+
+    private isMenuOpen(): boolean {
+      return this.menuButton?.getAttribute('aria-expanded') === 'true'
+    }
+
+    private setMenuState(open: boolean, focusButton = false): void {
+      if (!this.menuButton || !this.menu) {
+        return
+      }
+
+      /*
+       * En escritorio la navegación siempre debe permanecer
+       * disponible, independientemente del estado móvil.
+       */
+      if (this.isDesktop()) {
+        this.menuButton.setAttribute('aria-expanded', 'false')
+
+        this.menuButton.setAttribute('aria-label', 'Abrir menú de navegación')
+
+        this.menu.setAttribute('aria-hidden', 'false')
+
+        this.menu.removeAttribute('inert')
+
+        delete this.dataset.menuOpen
+
+        return
+      }
+
+      this.menuButton.setAttribute('aria-expanded', String(open))
+
+      this.menuButton.setAttribute(
+        'aria-label',
+        open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
+      )
+
+      this.menu.setAttribute('aria-hidden', String(!open))
+
+      this.menu.toggleAttribute('inert', !open)
+
+      this.toggleAttribute('data-menu-open', open)
+
+      if (focusButton) {
+        this.menuButton.focus()
+      }
+    }
+
+    private closeMenu(focusButton = false): void {
+      if (this.isDesktop() || !this.isMenuOpen()) {
+        return
+      }
+
+      this.setMenuState(false, focusButton)
+    }
+
+    private synchronizeViewport(): void {
+      this.setMenuState(false)
+    }
+
+    private handleMenuButtonClick = (): void => {
+      this.setMenuState(!this.isMenuOpen())
+    }
+
+    private handleMenuClick = (event: MouseEvent): void => {
+      const target = event.target
+
+      if (target instanceof Element && target.closest('a')) {
+        this.closeMenu()
+      }
+    }
+
+    private handleDocumentClick = (event: MouseEvent): void => {
+      const target = event.target
+
+      if (target instanceof Node && !this.contains(target)) {
+        this.closeMenu()
+      }
+    }
+
+    private handleDocumentKeydown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape' || !this.isMenuOpen()) {
+        return
+      }
+
+      event.preventDefault()
+
+      this.closeMenu(true)
+    }
+
+    private handleViewportChange = (): void => {
+      this.synchronizeViewport()
+    }
   }
 
-  menuButton?.addEventListener('click', () => {
-    if (!header) return
-
-    const isOpen = header.classList.toggle('menu-open')
-
-    menuButton.setAttribute('aria-expanded', String(isOpen))
-    menuButton.setAttribute(
-      'aria-label',
-      isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación',
-    )
-  })
-
-  menu?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeMenu)
-  })
-
-  document.addEventListener('click', (event) => {
-    if (
-      header &&
-      event.target instanceof Node &&
-      !header.contains(event.target)
-    ) {
-      closeMenu()
-    }
-  })
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeMenu()
-      menuButton?.focus()
-    }
-  })
-
-  window
-    .matchMedia('(min-width: 1101px)')
-    .addEventListener('change', ({ matches }) => {
-      if (matches) closeMenu()
-    })
+  if (!customElements.get('site-header')) {
+    customElements.define('site-header', SiteHeader)
+  }
 </script>
 
 <style>
-  .header {
-    box-sizing: border-box;
+  .site-header {
     width: 100%;
-    min-height: min-content;
-    padding: 1.5rem clamp(1rem, 3vw, 2rem);
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: clamp(1rem, 2vw, 2.5rem);
 
     position: relative;
     z-index: 1000;
 
+    display: block;
+
     background-color: var(--color-background);
   }
 
-  .header-navigation {
-    min-width: 0;
-    flex: 1;
+  .site-header__bar {
+    width: min(100%, 100rem);
+
+    margin-inline: auto;
+
+    padding: 1.5rem clamp(1rem, 3vw, 2rem);
 
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+
+    gap: clamp(1rem, 2vw, 2.5rem);
+
+    position: relative;
+  }
+
+  .site-header__navigation {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 1 1 auto;
+
     gap: clamp(1rem, 2vw, 2.5rem);
   }
 
-  .menu-button {
+  /* ========================================================
+     MENU BUTTON
+  ======================================================== */
+
+  .site-header__menu-button {
     width: 3rem;
     height: 3rem;
+
     padding: 0.65rem;
 
     display: none;
-    flex-direction: column;
+    align-items: stretch;
     justify-content: center;
+    flex-direction: column;
     gap: 0.35rem;
 
-    border: none;
-    border-radius: 0.75rem;
+    flex: 0 0 auto;
+
+    color: var(--color-text);
     background-color: transparent;
+
+    border: 1px solid transparent;
+
+    border-radius: var(--radius-small);
+
     cursor: pointer;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition);
   }
 
-  .menu-button span {
+  .site-header__menu-button span {
     width: 100%;
     height: 2px;
 
     display: block;
 
-    border-radius: 2rem;
-    background-color: var(--color-text);
+    background-color: currentColor;
+
+    border-radius: 999px;
 
     transform-origin: center;
+
     transition:
-      transform 0.25s ease,
-      opacity 0.25s ease;
+      opacity var(--transition),
+      transform var(--transition);
   }
 
-  .menu-button:hover {
-    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  .site-header__menu-button:hover {
+    color: var(--color-primary-hover);
+
+    background-color: rgba(131, 192, 67, 0.12);
+
+    border-color: var(--color-primary-light);
   }
 
-  .menu-button:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 3px;
+  .site-header__menu-button:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
   }
+
+  /* ========================================================
+     OPEN MENU BUTTON
+  ======================================================== */
+
+  .site-header__menu-button[aria-expanded='true'] span:nth-child(1) {
+    transform: translateY(0.45rem) rotate(45deg);
+  }
+
+  .site-header__menu-button[aria-expanded='true'] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-header__menu-button[aria-expanded='true'] span:nth-child(3) {
+    transform: translateY(-0.45rem) rotate(-45deg);
+  }
+
+  /* ========================================================
+     MOBILE NAVIGATION
+  ======================================================== */
 
   @media (max-width: 1100px) {
-    .header {
+    .site-header__bar {
       padding: 0.75rem 1rem;
+
+      flex-wrap: wrap;
     }
 
-    .menu-button {
+    /*
+     * Sin JavaScript, la navegación se mantiene visible y
+     * forma parte del flujo normal del documento.
+     */
+    .site-header__navigation {
+      width: 100%;
+
       display: flex;
-      flex-shrink: 0;
-      margin-left: auto;
+      align-items: stretch;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    .header-navigation {
+    /*
+     * El botón solo aparece cuando el custom element ya fue
+     * inicializado correctamente.
+     */
+    .site-header[data-enhanced] .site-header__menu-button {
+      margin-left: auto;
+
+      display: flex;
+    }
+
+    /*
+     * Con JavaScript activo, el menú se transforma en un
+     * panel desplegable.
+     */
+    .site-header[data-enhanced] .site-header__navigation {
       width: auto;
+
       padding: 1.25rem;
 
       position: absolute;
-      top: calc(100% + 0.25rem);
+      top: calc(100% + 0.35rem);
+
       right: 1rem;
       left: 1rem;
 
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 1.25rem;
+      z-index: 10;
 
-      border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
-      border-radius: 1rem;
+      color: var(--color-text);
       background-color: var(--color-background);
+
+      border: 1px solid rgba(18, 18, 18, 0.14);
+
+      border-radius: var(--radius);
+
       box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.14);
 
       opacity: 0;
       visibility: hidden;
+
       pointer-events: none;
+
       transform: translateY(-0.75rem);
 
       transition:
-        opacity 0.25s ease,
-        visibility 0.25s ease,
-        transform 0.25s ease;
+        opacity var(--transition),
+        visibility var(--transition),
+        transform var(--transition);
     }
 
-    .header.menu-open .header-navigation {
+    .site-header[data-enhanced] .site-header__navigation[aria-hidden='false'] {
       opacity: 1;
       visibility: visible;
+
       pointer-events: auto;
+
       transform: translateY(0);
-    }
-
-    .header.menu-open .menu-button span:nth-child(1) {
-      transform: translateY(0.45rem) rotate(45deg);
-    }
-
-    .header.menu-open .menu-button span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .header.menu-open .menu-button span:nth-child(3) {
-      transform: translateY(-0.45rem) rotate(-45deg);
     }
   }
 
+  /* ========================================================
+     MOBILE
+  ======================================================== */
+
   @media (max-width: 480px) {
-    .header {
+    .site-header__bar {
       padding-inline: 0.75rem;
     }
 
-    .header-navigation {
+    .site-header[data-enhanced] .site-header__navigation {
       right: 0.75rem;
       left: 0.75rem;
+
       padding: 1rem;
     }
   }
 
+  /* ========================================================
+     VERY SMALL SCREENS
+  ======================================================== */
+
+  @media (max-width: 350px) {
+    .site-header__menu-button {
+      width: 2.75rem;
+      height: 2.75rem;
+
+      padding: 0.58rem;
+    }
+  }
+
+  /* ========================================================
+     REDUCED MOTION
+  ======================================================== */
+
   @media (prefers-reduced-motion: reduce) {
-    .header-navigation,
-    .menu-button span {
+    .site-header__navigation,
+    .site-header__menu-button,
+    .site-header__menu-button span {
       transition: none;
     }
   }

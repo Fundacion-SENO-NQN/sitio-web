@@ -1,0 +1,686 @@
+/* ==========================================================
+   ADMIN BUTTONS
+
+   Clases recomendadas para código nuevo:
+   - .button
+   - .buttonPrimary
+   - .buttonSecondary
+   - .buttonGhost
+   - .buttonDanger
+   - .buttonSuccess
+   - .tableButton
+   - .orderButton
+
+   Se conservan alias en español para los módulos existentes.
+========================================================== */
+
+/* ==========================================================
+   GENERAL BUTTON
+========================================================== */
+
+:where(.button, .boton, .adminButton) {
+  appearance: none;
+
+  min-height: var(--admin-control-height);
+
+  padding: 0.7rem 1.1rem;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: var(--admin-space-small);
+
+  flex-shrink: 0;
+
+  border: 1px solid transparent;
+
+  border-radius: var(--admin-radius);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  font: inherit;
+
+  font-size: 0.92rem;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  text-align: center;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.button, .boton, .adminButton):hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+:where(.button, .boton, .adminButton):active:not(:disabled) {
+  transform: translateY(0);
+}
+
+:where(.button, .boton, .adminButton):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.button, .boton, .adminButton):disabled,
+:where(.button, .boton, .adminButton)[aria-disabled='true'] {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  pointer-events: none;
+}
+
+:where(.button, .boton, .adminButton)[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* ==========================================================
+   PRIMARY
+
+   El azul se utiliza como acción administrativa principal.
+========================================================== */
+
+:where(.buttonPrimary, .boton-principal, .adminButtonPrimary) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+}
+
+:where(.buttonPrimary, .boton-principal, .adminButtonPrimary):hover:not(
+    :disabled
+  ) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary-hover);
+
+  border-color: var(--color-secondary-hover);
+
+  box-shadow: var(--admin-shadow-button);
+}
+
+/* ==========================================================
+   SECONDARY
+========================================================== */
+
+:where(.buttonSecondary, .boton-secundario, .adminButtonSecondary) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+:where(.buttonSecondary, .boton-secundario, .adminButtonSecondary):hover:not(
+    :disabled
+  ) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+}
+
+/* ==========================================================
+   GHOST / CANCEL
+========================================================== */
+
+:where(.buttonGhost, .boton-cancelar, .adminButtonGhost) {
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border-color: var(--admin-border-color);
+}
+
+:where(.buttonGhost, .boton-cancelar, .adminButtonGhost):hover:not(:disabled) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-surface-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+/* ==========================================================
+   DANGER
+========================================================== */
+
+:where(.buttonDanger, .boton-peligro, .adminButtonDanger) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-red);
+
+  border-color: var(--color-red);
+}
+
+:where(.buttonDanger, .boton-peligro, .adminButtonDanger):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: #a91f1f;
+
+  border-color: #a91f1f;
+
+  box-shadow: var(--admin-shadow-danger);
+}
+
+/* ==========================================================
+   SUCCESS
+========================================================== */
+
+:where(.buttonSuccess, .boton-exito, .adminButtonSuccess) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-primary);
+
+  border-color: var(--color-primary);
+}
+
+:where(.buttonSuccess, .boton-exito, .adminButtonSuccess):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-primary-hover);
+
+  border-color: var(--color-primary-hover);
+}
+
+/* ==========================================================
+   BUTTON SIZES
+========================================================== */
+
+:where(.buttonSmall, .boton-pequeno, .adminButtonSmall) {
+  min-height: 2.25rem;
+
+  padding: 0.48rem 0.78rem;
+
+  border-radius: var(--admin-radius-small);
+
+  font-size: 0.82rem;
+}
+
+:where(.buttonLarge, .boton-grande, .adminButtonLarge) {
+  min-height: 3.15rem;
+
+  padding: 0.85rem 1.4rem;
+
+  font-size: 1rem;
+}
+
+:where(.buttonBlock, .boton-bloque, .adminButtonBlock) {
+  width: 100%;
+}
+
+/* ==========================================================
+   ICON BUTTON
+========================================================== */
+
+:where(.iconButton, .boton-icono, .adminIconButton) {
+  appearance: none;
+
+  width: 2.5rem;
+
+  height: 2.5rem;
+
+  padding: 0;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid transparent;
+
+  border-radius: 50%;
+
+  color: var(--admin-text-muted);
+
+  background-color: transparent;
+
+  font: inherit;
+
+  font-size: 1.25rem;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.iconButton, .boton-icono, .adminIconButton):hover:not(:disabled) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+}
+
+:where(.iconButton, .boton-icono, .adminIconButton):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.iconButton, .boton-icono, .adminIconButton):disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   TABLE ACTION CONTAINER
+========================================================== */
+
+.actions,
+.acciones-evento,
+.acciones-noticia,
+.acciones-miembro,
+.adminTableActions {
+  min-width: 10.5rem;
+  height: 100%;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: var(--admin-space-small);
+
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   TABLE BUTTON
+========================================================== */
+
+:where(.tableButton, .boton-tabla, .adminTableButton) {
+  appearance: none;
+
+  min-height: 2.25rem;
+
+  padding: 0.48rem 0.78rem;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.35rem;
+
+  border: 1px solid var(--color-secondary-light);
+
+  border-radius: var(--admin-radius-small);
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  font: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.tableButton, .boton-tabla, .adminTableButton):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+
+  transform: translateY(-1px);
+}
+
+:where(.tableButton, .boton-tabla, .adminTableButton):active:not(:disabled) {
+  transform: translateY(0);
+}
+
+:where(.tableButton, .boton-tabla, .adminTableButton):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.tableButton, .boton-tabla, .adminTableButton):disabled,
+:where(.tableButton, .boton-tabla, .adminTableButton)[aria-disabled='true'] {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  pointer-events: none;
+
+  transform: none;
+}
+
+/* ==========================================================
+   TABLE EDIT ACTION
+========================================================== */
+
+:where(
+  .tableButton.edit,
+  .boton-tabla.boton-editar,
+  .boton-editar,
+  .adminTableButtonEdit
+) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-color: var(--color-secondary-light);
+}
+
+:where(
+    .tableButton.edit,
+    .boton-tabla.boton-editar,
+    .boton-editar,
+    .adminTableButtonEdit
+  ):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+}
+
+/* ==========================================================
+   TABLE DELETE ACTION
+========================================================== */
+
+:where(
+  .tableButton.delete,
+  .boton-tabla.boton-eliminar,
+  .boton-eliminar,
+  .adminTableButtonDelete
+) {
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--admin-danger-border);
+}
+
+:where(
+    .tableButton.delete,
+    .boton-tabla.boton-eliminar,
+    .boton-eliminar,
+    .adminTableButtonDelete
+  ):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-red);
+
+  border-color: var(--color-red);
+}
+
+/* ==========================================================
+   TABLE NEUTRAL ACTION
+========================================================== */
+
+:where(
+  .tableButton.secondary,
+  .boton-tabla.secundario,
+  .adminTableButtonSecondary
+) {
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface-soft);
+
+  border-color: var(--admin-border-color);
+}
+
+:where(
+    .tableButton.secondary,
+    .boton-tabla.secundario,
+    .adminTableButtonSecondary
+  ):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--admin-text-muted);
+
+  border-color: var(--admin-text-muted);
+}
+
+/* ==========================================================
+   ORDER BUTTONS
+========================================================== */
+
+.orderButtons,
+.botones-orden,
+.adminOrderButtons {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: var(--admin-space-xs);
+}
+
+:where(.orderButton, .boton-orden, .adminOrderButton) {
+  appearance: none;
+
+  width: 1.75rem;
+
+  height: 1.55rem;
+
+  padding: 0;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  border: 1px solid var(--admin-border-color);
+
+  border-radius: var(--admin-radius-xs);
+
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-surface);
+
+  font: inherit;
+
+  font-size: 0.8rem;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.orderButton, .boton-orden, .adminOrderButton):hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-color: var(--color-secondary);
+
+  transform: scale(1.05);
+}
+
+:where(.orderButton, .boton-orden, .adminOrderButton):active:not(:disabled) {
+  transform: scale(1);
+}
+
+:where(.orderButton, .boton-orden, .adminOrderButton):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.orderButton, .boton-orden, .adminOrderButton):disabled {
+  opacity: 0.3;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* ==========================================================
+   BUTTON GROUP
+========================================================== */
+
+.buttonGroup,
+.grupo-botones,
+.adminButtonGroup {
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--admin-space);
+
+  flex-wrap: wrap;
+}
+
+.buttonGroupEnd,
+.grupo-botones-final {
+  justify-content: flex-end;
+}
+
+/* ==========================================================
+   LOADING STATE
+========================================================== */
+
+:where(
+  .button,
+  .boton,
+  .adminButton,
+  .tableButton,
+  .boton-tabla,
+  .adminTableButton
+)[aria-busy='true'] {
+  position: relative;
+
+  cursor: progress;
+}
+
+:where(
+    .button,
+    .boton,
+    .adminButton,
+    .tableButton,
+    .boton-tabla,
+    .adminTableButton
+  )[aria-busy='true']::before {
+  content: '';
+
+  width: 0.9em;
+
+  height: 0.9em;
+
+  flex: 0 0 auto;
+
+  border: 2px solid currentColor;
+
+  border-right-color: transparent;
+
+  border-radius: 50%;
+
+  animation: adminButtonSpinner 0.7s linear infinite;
+}
+
+@keyframes adminButtonSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 640px) {
+  .buttonGroupResponsive,
+  .grupo-botones-responsive {
+    width: 100%;
+
+    flex-direction: column;
+  }
+
+  .buttonGroupResponsive > *,
+  .grupo-botones-responsive > * {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .button,
+    .boton,
+    .adminButton,
+    .tableButton,
+    .boton-tabla,
+    .adminTableButton,
+    .orderButton,
+    .boton-orden,
+    .adminOrderButton
+  ) {
+    transition: none;
+  }
+
+  :where(
+      .button,
+      .boton,
+      .adminButton,
+      .tableButton,
+      .boton-tabla,
+      .adminTableButton
+    )[aria-busy='true']::before {
+    animation: none;
+  }
+}

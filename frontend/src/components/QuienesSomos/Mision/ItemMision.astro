@@ -7,36 +7,39 @@ interface Props {
 
 const { mision } = Astro.props
 
-const icons: Record<string, string> = import.meta.glob(
-  '../../../assets/icon-mision/*.svg',
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
-)
+const icons = import.meta.glob<string>('../../../assets/icon-mision/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true
+})
 
-const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
+const iconPath = `../../../assets/icon-mision/${mision.img}.svg`
+
+const icono = icons[iconPath]
 ---
 
-<li class="item-lista">
-  <div class="inicio-borde" aria-hidden="true"></div>
+<li class="mission-card">
+  <span class="mission-card__connector" aria-hidden="true"></span>
 
-  <div class="contenedor-titulo">
-    <h3 class="titulo">{mision.titulo}</h3>
-  </div>
+  <header class="mission-card__header">
+    <h3>{mision.titulo}</h3>
+  </header>
 
-  <div class="contenedor-contenido">
+  <div class="mission-card__body">
     <p>{mision.contenido}</p>
 
-    <div class="icono-mision" aria-hidden="true">
-      <Fragment set:html={icono} />
-    </div>
+    {
+      icono && (
+        <div class="mission-card__icon" aria-hidden="true">
+          <Fragment set:html={icono} />
+        </div>
+      )
+    }
   </div>
 </li>
 
 <style>
-  .item-lista {
+  .mission-card {
     width: 100%;
     min-width: 0;
     height: 100%;
@@ -44,74 +47,85 @@ const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
     display: flex;
     flex-direction: column;
 
-    font-family: var(--text-font-primary);
+    transition: transform var(--transition);
   }
 
-  .inicio-borde {
+  .mission-card__connector {
     width: 1px;
     height: 1.5rem;
+
     margin-left: 2rem;
 
-    flex-shrink: 0;
+    flex: 0 0 auto;
 
     background-color: var(--color-primary);
   }
 
-  .contenedor-titulo {
-    box-sizing: border-box;
-
+  .mission-card__header {
     width: 100%;
+
     padding: 0.3rem;
 
     position: relative;
     z-index: 1;
 
+    background-color: var(--color-background);
+
     border: 1px solid var(--color-primary);
+
+    border-right: 0;
+
     border-radius: 999px;
-    background-color: var(--color-background);
   }
 
-  .contenedor-titulo::before {
+  .mission-card__header::before {
     content: '';
+
+    width: calc(100% - 2rem);
+
     height: 120%;
-    width: 100%;
-    top: 50%;
-    z-index: -1;
-    transform: translatey(-50%);
-    left: 2rem;
+
     position: absolute;
+    top: 50%;
+    left: 2rem;
+    z-index: -1;
+
     background-color: var(--color-background);
+
+    transform: translateY(-50%);
   }
 
-  .titulo {
-    box-sizing: border-box;
-
+  .mission-card__header h3 {
     width: 100%;
     min-height: 3rem;
-    margin: 0;
+
     padding: 0.7rem 1rem;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 999px;
+    color: var(--color-background);
     background-color: var(--color-primary);
 
-    color: var(--color-background);
+    border-radius: 999px;
 
     font-size: clamp(1rem, 2.5vw, 1.15rem);
-    line-height: 1.25;
+
+    line-height: 1.3;
     text-align: center;
+    text-wrap: balance;
     overflow-wrap: anywhere;
+
+    transition: background-color var(--transition);
   }
 
-  .contenedor-contenido {
-    box-sizing: border-box;
-
+  .mission-card__body {
     min-width: 0;
     height: 100%;
+
     margin-left: 2rem;
+
     padding: 1.25rem 1rem 1rem 1.5rem;
 
     display: flex;
@@ -121,56 +135,71 @@ const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
     border-left: 1px solid var(--color-primary);
   }
 
-  .contenedor-contenido p {
+  .mission-card__body p {
     width: 100%;
-    margin: 0 0 1.5rem;
+
+    margin-bottom: 1.5rem;
 
     color: var(--color-text);
 
     line-height: 1.65;
+    text-wrap: pretty;
     overflow-wrap: anywhere;
   }
 
-  .icono-mision {
+  .mission-card__icon {
     margin-top: auto;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
 
     color: var(--color-primary);
   }
 
-  .icono-mision :global(svg) {
+  .mission-card__icon :global(svg) {
     width: clamp(3.75rem, 9vw, 5rem);
+
     height: clamp(3.75rem, 9vw, 5rem);
 
-    display: block;
-
     color: inherit;
-    stroke-width: 5;
+  }
+
+  .mission-card__icon :global(svg *) {
+    vector-effect: non-scaling-stroke;
   }
 
   @media (hover: hover) {
-    .item-lista {
-      transition: transform 0.25s ease;
-    }
-
-    .item-lista:hover {
+    .mission-card:hover {
       transform: translateY(-3px);
     }
 
-    .item-lista:hover .titulo {
+    .mission-card:hover .mission-card__header h3 {
       background-color: var(--color-primary-hover);
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .item-lista {
-      transition: none;
+
+  @media (max-width: 650px) {
+    .mission-card__connector {
+      margin-left: 1.5rem;
     }
 
-    .item-lista:hover {
-      transform: none;
+    .mission-card__header::before {
+      width: calc(100% - 1.5rem);
+
+      left: 1.5rem;
+    }
+
+    .mission-card__body {
+      margin-left: 1.5rem;
+
+      padding: 1.1rem 0.5rem 1rem 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mission-card,
+    .mission-card__header h3 {
+      transition: none;
     }
   }
 </style>

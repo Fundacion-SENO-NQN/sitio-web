@@ -1,116 +1,488 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import CarouselDonaciones from '../components/Inicio/CarouselDonaciones.astro'
+import JsonLd from '../components/SEO/JsonLd.astro'
+
 import TituloPag from '../components/Common/TituloPag.astro'
+import CarouselDonaciones from '../components/Inicio/CarouselDonaciones.astro'
 import ItemNoticia from '../components/Noticias/ItemNoticia.astro'
 import ItemLogro from '../components/QuienesSomos/Logros/ItemLogro.astro'
 
-import type Noticia from '../data/interfaces/Noticia'
 import type Logro from '../data/interfaces/Logro'
+import type Noticia from '../data/interfaces/Noticia'
 
 import { getLogrosFav } from '../api/logros'
 import { getUltimasNoticias } from '../api/noticias'
 
-const logrosFav = await getLogrosFav()
-const noticias = await getUltimasNoticias()
+const [logrosResult, noticiasResult] = await Promise.allSettled([
+  getLogrosFav(),
+  getUltimasNoticias()
+])
+
+const logrosFav: Logro[] =
+  logrosResult.status === 'fulfilled' && Array.isArray(logrosResult.value)
+    ? logrosResult.value
+    : []
+
+const noticias: Noticia[] =
+  noticiasResult.status === 'fulfilled' && Array.isArray(noticiasResult.value)
+    ? noticiasResult.value
+    : []
+
+const errorLogros = logrosResult.status === 'rejected'
+const errorNoticias = noticiasResult.status === 'rejected'
+
+if (errorLogros)
+  console.error(
+    'No se pudieron cargar los logros destacados:',
+    logrosResult.reason
+  )
+
+if (errorNoticias)
+  console.error(
+    'No se pudieron cargar las últimas noticias:',
+    noticiasResult.reason
+  )
+
+const site = Astro.site ?? new URL('https://fundacionseno.org')
+
+const homeUrl = new URL('/', site).href
+const organizationId = `${homeUrl}#organization`
+const websiteId = `${homeUrl}#website`
+const logoId = `${homeUrl}#logo`
+
+const logoUrl = new URL('/img/seo/logo-fundacion-seno.png', site).href
+
+const homeSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'NGO',
+      '@id': organizationId,
+
+      name: 'Fundación SENO',
+
+      legalName:
+        'Fundación S.E.N.O. – Sendero de Esperanza para el Niño Oncológico',
+
+      alternateName: ['Fundación S.E.N.O.', 'Fundación SENO Neuquén'],
+
+      url: homeUrl,
+
+      description:
+        'Fundación SENO acompaña a niños, niñas y adolescentes con cáncer y a sus familias en Neuquén.',
+
+      logo: {
+        '@type': 'ImageObject',
+        '@id': logoId,
+        url: logoUrl,
+        contentUrl: logoUrl,
+        width: 512,
+        height: 512,
+        caption: 'Fundación SENO'
+      },
+
+      image: {
+        '@id': logoId
+      },
+
+      email: 'contacto@fundacionseno.org',
+
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'San Carlos 1330',
+        addressLocality: 'Neuquén',
+        addressRegion: 'Neuquén',
+        addressCountry: 'AR'
+      },
+
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'Información general',
+        email: 'contacto@fundacionseno.org',
+        availableLanguage: ['es']
+      },
+
+      /*
+      Add this only after confirming the exact official URLs.
+
+      sameAs: [
+        'OFFICIAL_FACEBOOK_URL',
+        'OFFICIAL_INSTAGRAM_URL',
+        'OFFICIAL_TIKTOK_URL',
+      ],
+      */
+
+      sameAs: [
+        'https://www.facebook.com/fundacionseno2017',
+        'https://www.instagram.com/fundacionseno',
+        'https://www.tiktok.com/@fundacion.seno'
+      ],
+
+      /*
+      Add these only after verifying them:
+
+      telephone: '+54 ...',
+      foundingDate: 'YYYY-MM-DD',
+      */
+
+      telephone: '+54 299 456 4725'
+    },
+
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+
+      url: homeUrl,
+
+      name: 'Fundación SENO',
+
+      alternateName: ['Fundación S.E.N.O.', 'fundacionseno.org'],
+
+      inLanguage: 'es-AR',
+
+      publisher: {
+        '@id': organizationId
+      }
+    }
+  ]
+}
 ---
 
-<Layout pag="Inicio">
+<Layout
+  pag="Inicio"
+  seoTitle="Fundación SENO Neuquén | Acompañamiento oncológico"
+  description="Fundación SENO acompaña a niños, niñas y adolescentes con cáncer y a sus familias en Neuquén mediante orientación, ayuda y contención."
+  image="/img/seo/og-fundacion-seno.jpg"
+>
+  <JsonLd data={homeSchema} />
   <TituloPag titulo="Inicio" />
 
-  <CarouselDonaciones />
-
-  <main class="main-inicio">
-    <section class="seccion-inicio" aria-labelledby="titulo-logros-destacados">
-      <h2 class="titulo-contenido" id="titulo-logros-destacados">
-        Logros destacados
-      </h2>
-
-      <div class="logros-destacados">
-        {logrosFav.map((item: Logro) => <ItemLogro logro={item} />)}
-      </div>
+  <main class="home-page">
+    <section
+      class="home-page__carousel"
+      aria-label="Donaciones recibidas por Fundación SENO"
+    >
+      <CarouselDonaciones />
     </section>
 
-    <section class="seccion-inicio" aria-labelledby="titulo-ultimas-noticias">
-      <h2 class="titulo-contenido" id="titulo-ultimas-noticias">
-        Últimas noticias
-      </h2>
+    <div class="home-page__content">
+      <section
+        class="home-section"
+        aria-labelledby="featured-achievements-title"
+      >
+        <header class="home-section__header">
+          <div>
+            <p class="home-section__eyebrow">Nuestro trabajo</p>
 
-      <div class="ultimas-noticias">
+            <h2 id="featured-achievements-title">Logros destacados</h2>
+
+            <p>
+              Algunos de los avances alcanzados gracias al acompañamiento de
+              voluntarios, colaboradores y toda la comunidad.
+            </p>
+          </div>
+
+          <a class="home-section__link" href="/quienes-somos/logros">
+            Ver todos los logros
+            <span aria-hidden="true">→</span>
+          </a>
+        </header>
+
         {
-          noticias.map((item: Noticia, index: number) => (
-            <ItemNoticia noticia={item} priority={index === 0} />
-          ))
+          errorLogros ? (
+            <div class="home-status home-status--error" role="alert">
+              <h3>No pudimos cargar los logros</h3>
+
+              <p>
+                La información no está disponible en este momento. Intentá
+                nuevamente más tarde.
+              </p>
+            </div>
+          ) : logrosFav.length > 0 ? (
+            <div class="featured-achievements">
+              {logrosFav.map((logro: Logro) => (
+                <ItemLogro logro={logro} />
+              ))}
+            </div>
+          ) : (
+            <div class="home-status" role="status">
+              <h3>Todavía no hay logros destacados</h3>
+
+              <p>
+                Los próximos logros seleccionados aparecerán en esta sección.
+              </p>
+            </div>
+          )
         }
-      </div>
-    </section>
+      </section>
+
+      <section class="home-section" aria-labelledby="latest-news-title">
+        <header class="home-section__header">
+          <div>
+            <p class="home-section__eyebrow">Novedades</p>
+
+            <h2 id="latest-news-title">Últimas noticias</h2>
+
+            <p>
+              Conocé las actividades, campañas y novedades más recientes de
+              Fundación SENO.
+            </p>
+          </div>
+
+          <a class="home-section__link" href="/noticias">
+            Ver todas las noticias
+            <span aria-hidden="true">→</span>
+          </a>
+        </header>
+
+        {
+          errorNoticias ? (
+            <div class="home-status home-status--error" role="alert">
+              <h3>No pudimos cargar las noticias</h3>
+
+              <p>
+                La información no está disponible en este momento. Intentá
+                nuevamente más tarde.
+              </p>
+            </div>
+          ) : noticias.length > 0 ? (
+            <div class="latest-news">
+              {noticias.map((noticia: Noticia, index: number) => (
+                <ItemNoticia noticia={noticia} priority={index === 0} />
+              ))}
+            </div>
+          ) : (
+            <div class="home-status" role="status">
+              <h3>Todavía no hay noticias publicadas</h3>
+
+              <p>
+                Las próximas novedades de Fundación SENO aparecerán en esta
+                sección.
+              </p>
+            </div>
+          )
+        }
+      </section>
+    </div>
   </main>
 </Layout>
 
 <style>
-  .main-inicio {
-    box-sizing: border-box;
-
-    width: min(calc(100% - 2rem), 1200px);
-    margin-inline: auto;
-    padding-block: clamp(3rem, 7vw, 6rem);
-  }
-
-  .seccion-inicio {
+  .home-page {
     width: 100%;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
   }
 
-  .seccion-inicio + .seccion-inicio {
-    margin-top: clamp(4rem, 8vw, 7rem);
+  .home-page__carousel {
+    width: 100%;
+    min-width: 0;
   }
 
-  .titulo-contenido {
-    margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
-
-    color: var(--color-primary-hover);
-
-    font-family: var(--text-font-primary);
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
-    line-height: 1.2;
-    text-align: center;
-  }
-
-  .logros-destacados {
-    width: min(100%, 900px);
+  .home-page__content {
+    width: min(calc(100% - 2rem), 75rem);
     margin-inline: auto;
+    padding-top: clamp(3rem, 7vw, 6rem);
+  }
 
+  .home-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .home-section + .home-section {
+    margin-top: clamp(4.5rem, 10vw, 7rem);
+  }
+
+  .home-section__header {
+    margin-bottom: clamp(1.75rem, 5vw, 3rem);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .home-section__header > div {
+    width: min(100%, 44rem);
+  }
+
+  .home-section__eyebrow {
+    margin-bottom: 0.45rem;
+    color: var(--color-primary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .home-section__header h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .home-section__header p:last-child {
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: clamp(0.98rem, 2vw, 1.06rem);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .home-section__link {
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    flex: 0 0 auto;
+    color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 28%,
+      var(--color-background)
+    );
+    border: 1px solid var(--color-primary-light);
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      transform var(--transition);
+  }
+
+  .home-section__link span {
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: transform var(--transition);
+  }
+
+  .home-section__link:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  .featured-achievements {
+    width: min(100%, 56.25rem);
+    margin-inline: auto;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    gap: clamp(1rem, 3vw, 1.5rem);
   }
 
-  .ultimas-noticias {
+  .latest-news {
     width: 100%;
-
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
     align-items: stretch;
     justify-items: center;
     gap: clamp(1.25rem, 3vw, 2rem);
   }
 
-  @media (max-width: 600px) {
-    .main-inicio {
-      width: min(calc(100% - 1.25rem), 1200px);
-      padding-block: 2.5rem 4rem;
+  .home-status {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--color-text);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
+    border: 1px dashed var(--color-primary-light);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+
+  .home-status--error {
+    background-color: #fff5f4;
+    border-color: #e7b7b2;
+  }
+
+  .home-status h3 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.2rem, 3vw, 1.55rem);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .home-status--error h3 {
+    color: #983f3f;
+  }
+
+  .home-status p {
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  @media (hover: hover) {
+    .home-section__link:hover {
+      color: var(--color-background);
+      background-color: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
+      transform: translateY(-2px);
     }
 
-    .seccion-inicio + .seccion-inicio {
+    .home-section__link:hover span {
+      transform: translateX(0.2rem);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .home-section__header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .home-section__link {
+      align-self: flex-start;
+    }
+
+    .latest-news {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .home-page {
+      padding-bottom: 3rem;
+    }
+
+    .home-page__content {
+      width: calc(100% - 1.25rem);
+      padding-top: 3rem;
+    }
+
+    .home-section + .home-section {
       margin-top: 4rem;
     }
 
-    .logros-destacados {
+    .featured-achievements {
       gap: 1rem;
     }
 
-    .ultimas-noticias {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.5rem;
+    .home-section__link {
+      width: 100%;
+    }
+
+    .home-status {
+      padding: 1.5rem 1.1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-section__link,
+    .home-section__link span {
+      transition: none;
     }
   }
 </style>

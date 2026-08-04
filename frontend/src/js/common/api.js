@@ -1,316 +1,297 @@
-const API = import.meta.env.PUBLIC_API_URL
+const rawApiUrl = import.meta.env.PUBLIC_API_URL
 
-if (!API)
+if (!rawApiUrl)
   throw new Error(
     'PUBLIC_API_URL is not configured. Add it to the environment variables.'
   )
 
-const BASE_URL = API.replace(/\/+$/, '')
+const BASE_URL = rawApiUrl.replace(/\/+$/, '')
 
-function token() {
+/* ==========================================================
+   API ERROR
+========================================================== */
+
+export class ApiError extends Error {
+  constructor(message, { status = 0, body = null } = {}) {
+    super(message)
+
+    this.name = 'ApiError'
+    this.status = status
+    this.body = body
+  }
+}
+
+/* ==========================================================
+   AUTHENTICATION
+========================================================== */
+
+function getToken() {
   return localStorage.getItem('token')
 }
 
-async function request(url, options = {}) {
-  const headers = {
-    Authorization: `Bearer ${token()}`,
-    ...(options.headers ?? {})
-  }
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json'
-  }
-  const response = await fetch(BASE_URL + url, {
-    ...options,
-    headers
-  })
-  if (!response.ok) {
-    let message = response.statusText
-
-    try {
-      message = await response.text()
-    } catch {}
-
-    throw new Error(message)
-  }
-
-  if (response.status === 204) return null
-
-  const contentType = response.headers.get('content-type')
-
-  if (!contentType) {
-    return null
-  }
-
-  if (contentType.includes('application/json')) {
-    return await response.json()
-  }
-
-  return await response.text()
+function removeSession() {
+  localStorage.removeItem('token')
 }
 
-//*
-//* USERS
-//*
+/* ==========================================================
+   REQUEST
+========================================================== */
 
-export async function getUsers() {
-  return await request('/users')
-}
+export async function request(
+  path,
+  { body = undefined, headers = undefined, ...options } = {}
+) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
-export async function getUser(id) {
-  return await request(`/users/${id}`)
-}
+  const requestHeaders = new Headers(headers)
 
-export async function createUser(user) {
-  return await request('/users', {
-    method: 'POST',
-    body: JSON.stringify(user)
-  })
-}
+  const token = getToken()
 
-export async function updateUser(id, user) {
-  return await request(`/users/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(user)
-  })
-}
+  /*
+   * The previous implementation sent:
+   *
+   * Authorization: Bearer null
+   *
+   * when no token existed.
+   */
+  if (token && !requestHeaders.has('Authorization'))
+    requestHeaders.set('Authorization', `Bearer ${token}`)
 
-export async function deleteUser(id) {
-  return await request(`/users/${id}`, {
-    method: 'DELETE'
-  })
-}
+  const normalizedBody = normalizeBody(body, requestHeaders)
 
-export async function setUserActive(id, active) {
-  return await request(`/user/state/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(active)
-  })
-}
+  let response
 
-export async function changePassword(id, password) {
-  return await request(`/users/password/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(password)
-  })
-}
-
-//*
-//* ROLES
-//*
-
-export async function getRoles() {
-  return await request('/roles-services')
-}
-
-export async function getRole(id) {
-  return await request(`/roles/${id}`)
-}
-
-export async function createRole(role) {
-  return await request('/roles-services', {
-    method: 'POST',
-    body: JSON.stringify(role)
-  })
-}
-
-export async function updateRole(id, role) {
-  return await request(`/roles/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(role)
-  })
-}
-
-export async function deleteRole(id) {
-  return await request(`/roles/${id}`, {
-    method: 'DELETE'
-  })
-}
-
-export async function getServices() {
-  return await request('/services')
-}
-
-//*
-//* IMAGES DONATIONS
-//*
-
-export async function uploadDonationImage(file) {
-  const formData = new FormData()
-
-  formData.append('image', file)
-
-  return await request('/img_donacion', {
-    method: 'PUT',
-    body: formData
-  })
-}
-
-//*
-//* LOGROS
-//*
-
-export async function getAchievements() {
-  return await request('/logros')
-}
-
-export async function getAchievement(id) {
-  return await request(`/logros/${id}`)
-}
-
-export async function createAchievement(formData) {
-  return await request('/logros', {
-    method: 'POST',
-    body: formData
-  })
-}
-
-export async function updateAchievement(id, formData) {
-  return await request(`/logros/${id}`, {
-    method: 'PATCH',
-    body: formData
-  })
-}
-
-export async function deleteAchievement(id) {
-  return await request(`/logros/${id}`, {
-    method: 'DELETE'
-  })
-}
-
-export async function changeAchievementsOrder(order) {
-  return await request('/logros/order', {
-    method: 'PUT',
-    body: JSON.stringify(order)
-  })
-}
-
-//*
-//* FEATURED ACHIEVEMENTS
-//*
-
-export async function getFeaturedAchievements() {
-  return await request('/logros_fav')
-}
-
-export async function getFeaturedAchievement(id) {
-  return await request(`/logros_fav/${id}`)
-}
-
-export async function createFeaturedAchievement(logro_id, orden) {
-  return await request('/logros_fav', {
-    method: 'POST',
-    body: JSON.stringify({
-      logro_id,
-      orden
+  try {
+    response = await fetch(`${BASE_URL}${normalizedPath}`, {
+      ...options,
+      headers: requestHeaders,
+      body: normalizedBody
     })
-  })
-}
+  } catch (error) {
+    console.error('Could not connect to API:', error)
 
-export async function deleteFeaturedAchievement(id) {
-  return await request(`/logros_fav/${id}`, {
-    method: 'DELETE'
-  })
-}
-
-export async function replaceFeaturedAchievements(logros) {
-  return await request('/logros_fav', {
-    method: 'PUT',
-    body: JSON.stringify(logros)
-  })
-}
-
-//*
-//* MEMBERS
-//*
-
-export function getMembers() {
-  return request('/equipo')
-}
-
-export function getMember(id) {
-  return request(`/equipo/${id}`)
-}
-
-export function createMember(formData) {
-  return request('/equipo', {
-    method: 'POST',
-    body: formData
-  })
-}
-
-export function updateMember(id, formData) {
-  return request(`/equipo/${id}`, {
-    method: 'PATCH',
-    body: formData
-  })
-}
-
-export function deleteMember(id) {
-  return request(`/equipo/${id}`, {
-    method: 'DELETE'
-  })
-}
-
-export function changeMembersOrder(items) {
-  return request('/equipo/order', {
-    method: 'PUT',
-    body: JSON.stringify(items)
-  })
-}
-
-//*
-//* EVENTS
-//*
-
-export function getEventos() {
-  return request('/eventos')
-}
-
-export function getEventoById(id) {
-  return request(`/eventos/${id}`)
-}
-
-export function createEvento(formData) {
-  if (!(formData instanceof FormData)) {
-    throw new TypeError('createEvento requiere un FormData.')
+    throw new ApiError('No se pudo conectar con el servidor.', {
+      status: 0,
+      body: error
+    })
   }
 
-  return request('/eventos', {
-    method: 'POST',
-    body: formData
-  })
-}
+  if (response.status === 401) {
+    removeSession()
 
-export function patchEvento(id, formData) {
-  if (!(formData instanceof FormData)) {
-    throw new TypeError('patchEvento requiere un FormData.')
+    throw new ApiError('Tu sesión venció. Volvé a iniciar sesión.', {
+      status: response.status
+    })
   }
 
-  return request(`/eventos/${id}`, {
-    method: 'PATCH',
-    body: formData
-  })
+  if (response.status === 403)
+    throw new ApiError('No tenés permisos para realizar esta acción.', {
+      status: response.status
+    })
+
+  if (!response.ok) throw await createResponseError(response)
+
+  return parseResponse(response)
 }
 
-export function deleteEvento(id) {
-  return request(`/eventos/${id}`, {
-    method: 'DELETE'
-  })
+/* ==========================================================
+   BODY
+========================================================== */
+
+function normalizeBody(body, headers) {
+  if (body === undefined || body === null) return undefined
+
+  if (
+    body instanceof FormData ||
+    body instanceof Blob ||
+    body instanceof URLSearchParams ||
+    typeof body === 'string'
+  )
+    return body
+
+  if (!headers.has('Content-Type'))
+    headers.set('Content-Type', 'application/json')
+
+  return JSON.stringify(body)
 }
 
-export function changeOrderEventos(cambios) {
-  if (!Array.isArray(cambios) || cambios.length === 0) {
-    throw new TypeError('Debe proporcionarse al menos un cambio de orden.')
+/* ==========================================================
+   RESPONSE
+========================================================== */
+
+async function parseResponse(response) {
+  if (response.status === 204 || response.status === 205) return null
+
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? ''
+
+  if (contentType.includes('application/json')) return response.json()
+
+  const text = await response.text()
+
+  return text || null
+}
+
+async function createResponseError(response) {
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? ''
+
+  let body = null
+  let message = response.statusText || `Error ${response.status}`
+
+  try {
+    if (contentType.includes('application/json')) {
+      body = await response.json()
+
+      message = getMessageFromBody(body) || message
+    } else {
+      body = await response.text()
+
+      if (typeof body === 'string' && body.trim()) message = body.trim()
+    }
+  } catch (error) {
+    console.error('Could not read API error:', error)
   }
 
-  for (const cambio of cambios) {
-    if (!Number.isInteger(cambio.orden) || cambio.orden < 0) {
-      throw new TypeError('El orden del evento no es válido.')
+  return new ApiError(message, {
+    status: response.status,
+    body
+  })
+}
+
+function getMessageFromBody(body) {
+  if (!body) return null
+
+  if (typeof body === 'string') return body
+
+  return (
+    body.message ?? body.error?.message ?? body.error ?? body.detail ?? null
+  )
+}
+
+/* ==========================================================
+   GENERIC CRUD RESOURCE
+========================================================== */
+
+export function createCrudApi({
+  basePath,
+
+  listPath = basePath,
+
+  createPath = basePath,
+
+  itemPath = (id) => `${basePath}/${id}`,
+
+  orderPath = `${basePath}/order`,
+
+  createMethod = 'POST',
+
+  updateMethod = 'PATCH',
+
+  deleteMethod = 'DELETE',
+
+  orderMethod = 'PUT',
+
+  hasOrder = true
+}) {
+  if (!basePath) {
+    throw new TypeError('createCrudApi requires basePath.')
+  }
+
+  return {
+    list() {
+      return request(listPath)
+    },
+
+    get(id) {
+      validateId(id)
+
+      return request(itemPath(id))
+    },
+
+    create(data) {
+      return request(createPath, {
+        method: createMethod,
+        body: data
+      })
+    },
+
+    update(id, data) {
+      validateId(id)
+
+      return request(itemPath(id), {
+        method: updateMethod,
+        body: data
+      })
+    },
+
+    remove(id) {
+      validateId(id)
+
+      return request(itemPath(id), {
+        method: deleteMethod
+      })
+    },
+
+    changeOrder(changes) {
+      if (!hasOrder) throw new Error(`${basePath} does not support ordering.`)
+
+      validateOrderChanges(changes)
+
+      return request(orderPath, {
+        method: orderMethod,
+        body: changes
+      })
     }
   }
+}
 
-  return request('/eventos/order', {
-    method: 'PUT',
-    body: JSON.stringify(cambios)
-  })
+/* ==========================================================
+   VALIDATION
+========================================================== */
+
+export function validateId(id) {
+  const numericId = Number(id)
+
+  if (!Number.isInteger(numericId) || numericId <= 0)
+    throw new TypeError('El id no es válido.')
+
+  return numericId
+}
+
+export function validateFormData(formData) {
+  if (!(formData instanceof FormData))
+    throw new TypeError('La petición requiere un objeto FormData.')
+
+  return formData
+}
+
+export function validateOrderChanges(changes) {
+  if (!Array.isArray(changes) || changes.length === 0)
+    throw new TypeError('Debe proporcionarse al menos un cambio de orden.')
+
+  const ids = new Set()
+
+  const orders = new Set()
+
+  for (const change of changes) {
+    if (!change || typeof change !== 'object')
+      throw new TypeError('Uno de los cambios de orden no es válido.')
+
+    const id = validateId(change.id)
+
+    const order = Number(change.orden)
+
+    if (!Number.isInteger(order) || order < 0)
+      throw new TypeError('Uno de los órdenes no es válido.')
+
+    if (ids.has(id))
+      throw new TypeError('Hay ids repetidos en los cambios de orden.')
+
+    if (orders.has(order))
+      throw new TypeError('Hay posiciones repetidas en los cambios de orden.')
+
+    ids.add(id)
+    orders.add(order)
+  }
+
+  return changes
 }

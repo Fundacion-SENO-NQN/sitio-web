@@ -1,184 +1,110 @@
-import { deleteEvento } from '../common/api.js'
-
-import { refreshEventos } from './eventos.js'
-
-import { showToast } from '../common/toast.js'
+import { createDeleteController } from '../common/deleteController.js'
 
 /* ==========================================================
-   ELEMENTOS
+   DELETE CONTROLLER FACTORY
 ========================================================== */
 
-const modal = document.getElementById('modal-eliminar-evento')
+export function createEventoDeleteController({ remove, refresh } = {}) {
+  validarConfiguracion({
+    remove,
+    refresh
+  })
 
-const modalBackground = modal?.querySelector('[data-cerrar-modal-eliminar]')
+  return createDeleteController({
+    modal: '#modal-eliminar-evento',
 
-const closeButton = document.getElementById('btn-cerrar-modal-eliminar')
+    confirmButton: '#btn-confirmar-eliminar',
 
-const cancelButton = document.getElementById('btn-cancelar-eliminar')
+    cancelButtons: ['#btn-cancelar-eliminar'],
 
-const confirmButton = document.getElementById('btn-confirmar-eliminar')
+    closeButtons: ['#btn-cerrar-modal-eliminar'],
 
-const deleteText = document.getElementById('texto-eliminar-evento')
+    backdrop: '[data-cerrar-modal-eliminar]',
 
-/* ==========================================================
-   ESTADO
-========================================================== */
+    textElement: '#texto-eliminar-evento',
 
-let eventoAEliminar = null
-let eliminando = false
+    hiddenClass: 'oculto',
 
-/* ==========================================================
-   REGISTRAR EVENTOS
-========================================================== */
+    focusElement: '#btn-cancelar-eliminar',
 
-export function registrarEventosEliminar() {
-  closeButton?.addEventListener('click', cerrarModalEliminarEvento)
+    lockBodyScroll: true,
 
-  cancelButton?.addEventListener('click', cerrarModalEliminarEvento)
+    remove,
+    refresh,
 
-  confirmButton?.addEventListener('click', confirmarEliminacion)
+    getId(evento) {
+      return obtenerIdEvento(evento)
+    },
 
-  modalBackground?.addEventListener('click', cerrarModalEliminarEvento)
+    getName(evento) {
+      return obtenerTituloEvento(evento)
+    },
 
-  document.addEventListener('keydown', manejarTeclado)
+    buildConfirmationText(evento, { name }) {
+      const cantidadImagenes = formatearCantidadImagenes(evento.cant_img)
+
+      return (
+        `El evento “${name}”, su enlace y sus ` +
+        `${cantidadImagenes} serán eliminados permanentemente.`
+      )
+    },
+
+    defaultText:
+      'El evento y todas sus imágenes serán eliminados permanentemente.',
+
+    deletingText: 'Eliminando evento...',
+
+    confirmButtonText: 'Eliminar evento',
+
+    successMessage({ name }) {
+      return `El evento “${name}” ` + 'fue eliminado correctamente.'
+    },
+
+    errorMessage: 'No se pudo eliminar el evento.'
+  })
 }
 
 /* ==========================================================
-   ABRIR MODAL
+   EVENT DATA
 ========================================================== */
 
-export function abrirModalEliminarEvento(evento) {
-  if (eliminando || !evento) {
-    return
-  }
+function obtenerIdEvento(evento) {
+  const id = Number(evento?.id)
 
-  eventoAEliminar = evento
+  if (!Number.isInteger(id) || id <= 0)
+    throw new TypeError('El evento no tiene un id válido.')
 
-  if (deleteText) {
-    deleteText.textContent =
-      `El evento “${evento.titulo}”, su enlace y sus ` +
-      `${formatearCantidadImagenes(evento.cant_img)} ` +
-      'serán eliminados permanentemente.'
-  }
+  return id
+}
 
-  modal?.classList.remove('oculto')
+function obtenerTituloEvento(evento) {
+  const titulo = String(evento?.titulo ?? '').trim()
 
-  document.body.style.overflow = 'hidden'
+  if (titulo) return titulo
 
-  window.setTimeout(() => {
-    cancelButton?.focus()
-  }, 0)
+  return `evento n.º ${evento?.id ?? ''}`.trim()
 }
 
 /* ==========================================================
-   CONFIRMAR ELIMINACIÓN
-========================================================== */
-
-async function confirmarEliminacion() {
-  if (eliminando || !eventoAEliminar) {
-    return
-  }
-
-  eliminando = true
-  actualizarEstadoEliminacion(true)
-
-  const eventoId = eventoAEliminar.id
-
-  const eventoTitulo = eventoAEliminar.titulo
-
-  try {
-    await deleteEvento(eventoId)
-
-    /*
-     * Ocultamos el modal antes de recargar la tabla para
-     * evitar que el evento eliminado siga visible detrás.
-     */
-    ocultarModal()
-
-    eventoAEliminar = null
-
-    showToast(`El evento “${eventoTitulo}” fue eliminado correctamente.`)
-
-    await refreshEventos()
-  } catch (error) {
-    console.error('No se pudo eliminar el evento:', error)
-
-    showToast(error.message || 'No se pudo eliminar el evento.', 'error')
-  } finally {
-    eliminando = false
-    actualizarEstadoEliminacion(false)
-  }
-}
-
-/* ==========================================================
-   CERRAR MODAL
-========================================================== */
-
-function cerrarModalEliminarEvento() {
-  if (eliminando) {
-    return
-  }
-
-  ocultarModal()
-
-  eventoAEliminar = null
-}
-
-function ocultarModal() {
-  modal?.classList.add('oculto')
-
-  document.body.style.overflow = ''
-
-  if (deleteText) {
-    deleteText.textContent =
-      'El evento y todas sus imágenes serán eliminados permanentemente.'
-  }
-}
-
-/* ==========================================================
-   ESTADO DE LOS BOTONES
-========================================================== */
-
-function actualizarEstadoEliminacion(valor) {
-  if (confirmButton) {
-    confirmButton.disabled = valor
-
-    confirmButton.textContent = valor
-      ? 'Eliminando evento...'
-      : 'Eliminar evento'
-  }
-
-  if (cancelButton) {
-    cancelButton.disabled = valor
-  }
-
-  if (closeButton) {
-    closeButton.disabled = valor
-  }
-}
-
-/* ==========================================================
-   TECLADO
-========================================================== */
-
-function manejarTeclado(event) {
-  if (event.key !== 'Escape' || modal?.classList.contains('oculto')) {
-    return
-  }
-
-  cerrarModalEliminarEvento()
-}
-
-/* ==========================================================
-   HELPERS
+   IMAGE COUNT
 ========================================================== */
 
 function formatearCantidadImagenes(cantidad) {
-  const cantidadNormalizada = Number(cantidad) || 0
+  const cantidadNormalizada = Math.max(0, Number(cantidad) || 0)
 
-  if (cantidadNormalizada === 1) {
-    return '1 imagen'
-  }
+  if (cantidadNormalizada === 1) return '1 imagen'
 
   return `${cantidadNormalizada} imágenes`
+}
+
+/* ==========================================================
+   CONFIGURATION
+========================================================== */
+
+function validarConfiguracion({ remove, refresh }) {
+  if (typeof remove !== 'function')
+    throw new TypeError('createEventoDeleteController requiere remove.')
+
+  if (typeof refresh !== 'function')
+    throw new TypeError('createEventoDeleteController requiere refresh.')
 }

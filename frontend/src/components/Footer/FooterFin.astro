@@ -1,14 +1,23 @@
-<div class="footer-fin">
-  <p>© 2026 Fundación S.E.N.O.</p>
+---
+const currentYear = new Date().getFullYear()
+---
 
-  <span class="separador" aria-hidden="true">•</span>
+<div class="footer-bottom">
+  <p>
+    © {currentYear} Fundación S.E.N.O.
+  </p>
+
+  <span class="footer-bottom__separator" aria-hidden="true"> • </span>
 
   <a href="/terminos-y-condiciones"> Términos y condiciones </a>
 </div>
 
 <style>
-  .footer-fin {
-    box-sizing: border-box;
+  .footer-bottom {
+    width: 100%;
+    min-height: 3rem;
+
+    padding: 0.75rem 1rem;
 
     display: flex;
     align-items: center;
@@ -16,56 +25,52 @@
     flex-wrap: wrap;
     gap: 0.45rem;
 
-    width: 100%;
-    min-height: 3rem;
-    padding: 0.75rem 1rem;
-
     color: var(--color-background);
     background-color: var(--color-secondary);
 
-    font-family: var(--text-font-primary);
     font-size: clamp(0.85rem, 2vw, 1rem);
+
     line-height: 1.4;
     text-align: center;
   }
 
-  .footer-fin p {
-    margin: 0;
-  }
-
-  .footer-fin a {
+  .footer-bottom a {
     color: inherit;
-    font-weight: 600;
+
+    font-weight: 650;
+
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2rem;
 
-    transition: opacity 180ms ease;
+    transition: opacity var(--transition);
   }
 
-  .footer-fin a:hover {
-    opacity: 0.75;
+  .footer-bottom a:hover {
+    opacity: 0.78;
   }
 
-  .footer-fin a:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 0.2rem;
+  .footer-bottom a:focus-visible {
+    outline: none;
+
     border-radius: 0.15rem;
+
+    box-shadow: 0 0 0 2px currentColor;
   }
 
   @media (max-width: 28rem) {
-    .footer-fin {
+    .footer-bottom {
       flex-direction: column;
       gap: 0.25rem;
     }
 
-    .separador {
+    .footer-bottom__separator {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .footer-fin a {
+    .footer-bottom a {
       transition: none;
     }
   }

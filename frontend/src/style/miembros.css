@@ -1,490 +1,71 @@
 /* ==========================================================
-   MEMBERS MANAGER
-   src/pages/plataforma/miembros/miembros.css
+   MEMBERS ADMINISTRATION
+
+   Estilos específicos de la administración de miembros.
+   Los componentes generales se importan desde common/.
 ========================================================== */
+
+@import url('./common/index.css');
 
 /* ==========================================================
-   LOCAL DESIGN TOKENS
+   PAGE
 ========================================================== */
 
-:root {
-  --members-radius-small: 0.5rem;
-  --members-radius: 0.875rem;
-  --members-radius-large: 1.25rem;
-
-  --members-border: 1px solid var(--color-light-grey);
-  --members-transition: 180ms ease;
-
-  --members-surface: #ffffff;
-  --members-surface-soft: #f4f6f8;
-  --members-row-hover: #f2f7fb;
-
-  --members-focus: 0 0 0 3px rgba(21, 130, 203, 0.18);
-
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  width: 100%;
-  min-width: 0;
-  min-height: 100%;
-  padding: clamp(1rem, 3vw, 2rem);
-
-  color: var(--color-text);
-  background-color: var(--color-background);
-
-  font-family: var(--text-font-primary);
-}
-
-.miembrosPage *,
-.miembrosPage *::before,
-.miembrosPage *::after {
-  box-sizing: border-box;
-}
-
-/* ==========================================================
-   ACCESSIBILITY AND UTILITIES
-========================================================== */
-
-.hidden {
-  display: none !important;
-}
-
-.srOnly {
-  position: absolute;
-
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-
-  white-space: nowrap;
-
-  border: 0;
+.miembrosPage {
+  --admin-table-cell-padding: 1rem;
 }
 
 /* ==========================================================
    TOOLBAR
 ========================================================== */
 
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  min-width: 0;
-}
-
-.toolbarLeft,
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-
-  min-width: 0;
-}
-
-.toolbarLeft {
-  flex: 1;
-}
-
-.searchWrapper {
-  display: block;
-
+/*
+ * En miembros, el buscador original tenía un ancho máximo
+ * ligeramente menor que en eventos y noticias.
+ */
+.miembrosPage .searchWrapper {
   width: min(100%, 28rem);
-}
-
-/* ==========================================================
-   SEARCH
-========================================================== */
-
-.search {
-  display: block;
-
-  width: 100%;
-  min-height: 2.9rem;
-  padding: 0.75rem 1rem;
-
-  color: var(--color-text);
-  background-color: var(--members-surface);
-
-  border: var(--members-border);
-  border-radius: var(--members-radius);
-
-  outline: none;
-
-  font: inherit;
-  font-size: 0.95rem;
-
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
-
-  transition:
-    border-color var(--members-transition),
-    box-shadow var(--members-transition),
-    background-color var(--members-transition);
-}
-
-.search::placeholder {
-  color: var(--color-grey);
-}
-
-.search:hover {
-  border-color: var(--color-grey);
-}
-
-.search:focus {
-  border-color: var(--color-secondary);
-  box-shadow: var(--members-focus);
-}
-
-/* ==========================================================
-   BUTTONS
-========================================================== */
-
-.button {
-  appearance: none;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  min-height: 2.75rem;
-  padding: 0.7rem 1.1rem;
-
-  border: 1px solid transparent;
-  border-radius: var(--members-radius);
-
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-
-  cursor: pointer;
-  user-select: none;
-
-  transition:
-    color var(--members-transition),
-    background-color var(--members-transition),
-    border-color var(--members-transition),
-    box-shadow var(--members-transition),
-    transform var(--members-transition),
-    opacity var(--members-transition);
-}
-
-.button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.button:focus-visible {
-  outline: none;
-  box-shadow: var(--members-focus);
-}
-
-.button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.buttonPrimary {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
-}
-
-.buttonPrimary:hover:not(:disabled) {
-  background-color: var(--color-secondary-hover);
-  border-color: var(--color-secondary-hover);
-
-  box-shadow: 0 8px 22px rgba(21, 130, 203, 0.22);
-}
-
-.buttonGhost {
-  color: var(--color-text);
-  background-color: var(--members-surface);
-  border-color: var(--color-light-grey);
-}
-
-.buttonGhost:hover:not(:disabled) {
-  color: var(--color-secondary-hover);
-  background-color: var(--members-surface-soft);
-  border-color: var(--color-secondary-light);
-}
-
-.buttonDanger {
-  color: #ffffff;
-  background-color: var(--color-red);
-  border-color: var(--color-red);
-}
-
-.buttonDanger:hover:not(:disabled) {
-  filter: brightness(0.9);
-
-  box-shadow: 0 8px 22px rgba(211, 47, 47, 0.2);
-}
-
-/* ==========================================================
-   TABLE CONTAINER
-========================================================== */
-
-.tableContainer {
-  min-width: 0;
-  overflow: hidden;
-
-  border: var(--members-border);
-  border-radius: var(--members-radius-large);
-
-  background-color: var(--members-surface);
-
-  box-shadow: var(--shadow);
-}
-
-.tableWrapper {
-  width: 100%;
-  min-width: 0;
-
-  overflow-x: auto;
-  overflow-y: visible;
-
-  scrollbar-color: var(--color-light-grey) transparent;
-  scrollbar-width: thin;
-}
-
-.tableWrapper::-webkit-scrollbar {
-  height: 10px;
-}
-
-.tableWrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb {
-  background-color: var(--color-light-grey);
-  border: 2px solid var(--members-surface);
-  border-radius: 999px;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-grey);
 }
 
 /* ==========================================================
    TABLE
 ========================================================== */
 
-.table {
-  width: 100%;
-  min-width: 1080px;
-
-  border-collapse: separate;
-  border-spacing: 0;
-
-  color: var(--color-text);
-}
-
-.table thead {
-  background-color: var(--members-surface-soft);
-}
-
-.table th,
-.table td {
-  padding: 1rem;
-
-  text-align: left;
-  vertical-align: middle;
-}
-
-.table th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-
-  color: var(--color-secondary-hover);
-  background-color: var(--members-surface-soft);
-
-  border-bottom: 1px solid var(--color-light-grey);
-
-  font-size: 0.82rem;
-  font-weight: 750;
-  line-height: 1.3;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.table td {
-  border-bottom: 1px solid #ededed;
-
-  font-size: 0.91rem;
-  line-height: 1.45;
-}
-
-.table tbody tr {
-  background-color: var(--members-surface);
-
-  transition:
-    background-color var(--members-transition),
-    box-shadow var(--members-transition);
-}
-
-.table tbody tr:hover {
-  background-color: var(--members-row-hover);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-/* ==========================================================
-   SORTABLE HEADERS
-========================================================== */
-
-.table th.sortable {
-  cursor: pointer;
-  user-select: none;
-
-  transition:
-    color var(--members-transition),
-    background-color var(--members-transition);
-}
-
-.table th.sortable:hover {
-  color: var(--color-secondary);
-  background-color: rgba(21, 130, 203, 0.08);
-}
-
-.table th.sortable:focus-visible {
-  z-index: 3;
-
-  outline: none;
-  box-shadow: inset var(--members-focus);
-}
-
-/* ==========================================================
-   ORDER CONTROLS
-========================================================== */
-
-.orderCell {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-
-  min-width: 5.25rem;
-}
-
-.orderValue {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 0.4rem;
-
-  color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.09);
-
-  border-radius: var(--members-radius-small);
-
-  font-weight: 750;
-  font-variant-numeric: tabular-nums;
-}
-
-.orderButtons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.orderButton {
-  appearance: none;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 1.75rem;
-  height: 1.55rem;
-  padding: 0;
-
-  color: var(--color-secondary-hover);
-  background-color: var(--members-surface);
-
-  border: 1px solid var(--color-light-grey);
-  border-radius: 0.4rem;
-
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 800;
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    color var(--members-transition),
-    background-color var(--members-transition),
-    border-color var(--members-transition),
-    transform var(--members-transition),
-    opacity var(--members-transition);
-}
-
-.orderButton:hover:not(:disabled) {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
-
-  transform: scale(1.05);
-}
-
-.orderButton:focus-visible {
-  outline: none;
-  box-shadow: var(--members-focus);
-}
-
-.orderButton:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.miembrosPage .table {
+  min-width: 67.5rem;
 }
 
 /* ==========================================================
    MEMBER IMAGE
 ========================================================== */
 
-.memberImage {
-  display: block;
-
+.miembrosPage .memberImage {
   width: 4.5rem;
+
   height: 4.5rem;
 
+  flex: 0 0 auto;
+
   object-fit: cover;
+
   object-position: center;
 
-  background-color: var(--color-light-grey);
+  background-color: var(--admin-surface-muted);
 
-  border: 2px solid #ffffff;
+  border: 2px solid var(--admin-surface);
+
+  border-radius: 0;
 
   box-shadow:
-    0 0 0 1px var(--color-light-grey),
+    0 0 0 1px var(--admin-border-color),
     0 5px 14px rgba(0, 0, 0, 0.08);
 }
 
-.memberImageError {
+.miembrosPage .memberImageError {
   background: linear-gradient(
     135deg,
-    var(--color-light-grey),
-    var(--color-white)
+    var(--admin-surface-muted),
+    var(--admin-surface)
   );
 }
 
@@ -492,36 +73,56 @@
    MEMBER INFORMATION
 ========================================================== */
 
-.memberInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
+.miembrosPage .memberInfo {
   min-width: 10rem;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.25rem;
 }
 
-.memberInfo strong {
-  color: var(--color-text);
+.miembrosPage .memberInfo strong {
+  color: var(--admin-text);
 
   font-size: 0.96rem;
+
   font-weight: 750;
+
   line-height: 1.35;
+
+  overflow-wrap: anywhere;
 }
 
-.memberPosition {
+/* ==========================================================
+   POSITION
+========================================================== */
+
+.miembrosPage .memberPosition {
+  min-width: 9rem;
+
   max-width: 13rem;
 
   color: var(--color-secondary-hover);
 
   font-weight: 650;
+
   line-height: 1.4;
+
+  overflow-wrap: anywhere;
 }
 
-.memberDescription {
-  display: -webkit-box;
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
 
+.miembrosPage .memberDescription {
   width: min(100%, 22rem);
+
   margin: 0;
+
+  display: -webkit-box;
 
   overflow: hidden;
 
@@ -529,677 +130,176 @@
 
   line-height: 1.5;
 
+  overflow-wrap: anywhere;
+
   -webkit-box-orient: vertical;
-  line-clamp: 3;
+
   -webkit-line-clamp: 3;
-}
 
-.memberDate {
-  color: var(--color-grey);
-
-  font-size: 0.86rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  line-clamp: 3;
 }
 
 /* ==========================================================
-   TABLE ACTIONS
+   CREATION DATE
 ========================================================== */
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
+.miembrosPage .memberDate {
+  min-width: 8.5rem;
 
+  color: var(--admin-text-muted);
+
+  font-size: 0.86rem;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+.miembrosPage .memberDate time {
+  color: inherit;
+
+  font: inherit;
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.miembrosPage .actions {
   min-width: 10.5rem;
 }
 
-.tableButton {
-  appearance: none;
+/* ==========================================================
+   MEMBER MODAL
+========================================================== */
 
-  display: inline-flex;
+#memberModal .modalContent,
+.memberModalContent {
+  width: min(100%, 47.5rem);
+}
+
+/* ==========================================================
+   MEMBER FORM
+========================================================== */
+
+#memberForm .formGrid {
+  gap: 1.25rem;
+}
+
+#memberForm textarea {
+  min-height: 10rem;
+}
+
+/* ==========================================================
+   MEMBER IMAGE UPLOAD
+========================================================== */
+
+.miembrosPage .imageUpload {
+  min-height: 15rem;
+}
+
+/*
+ * La fotografía del miembro debe verse completa dentro de
+ * la vista previa, no recortada como las imágenes de eventos.
+ */
+.miembrosPage .imagePreview {
+  width: 100%;
+
+  max-height: 22rem;
+
+  object-fit: contain;
+
+  object-position: center;
+}
+
+/* ==========================================================
+   MEMBER IMAGE PLACEHOLDER
+========================================================== */
+
+.miembrosPage #memberImagePlaceholder {
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
 
-  min-height: 2.25rem;
-  padding: 0.48rem 0.78rem;
+  gap: 0.4rem;
 
-  border: 1px solid transparent;
-  border-radius: var(--members-radius-small);
+  padding: 1rem;
 
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1;
+  color: var(--admin-text-muted);
 
-  cursor: pointer;
-
-  transition:
-    color var(--members-transition),
-    background-color var(--members-transition),
-    border-color var(--members-transition),
-    box-shadow var(--members-transition),
-    transform var(--members-transition);
+  text-align: center;
 }
 
-.tableButton:hover {
-  transform: translateY(-1px);
-}
-
-.tableButton:focus-visible {
-  outline: none;
-  box-shadow: var(--members-focus);
-}
-
-.tableButton.edit {
+.miembrosPage #memberImagePlaceholder strong {
   color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.1);
-  border-color: var(--color-secondary-light);
+
+  font-size: 1rem;
+
+  font-weight: 750;
 }
 
-.tableButton.edit:hover {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
-}
+.miembrosPage #memberImagePlaceholder p {
+  margin: 0;
 
-.tableButton.delete {
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.08);
-  border-color: rgba(211, 47, 47, 0.25);
-}
+  color: var(--admin-text-muted);
 
-.tableButton.delete:hover {
-  color: #ffffff;
-  background-color: var(--color-red);
-  border-color: var(--color-red);
+  font-size: 0.84rem;
+
+  line-height: 1.45;
 }
 
 /* ==========================================================
    EMPTY STATE
 ========================================================== */
 
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
-
-  min-height: 19rem;
-  padding: clamp(2rem, 6vw, 4rem);
-
-  text-align: center;
-
-  background: radial-gradient(
-    circle at center,
-    rgba(21, 130, 203, 0.07),
-    transparent 65%
-  );
-}
-
-.emptyState::before {
+.miembrosPage .emptyState::before {
   content: '👥';
 
   display: block;
 
   font-size: 3rem;
+
   line-height: 1;
 }
 
-.emptyState h2 {
-  margin: 0;
-
-  color: var(--color-secondary-hover);
-
-  font-size: 1.35rem;
-}
-
-.emptyState p {
-  max-width: 32rem;
-  margin: 0 0 0.5rem;
-
-  color: var(--color-grey);
-
-  line-height: 1.5;
-}
-
-/* ==========================================================
-   MODAL BACKDROP
-========================================================== */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: clamp(0.75rem, 3vw, 2rem);
-
-  background-color: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(3px);
-
-  animation: modalBackdropIn 160ms ease-out;
-}
-
-@keyframes modalBackdropIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* ==========================================================
-   MODAL CONTENT
-========================================================== */
-
-.modalContent {
-  width: min(100%, 760px);
-  max-height: min(92vh, 900px);
-
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  color: var(--color-text);
-  background-color: var(--members-surface);
-
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--members-radius-large);
-
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.24),
-    var(--shadow);
-
-  animation: modalContentIn 190ms ease-out;
-
-  scrollbar-color: var(--color-light-grey) transparent;
-  scrollbar-width: thin;
-}
-
-@keyframes modalContentIn {
-  from {
-    opacity: 0;
-    transform: translateY(0.75rem) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modalContent::-webkit-scrollbar {
-  width: 10px;
-}
-
-.modalContent::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.modalContent::-webkit-scrollbar-thumb {
-  background-color: var(--color-light-grey);
-  border: 2px solid var(--members-surface);
-  border-radius: 999px;
-}
-
-/* ==========================================================
-   MODAL HEADER
-========================================================== */
-
-.modalHeader {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  padding: 1.25rem clamp(1.25rem, 4vw, 2rem);
-
-  background-color: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid var(--color-light-grey);
-
-  backdrop-filter: blur(8px);
-}
-
-.modalHeader h2 {
-  margin: 0;
-
-  color: var(--color-secondary-hover);
-
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
-  font-weight: 750;
-  line-height: 1.25;
-}
-
-.modalClose {
-  appearance: none;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-
-  color: var(--color-grey);
-  background-color: transparent;
-
-  border: 0;
-  border-radius: 50%;
-
-  font: inherit;
-  font-size: 1.55rem;
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    color var(--members-transition),
-    background-color var(--members-transition),
-    transform var(--members-transition);
-}
-
-.modalClose:hover {
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.08);
-
-  transform: rotate(4deg);
-}
-
-.modalClose:focus-visible {
-  outline: none;
-  box-shadow: var(--members-focus);
-}
-
-/* ==========================================================
-   FORM
-========================================================== */
-
-.form {
-  display: flex;
-  flex-direction: column;
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
-
-  padding: clamp(1.25rem, 4vw, 2rem);
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.48rem;
-
-  min-width: 0;
-}
-
-.formGroup.full {
-  grid-column: 1 / -1;
-}
-
-.formGroup label:not(.imageUpload) {
-  color: var(--color-text);
-
-  font-size: 0.88rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.formGroup input,
-.formGroup textarea,
-.formGroup select {
-  display: block;
-
-  width: 100%;
-  min-width: 0;
-  padding: 0.82rem 0.95rem;
-
-  color: var(--color-text);
-  background-color: var(--members-surface);
-
-  border: var(--members-border);
-  border-radius: var(--members-radius-small);
-
-  outline: none;
-
-  font: inherit;
-  font-size: 0.94rem;
-  line-height: 1.45;
-
-  transition:
-    border-color var(--members-transition),
-    box-shadow var(--members-transition),
-    background-color var(--members-transition);
-}
-
-.formGroup input:hover,
-.formGroup textarea:hover,
-.formGroup select:hover {
-  border-color: var(--color-grey);
-}
-
-.formGroup input:focus,
-.formGroup textarea:focus,
-.formGroup select:focus {
-  border-color: var(--color-secondary);
-  box-shadow: var(--members-focus);
-}
-
-.formGroup input::placeholder,
-.formGroup textarea::placeholder {
-  color: var(--color-grey);
-}
-
-.formGroup textarea {
-  min-height: 10rem;
-
-  resize: vertical;
-}
-
-.fieldHelp {
-  color: var(--color-grey);
-
-  font-size: 0.8rem;
-  line-height: 1.45;
-}
-
-/* ==========================================================
-   IMAGE UPLOAD
-========================================================== */
-
-.imageUpload {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 15rem;
-  padding: 1rem;
-
-  overflow: hidden;
-
-  background-color: var(--members-surface-soft);
-
-  border: 2px dashed var(--color-light-grey);
-  border-radius: var(--members-radius);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--members-transition),
-    border-color var(--members-transition),
-    box-shadow var(--members-transition),
-    transform var(--members-transition);
-}
-
-.imageUpload:hover {
-  background-color: rgba(21, 130, 203, 0.05);
-  border-color: var(--color-secondary);
-
-  transform: translateY(-1px);
-}
-
-.imageUpload:focus-within {
-  border-color: var(--color-secondary);
-  box-shadow: var(--members-focus);
-}
-
-.imageUpload.dragover {
-  background-color: rgba(131, 192, 67, 0.1);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(131, 192, 67, 0.15);
-}
-
-.imageUpload input[type='file'] {
-  position: absolute;
-
-  width: 1px;
-  height: 1px;
-
-  opacity: 0;
-  pointer-events: none;
-}
-
-#memberImagePlaceholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-
-  padding: 1rem;
-
-  color: var(--color-grey);
-  text-align: center;
-}
-
-#memberImagePlaceholder::before {
-  content: '+';
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 3.25rem;
-  height: 3.25rem;
-  margin-bottom: 0.35rem;
-
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  border-radius: 50%;
-
-  font-size: 2rem;
-  font-weight: 300;
-  line-height: 1;
-}
-
-#memberImagePlaceholder strong {
-  color: var(--color-secondary-hover);
-
-  font-size: 1rem;
-}
-
-#memberImagePlaceholder p {
-  margin: 0;
-
-  font-size: 0.84rem;
-}
-
-.imagePreview {
-  display: block;
-
-  width: 100%;
-  max-height: 22rem;
-
-  object-fit: contain;
-  object-position: center;
-
-  border-radius: calc(var(--members-radius) - 0.25rem);
-}
-
-/* ==========================================================
-   MODAL FOOTER
-========================================================== */
-
-.modalFooter {
-  position: sticky;
-  bottom: 0;
-  z-index: 3;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-
-  padding: 1rem clamp(1.25rem, 4vw, 2rem);
-
-  background-color: rgba(255, 255, 255, 0.96);
-  border-top: 1px solid var(--color-light-grey);
-
-  backdrop-filter: blur(8px);
+/*
+ * No genera el emoji cuando el HTML ya incluye un elemento
+ * visual explícito.
+ */
+.miembrosPage .emptyState:has(.emptyStateIcon)::before {
+  content: none;
 }
 
 /* ==========================================================
    DELETE MODAL
 ========================================================== */
 
-.deleteModal {
-  width: min(100%, 480px);
-}
-
-.deleteModal .modalHeader {
-  position: static;
-}
-
-.deleteBody {
-  padding: clamp(1.5rem, 5vw, 2.5rem);
-
-  text-align: center;
-}
-
-.deleteBody::before {
-  content: '!';
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 3.75rem;
-  height: 3.75rem;
-  margin-bottom: 1rem;
-
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.1);
-
-  border-radius: 50%;
-
-  font-size: 1.8rem;
-  font-weight: 800;
-}
-
-.deleteBody p {
-  margin: 0;
-
-  color: #555555;
-
-  font-size: 0.98rem;
-  line-height: 1.65;
-}
-
-/* ==========================================================
-   TOASTS
-========================================================== */
-
-.toastContainer {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 2000;
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.7rem;
-
-  width: min(calc(100% - 2.5rem), 26rem);
-
-  pointer-events: none;
-}
-
-.toast {
-  width: 100%;
-  padding: 0.9rem 1rem;
-
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--members-radius);
-
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
-
-  font-size: 0.9rem;
-  font-weight: 650;
-  line-height: 1.45;
-
-  opacity: 0;
-  transform: translateX(1.5rem);
-
-  pointer-events: auto;
-
-  transition:
-    opacity 250ms ease,
-    transform 250ms ease;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.toast.success {
-  background-color: var(--color-primary-hover);
-}
-
-.toast.error {
-  background-color: var(--color-red);
-}
-
-.toast.warning {
-  color: var(--color-text);
-  background-color: var(--color-yellow);
-}
-
-.toast.info {
-  background-color: var(--color-secondary);
+#deleteModal .deleteModal,
+#deleteModal .modalContent {
+  width: min(100%, 30rem);
 }
 
 /* ==========================================================
    RESPONSIVE — TABLET
 ========================================================== */
 
-@media (max-width: 960px) {
-  .toolbar {
-    align-items: stretch;
-    flex-direction: column;
+@media (max-width: 900px) {
+  .miembrosPage .table {
+    min-width: 62rem;
   }
 
-  .toolbarLeft,
-  .toolbarRight,
-  .searchWrapper {
-    width: 100%;
+  .miembrosPage .memberDescription {
+    width: 19rem;
   }
 
-  .toolbarRight {
-    justify-content: flex-end;
-  }
-
-  .table {
-    min-width: 960px;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .formGroup.full {
-    grid-column: auto;
+  .miembrosPage .memberPosition {
+    max-width: 11rem;
   }
 }
 
@@ -1209,113 +309,41 @@
 
 @media (max-width: 640px) {
   .miembrosPage {
-    gap: 1rem;
-
-    padding: 0.75rem;
+    --admin-table-cell-padding: 0.8rem;
   }
 
-  .pageHeader {
-    padding: 1.15rem;
-
-    border-radius: var(--members-radius);
+  .miembrosPage .table {
+    min-width: 58rem;
   }
 
-  .toolbarRight .button {
-    width: 100%;
-  }
-
-  .tableContainer {
-    border-radius: var(--members-radius);
-  }
-
-  .table th,
-  .table td {
-    padding: 0.8rem;
-  }
-
-  .modal {
-    align-items: flex-end;
-
-    padding: 0;
-  }
-
-  .modalContent {
-    width: 100%;
-    max-height: 96vh;
-
-    border-right: 0;
-    border-bottom: 0;
-    border-left: 0;
-    border-radius: var(--members-radius-large) var(--members-radius-large) 0 0;
-
-    animation-name: modalMobileIn;
-  }
-
-  @keyframes modalMobileIn {
-    from {
-      opacity: 0;
-      transform: translateY(2rem);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .modalHeader {
-    padding: 1rem 1.1rem;
-  }
-
-  .formGrid {
-    gap: 1rem;
-
-    padding: 1.1rem;
-  }
-
-  .imageUpload {
+  .miembrosPage .imageUpload {
     min-height: 12rem;
   }
 
-  .modalFooter {
-    flex-direction: column-reverse;
-
-    padding: 0.9rem 1.1rem;
+  .miembrosPage .imagePreview {
+    max-height: 18rem;
   }
 
-  .modalFooter .button {
+  .miembrosPage .memberDescription {
+    width: 17rem;
+  }
+
+  #deleteModal .deleteModal,
+  #deleteModal .modalContent {
     width: 100%;
-  }
-
-  .deleteModal {
-    width: 100%;
-  }
-
-  .toastContainer {
-    right: 0.75rem;
-    bottom: 0.75rem;
-    left: 0.75rem;
-
-    width: auto;
   }
 }
 
 /* ==========================================================
-   REDUCED MOTION
+   VERY SMALL SCREENS
 ========================================================== */
 
-@media (prefers-reduced-motion: reduce) {
-  .miembrosPage *,
-  .miembrosPage *::before,
-  .miembrosPage *::after,
-  .modal,
-  .modalContent,
-  .toast {
-    scroll-behavior: auto !important;
+@media (max-width: 380px) {
+  .miembrosPage .imageUpload {
+    min-height: 10rem;
+  }
 
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-
-    transition-duration: 0.01ms !important;
+  .miembrosPage .imagePreview {
+    max-height: 15rem;
   }
 }

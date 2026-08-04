@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro'
 
 import TituloPag from '../../../components/Common/TituloPag.astro'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
 
 import SvgJuguete from '../../../assets/icon-donar-cosas/icon-juguete.svg'
@@ -21,7 +22,26 @@ import SvgUser from '../../../assets/icon-common/icon-user.svg'
 import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
 ---
 
-<Layout pag="Donar cosas">
+<Layout
+  pag="Donar cosas"
+  seoTitle="Donar ropa, alimentos y objetos en Neuquén"
+  description="Conocé qué donaciones materiales recibe Fundación SENO, en qué condiciones deben estar y cómo coordinar su entrega en Neuquén."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Donar cosas'
+      }
+    ]}
+  />
   <NavegacionQuieroAyudar pag="3" />
   <TituloPag titulo="Donar cosas" />
 
@@ -30,7 +50,7 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
       <div class="hero__contenido">
         <span class="etiqueta">Donaciones materiales</span>
 
-        <h1>Todo puede tener una segunda oportunidad</h1>
+        <h2>Todo puede tener una segunda oportunidad</h2>
 
         <p class="hero__introduccion">
           En Fundación SENO recibimos una gran variedad de objetos. Siempre
@@ -564,7 +584,7 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
     z-index: 1;
   }
 
-  .hero h1 {
+  .hero h2 {
     max-width: 750px;
     margin: 0 0 1.3rem;
     color: var(--donar-primary-dark);
@@ -1418,7 +1438,7 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
       border-radius: 1.4rem;
     }
 
-    .hero h1 {
+    .hero h2 {
       font-size: clamp(2rem, 10vw, 3rem);
     }
 

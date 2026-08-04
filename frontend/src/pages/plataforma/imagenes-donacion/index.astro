@@ -1,34 +1,80 @@
 ---
-import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
-import '../../../style/uploadImage.css'
 import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
 import ModalCarga from '../../../components/Common/ModalCarga.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/uploadImages.css'
 ---
 
-<LayoutPlataforma>
+<LayoutPlataforma titulo="Imágenes de donación">
   <ModalCarga />
+
   <HeaderPlataforma
     title="Imágenes de donación"
-    content="Subida de las fotos tomadas a las donaciones"
+    content="Actualizá las fotografías de donaciones que se muestran en el sitio web."
   />
-  <main class="upload-page">
-    <form id="uploadForm">
-      <label for="images" class="drop-zone" id="dropZone">
-        <span class="icon">🖼️</span>
 
-        <h2>Soltá las imágenes acá</h2>
+  <main class="adminPage upload-page">
+    <section class="uploadCard" aria-labelledby="upload-title">
+      <header class="uploadCardHeader">
+        <h2 id="upload-title">Subir una nueva imagen</h2>
 
-        <p>o hace click para seleccionarlas</p>
+        <p id="upload-description">
+          Seleccioná una fotografía. La plataforma reemplazará automáticamente
+          la imagen de donación más antigua.
+        </p>
+      </header>
 
-        <input id="images" type="file" accept="image/*" hidden />
-      </label>
+      <form id="uploadForm" class="uploadForm" enctype="multipart/form-data">
+        <label id="dropZone" class="imagePicker drop-zone" for="images">
+          <input
+            id="images"
+            class="srOnly"
+            name="image"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            aria-describedby="upload-description upload-formats"
+            required
+          />
 
-      <div id="previewContainer" class="previewContainer"></div>
+          <span class="imagePickerIcon icon" aria-hidden="true"> 🖼️ </span>
 
-      <button id="btnUpload" class="primaryButton" type="submit" disabled>
-        Subir imagen
-      </button>
-    </form>
+          <strong> Soltá la imagen acá </strong>
+
+          <span> O hacé clic para seleccionarla </span>
+
+          <small id="upload-formats"> JPG, PNG, WebP o AVIF </small>
+        </label>
+
+        <div
+          id="previewContainer"
+          class="imagePreviewContainer previewContainer"
+          aria-label="Vista previa de la imagen seleccionada"
+          aria-live="polite"
+        >
+        </div>
+
+        <div class="uploadActions">
+          <button
+            id="btnUpload"
+            class="button buttonPrimary primaryButton"
+            type="submit"
+            disabled
+          >
+            Subir imagen
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="infoMessage uploadNotice">
+      <strong>Tené en cuenta</strong>
+
+      <p>
+        La imagen se convertirá automáticamente al formato utilizado por el
+        sitio web. Verificá que la fotografía sea clara antes de subirla.
+      </p>
+    </aside>
   </main>
 
   <script>

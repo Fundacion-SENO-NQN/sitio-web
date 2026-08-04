@@ -13,19 +13,22 @@ const IMG_URL = (
   'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
 ).replace(/\/+$/, '')
 
+const eventUrl = `/eventos/${evento.id}`
 const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
+
+const hasMetadata = Boolean(evento.fecha || evento.horario || evento.lugar)
 ---
 
-<article class="evento">
+<article class="event-card">
   <a
-    class="imagen-link"
-    href={`/eventos/${evento.id}`}
-    aria-label={`Ver evento ${evento.titulo}`}
+    class="event-card__image-link"
+    href={eventUrl}
+    aria-label={`Ver evento: ${evento.titulo}`}
   >
     <img
+      class="event-card__image"
       src={imageUrl}
-      alt={`Imagen de ${evento.titulo}`}
-      class="imagen-evento"
+      alt=""
       loading={priority ? 'eager' : 'lazy'}
       fetchpriority={priority ? 'high' : 'auto'}
       decoding="async"
@@ -34,65 +37,69 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
     />
   </a>
 
-  <div class="contenido">
+  <div class="event-card__content">
     {
-      (evento.fecha || evento.horario || evento.lugar) && (
-        <div class="datos">
+      hasMetadata && (
+        <ul class="event-card__metadata" aria-label="Información del evento">
           {evento.fecha && (
-            <div class="dato">
-              <span class="icono" aria-hidden="true">
+            <li class="event-card__metadata-item">
+              <span class="event-card__metadata-icon" aria-hidden="true">
                 📅
               </span>
 
               <span>{evento.fecha}</span>
-            </div>
+            </li>
           )}
 
           {evento.horario && (
-            <div class="dato">
-              <span class="icono" aria-hidden="true">
+            <li class="event-card__metadata-item">
+              <span class="event-card__metadata-icon" aria-hidden="true">
                 🕒
               </span>
 
               <span>{evento.horario}</span>
-            </div>
+            </li>
           )}
 
           {evento.lugar && (
-            <div class="dato">
-              <span class="icono" aria-hidden="true">
+            <li class="event-card__metadata-item">
+              <span class="event-card__metadata-icon" aria-hidden="true">
                 📍
               </span>
 
               <span>{evento.lugar}</span>
-            </div>
+            </li>
           )}
-        </div>
+        </ul>
       )
     }
 
-    <h2>
-      <a href={`/eventos/${evento.id}`}>
+    <h2 class="event-card__title">
+      <a href={eventUrl}>
         {evento.titulo}
       </a>
     </h2>
 
-    <p class="descripcion">
-      {evento.descripcion}
-    </p>
+    {
+      evento.descripcion && (
+        <p class="event-card__description">{evento.descripcion}</p>
+      )
+    }
 
-    <a class="ver-evento" href={`/eventos/${evento.id}`}>
-      Ver evento
+    <a
+      class="event-card__link"
+      href={eventUrl}
+      aria-label={`Ver más información sobre ${evento.titulo}`}
+    >
+      <span>Ver evento</span>
 
-      <span aria-hidden="true"> → </span>
+      <span class="event-card__link-icon" aria-hidden="true"> → </span>
     </a>
   </div>
 </article>
 
 <style>
-  .evento {
-    box-sizing: border-box;
-
+  .event-card {
     width: 100%;
     min-width: 0;
     height: 100%;
@@ -102,20 +109,22 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
 
     overflow: hidden;
 
-    border: 1px solid var(--color-light-grey);
-    border-radius: 1rem;
-
+    color: var(--color-text);
     background-color: var(--color-background);
+
+    border: 1px solid var(--color-light-grey);
+
+    border-radius: var(--radius);
+
     box-shadow: var(--shadow);
 
-    font-family: var(--text-font-primary);
-
     transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease;
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .imagen-link {
+  .event-card__image-link {
     display: block;
 
     overflow: hidden;
@@ -123,29 +132,38 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
     background-color: var(--color-primary-light);
   }
 
-  .imagen-evento {
+  .event-card__image-link:focus-visible {
+    outline: none;
+
+    box-shadow: inset 0 0 0 4px var(--color-secondary);
+
+    position: relative;
+    z-index: 1;
+  }
+
+  .event-card__image {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 10;
 
-    display: block;
+    aspect-ratio: 16 / 10;
 
     object-fit: cover;
     object-position: center;
 
-    transition: transform 0.35s ease;
+    transition: transform 350ms ease;
   }
 
-  .contenido {
+  .event-card__content {
     min-width: 0;
+
     padding: clamp(1rem, 3vw, 1.35rem);
 
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
     flex-direction: column;
   }
 
-  .datos {
+  .event-card__metadata {
     margin-bottom: 0.8rem;
 
     display: flex;
@@ -153,47 +171,69 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
     gap: 0.4rem;
   }
 
-  .dato {
+  .event-card__metadata-item {
     min-width: 0;
 
     display: flex;
     align-items: flex-start;
-    gap: 0.45rem;
+    gap: 0.5rem;
 
-    color: var(--color-grey);
+    color: #666666;
 
-    font-size: 0.88rem;
-    line-height: 1.4;
+    font-size: 0.86rem;
+    line-height: 1.45;
   }
 
-  .dato span:last-child {
+  .event-card__metadata-item > span:last-child {
     min-width: 0;
 
     overflow-wrap: anywhere;
   }
 
-  .icono {
-    flex-shrink: 0;
+  .event-card__metadata-icon {
+    width: 1.15rem;
+
+    display: inline-flex;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    line-height: 1.4;
   }
 
-  h2 {
+  .event-card__title {
     margin: 0;
-  }
-
-  h2 a {
-    color: var(--color-primary-hover);
 
     font-size: clamp(1.2rem, 3vw, 1.5rem);
+
     line-height: 1.3;
-    text-decoration: none;
-    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
-  h2 a:hover {
+  .event-card__title a {
+    color: var(--color-primary-hover);
+
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    transition: color var(--transition);
+  }
+
+  .event-card__title a:hover {
+    color: var(--color-secondary-hover);
+
     text-decoration: underline;
   }
 
-  .descripcion {
+  .event-card__title a:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+
+    outline-offset: 3px;
+
+    border-radius: 0.2rem;
+  }
+
+  .event-card__description {
     margin: 0.75rem 0 1rem;
 
     display: -webkit-box;
@@ -207,9 +247,10 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
 
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
 
-  .ver-evento {
+  .event-card__link {
     width: fit-content;
     margin-top: auto;
 
@@ -219,43 +260,70 @@ const imageUrl = `${IMG_URL}/img_eventos/${evento.id}/0.avif`
 
     color: var(--color-secondary-hover);
 
-    font-weight: 700;
+    font-weight: 750;
+    line-height: 1.4;
     text-decoration: none;
+
+    transition: color var(--transition);
   }
 
-  .ver-evento:hover {
+  .event-card__link:hover {
+    color: var(--color-secondary);
+
     text-decoration: underline;
   }
 
+  .event-card__link:focus-visible {
+    outline: 3px solid var(--color-secondary-light);
+
+    outline-offset: 3px;
+
+    border-radius: 0.2rem;
+  }
+
+  .event-card__link-icon {
+    display: inline-block;
+
+    transition: transform var(--transition);
+  }
+
   @media (hover: hover) {
-    .evento:hover {
+    .event-card:hover {
+      border-color: var(--color-primary-light);
+
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.13);
+
       transform: translateY(-0.35rem);
     }
 
-    .evento:hover .imagen-evento {
+    .event-card:hover .event-card__image {
       transform: scale(1.04);
+    }
+
+    .event-card__link:hover .event-card__link-icon {
+      transform: translateX(0.25rem);
     }
   }
 
   @media (max-width: 480px) {
-    .imagen-evento {
+    .event-card__image {
       aspect-ratio: 4 / 3;
     }
 
-    .contenido {
+    .event-card__content {
       padding: 1rem;
     }
 
-    .descripcion {
+    .event-card__description {
       font-size: 0.95rem;
       line-height: 1.55;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .evento,
-    .imagen-evento {
+    .event-card,
+    .event-card__image,
+    .event-card__link-icon {
       transition: none;
     }
   }

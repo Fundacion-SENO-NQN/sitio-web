@@ -1,0 +1,443 @@
+/* ==========================================================
+   DONATION IMAGES UPLOAD
+
+   Estilos específicos para actualizar las imágenes que se
+   muestran en la sección pública de donaciones.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page) {
+  box-sizing: border-box;
+
+  width: 100%;
+  max-width: 56.25rem;
+  min-width: 0;
+  min-height: 100%;
+
+  margin-inline: auto;
+  padding: clamp(1rem, 3vw, 2rem);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xl);
+
+  color: var(--admin-text);
+  background-color: var(--admin-background);
+
+  font-family: var(--text-font-primary);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page),
+:where(.upload-page, .uploadImagesPage, .upload-images-page) *,
+:where(.upload-page, .uploadImagesPage, .upload-images-page) *::before,
+:where(.upload-page, .uploadImagesPage, .upload-images-page) *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.pageHeader, .uploadHeader) {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--admin-space-small);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.pageHeader, .uploadHeader)
+  h1 {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: clamp(1.5rem, 4vw, 2rem);
+
+  line-height: 1.2;
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.pageHeader, .uploadHeader)
+  p {
+  max-width: 45rem;
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  line-height: 1.55;
+}
+
+/* ==========================================================
+   UPLOAD FORM
+========================================================== */
+
+#uploadForm {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--admin-space-large);
+}
+
+/* ==========================================================
+   DROP ZONE
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.drop-zone, #dropZone) {
+  width: 100%;
+  min-height: 20rem;
+  padding: clamp(2rem, 7vw, 4rem);
+
+  color: var(--admin-text-muted);
+  background-color: var(--admin-surface);
+
+  border: 3px dashed var(--admin-border-color);
+
+  border-radius: var(--admin-radius-large);
+
+  box-shadow: var(--admin-shadow-small);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.drop-zone, #dropZone):hover:not([aria-disabled='true']) {
+  color: var(--color-secondary-hover);
+  background-color: var(--admin-secondary-hover-soft);
+
+  border-color: var(--color-secondary);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.drop-zone, #dropZone).drag {
+  color: var(--color-primary-hover);
+  background-color: var(--admin-primary-soft);
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 4px var(--admin-primary-ring);
+}
+
+/* ==========================================================
+   UPLOAD ICON
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page) .icon {
+  width: 5rem;
+  height: 5rem;
+  margin-bottom: var(--admin-space-small);
+
+  display: inline-grid;
+  place-items: center;
+
+  color: var(--admin-text-on-color);
+  background-color: var(--color-secondary);
+
+  border-radius: 50%;
+
+  font-size: 2.75rem;
+  font-weight: 400;
+  line-height: 1;
+
+  box-shadow: 0 8px 22px rgba(21, 130, 203, 0.24);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.drop-zone, #dropZone)
+  strong {
+  color: var(--color-secondary-hover);
+
+  font-size: 1.05rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.drop-zone, #dropZone)
+  p {
+  max-width: 32rem;
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+/* ==========================================================
+   PREVIEW CONTAINER
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.previewContainer, #previewContainer) {
+  width: min(100%, 31.25rem);
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+
+  gap: var(--admin-space-medium);
+}
+
+/* ==========================================================
+   PREVIEW ITEM
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.previewContainer, #previewContainer)
+  .preview {
+  width: 100%;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius);
+
+  box-shadow: var(--admin-shadow-small);
+}
+
+/* ==========================================================
+   PREVIEW IMAGE
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  :where(.previewContainer, #previewContainer)
+  .preview
+  img {
+  width: 100%;
+  height: auto;
+
+  display: block;
+
+  aspect-ratio: 1;
+
+  object-fit: cover;
+  object-position: center;
+
+  background-color: var(--admin-surface-muted);
+
+  border-radius: 0;
+}
+
+/* ==========================================================
+   REMOVE BUTTON
+========================================================== */
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page) .preview .remove {
+  width: 2.25rem;
+  height: 2.25rem;
+
+  top: 0.65rem;
+  right: 0.65rem;
+
+  color: var(--admin-text);
+  background-color: rgba(255, 255, 255, 0.92);
+
+  border: 1px solid rgba(18, 18, 18, 0.35);
+
+  font-size: 1rem;
+
+  backdrop-filter: blur(5px);
+}
+
+:where(.upload-page, .uploadImagesPage, .upload-images-page)
+  .preview
+  .remove:hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+  background-color: var(--color-red);
+
+  border-color: var(--color-red);
+}
+
+/* ==========================================================
+   UPLOAD BUTTON
+========================================================== */
+
+#btnUpload,
+.upload-page .primaryButton,
+.uploadImagesPage .primaryButton,
+.upload-images-page .primaryButton {
+  width: auto;
+  min-width: 10rem;
+  min-height: 3rem;
+
+  margin-top: var(--admin-space-small);
+  margin-bottom: 2rem;
+  padding-inline: 1.5rem;
+
+  color: var(--admin-text-on-color);
+  background-color: var(--color-secondary);
+
+  border: 1px solid var(--color-secondary);
+
+  border-radius: var(--admin-radius);
+
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+#btnUpload:hover:not(:disabled),
+.upload-page .primaryButton:hover:not(:disabled),
+.uploadImagesPage .primaryButton:hover:not(:disabled),
+.upload-images-page .primaryButton:hover:not(:disabled) {
+  color: var(--admin-text-on-color);
+  background-color: var(--color-secondary-hover);
+
+  border-color: var(--color-secondary-hover);
+
+  box-shadow: var(--admin-shadow-button);
+
+  transform: translateY(-1px);
+}
+
+#btnUpload:focus-visible,
+.upload-page .primaryButton:focus-visible,
+.uploadImagesPage .primaryButton:focus-visible,
+.upload-images-page .primaryButton:focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+#btnUpload:disabled,
+.upload-page .primaryButton:disabled,
+.uploadImagesPage .primaryButton:disabled,
+.upload-images-page .primaryButton:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* ==========================================================
+   UPLOAD SUMMARY
+========================================================== */
+
+:where(.uploadSummary, .upload-summary) {
+  width: min(100%, 31.25rem);
+  margin: 0 auto;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.84rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+:where(.uploadSummary, .upload-summary) strong {
+  color: var(--admin-text);
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   GLOBAL LOADER
+========================================================== */
+
+#modal-carga {
+  color: var(--admin-text);
+
+  background-color: rgba(255, 255, 255, 0.88);
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  :where(.upload-page, .uploadImagesPage, .upload-images-page)
+    :where(.drop-zone, #dropZone) {
+    min-height: 17rem;
+    padding: clamp(2rem, 6vw, 3rem);
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.upload-page, .uploadImagesPage, .upload-images-page) {
+    gap: var(--admin-space-medium);
+
+    padding: 0.75rem;
+  }
+
+  :where(.upload-page, .uploadImagesPage, .upload-images-page)
+    :where(.drop-zone, #dropZone) {
+    min-height: 14rem;
+    padding: 1.5rem 1rem;
+
+    border-width: 2px;
+  }
+
+  :where(.upload-page, .uploadImagesPage, .upload-images-page) .icon {
+    width: 4rem;
+    height: 4rem;
+
+    font-size: 2.15rem;
+  }
+
+  #btnUpload,
+  .upload-page .primaryButton,
+  .uploadImagesPage .primaryButton,
+  .upload-images-page .primaryButton {
+    width: 100%;
+    min-width: 0;
+
+    margin-bottom: 1rem;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  :where(.upload-page, .uploadImagesPage, .upload-images-page)
+    :where(.drop-zone, #dropZone) {
+    min-height: 12rem;
+  }
+
+  :where(.upload-page, .uploadImagesPage, .upload-images-page) .icon {
+    width: 3.5rem;
+    height: 3.5rem;
+
+    font-size: 1.9rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.upload-page, .uploadImagesPage, .upload-images-page)
+    :where(.drop-zone, #dropZone, .preview, .remove, .primaryButton),
+  #btnUpload {
+    transition: none;
+  }
+}

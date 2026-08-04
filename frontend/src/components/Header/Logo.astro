@@ -3,45 +3,83 @@ import { Image } from 'astro:assets'
 import LogoSeno from '../../assets/logo_seno.avif'
 ---
 
-<a href="/" class="logo" aria-label="Ir al inicio">
-  <Image src={LogoSeno} alt="Logo de la Fundación SENO" priority />
+<a class="header-logo" href="/" aria-label="Ir al inicio de Fundación SENO">
+  <Image
+    class="header-logo__image"
+    src={LogoSeno}
+    alt=""
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+  />
 </a>
 
 <style>
-  .logo {
+  .header-logo {
     width: auto;
     height: clamp(4.5rem, 7vw, 6.5rem);
 
-    display: flex;
-    flex-shrink: 0;
+    display: inline-flex;
     align-items: center;
+    position: relative;
+
+    flex: 0 0 auto;
+
+    border-radius: var(--radius-small);
+
+    transition:
+      box-shadow var(--transition),
+      opacity var(--transition),
+      transform var(--transition);
   }
 
-  .logo img {
+  .header-logo__image {
     width: auto;
     height: 100%;
     max-width: 100%;
 
-    display: block;
     object-fit: contain;
+    object-position: left center;
   }
 
-  .logo:focus-visible {
-    border-radius: 0.5rem;
-    outline: 2px solid var(--color-primary);
-    outline-offset: 4px;
+  .header-logo:hover {
+    opacity: 0.9;
+  }
+
+  .header-logo:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  @media (hover: hover) {
+    .header-logo:hover {
+      transform: translateY(-1px);
+    }
   }
 
   @media (max-width: 1100px) {
-    .logo {
+    .header-logo {
       height: 4.5rem;
     }
   }
 
   @media (max-width: 480px) {
-    .logo {
+    .header-logo {
       height: 4rem;
       max-width: calc(100% - 4.5rem);
+    }
+  }
+
+  @media (max-width: 350px) {
+    .header-logo {
+      height: 3.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-logo {
+      transition: none;
     }
   }
 </style>

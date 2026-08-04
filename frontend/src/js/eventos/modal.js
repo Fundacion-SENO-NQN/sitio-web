@@ -1,648 +1,347 @@
-import { createEvento, patchEvento } from '../common/api.js'
+import { createFormModalController } from '../common/modalController.js'
 
-import { buildEventoFormData, validateImages } from './formData.js'
+import { requireElement, focusSoon } from '../common/dom.js'
 
-import { refreshEventos } from './eventos.js'
-
-import { showToast } from '../common/toast.js'
-
-const IMG_URL = (
-  import.meta.env.PUBLIC_IMG_URL ??
-  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
-).replace(/\/+$/, '')
-
-const MAX_IMAGES = 10
-
-const MAX_IMAGE_SIZE = 12 * 1024 * 1024
-
-const VALID_IMAGE_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif'
-])
+import { buildEventoFormData } from './formData.js'
 
 /* ==========================================================
-   ELEMENTOS
+   MODAL FACTORY
 ========================================================== */
 
-const modal = document.getElementById('modal-evento')
-
-const form = document.getElementById('form-evento')
-
-const modalTitle = document.getElementById('modal-evento-titulo')
-
-const titleInput = document.getElementById('evento-titulo')
-
-const descriptionInput = document.getElementById('evento-descripcion')
-
-const dateInput = document.getElementById('evento-fecha')
-
-const timeInput = document.getElementById('evento-horario')
-
-const placeInput = document.getElementById('evento-lugar')
-
-const urlInput = document.getElementById('evento-url')
-
-const urlTitleInput = document.getElementById('evento-url-titulo')
-
-const imagesInput = document.getElementById('evento-imagenes')
-
-const uploadArea = document.getElementById('zona-subida-imagenes')
-
-const selectedImagesContainer = document.getElementById(
-  'imagenes-seleccionadas'
-)
-
-const currentImagesContainer = document.getElementById(
-  'imagenes-actuales-contenedor'
-)
-
-const currentImagesGallery = document.getElementById('imagenes-actuales')
-
-const imagesHelpText = document.getElementById('texto-ayuda-imagenes')
-
-const closeButton = document.getElementById('btn-cerrar-modal-evento')
-
-const cancelButton = document.getElementById('btn-cancelar-evento')
-
-const saveButton = document.getElementById('btn-guardar-evento')
-
-const modalBackground = modal?.querySelector('[data-cerrar-modal-evento]')
-
-/* ==========================================================
-   ESTADO
-========================================================== */
-
-let eventoEditando = null
-let enviandoFormulario = false
-
-let imagenesSeleccionadas = []
-let previewUrls = []
-
-/* ==========================================================
-   REGISTRAR EVENTOS
-========================================================== */
-
-export function registrarEventosModal() {
-  form?.addEventListener('submit', guardarEvento)
-
-  closeButton?.addEventListener('click', cerrarModalEvento)
-
-  cancelButton?.addEventListener('click', cerrarModalEvento)
-
-  modalBackground?.addEventListener('click', cerrarModalEvento)
-
-  imagesInput?.addEventListener('change', manejarSeleccionArchivos)
-
-  uploadArea?.addEventListener('dragover', manejarDragOver)
-
-  uploadArea?.addEventListener('dragleave', manejarDragLeave)
-
-  uploadArea?.addEventListener('drop', manejarDrop)
-
-  document.addEventListener('keydown', manejarTeclado)
-}
-
-/* ==========================================================
-   ABRIR PARA CREAR
-========================================================== */
-
-export function abrirModalCrearEvento() {
-  if (enviandoFormulario) {
-    return
-  }
-
-  eventoEditando = null
-
-  limpiarFormulario()
-
-  if (modalTitle) {
-    modalTitle.textContent = 'Nuevo evento'
-  }
-
-  if (saveButton) {
-    saveButton.textContent = 'Guardar evento'
-  }
-
-  if (imagesInput) {
-    imagesInput.required = true
-  }
-
-  if (imagesHelpText) {
-    imagesHelpText.textContent =
-      'Seleccioná entre 1 y 10 imágenes para el evento.'
-  }
-
-  currentImagesContainer?.classList.add('oculto')
-
-  abrirModal()
-
-  window.setTimeout(() => {
-    titleInput?.focus()
-  }, 0)
-}
-
-/* ==========================================================
-   ABRIR PARA EDITAR
-========================================================== */
-
-export function abrirModalEditarEvento(evento) {
-  if (enviandoFormulario || !evento) {
-    return
-  }
-
-  eventoEditando = evento
-
-  limpiarFormulario()
-
-  if (modalTitle) {
-    modalTitle.textContent = 'Editar evento'
-  }
-
-  if (saveButton) {
-    saveButton.textContent = 'Guardar cambios'
-  }
-
-  if (titleInput) {
-    titleInput.value = evento.titulo ?? ''
-  }
-
-  if (descriptionInput) {
-    descriptionInput.value = evento.descripcion ?? ''
-  }
-
-  if (dateInput) {
-    dateInput.value = evento.fecha ?? ''
-  }
-
-  if (timeInput) {
-    timeInput.value = evento.horario ?? ''
-  }
-
-  if (placeInput) {
-    placeInput.value = evento.lugar ?? ''
-  }
-
-  if (urlInput) {
-    urlInput.value = evento.url ?? ''
-  }
-
-  if (urlTitleInput) {
-    urlTitleInput.value = evento.url_titulo ?? ''
-  }
-
-  if (imagesInput) {
-    imagesInput.required = false
-  }
-
-  if (imagesHelpText) {
-    imagesHelpText.textContent =
-      'Dejá este campo vacío para conservar las imágenes actuales.'
-  }
-
-  renderizarImagenesActuales(evento)
-
-  abrirModal()
-
-  window.setTimeout(() => {
-    titleInput?.focus()
-  }, 0)
-}
-
-/* ==========================================================
-   GUARDAR
-========================================================== */
-
-async function guardarEvento(event) {
-  event.preventDefault()
-
-  if (enviandoFormulario || !form) {
-    return
-  }
-
-  const titulo = titleInput?.value.trim() ?? ''
-
-  const descripcion = descriptionInput?.value.trim() ?? ''
-
-  if (!titulo) {
-    showToast('El título es requerido.', 'warning')
-
-    titleInput?.focus()
-
-    return
-  }
-
-  if (!descripcion) {
-    showToast('La descripción es requerida.', 'warning')
-
-    descriptionInput?.focus()
-
-    return
-  }
-
-  if (!eventoEditando && imagenesSeleccionadas.length === 0) {
-    showToast('Seleccioná al menos una imagen.', 'warning')
-
-    imagesInput?.focus()
-
-    return
-  }
-
-  try {
-    validateImages(imagenesSeleccionadas)
-
-    validarTamanioImagenes(imagenesSeleccionadas)
-
-    const formData = buildEventoFormData({
-      titulo,
-      descripcion,
-
-      lugar: placeInput?.value ?? '',
-
-      fecha: dateInput?.value ?? '',
-
-      horario: timeInput?.value ?? '',
-
-      url: urlInput?.value ?? '',
-
-      urlTitulo: urlTitleInput?.value ?? '',
-
-      images: imagenesSeleccionadas
-    })
-
-    enviandoFormulario = true
-    actualizarEstadoGuardado(true)
-
-    if (eventoEditando) {
-      await patchEvento(eventoEditando.id, formData)
-
-      showToast('El evento fue actualizado correctamente.')
-    } else {
-      await createEvento(formData)
-
-      showToast('El evento fue creado correctamente.')
-    }
-
-    cerrarModalEvento()
-
-    await refreshEventos()
-  } catch (error) {
-    console.error('No se pudo guardar el evento:', error)
-
-    showToast(error.message || 'No se pudo guardar el evento.', 'error')
-  } finally {
-    enviandoFormulario = false
-    actualizarEstadoGuardado(false)
-  }
-}
-
-/* ==========================================================
-   SELECCIÓN DE ARCHIVOS
-========================================================== */
-
-function manejarSeleccionArchivos() {
-  const archivos = Array.from(imagesInput?.files ?? [])
-
-  procesarImagenesSeleccionadas(archivos)
-}
-
-function procesarImagenesSeleccionadas(archivos) {
-  try {
-    if (archivos.length > MAX_IMAGES) {
-      throw new Error(`Podés seleccionar como máximo ${MAX_IMAGES} imágenes.`)
-    }
-
-    validarTiposImagen(archivos)
-
-    validarTamanioImagenes(archivos)
-
-    imagenesSeleccionadas = archivos
-
-    renderizarImagenesSeleccionadas()
-  } catch (error) {
-    console.error('Selección de imágenes inválida:', error)
-
-    showToast(
-      error.message || 'Las imágenes seleccionadas no son válidas.',
-      'warning'
-    )
-
-    limpiarImagenesSeleccionadas()
-  }
-}
-
-/* ==========================================================
-   DRAG AND DROP
-========================================================== */
-
-function manejarDragOver(event) {
-  event.preventDefault()
-
-  if (enviandoFormulario) {
-    return
-  }
-
-  uploadArea?.classList.add('arrastrando')
-}
-
-function manejarDragLeave(event) {
-  if (event.currentTarget.contains(event.relatedTarget)) {
-    return
-  }
-
-  uploadArea?.classList.remove('arrastrando')
-}
-
-function manejarDrop(event) {
-  event.preventDefault()
-
-  uploadArea?.classList.remove('arrastrando')
-
-  if (enviandoFormulario) {
-    return
-  }
-
-  const archivos = Array.from(event.dataTransfer?.files ?? [])
-
-  if (archivos.length === 0) {
-    return
-  }
-
-  procesarImagenesSeleccionadas(archivos)
-
-  /*
-   * También copiamos los archivos al input para mantener
-   * consistente su estado visual y de validación.
-   */
-  if (imagesInput && imagenesSeleccionadas.length > 0) {
-    const dataTransfer = new DataTransfer()
-
-    imagenesSeleccionadas.forEach((archivo) => {
-      dataTransfer.items.add(archivo)
-    })
-
-    imagesInput.files = dataTransfer.files
-  }
-}
-
-/* ==========================================================
-   PREVIEW DE NUEVAS IMÁGENES
-========================================================== */
-
-function renderizarImagenesSeleccionadas() {
-  liberarPreviewUrls()
-
-  selectedImagesContainer?.replaceChildren()
-
-  if (imagenesSeleccionadas.length === 0) {
-    selectedImagesContainer?.classList.add('oculto')
-
-    return
-  }
-
-  const fragment = document.createDocumentFragment()
-
-  imagenesSeleccionadas.forEach((archivo, index) => {
-    const previewUrl = URL.createObjectURL(archivo)
-
-    previewUrls.push(previewUrl)
-
-    fragment.appendChild(
-      crearPreviewImagen({
-        src: previewUrl,
-        alt: `Vista previa de ${archivo.name}`,
-        nombre: archivo.name,
-        numero: index + 1
-      })
-    )
+export function createEventoModal({
+  create,
+  update,
+  refresh,
+  imagePicker
+} = {}) {
+  validarConfiguracion({
+    create,
+    update,
+    refresh,
+    imagePicker
   })
 
-  selectedImagesContainer?.appendChild(fragment)
+  /* ========================================================
+     ELEMENTOS
+  ======================================================== */
 
-  selectedImagesContainer?.classList.remove('oculto')
-}
-
-/* ==========================================================
-   IMÁGENES ACTUALES
-========================================================== */
-
-function renderizarImagenesActuales(evento) {
-  currentImagesGallery?.replaceChildren()
-
-  const cantidadImagenes = Math.max(0, Number(evento.cant_img) || 0)
-
-  if (cantidadImagenes === 0) {
-    currentImagesContainer?.classList.add('oculto')
-
-    return
-  }
-
-  const fragment = document.createDocumentFragment()
-
-  for (let index = 0; index < cantidadImagenes; index += 1) {
-    /*
-     * El parámetro evita que el navegador reutilice
-     * una imagen anterior dentro del administrador.
-     */
-    const imageUrl =
-      `${IMG_URL}/img_eventos/${evento.id}/${index}.avif` +
-      `?admin=${Date.now()}`
-
-    fragment.appendChild(
-      crearPreviewImagen({
-        src: imageUrl,
-
-        alt: `Imagen ${index + 1} de ${evento.titulo}`,
-
-        nombre: `Imagen ${index + 1}`,
-
-        numero: index + 1
-      })
-    )
-  }
-
-  currentImagesGallery?.appendChild(fragment)
-
-  currentImagesContainer?.classList.remove('oculto')
-}
-
-/* ==========================================================
-   CREAR PREVIEW
-========================================================== */
-
-function crearPreviewImagen({ src, alt, nombre, numero }) {
-  const figura = document.createElement('figure')
-
-  figura.className = 'preview-imagen'
-
-  const imagen = document.createElement('img')
-
-  imagen.src = src
-  imagen.alt = alt
-  imagen.loading = 'lazy'
-  imagen.decoding = 'async'
-
-  imagen.addEventListener(
-    'error',
-    () => {
-      imagen.removeAttribute('src')
-
-      imagen.alt = 'Imagen no disponible'
-    },
-    {
-      once: true
-    }
+  const titleInput = requireElement(
+    '#evento-titulo',
+    'campo de título del evento'
   )
 
-  const numeroElemento = document.createElement('span')
+  const descriptionInput = requireElement(
+    '#evento-descripcion',
+    'campo de descripción del evento'
+  )
 
-  numeroElemento.className = 'preview-numero'
+  const dateInput = requireElement('#evento-fecha', 'campo de fecha del evento')
 
-  numeroElemento.textContent = String(numero)
+  const timeInput = requireElement(
+    '#evento-horario',
+    'campo de horario del evento'
+  )
 
-  numeroElemento.setAttribute('aria-hidden', 'true')
+  const placeInput = requireElement(
+    '#evento-lugar',
+    'campo de lugar del evento'
+  )
 
-  const descripcion = document.createElement('figcaption')
+  const urlInput = requireElement('#evento-url', 'campo de URL del evento')
 
-  descripcion.textContent = nombre
-  descripcion.title = nombre
+  const urlTitleInput = requireElement(
+    '#evento-url-titulo',
+    'campo de texto de la URL'
+  )
 
-  figura.append(imagen, numeroElemento, descripcion)
+  /* ========================================================
+     API CON BLOQUEO DE IMÁGENES
+  ======================================================== */
 
-  return figura
-}
+  async function crearEvento(formData) {
+    imagePicker.setDisabled(true)
 
-/* ==========================================================
-   VALIDACIONES
-========================================================== */
-
-function validarTiposImagen(archivos) {
-  archivos.forEach((archivo, index) => {
-    if (!(archivo instanceof File)) {
-      throw new Error(`La imagen ${index + 1} no es un archivo válido.`)
+    try {
+      return await create(formData)
+    } finally {
+      imagePicker.setDisabled(false)
     }
+  }
 
-    if (!VALID_IMAGE_TYPES.has(archivo.type)) {
-      throw new Error(`La imagen ${index + 1} no tiene un formato permitido.`)
+  async function actualizarEvento(id, formData) {
+    imagePicker.setDisabled(true)
+
+    try {
+      return await update(id, formData)
+    } finally {
+      imagePicker.setDisabled(false)
+    }
+  }
+
+  /* ========================================================
+     CONTROLADOR
+  ======================================================== */
+
+  const controller = createFormModalController({
+    modal: '#modal-evento',
+
+    form: '#form-evento',
+
+    titleElement: '#modal-evento-titulo',
+
+    saveButton: '#btn-guardar-evento',
+
+    closeButtons: ['#btn-cerrar-modal-evento'],
+
+    cancelButtons: ['#btn-cancelar-evento'],
+
+    backdrop: '[data-cerrar-modal-evento]',
+
+    hiddenClass: 'oculto',
+
+    createTitle: 'Nuevo evento',
+
+    editTitle: 'Editar evento',
+
+    createButtonText: 'Guardar evento',
+
+    editButtonText: 'Guardar cambios',
+
+    creatingText: 'Creando evento...',
+
+    updatingText: 'Guardando cambios...',
+
+    createSuccessMessage: 'El evento fue creado correctamente.',
+
+    updateSuccessMessage: 'El evento fue actualizado correctamente.',
+
+    errorMessage: 'No se pudo guardar el evento.',
+
+    create: crearEvento,
+
+    update: actualizarEvento,
+
+    refresh,
+
+    focusElement: titleInput,
+
+    disableFormWhileSubmitting: true,
+
+    validate({ editing }) {
+      validarFormulario({
+        editing,
+
+        titleInput,
+        descriptionInput,
+        urlInput,
+        urlTitleInput,
+
+        imagePicker
+      })
+    },
+
+    buildPayload() {
+      return buildEventoFormData({
+        titulo: titleInput.value,
+
+        descripcion: descriptionInput.value,
+
+        fecha: dateInput.value,
+
+        horario: timeInput.value,
+
+        lugar: placeInput.value,
+
+        url: urlInput.value,
+
+        urlTitulo: urlTitleInput.value,
+
+        images: imagePicker.files
+      })
+    },
+
+    populate(_form, evento) {
+      titleInput.value = evento.titulo ?? ''
+
+      descriptionInput.value = evento.descripcion ?? ''
+
+      dateInput.value = evento.fecha ?? ''
+
+      timeInput.value = evento.horario ?? ''
+
+      placeInput.value = evento.lugar ?? ''
+
+      urlInput.value = evento.url ?? ''
+
+      urlTitleInput.value = evento.url_titulo ?? ''
+    },
+
+    clear(form) {
+      form.reset()
+
+      imagePicker.setDisabled(false)
+
+      imagePicker.reset()
+    },
+
+    onOpenCreate() {
+      imagePicker.setRequired(true)
+
+      imagePicker.setHelpText(
+        'Seleccioná entre 1 y 10 imágenes para el evento.'
+      )
+    },
+
+    onOpenEdit({ item }) {
+      imagePicker.setRequired(false)
+
+      imagePicker.setHelpText(
+        'Dejá este campo vacío para conservar las imágenes actuales.'
+      )
+
+      imagePicker.showCurrentImages({
+        id: item.id,
+
+        count: item.cant_img,
+
+        directory: 'img_eventos',
+
+        indexed: true,
+
+        extension: 'avif',
+
+        title: obtenerTituloEvento(item),
+
+        cacheBust: true
+      })
+    },
+
+    onClose() {
+      imagePicker.setDisabled(false)
+
+      imagePicker.reset()
     }
   })
+
+  return controller
 }
 
-function validarTamanioImagenes(archivos) {
-  archivos.forEach((archivo, index) => {
-    if (archivo.size === 0) {
-      throw new Error(`La imagen ${index + 1} está vacía.`)
+/* ==========================================================
+   VALIDACIÓN
+========================================================== */
+
+function validarFormulario({
+  editing,
+
+  titleInput,
+  descriptionInput,
+  urlInput,
+  urlTitleInput,
+
+  imagePicker
+}) {
+  const titulo = titleInput.value.trim()
+
+  if (!titulo) {
+    focusSoon(titleInput)
+
+    throw new Error('El título es requerido.')
+  }
+
+  const descripcion = descriptionInput.value.trim()
+
+  if (!descripcion) {
+    focusSoon(descriptionInput)
+
+    throw new Error('La descripción es requerida.')
+  }
+
+  const url = urlInput.value.trim()
+
+  const urlTitulo = urlTitleInput.value.trim()
+
+  if (urlTitulo && !url) {
+    focusSoon(urlInput)
+
+    throw new Error(
+      'No podés agregar un texto para el botón sin ingresar una URL.'
+    )
+  }
+
+  if (url && !esUrlHttpValida(url)) {
+    focusSoon(urlInput)
+
+    throw new Error('La URL debe comenzar con http:// o https://.')
+  }
+
+  imagePicker.validate()
+
+  if (!editing)
+    try {
+      imagePicker.requireFiles(
+        'Seleccioná al menos una imagen para crear el evento.'
+      )
+    } catch (error) {
+      imagePicker.focus()
+
+      throw error
     }
-
-    if (archivo.size > MAX_IMAGE_SIZE) {
-      throw new Error(`La imagen ${index + 1} supera el límite de 12 MB.`)
-    }
-  })
 }
 
 /* ==========================================================
-   ABRIR Y CERRAR MODAL
+   HELPERS
 ========================================================== */
 
-function abrirModal() {
-  modal?.classList.remove('oculto')
+function esUrlHttpValida(value) {
+  try {
+    const url = new URL(value)
 
-  document.body.style.overflow = 'hidden'
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
-export function cerrarModalEvento() {
-  if (enviandoFormulario) {
-    return
-  }
+function obtenerTituloEvento(evento) {
+  const titulo = String(evento?.titulo ?? '').trim()
 
-  modal?.classList.add('oculto')
+  if (titulo) return titulo
 
-  document.body.style.overflow = ''
-
-  eventoEditando = null
-
-  limpiarFormulario()
+  return `evento ${evento?.id ?? ''}`.trim()
 }
 
 /* ==========================================================
-   LIMPIEZA
+   CONFIGURACIÓN
 ========================================================== */
 
-function limpiarFormulario() {
-  form?.reset()
-
-  limpiarImagenesSeleccionadas()
-
-  currentImagesGallery?.replaceChildren()
-
-  currentImagesContainer?.classList.add('oculto')
-
-  uploadArea?.classList.remove('arrastrando')
-}
-
-function limpiarImagenesSeleccionadas() {
-  imagenesSeleccionadas = []
-
-  liberarPreviewUrls()
-
-  if (imagesInput) {
-    imagesInput.value = ''
+function validarConfiguracion({ create, update, refresh, imagePicker }) {
+  const funciones = {
+    create,
+    update,
+    refresh
   }
 
-  selectedImagesContainer?.replaceChildren()
-
-  selectedImagesContainer?.classList.add('oculto')
-}
-
-function liberarPreviewUrls() {
-  previewUrls.forEach((url) => {
-    URL.revokeObjectURL(url)
-  })
-
-  previewUrls = []
-}
-
-/* ==========================================================
-   ESTADO DE GUARDADO
-========================================================== */
-
-function actualizarEstadoGuardado(guardando) {
-  if (saveButton) {
-    saveButton.disabled = guardando
-
-    if (guardando) {
-      saveButton.textContent = eventoEditando
-        ? 'Guardando cambios...'
-        : 'Creando evento...'
-    } else {
-      saveButton.textContent = eventoEditando
-        ? 'Guardar cambios'
-        : 'Guardar evento'
-    }
+  for (const [nombre, funcion] of Object.entries(funciones)) {
+    if (typeof funcion !== 'function')
+      throw new TypeError(`createEventoModal requiere ${nombre}.`)
   }
 
-  if (cancelButton) {
-    cancelButton.disabled = guardando
+  const metodosImagePicker = [
+    'validate',
+    'requireFiles',
+    'setRequired',
+    'setDisabled',
+    'setHelpText',
+    'showCurrentImages',
+    'reset',
+    'focus'
+  ]
+
+  if (!imagePicker)
+    throw new TypeError('createEventoModal requiere imagePicker.')
+
+  for (const metodo of metodosImagePicker) {
+    if (typeof imagePicker[metodo] !== 'function')
+      throw new TypeError(`imagePicker no implementa ${metodo}().`)
   }
-
-  if (closeButton) {
-    closeButton.disabled = guardando
-  }
-
-  if (imagesInput) {
-    imagesInput.disabled = guardando
-  }
-}
-
-/* ==========================================================
-   TECLADO
-========================================================== */
-
-function manejarTeclado(event) {
-  if (event.key !== 'Escape' || modal?.classList.contains('oculto')) {
-    return
-  }
-
-  cerrarModalEvento()
 }

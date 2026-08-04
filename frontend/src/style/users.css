@@ -1,449 +1,800 @@
+/* ==========================================================
+   USERS AND ROLES ADMINISTRATION
+
+   Estilos específicos de la administración de usuarios
+   y roles. Los componentes compartidos se importan desde
+   common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
 .users-page {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 87.5rem;
+
   margin-inline: auto;
-  padding: 40px;
+
+  padding: clamp(1rem, 3vw, 2.5rem);
+
+  --admin-table-cell-padding: 1rem;
 }
 
-.tabs {
+/* ==========================================================
+   VIEWS
+========================================================== */
+
+#usersView,
+#rolesView {
+  width: 100%;
+  min-width: 0;
+
   display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-large);
+}
 
-  gap: 10px;
+#usersView[hidden],
+#rolesView[hidden] {
+  display: none !important;
+}
 
-  margin-bottom: 30px;
+/* ==========================================================
+   TABS
+========================================================== */
+
+.users-page .tabs {
+  width: fit-content;
+
   margin-inline: auto;
+  margin-bottom: var(--admin-space-small);
 }
 
-.tab {
-  border: none;
-  background: var(--color-white);
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-  -webkit-transition: 0.3s;
-  -moz-transition: 0.3s;
-  -ms-transition: 0.3s;
-  -o-transition: 0.3s;
+/*
+ * Se conserva el verde utilizado originalmente para señalar
+ * la sección activa.
+ */
+.users-page .tab.active,
+.users-page .tab[aria-selected='true'] {
+  color: var(--admin-text-on-color);
+  background-color: var(--color-primary);
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 4px 14px rgba(131, 192, 67, 0.25);
 }
 
-.tab.active {
-  background: var(--color-primary);
-
-  color: var(--color-background);
+.users-page .tab:hover:not(:disabled):not(.active):not([aria-selected='true']) {
+  color: var(--color-primary-hover);
+  background-color: var(--admin-primary-soft);
 }
 
-.toolbar {
-  display: flex;
+/* ==========================================================
+   TOOLBARS
+========================================================== */
 
-  justify-content: space-between;
-
-  margin-bottom: 20px;
+.users-page .toolbar {
+  margin-bottom: 0;
 }
 
-.toolbar input {
-  width: 350px;
-
-  padding: 12px;
-
-  border: 1px solid var(--color-grey);
-
-  border-radius: 8px;
+.users-page :where(#searchUsers, #searchRoles) {
+  width: min(100%, 21.875rem);
 }
 
-.toolbar button {
-  border: none;
+/* ==========================================================
+   TABLE WRAPPERS
 
-  background: var(--color-primary);
+   Compatibilidad con el HTML anterior, donde la tabla podía
+   no encontrarse dentro de .tableContainer.
+========================================================== */
 
-  color: var(--color-background);
+#usersView > :has(> table),
+#rolesView > :has(> table) {
+  width: 100%;
+  min-width: 0;
 
-  padding: 12px 20px;
+  overflow-x: auto;
 
-  border-radius: 8px;
+  border: var(--admin-border);
+  border-radius: var(--admin-radius-large);
 
-  cursor: pointer;
+  background-color: var(--admin-surface);
+
+  box-shadow: var(--admin-shadow);
+
+  scrollbar-color: var(--admin-border-color) transparent;
+
+  scrollbar-width: thin;
 }
 
-table {
+#usersView > :has(> table)::-webkit-scrollbar,
+#rolesView > :has(> table)::-webkit-scrollbar {
+  height: 0.625rem;
+}
+
+#usersView > :has(> table)::-webkit-scrollbar-thumb,
+#rolesView > :has(> table)::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border-color);
+
+  border: 2px solid var(--admin-surface);
+  border-radius: var(--admin-radius-pill);
+}
+
+/* ==========================================================
+   TABLES
+
+   Se incluyen selectores por vista porque el CSS anterior
+   aplicaba estilos directamente a todos los elementos table.
+========================================================== */
+
+#usersView table,
+#rolesView table {
   width: 100%;
 
-  border-collapse: collapse;
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
 
-  background: #fff;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-thead {
-  background: var(--color-background);
+#usersView table {
+  min-width: 68rem;
 }
 
-th {
+#rolesView table {
+  min-width: 45rem;
+}
+
+/* ==========================================================
+   TABLE HEADERS
+========================================================== */
+
+#usersView table th,
+#rolesView table th {
+  padding: var(--admin-table-cell-padding);
+
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  color: var(--color-secondary-hover);
+  background-color: var(--admin-table-header);
+
+  border-bottom: 1px solid var(--admin-border-color);
+
+  font-size: 0.8rem;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: 0.025em;
   text-align: left;
-
-  padding: 18px;
-}
-
-td {
-  padding: 18px;
-
-  border-top: 1px solid var(--color-white);
-}
-
-tbody tr:hover {
-  background: #fafafa;
-}
-
-.userCell {
-  display: flex;
-
-  align-items: center;
-
-  gap: 15px;
-}
-
-.avatar {
-  width: 42px;
-
-  height: 42px;
-
-  border-radius: 50%;
-
-  background: var(--color-primary);
-
-  color: var(--color-background);
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  font-weight: bold;
-}
-
-.name {
-  font-weight: 600;
-}
-
-.username {
-  color: var(--color-grey);
-
-  font-size: 0.9rem;
-}
-
-.role {
-  background: var(--color-background);
-
-  color: var(--color-primary);
-
-  padding: 6px 12px;
-
-  border-radius: 20px;
-
-  font-size: 0.85rem;
-}
-
-.activeBadge {
-  background: #dff6e3;
-
-  color: var(--color-primary-hover);
-
-  padding: 6px 12px;
-
-  border-radius: 20px;
-}
-
-.inactiveBadge {
-  background: var(--color-background);
-
-  color: var(--color-red);
-
-  padding: 6px 12px;
-
-  border-radius: 20px;
-}
-
-.btnEdit {
-  margin-right: 8px;
-}
-
-.btnDelete {
-  background: var(--color-red);
-
-  color: var(--color-background);
-}
-
-th {
-  cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
 
   user-select: none;
 }
 
-th:hover {
-  background: #ececec;
-}
+/* ==========================================================
+   SORTABLE HEADERS
+========================================================== */
 
-.modal {
-  position: fixed;
+#usersView table th.sortable,
+#rolesView table th.sortable,
+#usersView table th[id^='sort'],
+#rolesView table th[id^='sort'] {
+  cursor: pointer;
 
-  inset: 0;
-
-  background: rgba(0, 0, 0, 0.45);
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.modalContent {
-  width: 500px;
-
-  background: var(--color-background);
-
-  border-radius: 12px;
-
-  padding: 30px;
-}
-
-.modalContent input,
-.modalContent select {
-  width: 100%;
-
-  margin-bottom: 15px;
-}
-
-.buttons {
-  display: flex;
-
-  justify-content: flex-end;
-
-  gap: 10px;
-}
-
-.tableButton {
-  background-color: transparent;
-  border: 1px solid var(--color-text);
-  border-radius: 0.3rem;
-  -webkit-border-radius: 0.3rem;
-  -moz-border-radius: 0.3rem;
-  -ms-border-radius: 0.3rem;
-  -o-border-radius: 0.3rem;
-  width: 90%;
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -webkit-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -moz-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -ms-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -o-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    box-shadow var(--admin-transition);
 }
 
-.tableButton:hover {
-  cursor: pointer;
-  background-color: var(--color-blue);
-  color: var(--color-background);
+#usersView table th.sortable:hover,
+#rolesView table th.sortable:hover,
+#usersView table th[id^='sort']:hover,
+#rolesView table th[id^='sort']:hover {
+  color: var(--color-secondary);
+  background-color: var(--admin-secondary-soft);
 }
 
-.tableButton.edit:hover {
-  background-color: var(--color-yellow);
-  color: var(--color-text);
+#usersView table th.sortable:focus-visible,
+#rolesView table th.sortable:focus-visible,
+#usersView table th[id^='sort']:focus-visible,
+#rolesView table th[id^='sort']:focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus-inset);
 }
 
-.tableButton.delete:hover {
-  background-color: var(--color-red);
-  color: var(--color-text);
+/* ==========================================================
+   LEGACY SORT INDICATORS
+========================================================== */
+
+.users-page th.sort-up::after,
+.users-page th.sort-down::after {
+  margin-left: 0.4rem;
+
+  color: var(--color-secondary);
+
+  font-size: 0.7rem;
 }
 
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.iconButton {
-  height: 1.5rem;
-  width: 1.5rem;
-  margin-left: 1rem;
-  background-color: transparent;
-  border: 1px solid var(--color-text);
-  border-radius: 100%;
-  -webkit-border-radius: 100%;
-  -moz-border-radius: 100%;
-  -ms-border-radius: 100%;
-  -o-border-radius: 100%;
-  transition: background-color 0.3s ease;
-  -webkit-transition: background-color 0.3s ease;
-  -moz-transition: background-color 0.3s ease;
-  -ms-transition: background-color 0.3s ease;
-  -o-transition: background-color 0.3s ease;
-}
-
-.iconButton:hover {
-  cursor: pointer;
-  background-color: var(--color-red);
-}
-
-.field label + input {
-  border: none;
-  border-bottom: 1px solid var(--color-text);
-  padding: 0.2rem;
-}
-
-#roleForm .field:not(:first-of-type):not(:nth-child(2)) {
-  display: flex;
-  align-items: center;
-}
-
-.serviceOption,
-input[type='checkbox'] {
-  cursor: pointer;
-}
-
-#roleForm input[type='checkbox'] {
-  width: min-content;
-  margin-right: 0.5rem;
-}
-
-#servicesContainer {
-  display: flex;
-  flex-direction: column;
-}
-
-#roleSelect {
-  border-radius: 0.5rem;
-  -webkit-border-radius: 0.5rem;
-  -moz-border-radius: 0.5rem;
-  -ms-border-radius: 0.5rem;
-  -o-border-radius: 0.5rem;
-  border: 1px solid var(--color-text);
-  padding: 0.2rem;
-}
-
-#roleSelect:hover {
-  cursor: pointer;
-}
-
-.modalButtons {
-  display: flex;
-}
-
-.modalButtons button {
-  width: 4rem;
-  flex: 1;
-  border: 1px solid var(--color-text);
-  background-color: transparent;
-  border-radius: 1.4rem;
-  -webkit-border-radius: 1.4rem;
-  -moz-border-radius: 1.4rem;
-  -ms-border-radius: 1.4rem;
-  -o-border-radius: 1.4rem;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -webkit-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -moz-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -ms-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -o-transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-.modalButtons button:first-child {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.modalButtons button:last-child {
-  border-left: none;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.modalButtons button:hover {
-  cursor: pointer;
-}
-
-.modalContent .primaryButton:hover {
-  background-color: var(--color-primary-hover);
-  color: var(--color-background);
-}
-
-.modalContent .secondaryButton:hover {
-  background-color: var(--color-red);
-}
-
-.confirmBox {
-  width: 15rem;
-  height: 12rem;
-  padding: 30px;
-  border-radius: 12px;
-  background-color: var(--color-background);
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  -ms-border-radius: 12px;
-  -o-border-radius: 12px;
-  border: 1px solid var(--color-text);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.confirmBox button {
-  transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-  -webkit-transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-  -moz-transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-  -ms-transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-  -o-transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-}
-
-.confirmBox button:hover {
-  cursor: pointer;
-}
-
-.confirmBox .secondaryButton:hover {
-  background-color: var(--color-blue);
-  color: var(--color-background);
-}
-
-.confirmBox .dangerButton:hover {
-  background-color: var(--color-red);
-}
-
-.sort-up::after {
+.users-page th.sort-up::after {
   content: '▲';
 }
 
-.sort-down::after {
+.users-page th.sort-down::after {
   content: '▼';
+}
+
+/* ==========================================================
+   TABLE CELLS
+========================================================== */
+
+#usersView table td,
+#rolesView table td {
+  padding: var(--admin-table-cell-padding);
+
+  color: var(--admin-text);
+
+  border-bottom: 1px solid var(--admin-table-divider);
+
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: left;
+  vertical-align: middle;
+}
+
+#usersView table tbody tr,
+#rolesView table tbody tr {
+  background-color: var(--admin-surface);
+
+  transition:
+    background-color var(--admin-transition),
+    opacity var(--admin-transition);
+}
+
+#usersView table tbody tr:hover,
+#rolesView table tbody tr:hover {
+  background-color: var(--admin-table-row-hover);
+}
+
+#usersView table tbody tr:last-child td,
+#rolesView table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ==========================================================
+   CURRENT AND INACTIVE ROWS
+========================================================== */
+
+#usersView table tr.currentUser {
+  background-color: var(--admin-secondary-hover-soft);
+}
+
+#rolesView table tr.currentRole {
+  background-color: var(--admin-primary-soft);
+}
+
+#usersView table tr.inactiveUser {
+  opacity: 0.62;
+}
+
+#usersView table tr.inactiveUser:hover {
+  opacity: 0.85;
+}
+
+/* ==========================================================
+   USER CELL
+========================================================== */
+
+.users-page .userCell {
+  min-width: 13rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.users-page .userCell .avatar,
+.users-page .avatar {
+  width: 2.625rem;
+  height: 2.625rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text-on-color);
+  background-color: var(--color-primary);
+
+  border-radius: 50%;
+
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+
+  box-shadow: 0 4px 12px rgba(131, 192, 67, 0.22);
+}
+
+.users-page .userCell .name,
+.users-page .name {
+  color: var(--admin-text);
+
+  font-size: 0.94rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.users-page .userCell .username,
+.users-page .username {
+  margin-top: 0.15rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+/* ==========================================================
+   USERNAME AND EMAIL
+========================================================== */
+
+.users-page :where(.usernameValue, .emailValue) {
+  max-width: 16rem;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   ROLE BADGE
+========================================================== */
+
+.users-page :where(.roleBadge, .role) {
+  color: var(--color-primary-hover);
+  background-color: var(--admin-primary-soft);
+
+  border-color: var(--color-primary-light);
+}
+
+/* ==========================================================
+   LEGACY STATUS BADGES
+========================================================== */
+
+.users-page :where(.activeBadge, .inactiveBadge) {
+  width: fit-content;
+  min-height: 1.8rem;
+  padding: 0.35rem 0.7rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: var(--admin-radius-pill);
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.users-page .activeBadge {
+  color: var(--color-primary-hover);
+  background-color: #dff6e3;
+
+  border-color: var(--color-primary-light);
+}
+
+.users-page .inactiveBadge {
+  color: var(--color-red);
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--admin-danger-border);
+}
+
+/* ==========================================================
+   STATUS SWITCH
+========================================================== */
+
+.users-page .switch {
+  margin-inline: auto;
+}
+
+/*
+ * El usuario actual no puede cambiar su propio estado.
+ */
+.users-page .switch input:disabled + .slider {
+  opacity: 0.45;
+}
+
+/* ==========================================================
+   USER ACTIONS
+========================================================== */
+
+.users-page .actions {
+  min-width: 13rem;
+}
+
+.users-page .actions .tableButton {
+  flex: 0 0 auto;
+}
+
+/* ==========================================================
+   ROLES TABLE
+========================================================== */
+
+#rolesView table td:first-child {
+  min-width: 11rem;
+
+  font-weight: 750;
+}
+
+#rolesView .roleServices {
+  min-width: 18rem;
+  max-width: 36rem;
+}
+
+/*
+ * Compatibilidad con el renderizador anterior, que mostraba
+ * todos los servicios como un único texto.
+ */
+#rolesView table td:nth-child(2) {
+  max-width: 36rem;
+
+  color: #555555;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   EMPTY STATES
+========================================================== */
+
+#usersEmpty,
+#rolesEmpty {
+  min-height: 18rem;
+}
+
+#usersEmpty::before,
+#rolesEmpty::before {
+  display: block;
+
+  font-size: 3rem;
+  line-height: 1;
+}
+
+#usersEmpty::before {
+  content: '👤';
+}
+
+#rolesEmpty::before {
+  content: '🛡️';
+}
+
+#usersEmpty:has(.emptyStateIcon)::before,
+#rolesEmpty:has(.emptyStateIcon)::before {
+  content: none;
+}
+
+/* ==========================================================
+   USER MODAL
+========================================================== */
+
+#userModal :where(.modalContent, .modal-contenido) {
+  width: min(100%, 36rem);
+}
+
+/* ==========================================================
+   ROLE MODAL
+========================================================== */
+
+#roleModal :where(.modalContent, .modal-contenido) {
+  width: min(100%, 40rem);
+}
+
+/* ==========================================================
+   CONFIRMATION MODAL
+========================================================== */
+
+#confirmModal :where(.modalContent, .modal-contenido) {
+  width: min(100%, 30rem);
+}
+
+#confirmModal #confirmText {
+  margin: 0;
+
+  color: #555555;
+
+  line-height: 1.65;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   FORMS
+========================================================== */
+
+#userForm,
+#roleForm {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * Compatibilidad con el HTML anterior, que utiliza .field en
+ * lugar de .formGroup.
+ */
+#userForm .field,
+#roleForm .field {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+#userForm .field + .field,
+#roleForm .field + .field {
+  margin-top: var(--admin-space-medium);
+}
+
+#userForm .field label,
+#roleForm .field label {
+  color: var(--admin-text);
+
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* ==========================================================
+   LEGACY FORM INPUTS
+========================================================== */
+
+#userForm .field > :is(input, select, textarea),
+#roleForm .field > :is(input:not([type='checkbox']), select, textarea) {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--admin-control-height);
+
+  padding: 0.82rem 0.95rem;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius-small);
+
+  outline: none;
+
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.45;
+
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    background-color var(--admin-transition),
+    opacity var(--admin-transition);
+}
+
+#userForm .field > :is(input, select, textarea):focus,
+#roleForm .field > :is(input:not([type='checkbox']), select, textarea):focus {
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+/* ==========================================================
+   USER FORM LAYOUT
+========================================================== */
+
+#userForm :where(.formGrid, .form-grid) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#passwordContainer,
+#roleContainer {
+  min-width: 0;
+}
+
+/* ==========================================================
+   ROLE SELECT
+========================================================== */
+
+#roleSelect {
+  cursor: pointer;
+}
+
+/* ==========================================================
+   ROLE SERVICES
+========================================================== */
+
+#servicesContainer {
+  max-height: 20rem;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#roleForm .serviceOption {
+  margin: 0;
+}
+
+#roleForm .serviceOption input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+
+  margin: 0.05rem 0 0;
+
+  flex: 0 0 auto;
+
+  accent-color: var(--color-secondary);
+}
+
+/* ==========================================================
+   LEGACY BUTTON CONTAINER
+========================================================== */
+
+#userForm .buttons,
+#roleForm .buttons,
+#confirmModal .buttons {
+  width: 100%;
+
+  margin-top: var(--admin-space-large);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--admin-space);
+
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   MODAL LOADERS
+========================================================== */
+
+#modal-carga-user,
+#modal-carga-role,
+#modal-carga-confirm,
+#modalCargaConfirm {
+  border-radius: inherit;
+}
+
+/* ==========================================================
+   LOADING VIEWS
+========================================================== */
+
+#pantalla-carga-users,
+#pantalla-carga-roles {
+  min-height: 18rem;
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  .users-page {
+    padding: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  #usersView table {
+    min-width: 62rem;
+  }
+
+  #rolesView table {
+    min-width: 42rem;
+  }
+
+  #userForm :where(.formGrid, .form-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #servicesContainer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  .users-page {
+    padding: 0.75rem;
+
+    --admin-table-cell-padding: 0.8rem;
+  }
+
+  .users-page .tabs {
+    width: 100%;
+
+    margin-bottom: 0;
+  }
+
+  .users-page .tab {
+    flex: 1 1 50%;
+  }
+
+  #usersView table {
+    min-width: 58rem;
+  }
+
+  #rolesView table {
+    min-width: 38rem;
+  }
+
+  .users-page .actions {
+    min-width: 7.5rem;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .users-page .actions .tableButton {
+    width: 100%;
+  }
+
+  #userForm .buttons,
+  #roleForm .buttons,
+  #confirmModal .buttons {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  #userForm .buttons > *,
+  #roleForm .buttons > *,
+  #confirmModal .buttons > * {
+    width: 100%;
+  }
+
+  #userModal :where(.modalContent, .modal-contenido),
+  #roleModal :where(.modalContent, .modal-contenido),
+  #confirmModal :where(.modalContent, .modal-contenido) {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  .users-page .tabs {
+    flex-direction: column;
+  }
+
+  .users-page .tab {
+    width: 100%;
+  }
+
+  .users-page .userCell {
+    min-width: 11rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .users-page .tab,
+  .users-page table tbody tr {
+    transition: none;
+  }
 }

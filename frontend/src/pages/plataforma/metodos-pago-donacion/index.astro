@@ -1,0 +1,397 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/metodos-pago-donacion.css'
+---
+
+<LayoutPlataforma titulo="Métodos de pago de donación">
+  <HeaderPlataforma
+    title="Métodos de pago de donación"
+    content="Administrá los métodos, íconos y datos de pago que aparecen en la sección pública de donaciones."
+  />
+
+  <main class="paymentMethodsPage">
+    <section
+      class="paymentMethodsToolbar"
+      aria-label="Herramientas de administración"
+    >
+      <label class="paymentMethodsSearch" for="searchDonationMethods">
+        <span class="srOnly"> Buscar métodos de pago </span>
+
+        <span aria-hidden="true">⌕</span>
+
+        <input
+          id="searchDonationMethods"
+          type="search"
+          placeholder="Buscar método o información..."
+          autocomplete="off"
+        />
+      </label>
+
+      <div class="paymentMethodsToolbar__right">
+        <p id="methodsCount" class="paymentMethodsCount" aria-live="polite">
+          0 métodos
+        </p>
+
+        <div class="paymentMethodsSort" aria-label="Ordenar métodos">
+          <button id="sortMethodsName" type="button" aria-pressed="false">
+            Nombre
+          </button>
+
+          <button id="sortMethodsDate" type="button" aria-pressed="false">
+            Fecha
+          </button>
+        </div>
+
+        <button
+          id="btnNewMethod"
+          class="paymentMethodsButton paymentMethodsButton--primary"
+          type="button"
+        >
+          <span aria-hidden="true">+</span>
+          Nuevo método
+        </button>
+      </div>
+    </section>
+
+    <section id="methodsLoading" class="paymentMethodsState" role="status">
+      <span class="paymentMethodsSpinner" aria-hidden="true"> </span>
+
+      <h2>Cargando métodos de pago</h2>
+
+      <p>Estamos obteniendo la información.</p>
+    </section>
+
+    <section
+      id="methodsError"
+      class="paymentMethodsState paymentMethodsState--error oculto"
+      role="alert"
+      aria-hidden="true"
+    >
+      <span class="paymentMethodsState__icon" aria-hidden="true"> ! </span>
+
+      <h2>No pudimos cargar los métodos</h2>
+
+      <p>Verificá la conexión con el servidor e intentá nuevamente.</p>
+
+      <button
+        id="btnRetryMethods"
+        class="paymentMethodsButton paymentMethodsButton--secondary"
+        type="button"
+      >
+        Reintentar
+      </button>
+    </section>
+
+    <section
+      id="methodsEmpty"
+      class="paymentMethodsState oculto"
+      role="status"
+      aria-hidden="true"
+    >
+      <span class="paymentMethodsState__icon" aria-hidden="true"> $ </span>
+
+      <h2>Todavía no hay métodos de pago</h2>
+
+      <p>Creá el primer método para mostrar sus datos en la página pública.</p>
+
+      <button
+        id="btnEmptyNewMethod"
+        class="paymentMethodsButton paymentMethodsButton--primary"
+        type="button"
+      >
+        Crear primer método
+      </button>
+    </section>
+
+    <section
+      id="methodsTableContainer"
+      class="paymentMethodsTableContainer oculto"
+      aria-labelledby="methodsTableTitle"
+      aria-hidden="true"
+    >
+      <h2 id="methodsTableTitle" class="srOnly">Métodos de pago de donación</h2>
+
+      <div class="paymentMethodsTableScroll">
+        <table class="paymentMethodsTable">
+          <thead>
+            <tr>
+              <th scope="col">Ícono</th>
+              <th scope="col">Método</th>
+              <th scope="col">Información</th>
+              <th scope="col">Actualizado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="methodsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Create / edit modal -->
+
+  <div
+    id="methodModal"
+    class="paymentMethodModal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="methodModalTitle"
+    aria-describedby="methodModalDescription"
+    tabindex="-1"
+  >
+    <div
+      class="paymentMethodModal__backdrop"
+      data-close-method-modal
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="paymentMethodModal__content">
+      <header class="paymentMethodModal__header">
+        <div>
+          <p class="paymentMethodModal__label">Método de donación</p>
+
+          <h2 id="methodModalTitle">Nuevo método de pago</h2>
+
+          <p id="methodModalDescription">
+            Completá el método, su ícono y los datos necesarios para realizar
+            una donación.
+          </p>
+        </div>
+
+        <button
+          id="btnCloseMethodModal"
+          class="paymentMethodIconButton"
+          type="button"
+          aria-label="Cerrar ventana"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <form
+        id="methodForm"
+        class="paymentMethodForm"
+        enctype="multipart/form-data"
+      >
+        <div class="paymentMethodField">
+          <label for="methodName"> Nombre del método </label>
+
+          <input
+            id="methodName"
+            name="nombre"
+            type="text"
+            maxlength="150"
+            placeholder="Por ejemplo: Mercado Pago"
+            autocomplete="off"
+            required
+          />
+
+          <p>El nombre debe ser único dentro de la plataforma.</p>
+        </div>
+
+        <div class="paymentMethodField">
+          <label for="methodDescription"> Descripción </label>
+
+          <textarea
+            id="methodDescription"
+            name="descripcion"
+            maxlength="2000"
+            rows="4"
+            placeholder="Explicá brevemente cómo utilizar este método."
+            required></textarea>
+        </div>
+
+        <section
+          class="paymentMethodIconEditor"
+          aria-labelledby="paymentMethodIconTitle"
+        >
+          <header class="paymentMethodIconEditor__header">
+            <div>
+              <h3 id="paymentMethodIconTitle">Ícono del método</h3>
+
+              <p id="paymentMethodIconHelp">
+                Seleccioná el logotipo que identificará este método.
+              </p>
+            </div>
+          </header>
+
+          <label
+            id="paymentMethodIconDropZone"
+            class="paymentMethodIconPicker"
+            for="paymentMethodIcon"
+          >
+            <input
+              id="paymentMethodIcon"
+              class="srOnly"
+              name="icon"
+              type="file"
+              accept=".svg,image/svg+xml"
+              aria-describedby="paymentMethodIconHelp paymentMethodIconFormats"
+            />
+
+            <span class="paymentMethodIconPicker__symbol" aria-hidden="true">
+              +
+            </span>
+
+            <strong>Seleccionar ícono SVG</strong>
+
+            <span> También podés soltar el archivo en esta zona </span>
+
+            <small id="paymentMethodIconFormats"> SVG, máximo 512 KB </small>
+          </label>
+
+          <section
+            id="paymentMethodCurrentIcon"
+            class="paymentMethodIconPreviewSection oculto"
+            aria-labelledby="paymentMethodCurrentIconTitle"
+            aria-hidden="true"
+          >
+            <h4 id="paymentMethodCurrentIconTitle">Ícono actual</h4>
+
+            <div
+              id="paymentMethodCurrentIconGallery"
+              class="paymentMethodIconGallery"
+            >
+            </div>
+          </section>
+
+          <section
+            id="paymentMethodSelectedIcon"
+            class="paymentMethodIconGallery oculto"
+            aria-label="Vista previa del nuevo ícono"
+            aria-live="polite"
+            aria-hidden="true"
+          >
+          </section>
+        </section>
+
+        <section
+          class="informationEditor"
+          aria-labelledby="informationEditorTitle"
+        >
+          <header class="informationEditor__header">
+            <div>
+              <h3 id="informationEditorTitle">Información del método</h3>
+
+              <p>Agregá alias, CVU, CBU, titular u otros datos necesarios.</p>
+            </div>
+
+            <button
+              id="btnAddInformation"
+              class="paymentMethodsButton paymentMethodsButton--secondary"
+              type="button"
+            >
+              <span aria-hidden="true">+</span>
+              Agregar dato
+            </button>
+          </header>
+
+          <div id="informationRows" class="informationRows" aria-live="polite">
+          </div>
+
+          <p id="informationEmpty" class="informationEmpty oculto">
+            Este método todavía no tiene información adicional.
+          </p>
+        </section>
+
+        <footer class="paymentMethodModal__footer">
+          <button
+            id="btnCancelMethod"
+            class="paymentMethodsButton paymentMethodsButton--ghost"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button
+            id="btnSaveMethod"
+            class="paymentMethodsButton paymentMethodsButton--primary"
+            type="submit"
+          >
+            Crear método
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete modal -->
+
+  <div
+    id="deleteMethodModal"
+    class="paymentMethodModal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="deleteMethodTitle"
+    aria-describedby="deleteMethodText"
+    tabindex="-1"
+  >
+    <div
+      class="paymentMethodModal__backdrop"
+      data-close-delete-modal
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="paymentMethodModal__content paymentMethodModal__content--small">
+      <header class="paymentMethodModal__header">
+        <div>
+          <p
+            class="paymentMethodModal__label paymentMethodModal__label--danger"
+          >
+            Acción permanente
+          </p>
+
+          <h2 id="deleteMethodTitle">Eliminar método</h2>
+        </div>
+
+        <button
+          id="btnCloseDeleteModal"
+          class="paymentMethodIconButton"
+          type="button"
+          aria-label="Cerrar ventana"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <div class="paymentMethodDelete">
+        <span class="paymentMethodDelete__icon" aria-hidden="true"> ! </span>
+
+        <p id="deleteMethodText">
+          El método, su ícono y toda su información serán eliminados.
+        </p>
+
+        <strong>Esta acción no se puede deshacer.</strong>
+      </div>
+
+      <footer class="paymentMethodModal__footer">
+        <button
+          id="btnCancelDelete"
+          class="paymentMethodsButton paymentMethodsButton--ghost"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btnConfirmDelete"
+          class="paymentMethodsButton paymentMethodsButton--danger"
+          type="button"
+        >
+          Eliminar método
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    import '../../../js/metodos-pago-donacion/index.js'
+  </script>
+</LayoutPlataforma>

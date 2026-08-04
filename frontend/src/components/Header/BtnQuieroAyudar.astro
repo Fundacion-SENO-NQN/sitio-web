@@ -1,70 +1,115 @@
 ---
 import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/'
+
+const isCurrentSection =
+  currentPath === '/quiero-ayudar' || currentPath.startsWith('/quiero-ayudar/')
 ---
 
-<a href="/quiero-ayudar" class="btn-quiero-ayudar">
-  <SvgCorazon />
+<a
+  class:list={[
+    'help-button',
+    {
+      'help-button--current': isCurrentSection
+    }
+  ]}
+  href="/quiero-ayudar/"
+  aria-current={isCurrentSection ? 'page' : undefined}
+>
+  <SvgCorazon class="help-button__icon" aria-hidden="true" />
 
   <span>Quiero ayudar</span>
 </a>
 
 <style>
-  .btn-quiero-ayudar {
-    box-sizing: border-box;
-    padding: 0.9rem 1.15rem;
+  .help-button {
+    min-height: 3.25rem;
+    padding: 0.8rem 1.15rem;
 
     display: inline-flex;
-    flex-shrink: 0;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-
-    border-radius: 2rem;
-    background-color: var(--color-primary);
+    gap: 0.55rem;
 
     color: var(--color-background);
-    font-family: var(--text-font-primary);
-    font-size: clamp(1rem, 1.2vw, 1.3rem);
+    background-color: var(--color-primary);
+
+    border: 1px solid var(--color-primary);
+
+    border-radius: 999px;
+
+    font-size: clamp(1rem, 1.2vw, 1.2rem);
+
+    font-weight: 700;
+    line-height: 1.2;
     text-decoration: none;
     white-space: nowrap;
 
+    box-shadow: 0 5px 14px rgba(73, 107, 36, 0.16);
+
     transition:
-      background-color 0.3s ease,
-      transform 0.2s ease;
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .btn-quiero-ayudar:hover {
+  .help-button__icon {
+    width: 1.65rem;
+    height: 1.65rem;
+
+    flex: 0 0 auto;
+
+    color: currentColor;
+  }
+
+  .help-button:hover {
+    color: var(--color-background);
     background-color: var(--color-primary-hover);
-    transform: translateY(-2px);
+
+    border-color: var(--color-primary-hover);
+
+    box-shadow: 0 8px 20px rgba(73, 107, 36, 0.24);
   }
 
-  .btn-quiero-ayudar:focus-visible {
-    outline: 2px solid var(--color-primary-hover);
-    outline-offset: 3px;
+  .help-button:focus-visible {
+    outline: none;
+
+    box-shadow:
+      0 0 0 3px var(--color-primary-light),
+      0 7px 18px rgba(73, 107, 36, 0.22);
   }
 
-  .btn-quiero-ayudar svg {
-    width: 1.75rem;
-    height: 1.75rem;
+  .help-button--current {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
 
-    flex-shrink: 0;
+    border-color: var(--color-primary-hover);
+  }
+
+  @media (hover: hover) {
+    .help-button:hover {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 1100px) {
-    .btn-quiero-ayudar {
+    .help-button {
       width: 100%;
-      padding: 0.9rem 1rem;
-      font-size: 1.1rem;
+      min-height: 3.2rem;
+
+      padding: 0.85rem 1rem;
+
+      font-size: 1.05rem;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .btn-quiero-ayudar {
+    .help-button {
       transition: none;
-    }
-
-    .btn-quiero-ayudar:hover {
-      transform: none;
     }
   }
 </style>

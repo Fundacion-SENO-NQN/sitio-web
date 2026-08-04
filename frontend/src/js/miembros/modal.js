@@ -1,414 +1,282 @@
-import { refreshMembers } from './miembros.js'
+import { createFormModalController } from '../common/modalController.js'
 
-import { createMember, updateMember } from '../common/api.js'
+import { focusSoon, requireElement } from '../common/dom.js'
 
 import { buildMemberFormData } from './formData.js'
 
-import { showToast } from '../common/toast.js'
+import {
+  configurarImagenParaCrearMiembro,
+  configurarImagenParaEditarMiembro,
+  limpiarImagenMiembro
+} from './images.js'
 
 /* ==========================================================
-   DOM
+   MODAL FACTORY
 ========================================================== */
 
-const modal = document.getElementById('memberModal')
-
-const form = document.getElementById('memberForm')
-
-const modalTitle = document.getElementById('memberModalTitle')
-
-const nameInput = document.getElementById('memberName')
-
-const lastNameInput = document.getElementById('memberLastName')
-
-const positionInput = document.getElementById('memberPosition')
-
-const descriptionInput = document.getElementById('memberDescription')
-
-const imageInput = document.getElementById('memberImage')
-
-const imageUpload = document.getElementById('memberImageUpload')
-
-const imagePreview = document.getElementById('memberImagePreview')
-
-const imagePlaceholder = document.getElementById('memberImagePlaceholder')
-
-const imageHelp = document.getElementById('memberImageHelp')
-
-const closeButton = document.getElementById('btnCloseMemberModal')
-
-const cancelButton = document.getElementById('btnCancelMember')
-
-const saveButton = document.getElementById('btnSaveMember')
-
-/* ==========================================================
-   STATE
-========================================================== */
-
-let editingMember = null
-
-let previewObjectUrl = null
-
-let submitting = false
-
-/* ==========================================================
-   EVENTS
-========================================================== */
-
-export function registerMemberModalEvents() {
-  form?.addEventListener('submit', submitMemberForm)
-
-  closeButton?.addEventListener('click', closeMemberModal)
-
-  cancelButton?.addEventListener('click', closeMemberModal)
-
-  imageInput?.addEventListener('change', handleImageSelection)
-
-  imageUpload?.addEventListener('dragover', handleDragOver)
-
-  imageUpload?.addEventListener('dragleave', handleDragLeave)
-
-  imageUpload?.addEventListener('drop', handleImageDrop)
-
-  modal?.addEventListener('click', (event) => {
-    if (event.target === modal) {
-      closeMemberModal()
-    }
+export function createMiembroModal({
+  create,
+  update,
+  refresh,
+  imagePicker
+} = {}) {
+  validarConfiguracion({
+    create,
+    update,
+    refresh,
+    imagePicker
   })
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal?.classList.contains('hidden')) {
-      closeMemberModal()
+  /* ========================================================
+     ELEMENTOS
+  ======================================================== */
+
+  const nameInput = requireElement('#memberName', 'campo de nombre del miembro')
+
+  const lastNameInput = requireElement(
+    '#memberLastName',
+    'campo de apellido del miembro'
+  )
+
+  const positionInput = requireElement(
+    '#memberPosition',
+    'campo de puesto del miembro'
+  )
+
+  const descriptionInput = requireElement(
+    '#memberDescription',
+    'campo de descripción del miembro'
+  )
+
+  /* ========================================================
+     PETICIONES
+  ======================================================== */
+
+  async function crearMiembro(formData) {
+    imagePicker.setDisabled(true)
+
+    try {
+      return await create(formData)
+    } finally {
+      imagePicker.setDisabled(false)
+    }
+  }
+
+  async function actualizarMiembro(id, formData) {
+    imagePicker.setDisabled(true)
+
+    try {
+      return await update(id, formData)
+    } finally {
+      imagePicker.setDisabled(false)
+    }
+  }
+
+  /* ========================================================
+     CONTROLADOR
+  ======================================================== */
+
+  return createFormModalController({
+    modal: '#memberModal',
+
+    form: '#memberForm',
+
+    titleElement: '#memberModalTitle',
+
+    saveButton: '#btnSaveMember',
+
+    closeButtons: ['#btnCloseMemberModal'],
+
+    cancelButtons: ['#btnCancelMember'],
+
+    /*
+     * En esta página el propio contenedor del modal funciona
+     * como fondo, por lo que no hace falta indicar backdrop.
+     */
+    hiddenClass: 'hidden',
+
+    createTitle: 'Nuevo miembro',
+
+    editTitle: 'Editar miembro',
+
+    createButtonText: 'Crear miembro',
+
+    editButtonText: 'Guardar cambios',
+
+    creatingText: 'Creando miembro...',
+
+    updatingText: 'Guardando cambios...',
+
+    createSuccessMessage: 'El miembro fue creado correctamente.',
+
+    updateSuccessMessage: 'El miembro fue actualizado correctamente.',
+
+    errorMessage: 'No se pudo guardar el miembro.',
+
+    create: crearMiembro,
+
+    update: actualizarMiembro,
+
+    refresh,
+
+    focusElement: nameInput,
+
+    disableFormWhileSubmitting: true,
+
+    validate({ editing }) {
+      validarFormulario({
+        editing,
+
+        nameInput,
+        lastNameInput,
+        positionInput,
+        descriptionInput,
+
+        imagePicker
+      })
+    },
+
+    buildPayload() {
+      return buildMemberFormData({
+        nombre: nameInput.value,
+
+        apellido: lastNameInput.value,
+
+        puesto: positionInput.value,
+
+        descripcion: descriptionInput.value,
+
+        image: imagePicker.files[0] ?? null
+      })
+    },
+
+    populate(_form, miembro) {
+      nameInput.value = miembro.nombre ?? ''
+
+      lastNameInput.value = miembro.apellido ?? ''
+
+      positionInput.value = miembro.puesto ?? ''
+
+      descriptionInput.value = miembro.descripcion ?? ''
+    },
+
+    clear(form) {
+      form.reset()
+
+      imagePicker.setDisabled(false)
+
+      limpiarImagenMiembro()
+    },
+
+    onOpenCreate() {
+      configurarImagenParaCrearMiembro()
+    },
+
+    onOpenEdit({ item }) {
+      configurarImagenParaEditarMiembro(item)
+    },
+
+    onClose() {
+      imagePicker.setDisabled(false)
+
+      limpiarImagenMiembro()
     }
   })
 }
 
 /* ==========================================================
-   OPEN CREATE
+   VALIDACIÓN
 ========================================================== */
 
-export function openCreateMemberModal() {
-  editingMember = null
+function validarFormulario({
+  editing,
 
-  clearForm()
+  nameInput,
+  lastNameInput,
+  positionInput,
+  descriptionInput,
 
-  if (modalTitle) {
-    modalTitle.textContent = 'Nuevo miembro'
+  imagePicker
+}) {
+  const nombre = nameInput.value.trim()
+
+  if (!nombre) {
+    focusSoon(nameInput)
+
+    throw new Error('El nombre es requerido.')
   }
 
-  if (saveButton) {
-    saveButton.textContent = 'Crear miembro'
+  const apellido = lastNameInput.value.trim()
+
+  if (!apellido) {
+    focusSoon(lastNameInput)
+
+    throw new Error('El apellido es requerido.')
   }
 
-  if (imageInput) {
-    imageInput.required = true
+  const puesto = positionInput.value.trim()
+
+  if (!puesto) {
+    focusSoon(positionInput)
+
+    throw new Error('El puesto es requerido.')
   }
 
-  if (imageHelp) {
-    imageHelp.textContent = 'La fotografía es obligatoria al crear un miembro.'
+  const descripcion = descriptionInput.value.trim()
+
+  if (!descripcion) {
+    focusSoon(descriptionInput)
+
+    throw new Error('La descripción es requerida.')
   }
 
-  openModal()
+  imagePicker.validate()
 
-  nameInput?.focus()
+  /*
+   * La fotografía es obligatoria al crear.
+   *
+   * Durante la edición, no seleccionar una imagen nueva
+   * significa conservar la fotografía actual.
+   */
+  if (!editing)
+    try {
+      imagePicker.requireFiles('Seleccioná una fotografía para el miembro.')
+    } catch (error) {
+      imagePicker.focus()
+
+      throw error
+    }
 }
 
 /* ==========================================================
-   OPEN EDIT
+   CONFIGURACIÓN
 ========================================================== */
 
-export function openEditMemberModal(member) {
-  editingMember = member
-
-  clearForm()
-
-  if (modalTitle) {
-    modalTitle.textContent = 'Editar miembro'
+function validarConfiguracion({ create, update, refresh, imagePicker }) {
+  const funciones = {
+    create,
+    update,
+    refresh
   }
 
-  if (saveButton) {
-    saveButton.textContent = 'Guardar cambios'
+  for (const [nombre, funcion] of Object.entries(funciones)) {
+    if (typeof funcion !== 'function')
+      throw new TypeError(`createMiembroModal requiere ${nombre}.`)
   }
 
-  if (nameInput) {
-    nameInput.value = member.nombre ?? ''
+  if (!imagePicker)
+    throw new TypeError('createMiembroModal requiere imagePicker.')
+
+  const metodosRequeridos = [
+    'validate',
+    'requireFiles',
+    'setDisabled',
+    'reset',
+    'focus'
+  ]
+
+  for (const metodo of metodosRequeridos) {
+    if (typeof imagePicker[metodo] !== 'function')
+      throw new TypeError(`imagePicker no implementa ${metodo}().`)
   }
-
-  if (lastNameInput) {
-    lastNameInput.value = member.apellido ?? ''
-  }
-
-  if (positionInput) {
-    positionInput.value = member.puesto ?? ''
-  }
-
-  if (descriptionInput) {
-    descriptionInput.value = member.descripcion ?? ''
-  }
-
-  if (imageInput) {
-    imageInput.required = false
-  }
-
-  if (imageHelp) {
-    imageHelp.textContent =
-      'Dejá este campo vacío para conservar la fotografía actual.'
-  }
-
-  showImagePreview(`/img_equipo/${member.id}.avif`, false)
-
-  openModal()
-
-  nameInput?.focus()
-}
-
-/* ==========================================================
-   SUBMIT
-========================================================== */
-
-async function submitMemberForm(event) {
-  event.preventDefault()
-
-  if (submitting) {
-    return
-  }
-
-  const nombre = nameInput?.value.trim() ?? ''
-
-  const apellido = lastNameInput?.value.trim() ?? ''
-
-  const puesto = positionInput?.value.trim() ?? ''
-
-  const descripcion = descriptionInput?.value.trim() ?? ''
-
-  const image = imageInput?.files?.[0] ?? null
-
-  if (!nombre || !apellido || !puesto || !descripcion) {
-    showToast('Completá todos los campos obligatorios.', 'warning')
-
-    return
-  }
-
-  if (!editingMember && !image) {
-    showToast('Seleccioná una fotografía para el miembro.', 'warning')
-
-    return
-  }
-
-  submitting = true
-
-  setSubmittingState(true)
-
-  try {
-    const data = {
-      nombre,
-      apellido,
-      puesto,
-      descripcion,
-      image,
-    }
-
-    if (editingMember) {
-      const formData = buildMemberFormData(data)
-
-      await updateMember(editingMember.id, formData)
-
-      showToast('El miembro fue actualizado correctamente.', 'success')
-    } else {
-      const formData = buildMemberFormData(data)
-
-      await createMember(formData)
-
-      showToast('El miembro fue creado correctamente.', 'success')
-    }
-
-    closeMemberModal()
-
-    await refreshMembers()
-  } catch (error) {
-    console.error('Error saving member:', error)
-
-    showToast(error.message || 'No se pudo guardar el miembro.', 'error', 5000)
-  } finally {
-    submitting = false
-
-    setSubmittingState(false)
-  }
-}
-
-/* ==========================================================
-   IMAGE PREVIEW
-========================================================== */
-
-function handleImageSelection() {
-  const file = imageInput?.files?.[0]
-
-  if (!file) {
-    if (editingMember) {
-      showImagePreview(`/img_equipo/${editingMember.id}.avif`, false)
-    } else {
-      hideImagePreview()
-    }
-
-    return
-  }
-
-  if (!isValidImage(file)) {
-    if (imageInput) {
-      imageInput.value = ''
-    }
-
-    showToast(
-      'El archivo debe ser una imagen JPG, PNG, WebP o AVIF.',
-      'warning',
-    )
-
-    return
-  }
-
-  showFilePreview(file)
-}
-
-function handleDragOver(event) {
-  event.preventDefault()
-
-  imageUpload?.classList.add('dragover')
-}
-
-function handleDragLeave(event) {
-  event.preventDefault()
-
-  imageUpload?.classList.remove('dragover')
-}
-
-function handleImageDrop(event) {
-  event.preventDefault()
-
-  imageUpload?.classList.remove('dragover')
-
-  const file = event.dataTransfer?.files?.[0]
-
-  if (!file || !imageInput) {
-    return
-  }
-
-  if (!isValidImage(file)) {
-    showToast(
-      'El archivo debe ser una imagen JPG, PNG, WebP o AVIF.',
-      'warning',
-    )
-
-    return
-  }
-
-  const transfer = new DataTransfer()
-
-  transfer.items.add(file)
-
-  imageInput.files = transfer.files
-
-  showFilePreview(file)
-}
-
-function isValidImage(file) {
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
-
-  return validTypes.includes(file.type)
-}
-
-function showFilePreview(file) {
-  revokePreviewObjectUrl()
-
-  previewObjectUrl = URL.createObjectURL(file)
-
-  showImagePreview(previewObjectUrl, true)
-}
-
-function showImagePreview(source, isTemporary) {
-  if (!imagePreview || !imagePlaceholder) {
-    return
-  }
-
-  if (!isTemporary) {
-    revokePreviewObjectUrl()
-  }
-
-  imagePreview.src = source
-  imagePreview.classList.remove('hidden')
-
-  imagePlaceholder.classList.add('hidden')
-
-  imagePreview.onerror = () => {
-    hideImagePreview()
-  }
-}
-
-function hideImagePreview() {
-  revokePreviewObjectUrl()
-
-  if (imagePreview) {
-    imagePreview.removeAttribute('src')
-    imagePreview.classList.add('hidden')
-  }
-
-  imagePlaceholder?.classList.remove('hidden')
-}
-
-function revokePreviewObjectUrl() {
-  if (!previewObjectUrl) {
-    return
-  }
-
-  URL.revokeObjectURL(previewObjectUrl)
-
-  previewObjectUrl = null
-}
-
-/* ==========================================================
-   MODAL HELPERS
-========================================================== */
-
-function openModal() {
-  modal?.classList.remove('hidden')
-
-  document.body.style.overflow = 'hidden'
-}
-
-export function closeMemberModal() {
-  if (submitting) {
-    return
-  }
-
-  modal?.classList.add('hidden')
-
-  document.body.style.overflow = ''
-
-  editingMember = null
-
-  clearForm()
-}
-
-function clearForm() {
-  form?.reset()
-
-  hideImagePreview()
-
-  imageUpload?.classList.remove('dragover')
-}
-
-function setSubmittingState(isSubmitting) {
-  if (!saveButton) {
-    return
-  }
-
-  saveButton.disabled = isSubmitting
-
-  if (isSubmitting) {
-    saveButton.textContent = editingMember
-      ? 'Guardando cambios...'
-      : 'Creando miembro...'
-
-    return
-  }
-
-  saveButton.textContent = editingMember ? 'Guardar cambios' : 'Crear miembro'
 }

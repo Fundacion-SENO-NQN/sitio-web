@@ -1,292 +1,283 @@
-import { filteredMembers, members } from './miembros.js'
+import {
+  createTableRenderer,
+  createOrderColumn,
+  createImageColumn,
+  createTextColumn,
+  createCustomColumn,
+  createDateColumn,
+  createActionsColumn,
+  formatDate
+} from '../common/table.js'
 
-import { openEditMemberModal } from './modal.js'
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
 
-import { openDeleteMemberModal } from './delete.js'
+/* ==========================================================
+   TABLE FACTORY
+========================================================== */
 
-import { moveMemberUp, moveMemberDown } from './order.js'
+export function createMiembrosTable({
+  orderController,
+  onEdit,
+  onDelete
+} = {}) {
+  validarConfiguracion({
+    orderController,
+    onEdit,
+    onDelete
+  })
 
-const tableBody = document.getElementById('membersBody')
+  return createTableRenderer({
+    body: '#membersBody',
 
-const emptyState = document.getElementById('membersEmpty')
+    getRowId(miembro) {
+      return miembro.id
+    },
 
-const tableWrapper = document.querySelector('.tableWrapper')
+    getRowDataset(miembro) {
+      return {
+        memberId: miembro.id
+      }
+    },
 
-export function renderMembers() {
-  if (!tableBody || !emptyState) {
-    return
-  }
+    columns: [
+      crearColumnaOrden(orderController),
 
-  tableBody.replaceChildren()
+      crearColumnaImagen(),
 
-  if (filteredMembers.length === 0) {
-    emptyState.classList.remove('hidden')
-    tableWrapper?.classList.add('hidden')
+      crearColumnaNombre(),
 
-    return
-  }
+      crearColumnaPuesto(),
 
-  emptyState.classList.add('hidden')
-  tableWrapper?.classList.remove('hidden')
+      crearColumnaDescripcion(),
 
-  const orderedMembers = [...members].sort(
-    (memberA, memberB) => memberA.orden - memberB.orden,
-  )
+      crearColumnaFecha(),
 
-  const minimumOrder = orderedMembers[0]?.orden ?? 0
-
-  const maximumOrder = orderedMembers.at(-1)?.orden ?? 0
-
-  const fragment = document.createDocumentFragment()
-
-  for (const member of filteredMembers) {
-    fragment.appendChild(createMemberRow(member, minimumOrder, maximumOrder))
-  }
-
-  tableBody.appendChild(fragment)
-}
-
-function createMemberRow(member, minimumOrder, maximumOrder) {
-  const row = document.createElement('tr')
-
-  row.dataset.memberId = String(member.id)
-
-  row.appendChild(createOrderCell(member, minimumOrder, maximumOrder))
-
-  row.appendChild(createImageCell(member))
-
-  row.appendChild(createNameCell(member))
-
-  row.appendChild(
-    createTextCell(member.puesto || 'Sin puesto', 'memberPosition'),
-  )
-
-  row.appendChild(createDescriptionCell(member.descripcion))
-
-  row.appendChild(createDateCell(member.created_at))
-
-  row.appendChild(createActionsCell(member))
-
-  return row
+      crearColumnaAcciones({
+        onEdit,
+        onDelete
+      })
+    ]
+  })
 }
 
 /* ==========================================================
    ORDER
 ========================================================== */
 
-function createOrderCell(member, minimumOrder, maximumOrder) {
-  const cell = document.createElement('td')
+function crearColumnaOrden(orderController) {
+  return createOrderColumn({
+    orderController,
 
-  const container = document.createElement('div')
+    containerClassName: 'orderCell',
 
-  container.className = 'orderCell'
+    positionClassName: 'orderValue',
 
-  const value = document.createElement('span')
+    buttonsClassName: 'orderButtons',
 
-  value.className = 'orderValue'
+    buttonClassName: 'orderButton',
 
-  // Show order starting at 1 for users.
-  value.textContent = String(member.orden + 1)
+    getPosition(miembro) {
+      return Number(miembro.orden) + 1
+    },
 
-  const buttons = document.createElement('div')
+    upAriaLabel(miembro) {
+      return `Subir a ` + obtenerNombreCompleto(miembro)
+    },
 
-  buttons.className = 'orderButtons'
-
-  const upButton = createOrderButton({
-    text: '↑',
-    label: `Subir a ${member.nombre}`,
-    disabled: member.orden === minimumOrder,
-    action: () => moveMemberUp(member.id),
+    downAriaLabel(miembro) {
+      return `Bajar a ` + obtenerNombreCompleto(miembro)
+    }
   })
-
-  const downButton = createOrderButton({
-    text: '↓',
-    label: `Bajar a ${member.nombre}`,
-    disabled: member.orden === maximumOrder,
-    action: () => moveMemberDown(member.id),
-  })
-
-  buttons.append(upButton, downButton)
-
-  container.append(value, buttons)
-
-  cell.appendChild(container)
-
-  return cell
-}
-
-function createOrderButton({ text, label, disabled, action }) {
-  const button = document.createElement('button')
-
-  button.type = 'button'
-  button.className = 'orderButton'
-  button.textContent = text
-  button.disabled = disabled
-
-  button.setAttribute('aria-label', label)
-
-  button.addEventListener('click', action)
-
-  return button
 }
 
 /* ==========================================================
    IMAGE
 ========================================================== */
 
-function createImageCell(member) {
-  const cell = document.createElement('td')
+function crearColumnaImagen() {
+  return createImageColumn({
+    imageClassName: 'memberImage',
 
-  const image = document.createElement('img')
+    errorClassName: 'memberImageError',
 
-  image.className = 'memberImage'
-  image.src = `/img_equipo/${member.id}.avif`
-
-  image.alt = `Fotografía de ${member.nombre} ${member.apellido}`
-
-  image.loading = 'lazy'
-  image.decoding = 'async'
-
-  image.addEventListener(
-    'error',
-    () => {
-      image.classList.add('memberImageError')
-
-      image.removeAttribute('src')
-
-      image.alt = `No se pudo cargar la fotografía de ${member.nombre}`
+    src(miembro) {
+      return `${IMG_URL}/img_equipo/` + `${miembro.id}.avif`
     },
-    {
-      once: true,
-    },
-  )
 
-  cell.appendChild(image)
-
-  return cell
+    alt(miembro) {
+      return `Fotografía de ` + obtenerNombreCompleto(miembro)
+    }
+  })
 }
 
 /* ==========================================================
-   INFORMATION
+   NAME
 ========================================================== */
 
-function createNameCell(member) {
-  const cell = document.createElement('td')
+function crearColumnaNombre() {
+  return createCustomColumn({
+    render(miembro) {
+      const contenedor = document.createElement('div')
 
-  const container = document.createElement('div')
+      contenedor.className = 'memberInfo'
 
-  container.className = 'memberInfo'
+      const nombre = document.createElement('strong')
 
-  const name = document.createElement('strong')
+      nombre.textContent = obtenerNombreCompleto(miembro)
 
-  name.textContent = `${member.nombre} ${member.apellido}`
+      contenedor.appendChild(nombre)
 
-  container.appendChild(name)
-  cell.appendChild(container)
-
-  return cell
+      return contenedor
+    }
+  })
 }
 
-function createDescriptionCell(description) {
-  const cell = document.createElement('td')
+/* ==========================================================
+   POSITION
+========================================================== */
 
-  const paragraph = document.createElement('p')
+function crearColumnaPuesto() {
+  return createTextColumn({
+    value(miembro) {
+      return miembro.puesto
+    },
 
-  paragraph.className = 'memberDescription'
+    className: 'memberPosition',
 
-  paragraph.textContent = description || 'Sin descripción'
+    emptyText: 'Sin puesto',
 
-  cell.appendChild(paragraph)
-
-  return cell
+    tag: 'span'
+  })
 }
 
-function createTextCell(text, className = '') {
-  const cell = document.createElement('td')
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
 
-  if (className) {
-    cell.className = className
-  }
+function crearColumnaDescripcion() {
+  return createCustomColumn({
+    render(miembro) {
+      const descripcion = document.createElement('p')
 
-  cell.textContent = text
+      descripcion.className = 'memberDescription'
 
-  return cell
+      const texto = String(miembro.descripcion ?? '').trim()
+
+      descripcion.textContent = texto || 'Sin descripción'
+
+      if (!texto) descripcion.classList.add('sin-dato')
+
+      return descripcion
+    }
+  })
 }
 
-function createDateCell(createdAt) {
-  const cell = document.createElement('td')
+/* ==========================================================
+   CREATION DATE
+========================================================== */
 
-  cell.className = 'memberDate'
+function crearColumnaFecha() {
+  return createDateColumn({
+    value: 'created_at',
 
-  cell.textContent = formatDate(createdAt)
+    className: 'memberDate',
 
-  return cell
-}
+    emptyText: '—',
 
-function formatDate(value) {
-  if (!value) {
-    return '—'
-  }
+    formatter(value) {
+      return formatDate(value, {
+        locale: 'es-AR',
 
-  const date = new Date(value)
+        timeZone: 'America/Argentina/Buenos_Aires',
 
-  if (Number.isNaN(date.getTime())) {
-    return '—'
-  }
+        day: '2-digit',
 
-  return new Intl.DateTimeFormat('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date)
+        month: '2-digit',
+
+        year: 'numeric'
+      })
+    }
+  })
 }
 
 /* ==========================================================
    ACTIONS
 ========================================================== */
 
-function createActionsCell(member) {
-  const cell = document.createElement('td')
+function crearColumnaAcciones({ onEdit, onDelete }) {
+  return createActionsColumn({
+    containerClassName: 'actions',
 
-  const actions = document.createElement('div')
+    buttonClassName: 'tableButton',
 
-  actions.className = 'actions'
+    actions: [
+      {
+        text: 'Editar',
 
-  const editButton = document.createElement('button')
+        className: 'edit',
 
-  editButton.type = 'button'
-  editButton.className = 'tableButton edit'
+        ariaLabel(miembro) {
+          return `Editar a ` + obtenerNombreCompleto(miembro)
+        },
 
-  editButton.textContent = 'Editar'
+        onClick(miembro) {
+          onEdit(miembro)
+        }
+      },
 
-  editButton.setAttribute(
-    'aria-label',
-    `Editar a ${member.nombre} ${member.apellido}`,
-  )
+      {
+        text: 'Eliminar',
 
-  editButton.addEventListener('click', () => {
-    openEditMemberModal(member)
+        className: 'delete',
+
+        ariaLabel(miembro) {
+          return `Eliminar a ` + obtenerNombreCompleto(miembro)
+        },
+
+        onClick(miembro) {
+          onDelete(miembro)
+        }
+      }
+    ]
   })
+}
 
-  const deleteButton = document.createElement('button')
+/* ==========================================================
+   HELPERS
+========================================================== */
 
-  deleteButton.type = 'button'
-  deleteButton.className = 'tableButton delete'
+function obtenerNombreCompleto(miembro) {
+  const nombreCompleto = [miembro?.nombre, miembro?.apellido]
+    .map((valor) => String(valor ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
 
-  deleteButton.textContent = 'Eliminar'
+  if (nombreCompleto) return nombreCompleto
 
-  deleteButton.setAttribute(
-    'aria-label',
-    `Eliminar a ${member.nombre} ${member.apellido}`,
-  )
+  return (`miembro n.º ` + `${miembro?.id ?? ''}`).trim()
+}
 
-  deleteButton.addEventListener('click', () => {
-    openDeleteMemberModal(member)
-  })
+/* ==========================================================
+   CONFIGURATION
+========================================================== */
 
-  actions.append(editButton, deleteButton)
+function validarConfiguracion({ orderController, onEdit, onDelete }) {
+  if (!orderController)
+    throw new TypeError('createMiembrosTable requiere orderController.')
 
-  cell.appendChild(actions)
+  const metodosOrden = ['moveUp', 'moveDown', 'canMoveUp', 'canMoveDown']
 
-  return cell
+  for (const metodo of metodosOrden) {
+    if (typeof orderController[metodo] !== 'function')
+      throw new TypeError(`orderController no implementa ${metodo}().`)
+  }
+
+  if (typeof onEdit !== 'function')
+    throw new TypeError('createMiembrosTable requiere onEdit.')
+
+  if (typeof onDelete !== 'function')
+    throw new TypeError('createMiembrosTable requiere onDelete.')
 }

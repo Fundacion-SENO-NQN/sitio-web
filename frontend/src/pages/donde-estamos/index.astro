@@ -10,68 +10,78 @@ import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
 import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
 ---
 
-<Layout pag="¿Dónde estamos?">
+<Layout
+  pag="¿Dónde estamos?"
+  seoTitle="Fundación SENO en Neuquén | Dirección y horario"
+  description="Visitá la sede de Fundación SENO en San Carlos 1330, Neuquén Capital. Consultá nuestra ubicación y horario de atención."
+>
   <TituloPag titulo="¿Dónde estamos?" />
 
-  <main class="ubicacion-pagina">
-    <section class="ubicacion">
-      <div class="ubicacion__informacion">
-        <span class="ubicacion__etiqueta">Fundación SENO</span>
+  <main class="location-page">
+    <section class="location-section" aria-labelledby="location-heading">
+      <div class="location-section__information">
+        <p class="location-section__label">Fundación SENO</p>
 
-        <h1>Visítanos en Neuquén Capital</h1>
+        <h2 id="location-heading">Visitá nuestra sede en Neuquén Capital</h2>
 
-        <p class="ubicacion__introduccion">
-          Podés encontrarnos en nuestra sede para realizar consultas, acercar
-          donaciones o coordinar una visita.
+        <p class="location-section__introduction">
+          Podés acercarte para realizar consultas, entregar donaciones o
+          coordinar una visita.
         </p>
 
-        <address class="datos">
-          <div class="dato">
-            <span class="dato__icono" aria-hidden="true">
+        <address class="location-details">
+          <div class="location-detail">
+            <span class="location-detail__icon" aria-hidden="true">
               <SvgUbicacion />
             </span>
 
-            <div>
-              <span class="dato__titulo">Dirección</span>
+            <div class="location-detail__content">
+              <p class="location-detail__title">Dirección</p>
 
               <p>
-                San Carlos 1330<br />
+                San Carlos 1330
+                <br />
                 Neuquén Capital, Neuquén
               </p>
             </div>
           </div>
 
-          <div class="dato">
-            <span class="dato__icono" aria-hidden="true">
+          <div class="location-detail">
+            <span class="location-detail__icon" aria-hidden="true">
               <SvgReloj />
             </span>
 
-            <div>
-              <span class="dato__titulo">Horario de atención</span>
+            <div class="location-detail__content">
+              <p class="location-detail__title">Horario de atención</p>
+
               <p>De 10:00 a 14:00 h</p>
             </div>
           </div>
         </address>
 
         <a
-          class="ubicacion__enlace"
-          href="https://www.google.com/maps/search/?api=1&query=Fundacion+SENO+Neuquen"
+          class="location-section__maps-link"
+          href="https://www.google.com/maps/search/?api=1&query=San+Carlos+1330%2C+Neuqu%C3%A9n%2C+Argentina"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Abrir la ubicación de Fundación SENO en Google Maps en una pestaña nueva"
         >
-          Abrir en Google Maps
+          <span>Abrir en Google Maps</span>
 
-          <SvgFlecha />
+          <SvgFlecha class="location-section__maps-icon" aria-hidden="true" />
         </a>
       </div>
 
-      <div class="ubicacion__mapa">
+      <div class="location-section__map">
         <Ubicacion />
       </div>
     </section>
 
-    <aside class="aviso">
-      <span class="aviso__icono" aria-hidden="true">
+    <aside
+      class="location-notice"
+      aria-label="Recomendación para visitar la Fundación"
+    >
+      <span class="location-notice__icon" aria-hidden="true">
         <SvgMensajeVacio />
       </span>
 
@@ -84,260 +94,348 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
 </Layout>
 
 <style>
-  .ubicacion-pagina {
-    width: min(1180px, calc(100% - 2rem));
-    margin: 2rem auto 5rem;
-    font-family: var(--text-font-primary);
+  .location-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+
+    margin: 2rem auto clamp(3rem, 7vw, 5rem);
   }
 
-  .ubicacion {
+  .location-section {
     display: grid;
-    grid-template-columns: minmax(17rem, 0.75fr) minmax(0, 1.25fr);
+
+    grid-template-columns:
+      minmax(17rem, 0.75fr)
+      minmax(0, 1.25fr);
+
     align-items: stretch;
+
     gap: clamp(1.5rem, 5vw, 4rem);
   }
 
-  .ubicacion__informacion {
+  .location-section__information {
+    min-width: 0;
+
+    padding: clamp(1.5rem, 4vw, 3rem);
+
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-width: 0;
-    padding: clamp(1.5rem, 4vw, 3rem);
-    border: 1px solid rgb(0 0 0 / 10%);
-    border-radius: 1.5rem;
+
     background:
-      radial-gradient(circle at 100% 0, rgb(65 120 170 / 14%), transparent 35%),
+      radial-gradient(
+        circle at 100% 0,
+        rgba(21, 130, 203, 0.14),
+        transparent 35%
+      ),
       var(--color-background);
-    box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 7%);
+
+    border: 1px solid rgba(18, 18, 18, 0.1);
+
+    border-radius: clamp(1rem, 3vw, 1.5rem);
+
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.07);
   }
 
-  .ubicacion__etiqueta {
-    display: block;
+  .location-section__label {
     margin-bottom: 0.7rem;
+
     color: var(--color-primary);
+
     font-size: 0.76rem;
     font-weight: 800;
+    line-height: 1.3;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .ubicacion h1 {
-    margin: 0;
+  .location-section__information h2 {
     color: var(--color-primary-hover);
+
     font-size: clamp(1.8rem, 4vw, 2.8rem);
+
     line-height: 1.15;
     text-wrap: balance;
+    overflow-wrap: anywhere;
   }
 
-  .ubicacion__introduccion {
-    margin: 1rem 0 0;
-    color: var(--color-text, #5f6c75);
+  .location-section__introduction {
+    margin-top: 1rem;
+
+    color: var(--color-text);
+
     font-size: 1rem;
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .datos {
+  .location-details {
+    margin-top: 2rem;
+
     display: grid;
     gap: 1rem;
-    margin-top: 2rem;
+
     font-style: normal;
   }
 
-  .dato {
+  .location-detail {
+    min-width: 0;
+
+    padding: 1rem;
+
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
     align-items: center;
     gap: 1rem;
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid rgb(65 120 170 / 17%);
-    border-radius: 1rem;
-    background: rgb(65 120 170 / 6%);
+
+    background-color: rgba(21, 130, 203, 0.06);
+
+    border: 1px solid rgba(21, 130, 203, 0.17);
+
+    border-radius: var(--radius);
   }
 
-  .dato__icono {
-    display: grid;
-    place-items: center;
+  .location-detail__icon {
     width: 3rem;
     height: 3rem;
-    border-radius: 0.8rem;
-    background: var(--color-primary-hover);
+
+    display: grid;
+    place-items: center;
+
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
+
+    border-radius: var(--radius-small);
   }
 
-  .dato__icono svg {
+  .location-detail__icon :global(svg) {
     width: 1.6rem;
+    height: 1.6rem;
+
+    color: currentColor;
   }
 
-  .dato__titulo {
-    display: block;
+  .location-detail__content {
+    min-width: 0;
+  }
+
+  .location-detail__title {
     margin-bottom: 0.2rem;
+
     color: var(--color-primary-hover);
+
     font-size: 0.78rem;
     font-weight: 800;
+    line-height: 1.3;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  .dato p {
-    margin: 0;
-    color: var(--color-text, #3f4a53);
+  .location-detail__content p:last-child {
+    color: var(--color-text);
+
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 650;
     line-height: 1.55;
+    overflow-wrap: anywhere;
   }
 
-  .ubicacion__enlace {
+  .location-section__maps-link {
+    width: fit-content;
+    min-height: 3rem;
+
+    margin-top: 1.5rem;
+
+    padding: 0.75rem 1.15rem;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.65rem;
-    width: fit-content;
-    min-height: 3rem;
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.15rem;
-    border: 2px solid var(--color-primary-hover);
-    border-radius: 999px;
-    background: var(--color-primary-hover);
+
     color: var(--color-background);
-    font-weight: 800;
+    background-color: var(--color-primary-hover);
+
+    border: 2px solid var(--color-primary-hover);
+
+    border-radius: 999px;
+
+    font-weight: 750;
+    line-height: 1.3;
     text-align: center;
     text-decoration: none;
+
     transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      transform 180ms ease;
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .ubicacion__enlace svg {
+  .location-section__maps-icon {
     width: 1.2rem;
+    height: 1.2rem;
+
+    color: currentColor;
+
     transform: rotate(45deg);
   }
 
-  .ubicacion__mapa {
-    display: flex;
-    align-items: stretch;
-    min-width: 0;
+  .location-section__maps-link:hover {
+    color: var(--color-primary-hover);
+
+    background-color: var(--color-background);
   }
 
-  /*
-   * Permite que el componente Ubicacion ocupe
-   * todo el espacio disponible.
-   */
-  .ubicacion__mapa :global(.mapa) {
+  .location-section__maps-link:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .location-section__map {
+    min-width: 0;
+
+    display: flex;
+    align-items: stretch;
+  }
+
+  .location-section__map :global(.location-map) {
     width: 100%;
     max-width: none;
     height: 100%;
+
     margin: 0;
   }
 
-  .ubicacion__mapa :global(iframe) {
-    min-height: 31rem;
+  .location-section__map :global(.location-map__iframe) {
     height: 100%;
+    min-height: 31rem;
+
+    aspect-ratio: auto;
   }
 
-  .aviso {
+  .location-notice {
+    margin-top: 1.5rem;
+
+    padding: 1rem 1.25rem;
+
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: 1.5rem;
-    padding: 1rem 1.25rem;
+
+    background-color: rgba(21, 130, 203, 0.08);
+
     border-left: 4px solid var(--color-primary);
-    border-radius: 0.25rem 1rem 1rem 0.25rem;
-    background: rgb(65 120 170 / 8%);
+
+    border-radius: 0.25rem var(--radius) var(--radius) 0.25rem;
   }
 
-  .aviso__icono {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
+  .location-notice__icon {
     width: 2.7rem;
     height: 2.7rem;
-    border-radius: 50%;
-    background: var(--color-background);
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
     color: var(--color-primary);
+    background-color: var(--color-background);
+
+    border-radius: 50%;
   }
 
-  .aviso__icono svg {
+  .location-notice__icon :global(svg) {
     width: 1.4rem;
+    height: 1.4rem;
+
+    color: currentColor;
+
     transform: scaleX(-1);
   }
 
-  .aviso p {
-    margin: 0;
+  .location-notice p {
     color: var(--color-primary-hover);
+
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 650;
     line-height: 1.6;
+    text-wrap: pretty;
   }
 
   @media (hover: hover) {
-    .ubicacion__enlace:hover {
-      background: transparent;
-      color: var(--color-primary-hover);
+    .location-section__maps-link:hover {
       transform: translateY(-2px);
     }
   }
 
   @media (max-width: 850px) {
-    .ubicacion {
-      grid-template-columns: 1fr;
+    .location-section {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .ubicacion__informacion {
+    .location-section__information {
       text-align: center;
     }
 
-    .dato {
+    .location-detail {
       text-align: left;
     }
 
-    .ubicacion__enlace {
+    .location-section__maps-link {
       width: 100%;
     }
 
-    .ubicacion__mapa :global(iframe) {
+    .location-section__map :global(.location-map__iframe) {
       min-height: 25rem;
     }
   }
 
   @media (max-width: 500px) {
-    .ubicacion-pagina {
-      width: min(100% - 1rem, 1180px);
+    .location-page {
+      width: calc(100% - 1rem);
+
       margin-top: 1rem;
     }
 
-    .ubicacion__informacion {
+    .location-section__information {
       padding: 1.4rem;
+
       border-radius: 1.2rem;
     }
 
-    .ubicacion h1 {
+    .location-section__information h2 {
       font-size: clamp(1.7rem, 9vw, 2.3rem);
     }
 
-    .dato {
-      align-items: start;
+    .location-detail {
       padding: 0.9rem;
+
+      align-items: start;
     }
 
-    .dato__icono {
+    .location-detail__icon {
       width: 2.7rem;
       height: 2.7rem;
     }
 
-    .ubicacion__mapa :global(iframe) {
+    .location-section__map :global(.location-map__iframe) {
       min-height: 22rem;
     }
 
-    .aviso {
-      align-items: flex-start;
+    .location-notice {
       padding: 1rem;
+
+      align-items: flex-start;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ubicacion__enlace {
+    .location-section__maps-link {
       transition: none;
     }
   }

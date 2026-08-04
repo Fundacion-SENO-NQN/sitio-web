@@ -2,6 +2,7 @@
 export const prerender = false
 
 import Layout from '../../layouts/Layout.astro'
+
 import TituloPag from '../../components/Common/TituloPag.astro'
 import ItemEvento from '../../components/Eventos/ItemEvento.astro'
 
@@ -12,30 +13,47 @@ const API_URL = (
 ).replace(/\/+$/, '')
 
 let eventos: Evento[] = []
-let error = false
+let loadingError = false
 
 try {
   const response = await fetch(`${API_URL}/eventos`)
 
   if (!response.ok) {
-    throw new Error(`Error ${response.status}`)
+    throw new Error(`La API respondió con estado ${response.status}`)
   }
 
-  eventos = await response.json()
+  const data: unknown = await response.json()
 
-  eventos.sort((eventoA, eventoB) => eventoA.orden - eventoB.orden)
-} catch (fetchError) {
-  console.error('No se pudieron cargar los eventos:', fetchError)
+  if (!Array.isArray(data)) {
+    throw new TypeError('La respuesta de eventos no es un arreglo')
+  }
 
-  error = true
+  eventos = [...(data as Evento[])].sort(
+    (eventA, eventB) => eventA.orden - eventB.orden
+  )
+} catch (error) {
+  loadingError = true
+  Astro.response.status = 503
+  Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
+  Astro.response.headers.set('Cache-Control', 'no-store')
+
+  console.error('No se pudieron cargar los eventos:', error)
 }
 ---
 
-<Layout pag="Eventos">
+<Layout
+  pag="Eventos"
+  seoTitle="Eventos solidarios en Neuquén | Fundación SENO"
+  description="Conocé los eventos, campañas, actividades y encuentros organizados por Fundación SENO."
+  noindex={loadingError}
+>
   <TituloPag titulo="Eventos" />
 
-  <main class="eventos-page">
-    <section class="presentacion">
+  <main class="events-page">
+    <section
+      class="events-page__introduction"
+      aria-label="Presentación de los eventos"
+    >
       <p>
         Conocé las actividades, encuentros y campañas organizadas por Fundación
         S.E.N.O.
@@ -48,14 +66,20 @@ try {
     </section>
 
     {
-      error ? (
-        <section class="estado">
+      loadingError ? (
+        <section
+          class="
+            events-page__status
+            events-page__status--error
+          "
+          role="alert"
+        >
           <h2>No pudimos cargar los eventos</h2>
 
           <p>Intentá ingresar nuevamente más tarde.</p>
         </section>
       ) : eventos.length === 0 ? (
-        <section class="estado">
+        <section class="events-page__status" role="status">
           <h2>Todavía no hay eventos publicados</h2>
 
           <p>
@@ -64,12 +88,16 @@ try {
         </section>
       ) : (
         <section
-          class="lista-eventos"
+          class="events-page__results"
           aria-label="Eventos de Fundación S.E.N.O."
         >
-          {eventos.map((evento, index) => (
-            <ItemEvento evento={evento} priority={index < 2} />
-          ))}
+          <ul class="events-page__list">
+            {eventos.map((evento, index) => (
+              <li>
+                <ItemEvento evento={evento} priority={index === 0} />
+              </li>
+            ))}
+          </ul>
         </section>
       )
     }
@@ -77,72 +105,103 @@ try {
 </Layout>
 
 <style>
-  .eventos-page {
-    box-sizing: border-box;
-
+  .events-page {
     width: min(100%, 76rem);
     min-width: 0;
-    margin-inline: auto;
-    padding: 0 clamp(1rem, 4vw, 2rem) clamp(2rem, 6vw, 4rem);
 
-    font-family: var(--text-font-primary);
+    margin-inline: auto;
+
+    padding: 0 clamp(1rem, 4vw, 2rem) clamp(2rem, 6vw, 4rem);
   }
 
-  .presentacion {
-    max-width: 48rem;
+  .events-page__introduction {
+    width: min(100%, 48rem);
+
     margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
 
     color: var(--color-text);
 
-    text-align: center;
     line-height: 1.7;
+    text-align: center;
+    text-wrap: pretty;
   }
 
-  .presentacion p {
-    margin: 0;
-  }
-
-  .presentacion p + p {
+  .events-page__introduction p + p {
     margin-top: 0.5rem;
   }
 
-  .lista-eventos {
+  .events-page__results {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .events-page__list {
     width: 100%;
     min-width: 0;
 
     display: grid;
+
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+
+    align-items: stretch;
+
     gap: clamp(1rem, 3vw, 1.5rem);
   }
 
-  .estado {
-    box-sizing: border-box;
+  .events-page__list > li {
+    min-width: 0;
 
+    display: flex;
+  }
+
+  .events-page__status {
     width: min(100%, 42rem);
+
     margin-inline: auto;
+
     padding: clamp(2rem, 7vw, 4rem);
 
-    border: 1px dashed var(--color-secondary-light);
-    border-radius: 1rem;
-
+    color: var(--color-text);
     background-color: rgba(21, 130, 203, 0.04);
+
+    border: 1px dashed var(--color-secondary-light);
+
+    border-radius: var(--radius);
 
     text-align: center;
   }
 
-  .estado h2 {
-    margin: 0;
+  .events-page__status--error {
+    background-color: rgba(211, 47, 47, 0.06);
 
+    border-color: rgba(211, 47, 47, 0.4);
+  }
+
+  .events-page__status h2 {
     color: var(--color-secondary-hover);
 
     font-size: clamp(1.25rem, 4vw, 1.7rem);
+
+    line-height: 1.3;
+    text-wrap: balance;
   }
 
-  .estado p {
-    margin: 0.75rem 0 0;
+  .events-page__status--error h2 {
+    color: var(--color-red);
+  }
+
+  .events-page__status p {
+    margin-top: 0.75rem;
 
     color: var(--color-grey);
 
     line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 600px) {
+    .events-page__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

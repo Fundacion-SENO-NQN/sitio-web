@@ -1,1331 +1,223 @@
+/* ==========================================================
+   EVENTS ADMINISTRATION
+
+   Estilos específicos de la administración de eventos.
+   Los componentes compartidos se importan desde common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
 .eventos-admin {
-  --admin-superficie: #ffffff;
-  --admin-fondo-suave: #f4f7f9;
-  --admin-fondo-hover: #f1f7fb;
-  --admin-borde: 1px solid var(--color-light-grey);
-  --admin-radio-pequeno: 0.5rem;
-  --admin-radio: 0.85rem;
-  --admin-radio-grande: 1.2rem;
-  --admin-transicion: 180ms ease;
-  --admin-focus: 0 0 0 3px rgba(21, 130, 203, 0.2);
-
-  box-sizing: border-box;
-
-  width: 100%;
-  min-width: 0;
-  padding: clamp(1rem, 3vw, 2rem);
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  color: var(--color-text);
-  background-color: var(--color-background);
-
-  font-family: var(--text-font-primary);
-}
-
-.eventos-admin *,
-.eventos-admin *::before,
-.eventos-admin *::after {
-  box-sizing: border-box;
+  /*
+   * La tabla de eventos tiene más columnas que las demás:
+   * orden, imagen, información, fecha, lugar, enlace,
+   * cantidad de imágenes y acciones.
+   */
+  --admin-table-cell-padding: 0.9rem;
 }
 
 /* ==========================================================
-   UTILIDADES
+   TABLE
 ========================================================== */
-
-.oculto {
-  display: none !important;
-}
-
-.sr-only {
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-
-  position: absolute;
-
-  overflow: hidden;
-
-  border: 0;
-
-  white-space: nowrap;
-
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-}
-
-/* ==========================================================
-   BOTONES GENERALES
-========================================================== */
-
-.boton {
-  box-sizing: border-box;
-
-  min-height: 2.75rem;
-  padding: 0.7rem 1.1rem;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-
-  border: 1px solid transparent;
-  border-radius: var(--admin-radio);
-
-  font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: 750;
-
-  cursor: pointer;
-
-  transition:
-    color var(--admin-transicion),
-    background-color var(--admin-transicion),
-    border-color var(--admin-transicion),
-    box-shadow var(--admin-transicion),
-    transform var(--admin-transicion),
-    opacity var(--admin-transicion);
-}
-
-.boton:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.boton:focus-visible {
-  outline: none;
-  box-shadow: var(--admin-focus);
-}
-
-.boton:disabled {
-  opacity: 0.55;
-
-  cursor: not-allowed;
-}
-
-.boton-principal {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  border-color: var(--color-secondary);
-}
-
-.boton-principal:hover:not(:disabled) {
-  background-color: var(--color-secondary-hover);
-  border-color: var(--color-secondary-hover);
-}
-
-.boton-secundario {
-  color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.08);
-
-  border-color: var(--color-secondary-light);
-}
-
-.boton-secundario:hover:not(:disabled) {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  border-color: var(--color-secondary);
-}
-
-.boton-cancelar {
-  color: var(--color-text);
-  background-color: var(--admin-superficie);
-
-  border-color: var(--color-light-grey);
-}
-
-.boton-cancelar:hover:not(:disabled) {
-  background-color: var(--admin-fondo-suave);
-}
-
-.boton-peligro {
-  color: #ffffff;
-  background-color: var(--color-red);
-
-  border-color: var(--color-red);
-}
-
-.boton-peligro:hover:not(:disabled) {
-  background-color: #a91f1f;
-  border-color: #a91f1f;
-}
-
-/* ==========================================================
-   HERRAMIENTAS
-========================================================== */
-
-.herramientas {
-  width: 100%;
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.buscador {
-  width: min(100%, 34rem);
-
-  position: relative;
-
-  display: block;
-}
-
-.icono-busqueda {
-  position: absolute;
-  top: 50%;
-  left: 0.95rem;
-
-  color: var(--color-grey);
-
-  font-size: 1.3rem;
-
-  pointer-events: none;
-
-  transform: translateY(-50%);
-}
-
-.buscador input {
-  box-sizing: border-box;
-
-  width: 100%;
-  min-height: 2.85rem;
-  padding: 0.75rem 1rem 0.75rem 2.8rem;
-
-  color: var(--color-text);
-  background-color: var(--admin-superficie);
-
-  border: var(--admin-borde);
-  border-radius: var(--admin-radio);
-
-  outline: none;
-
-  font-family: inherit;
-  font-size: 0.95rem;
-
-  transition:
-    border-color var(--admin-transicion),
-    box-shadow var(--admin-transicion);
-}
-
-.buscador input::placeholder {
-  color: var(--color-grey);
-}
-
-.buscador input:focus {
-  border-color: var(--color-secondary);
-  box-shadow: var(--admin-focus);
-}
-
-.resumen {
-  flex-shrink: 0;
-
-  color: var(--color-grey);
-
-  font-size: 0.9rem;
-  font-weight: 650;
-}
-
-/* ==========================================================
-   CONTENEDOR DE LA TABLA
-========================================================== */
-
-.contenedor-tabla {
-  width: 100%;
-  min-width: 0;
-
-  overflow: hidden;
-
-  border: var(--admin-borde);
-  border-radius: var(--admin-radio-grande);
-
-  background-color: var(--admin-superficie);
-  box-shadow: var(--shadow);
-}
-
-.tabla-wrapper {
-  width: 100%;
-  min-width: 0;
-
-  overflow-x: auto;
-}
 
 .tabla-eventos {
-  width: 100%;
   min-width: 78rem;
-
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.tabla-eventos th,
-.tabla-eventos td {
-  box-sizing: border-box;
-
-  padding: 0.9rem;
-
-  text-align: left;
-  vertical-align: middle;
-}
-
-.tabla-eventos th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-
-  color: var(--color-secondary-hover);
-  background-color: var(--admin-fondo-suave);
-
-  border-bottom: 1px solid var(--color-light-grey);
-
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.tabla-eventos td {
-  border-bottom: 1px solid #ececec;
-
-  color: var(--color-text);
-
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-.tabla-eventos tbody tr {
-  background-color: var(--admin-superficie);
-
-  transition: background-color var(--admin-transicion);
-}
-
-.tabla-eventos tbody tr:hover {
-  background-color: var(--admin-fondo-hover);
-}
-
-.tabla-eventos tbody tr:last-child td {
-  border-bottom: 0;
 }
 
 /* ==========================================================
-   CELDAS DE LA TABLA
+   EVENT IMAGE
 ========================================================== */
-
-.orden-evento {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.numero-orden {
-  min-width: 2rem;
-  height: 2rem;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: var(--admin-radio-pequeno);
-
-  color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.1);
-
-  font-weight: 800;
-}
-
-.botones-orden {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.boton-orden {
-  width: 1.75rem;
-  height: 1.55rem;
-  padding: 0;
-
-  display: grid;
-  place-items: center;
-
-  border: 1px solid var(--color-light-grey);
-  border-radius: 0.4rem;
-
-  color: var(--color-secondary-hover);
-  background-color: var(--admin-superficie);
-
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition:
-    color var(--admin-transicion),
-    background-color var(--admin-transicion),
-    border-color var(--admin-transicion);
-}
-
-.boton-orden:hover:not(:disabled) {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  border-color: var(--color-secondary);
-}
-
-.boton-orden:focus-visible {
-  outline: none;
-  box-shadow: var(--admin-focus);
-}
-
-.boton-orden:disabled {
-  opacity: 0.3;
-
-  cursor: not-allowed;
-}
 
 .imagen-evento-tabla {
   width: 5.5rem;
   height: 3.75rem;
-
-  display: block;
-
-  object-fit: cover;
-  object-position: center;
-
-  border: 1px solid var(--color-light-grey);
-  border-radius: 0.65rem;
-
-  background-color: var(--color-light-grey);
 }
 
-.imagen-evento-error {
-  background: linear-gradient(
-    135deg,
-    var(--color-light-grey),
-    var(--color-white)
-  );
-}
+/* ==========================================================
+   EVENT INFORMATION
+========================================================== */
 
 .info-evento {
   min-width: 16rem;
   max-width: 24rem;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.info-evento strong {
-  color: var(--color-text);
-
-  font-size: 0.97rem;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
 }
 
 .info-evento p {
-  margin: 0;
-
   display: -webkit-box;
 
   overflow: hidden;
 
-  color: var(--color-grey);
-
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-
   -webkit-box-orient: vertical;
-  line-clamp: 2;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
+
+/* ==========================================================
+   DATE AND TIME
+========================================================== */
 
 .fecha-horario-evento {
   min-width: 10rem;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
 }
 
 .fecha-horario-evento span {
-  color: var(--color-text);
-
-  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
-.fecha-horario-evento small {
-  color: var(--color-grey);
-
-  font-size: 0.82rem;
-}
+/* ==========================================================
+   LOCATION
+========================================================== */
 
 .lugar-evento {
+  min-width: 10rem;
   max-width: 15rem;
 
   overflow-wrap: anywhere;
 }
 
+/* ==========================================================
+   LINK
+========================================================== */
+
+.tabla-eventos .enlace-tabla {
+  max-width: 13rem;
+
+  display: inline-block;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   IMAGE COUNT
+========================================================== */
+
 .cantidad-imagenes {
+  min-width: 5rem;
+
   text-align: center;
 
-  font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
-.sin-dato {
-  color: var(--color-grey);
-
-  font-style: italic;
-}
-
-.enlace-tabla {
-  color: var(--color-secondary-hover);
-
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.enlace-tabla:hover {
-  text-decoration: underline;
-}
+/* ==========================================================
+   ACTIONS
+========================================================== */
 
 .acciones-evento {
   min-width: 10.5rem;
-
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.boton-tabla {
-  min-height: 2.25rem;
-  padding: 0.48rem 0.78rem;
-
-  border: 1px solid transparent;
-  border-radius: var(--admin-radio-pequeno);
-
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 750;
-
-  cursor: pointer;
-
-  transition:
-    color var(--admin-transicion),
-    background-color var(--admin-transicion),
-    border-color var(--admin-transicion);
-}
-
-.boton-tabla:focus-visible {
-  outline: none;
-  box-shadow: var(--admin-focus);
-}
-
-.boton-editar {
-  color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.1);
-
-  border-color: var(--color-secondary-light);
-}
-
-.boton-editar:hover {
-  color: #ffffff;
-  background-color: var(--color-secondary);
-}
-
-.boton-eliminar {
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.08);
-
-  border-color: rgba(211, 47, 47, 0.25);
-}
-
-.boton-eliminar:hover {
-  color: #ffffff;
-  background-color: var(--color-red);
 }
 
 /* ==========================================================
-   ESTADOS DE LA TABLA
+   EVENT MODAL
 ========================================================== */
-
-.estado-tabla {
-  min-height: 22rem;
-  padding: clamp(2rem, 7vw, 4rem);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-
-  text-align: center;
-}
-
-.estado-tabla h2,
-.estado-tabla p {
-  margin: 0;
-}
-
-.estado-tabla h2 {
-  color: var(--color-secondary-hover);
-
-  font-size: clamp(1.2rem, 3vw, 1.55rem);
-}
-
-.estado-tabla p {
-  max-width: 30rem;
-
-  color: var(--color-grey);
-
-  line-height: 1.55;
-}
-
-.estado-icono {
-  width: 4rem;
-  height: 4rem;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: var(--color-secondary-hover);
-  background-color: rgba(21, 130, 203, 0.1);
-
-  font-size: 2rem;
-  font-weight: 800;
-}
-
-.spinner {
-  width: 2.8rem;
-  height: 2.8rem;
-
-  border: 4px solid var(--color-secondary-light);
-  border-top-color: var(--color-secondary);
-  border-radius: 50%;
-
-  animation: girar 0.75s linear infinite;
-}
-
-@keyframes girar {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ==========================================================
-   MODALES
-========================================================== */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: clamp(0.75rem, 3vw, 2rem);
-}
-
-.modal-fondo {
-  position: absolute;
-  inset: 0;
-
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
-}
-
-.modal-contenido {
-  position: relative;
-  z-index: 1;
-
-  width: min(100%, 52rem);
-  max-height: 92vh;
-
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  border-radius: var(--admin-radio-grande);
-
-  color: var(--color-text);
-  background-color: var(--admin-superficie);
-
-  box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.3),
-    var(--shadow);
-}
 
 .modal-evento-contenido {
   width: min(100%, 56rem);
 }
 
-.modal-eliminar-contenido {
-  width: min(100%, 30rem);
-}
-
-.modal-cabecera {
-  position: sticky;
-  top: 0;
-  z-index: 4;
-
-  padding: 1.1rem clamp(1.15rem, 4vw, 2rem);
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  border-bottom: var(--admin-borde);
-
-  background-color: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(8px);
-}
-
-.modal-cabecera h2 {
-  margin: 0;
-
-  color: var(--color-secondary-hover);
-
-  font-size: clamp(1.25rem, 3vw, 1.6rem);
-}
-
-.modal-seccion {
-  margin-bottom: 0.25rem;
-
-  display: block;
-
-  color: var(--color-grey);
-
-  font-size: 0.73rem;
-  font-weight: 750;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.boton-cerrar {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-
-  border: 0;
-  border-radius: 50%;
-
-  color: var(--color-grey);
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 1.6rem;
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    color var(--admin-transicion),
-    background-color var(--admin-transicion);
-}
-
-.boton-cerrar:hover {
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.08);
-}
-
-.boton-cerrar:focus-visible {
-  outline: none;
-  box-shadow: var(--admin-focus);
-}
-
-.modal-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 4;
-
-  padding: 1rem clamp(1.15rem, 4vw, 2rem);
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-
-  border-top: var(--admin-borde);
-
-  background-color: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(8px);
-}
-
 /* ==========================================================
-   FORMULARIO
+   EVENT FORM
 ========================================================== */
 
-.form-evento {
-  width: 100%;
-}
-
-.form-contenido {
-  padding: clamp(1.15rem, 4vw, 2rem);
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.form-seccion {
-  padding: clamp(1rem, 3vw, 1.35rem);
-
-  border: var(--admin-borde);
-  border-radius: var(--admin-radio);
-
-  background-color: var(--admin-fondo-suave);
-}
-
-.form-seccion-cabecera {
-  margin-bottom: 1rem;
-}
-
-.form-seccion-cabecera h3,
-.form-seccion-cabecera p {
-  margin: 0;
-}
-
-.form-seccion-cabecera h3 {
-  color: var(--color-secondary-hover);
-
-  font-size: 1.05rem;
-}
-
-.form-seccion-cabecera p {
-  margin-top: 0.3rem;
-
-  color: var(--color-grey);
-
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.campo {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.campo-completo {
-  grid-column: 1 / -1;
-}
-
-.campo-label {
-  color: var(--color-text);
-
-  font-size: 0.88rem;
-  font-weight: 750;
-}
-
-.campo-label > span:not(.opcional) {
-  color: var(--color-red);
-}
-
-.opcional {
-  margin-left: 0.25rem;
-
-  color: var(--color-grey);
-
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.campo input,
-.campo textarea {
-  box-sizing: border-box;
-
-  width: 100%;
-  min-width: 0;
-  padding: 0.82rem 0.95rem;
-
-  border: var(--admin-borde);
-  border-radius: var(--admin-radio-pequeno);
-
-  color: var(--color-text);
-  background-color: var(--admin-superficie);
-
-  outline: none;
-
-  font-family: inherit;
-  font-size: 0.95rem;
-
-  transition:
-    border-color var(--admin-transicion),
-    box-shadow var(--admin-transicion);
-}
-
-.campo textarea {
+.form-evento textarea {
   min-height: 13rem;
-
-  resize: vertical;
 }
 
-.campo input::placeholder,
-.campo textarea::placeholder {
-  color: var(--color-grey);
-}
-
-.campo input:focus,
-.campo textarea:focus {
-  border-color: var(--color-secondary);
-  box-shadow: var(--admin-focus);
-}
-
-.campo input:invalid:not(:placeholder-shown),
-.campo textarea:invalid:not(:placeholder-shown) {
-  border-color: var(--color-red);
-}
-
-.campo-ayuda {
-  color: var(--color-grey);
-
-  font-size: 0.78rem;
-  line-height: 1.4;
+/*
+ * Los campos de fecha y hora utilizan números tabulares para
+ * que su contenido no cambie visualmente de ancho.
+ */
+.form-evento
+  :is(input[type='date'], input[type='time'], input[type='datetime-local']) {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================
-   SUBIDA DE IMÁGENES
+   CURRENT EVENT IMAGES
 ========================================================== */
 
-.zona-subida {
-  box-sizing: border-box;
-
-  width: 100%;
-  min-height: 12rem;
-  padding: 1.25rem;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-
-  border: 2px dashed var(--color-light-grey);
-  border-radius: var(--admin-radio);
-
-  color: var(--color-grey);
-  background-color: var(--admin-superficie);
-
-  text-align: center;
-
-  cursor: pointer;
-
-  transition:
-    border-color var(--admin-transicion),
-    background-color var(--admin-transicion),
-    box-shadow var(--admin-transicion);
+.eventos-admin .imagenes-actuales {
+  margin-top: 1.25rem;
 }
 
-.zona-subida:hover {
-  border-color: var(--color-secondary);
-  background-color: rgba(21, 130, 203, 0.04);
-}
-
-.zona-subida.arrastrando {
-  border-color: var(--color-primary);
-  background-color: rgba(131, 192, 67, 0.1);
-  box-shadow: 0 0 0 4px rgba(131, 192, 67, 0.15);
-}
-
-.zona-subida:focus-within {
-  border-color: var(--color-secondary);
-  box-shadow: var(--admin-focus);
-}
-
-.zona-subida input {
-  width: 1px;
-  height: 1px;
-
-  position: absolute;
-
-  overflow: hidden;
-  opacity: 0;
-
-  pointer-events: none;
-}
-
-.subida-icono {
-  width: 3.2rem;
-  height: 3.2rem;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  font-size: 1.9rem;
-  font-weight: 400;
-}
-
-.zona-subida strong {
-  color: var(--color-secondary-hover);
-
-  font-size: 1rem;
-}
-
-.zona-subida > span:not(.subida-icono) {
-  font-size: 0.88rem;
-}
-
-.zona-subida small {
-  font-size: 0.76rem;
-}
-
-.galeria-preview {
-  margin-top: 1rem;
-
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
-  gap: 0.75rem;
-}
-
-.preview-imagen {
-  margin: 0;
-
-  position: relative;
-
-  overflow: hidden;
-
-  border: var(--admin-borde);
-  border-radius: 0.7rem;
-
-  background-color: var(--admin-superficie);
-}
-
-.preview-imagen img {
-  width: 100%;
-  height: 7rem;
-
-  display: block;
+/*
+ * Las imágenes de los eventos tienen una proporción más
+ * horizontal que las fotografías de miembros.
+ */
+.eventos-admin
+  :where(.galeria-preview, .currentImagesGallery)
+  :where(.preview-imagen, .imagePreviewItem, .preview)
+  img {
+  aspect-ratio: 16 / 10;
+  height: auto;
 
   object-fit: cover;
-  object-position: center;
-}
-
-.preview-imagen figcaption {
-  padding: 0.5rem;
-
-  overflow: hidden;
-
-  color: var(--color-grey);
-
-  font-size: 0.75rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.preview-numero {
-  min-width: 1.6rem;
-  height: 1.6rem;
-  padding-inline: 0.35rem;
-
-  position: absolute;
-  top: 0.4rem;
-  left: 0.4rem;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 2rem;
-
-  color: #ffffff;
-  background-color: rgba(0, 0, 0, 0.7);
-
-  font-size: 0.73rem;
-  font-weight: 800;
-}
-
-.imagenes-actuales {
-  margin-top: 1.25rem;
-  padding-top: 1.1rem;
-
-  border-top: 1px solid var(--color-light-grey);
-}
-
-.imagenes-actuales-cabecera h4,
-.imagenes-actuales-cabecera p {
-  margin: 0;
-}
-
-.imagenes-actuales-cabecera h4 {
-  color: var(--color-text);
-
-  font-size: 0.95rem;
-}
-
-.imagenes-actuales-cabecera p {
-  margin-top: 0.3rem;
-
-  color: var(--color-grey);
-
-  font-size: 0.82rem;
-  line-height: 1.45;
 }
 
 /* ==========================================================
-   MODAL ELIMINAR
+   EMPTY STATE
 ========================================================== */
 
-.eliminar-contenido {
-  padding: clamp(1.5rem, 5vw, 2.5rem);
-
-  text-align: center;
+.eventos-admin
+  :where(.estado-tabla, .emptyState)
+  :where(.estado-icono, .emptyStateIcon)::before {
+  content: '📅';
 }
 
-.eliminar-icono {
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto 1rem;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: var(--color-red);
-  background-color: rgba(211, 47, 47, 0.1);
-
-  font-size: 2rem;
-  font-weight: 800;
-}
-
-.eliminar-contenido h3 {
-  margin: 0;
-
-  color: var(--color-text);
-
-  font-size: 1.15rem;
-}
-
-.eliminar-contenido p {
-  margin: 0.8rem 0 0;
-
-  color: var(--color-grey);
-
-  line-height: 1.6;
-}
-
-.eliminar-contenido .advertencia {
-  color: var(--color-red);
-
-  font-size: 0.85rem;
-  font-weight: 700;
+/*
+ * No se genera un segundo icono cuando el HTML ya contiene
+ * texto o un SVG dentro del elemento.
+ */
+.eventos-admin :where(.estado-icono, .emptyStateIcon):not(:empty)::before {
+  content: none;
 }
 
 /* ==========================================================
-   TOASTS
-========================================================== */
-
-.contenedor-toast {
-  width: min(calc(100% - 2.5rem), 26rem);
-
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 2000;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-
-  pointer-events: none;
-}
-
-.toast {
-  box-sizing: border-box;
-
-  width: 100%;
-  padding: 0.9rem 1rem;
-
-  border-radius: var(--admin-radio);
-
-  color: #ffffff;
-  background-color: var(--color-secondary);
-
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
-
-  font-family: var(--text-font-primary);
-  font-size: 0.9rem;
-  font-weight: 650;
-  line-height: 1.45;
-
-  opacity: 0;
-  transform: translateX(1.5rem);
-
-  transition:
-    opacity 250ms ease,
-    transform 250ms ease;
-}
-
-.toast.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.toast-exito {
-  background-color: var(--color-primary-hover);
-}
-
-.toast-error {
-  background-color: var(--color-red);
-}
-
-.toast-advertencia {
-  color: var(--color-text);
-  background-color: var(--color-yellow);
-}
-
-/* ==========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
 ========================================================== */
 
 @media (max-width: 900px) {
-  .cabecera-pagina {
-    align-items: stretch;
-    flex-direction: column;
+  .tabla-eventos {
+    min-width: 70rem;
   }
 
-  .cabecera-pagina > .boton {
-    width: 100%;
+  .info-evento {
+    min-width: 14rem;
   }
 
-  .herramientas {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .buscador {
-    width: 100%;
-  }
-
-  .resumen {
-    text-align: right;
-  }
-
-  .form-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .campo-completo {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 640px) {
-  .eventos-admin {
-    gap: 1rem;
-
-    padding: 0.75rem;
-  }
-
-  .cabecera-pagina {
-    padding: 1.15rem;
-  }
-
-  .modal {
-    align-items: flex-end;
-
-    padding: 0;
-  }
-
-  .modal-contenido {
-    width: 100%;
-    max-height: 96vh;
-
-    border-radius: var(--admin-radio-grande) var(--admin-radio-grande) 0 0;
-  }
-
-  .modal-cabecera {
-    padding: 1rem;
-  }
-
-  .form-contenido {
-    padding: 1rem;
-  }
-
-  .form-seccion {
-    padding: 0.9rem;
-  }
-
-  .modal-footer {
-    padding: 0.9rem 1rem;
-
-    flex-direction: column-reverse;
-  }
-
-  .modal-footer .boton {
-    width: 100%;
-  }
-
-  .galeria-preview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .preview-imagen img {
-    height: 6rem;
-  }
-
-  .contenedor-toast {
-    right: 0.75rem;
-    bottom: 0.75rem;
-    left: 0.75rem;
-
-    width: auto;
-  }
-}
-
-@media (max-width: 380px) {
-  .galeria-preview {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .preview-imagen img {
-    height: 9rem;
+  .fecha-horario-evento {
+    min-width: 9rem;
   }
 }
 
 /* ==========================================================
-   MOVIMIENTO REDUCIDO
+   RESPONSIVE — MOBILE
 ========================================================== */
 
-@media (prefers-reduced-motion: reduce) {
-  .eventos-admin *,
-  .eventos-admin *::before,
-  .eventos-admin *::after,
-  .modal *,
-  .toast {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+@media (max-width: 640px) {
+  .eventos-admin {
+    --admin-table-cell-padding: 0.8rem;
   }
 
-  .spinner {
-    animation: none;
+  .tabla-eventos {
+    min-width: 66rem;
+  }
 
-    border-top-color: var(--color-secondary);
+  .form-evento textarea {
+    min-height: 11rem;
+  }
+
+  .eventos-admin
+    :where(.galeria-preview, .currentImagesGallery)
+    :where(.preview-imagen, .imagePreviewItem, .preview)
+    img {
+    aspect-ratio: 4 / 3;
   }
 }

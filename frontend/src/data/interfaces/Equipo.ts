@@ -4,4 +4,7 @@ export default interface Equipo {
   puesto: string
   descripcion: string
   img: string
+  id: number
+  created_at: Date
+  order: number
 }

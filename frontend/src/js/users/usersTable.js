@@ -1,193 +1,419 @@
-import { usersBody, usersEmpty, pantallaCargaUsers } from './dom.js'
-import { filteredUsers } from './state.js'
-import { openEditUserModal, askNewPassword } from './userModal.js'
-import { openDeleteUserModal } from './deleteModal.js'
-import { replaceUser } from './helpers.js'
-import { showToast } from '../common/toast.js'
-import { setUserActive } from '../common/api.js'
+import {
+  createTableRenderer,
+  createCustomColumn,
+  createTextColumn,
+  createActionsColumn
+} from '../common/table.js'
 
-export function renderUsers() {
-  usersBody.innerHTML = ''
+import { requireElement } from '../common/dom.js'
 
-  if (filteredUsers.length === 0) {
-    usersEmpty.hidden = false
+/* ==========================================================
+   TABLE FACTORY
+========================================================== */
 
-    return
-  }
+export function createUsersTable({
+  onEdit,
+  onDelete,
+  onPassword,
+  onToggleActive,
 
-  usersEmpty.hidden = true
-
-  filteredUsers.forEach((user) => {
-    usersBody.appendChild(createUserRow(user))
+  isCurrentUser,
+  isChangingStatus
+} = {}) {
+  validarConfiguracion({
+    onEdit,
+    onDelete,
+    onPassword,
+    onToggleActive,
+    isCurrentUser,
+    isChangingStatus
   })
 
-  pantallaCargaUsers.classList.add('hidden')
-}
+  const emptyElement = requireElement('#usersEmpty', 'estado vacío de usuarios')
 
-export function createUserRow(user) {
-  const tr = document.createElement('tr')
+  const renderTable = createTableRenderer({
+    body: '#usersBody',
 
-  tr.append(
-    createAvatarCell(user),
+    getRowId(user) {
+      return user.id
+    },
 
-    createTextCell(user.username),
+    getRowDataset(user) {
+      return {
+        userId: user.id,
 
-    createTextCell(user.email),
-
-    createRoleCell(user),
-
-    createStatusCell(user),
-
-    createActionsCell(user),
-  )
-
-  return tr
-}
-
-export function createAvatarCell(user) {
-  const td = document.createElement('td')
-
-  const container = document.createElement('div')
-
-  container.className = 'userCell'
-
-  const avatar = document.createElement('div')
-
-  avatar.className = 'avatar'
-
-  avatar.textContent = `${user.name[0] ?? ''}${user.last_name[0] ?? ''}`
-
-  const info = document.createElement('div')
-
-  const name = document.createElement('div')
-
-  name.className = 'name'
-
-  name.textContent = `${user.name} ${user.last_name}`
-
-  const username = document.createElement('div')
-
-  username.className = 'username'
-
-  username.textContent = '@' + user.username
-
-  info.append(name, username)
-
-  container.append(avatar, info)
-
-  td.appendChild(container)
-
-  return td
-}
-
-export function createTextCell(text) {
-  const td = document.createElement('td')
-
-  td.textContent = text
-
-  return td
-}
-
-export function createRoleCell(user) {
-  const td = document.createElement('td')
-
-  const badge = document.createElement('span')
-
-  badge.className = 'roleBadge'
-
-  badge.textContent = user.role_name
-
-  td.appendChild(badge)
-
-  return td
-}
-
-export function createStatusCell(user) {
-  const td = document.createElement('td')
-
-  const label = document.createElement('label')
-
-  label.className = 'switch'
-
-  const checkbox = document.createElement('input')
-
-  checkbox.type = 'checkbox'
-
-  checkbox.checked = user.active
-
-  if (user.username === localStorage.getItem('username')) {
-    checkbox.disabled = true
-  } else {
-    checkbox.onchange = async () => {
-      try {
-        const updated = await setUserActive(user.id, checkbox.checked)
-
-        replaceUser(updated)
-
-        showToast('Estatus actualizado.', 'success')
-      } catch (error) {
-        checkbox.checked = !checkbox.checked
-
-        showToast(error.message, 'error')
+        username: user.username ?? ''
       }
-    }
+    },
+
+    getRowClassName(user) {
+      return {
+        currentUser: isCurrentUser(user),
+
+        inactiveUser: !Boolean(user.active)
+      }
+    },
+
+    columns: [
+      crearColumnaUsuario(),
+
+      createTextColumn({
+        value: 'username',
+
+        emptyText: 'Sin usuario',
+
+        textClassName: 'usernameValue'
+      }),
+
+      createTextColumn({
+        value: 'email',
+
+        emptyText: 'Sin correo',
+
+        textClassName: 'emailValue'
+      }),
+
+      crearColumnaRol(),
+
+      crearColumnaEstado({
+        onToggleActive,
+        isCurrentUser,
+        isChangingStatus
+      }),
+
+      crearColumnaAcciones({
+        onEdit,
+        onDelete,
+        onPassword,
+        isCurrentUser
+      })
+    ]
+  })
+
+  return function renderUsers(context = {}) {
+    const items = Array.isArray(context.items) ? context.items : []
+
+    /*
+     * Aunque no existan usuarios visibles, ejecutamos el
+     * render para eliminar las filas de una búsqueda anterior.
+     */
+    renderTable({
+      ...context,
+      items
+    })
+
+    const empty = items.length === 0
+
+    emptyElement.hidden = !empty
+
+    emptyElement.setAttribute('aria-hidden', String(!empty))
   }
-
-  const slider = document.createElement('span')
-
-  slider.className = 'slider'
-
-  label.append(checkbox, slider)
-
-  td.appendChild(label)
-
-  return td
 }
 
-export function createActionsCell(user) {
-  const td = document.createElement('td')
+/* ==========================================================
+   USER INFORMATION
+========================================================== */
 
-  td.className = 'actions'
+function crearColumnaUsuario() {
+  return createCustomColumn({
+    render(user) {
+      const container = document.createElement('div')
 
-  const edit = document.createElement('button')
+      container.className = 'userCell'
 
-  edit.className = 'tableButton edit'
+      const avatar = document.createElement('div')
 
-  edit.textContent = 'Editar'
+      avatar.className = 'avatar'
 
-  edit.onclick = () => {
-    openEditUserModal(user)
-  }
+      avatar.textContent = obtenerIniciales(user)
 
-  td.appendChild(edit)
+      avatar.setAttribute('aria-hidden', 'true')
 
-  const password = document.createElement('button')
+      const info = document.createElement('div')
 
-  password.className = 'tableButton'
+      const name = document.createElement('div')
 
-  if (user.username === localStorage.getItem('username')) {
-    password.textContent = 'Contraseña'
+      name.className = 'name'
 
-    password.onclick = () => {
-      askNewPassword(user)
+      name.textContent = obtenerNombreCompleto(user)
+
+      const username = document.createElement('div')
+
+      username.className = 'username'
+
+      username.textContent = obtenerUsernameVisible(user)
+
+      info.append(name, username)
+
+      container.append(avatar, info)
+
+      return container
     }
+  })
+}
 
-    td.appendChild(password)
-  }
+/* ==========================================================
+   ROLE
+========================================================== */
 
-  if (user.username !== localStorage.getItem('username')) {
-    const del = document.createElement('button')
+function crearColumnaRol() {
+  return createCustomColumn({
+    render(user) {
+      const roleName = String(user.role_name ?? '').trim()
 
-    del.className = 'tableButton delete'
+      if (!roleName) return crearValorVacio('Sin rol')
 
-    del.textContent = 'Borrar'
+      const badge = document.createElement('span')
 
-    del.onclick = () => {
-      openDeleteUserModal(user)
+      badge.className = 'roleBadge'
+
+      badge.textContent = roleName
+
+      return badge
     }
+  })
+}
 
-    td.appendChild(del)
+/* ==========================================================
+   STATUS
+========================================================== */
+
+function crearColumnaEstado({
+  onToggleActive,
+  isCurrentUser,
+  isChangingStatus
+}) {
+  return createCustomColumn({
+    render(user) {
+      const currentUser = isCurrentUser(user)
+
+      const changing = isChangingStatus(user)
+
+      const label = document.createElement('label')
+
+      label.className = 'switch'
+
+      if (changing) label.classList.add('loading')
+
+      const checkbox = document.createElement('input')
+
+      checkbox.type = 'checkbox'
+
+      checkbox.checked = Boolean(user.active)
+
+      checkbox.disabled = currentUser || changing
+
+      checkbox.setAttribute('aria-label', construirLabelEstado(user))
+
+      checkbox.setAttribute('aria-busy', String(changing))
+
+      if (currentUser)
+        checkbox.title = 'No podés cambiar el estado de tu propio usuario.'
+
+      checkbox.addEventListener('change', async () => {
+        const nextActive = checkbox.checked
+
+        checkbox.disabled = true
+        checkbox.setAttribute('aria-busy', 'true')
+
+        try {
+          const changed = await onToggleActive(user, nextActive)
+
+          /*
+           * Si la operación fue rechazada antes de llegar
+           * al backend, restauramos el valor inmediatamente.
+           *
+           * Para errores del servidor, users.js recarga la
+           * colección y vuelve a renderizar la fila.
+           */
+          if (changed === false) checkbox.checked = Boolean(user.active)
+        } catch (error) {
+          checkbox.checked = Boolean(user.active)
+
+          console.error('No se pudo cambiar el estado del usuario:', error)
+        } finally {
+          /*
+           * Puede que la tabla ya haya sido renderizada de
+           * nuevo y este control esté desconectado del DOM.
+           */
+          if (checkbox.isConnected) {
+            checkbox.disabled = currentUser
+
+            checkbox.setAttribute('aria-busy', 'false')
+          }
+        }
+      })
+
+      const slider = document.createElement('span')
+
+      slider.className = 'slider'
+
+      slider.setAttribute('aria-hidden', 'true')
+
+      label.append(checkbox, slider)
+
+      return label
+    }
+  })
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+function crearColumnaAcciones({ onEdit, onDelete, onPassword, isCurrentUser }) {
+  return createActionsColumn({
+    className: 'actions',
+
+    containerClassName: 'actions',
+
+    buttonClassName: 'tableButton',
+
+    actions: [
+      {
+        text: 'Editar',
+
+        className: 'edit',
+
+        ariaLabel(user) {
+          return `Editar el usuario ` + obtenerUsername(user)
+        },
+
+        onClick(user) {
+          onEdit(user)
+        }
+      },
+
+      {
+        text: 'Contraseña',
+
+        hidden(user) {
+          return !isCurrentUser(user)
+        },
+
+        ariaLabel(user) {
+          return `Cambiar la contraseña de ` + obtenerUsername(user)
+        },
+
+        onClick(user) {
+          onPassword(user)
+        }
+      },
+
+      {
+        text: 'Borrar',
+
+        className: 'delete',
+
+        hidden(user) {
+          return isCurrentUser(user)
+        },
+
+        ariaLabel(user) {
+          return `Eliminar el usuario ` + obtenerUsername(user)
+        },
+
+        onClick(user) {
+          onDelete(user)
+        }
+      }
+    ]
+  })
+}
+
+/* ==========================================================
+   USER HELPERS
+========================================================== */
+
+function obtenerNombreCompleto(user) {
+  const fullName = [user?.name, user?.last_name]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
+
+  if (fullName) return fullName
+
+  return obtenerUsername(user)
+}
+
+function obtenerUsername(user) {
+  const username = String(user?.username ?? '').trim()
+
+  if (username) return username
+
+  return `usuario n.º ${user?.id ?? ''}`.trim()
+}
+
+function obtenerUsernameVisible(user) {
+  const username = String(user?.username ?? '').trim()
+
+  return username ? `@${username}` : 'Sin nombre de usuario'
+}
+
+function obtenerIniciales(user) {
+  const firstName = String(user?.name ?? '').trim()
+
+  const lastName = String(user?.last_name ?? '').trim()
+
+  const initials =
+    `${firstName.charAt(0)}${lastName.charAt(0)}`.toLocaleUpperCase('es-AR')
+
+  if (initials) return initials
+
+  const username = String(user?.username ?? '').trim()
+
+  return username.slice(0, 2).toLocaleUpperCase('es-AR')
+}
+
+/* ==========================================================
+   STATUS HELPERS
+========================================================== */
+
+function construirLabelEstado(user) {
+  const username = obtenerUsername(user)
+
+  return Boolean(user.active)
+    ? `Desactivar el usuario ${username}`
+    : `Activar el usuario ${username}`
+}
+
+/* ==========================================================
+   EMPTY VALUE
+========================================================== */
+
+function crearValorVacio(text) {
+  const element = document.createElement('span')
+
+  element.className = 'sin-dato'
+
+  element.textContent = String(text)
+
+  return element
+}
+
+/* ==========================================================
+   CONFIGURATION
+========================================================== */
+
+function validarConfiguracion({
+  onEdit,
+  onDelete,
+  onPassword,
+  onToggleActive,
+  isCurrentUser,
+  isChangingStatus
+}) {
+  const functions = {
+    onEdit,
+    onDelete,
+    onPassword,
+    onToggleActive,
+    isCurrentUser,
+    isChangingStatus
   }
 
-  return td
+  for (const [name, value] of Object.entries(functions)) {
+    if (typeof value !== 'function')
+      throw new TypeError(`createUsersTable requiere ${name}.`)
+  }
 }

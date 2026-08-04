@@ -3,6 +3,7 @@ import Layout from '../../../layouts/Layout.astro'
 
 import NavegacionPelucas from '../../../components/Pelucas/NavegacionPelucas.astro'
 import TituloPag from '../../../components/Common/TituloPag.astro'
+
 import SvgPeine from '../../../assets/icon-cuidado/icon-peine.svg'
 import SvgGota from '../../../assets/icon-cuidado/icon-gota.svg'
 import SvgAire from '../../../assets/icon-cuidado/icon-aire.svg'
@@ -10,21 +11,47 @@ import SvgNoQuimico from '../../../assets/icon-cuidado/icon-no-quimico.svg'
 import SvgPelo from '../../../assets/icon-quiero-ayudar/icon-pelo.svg'
 import SvgCuidado from '../../../assets/icon-donar-cosas/icon-cuidado.svg'
 import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 ---
 
-<Layout pag="Cuidados de la peluca">
+<Layout
+  pag="Cuidados de la peluca"
+  seoTitle="Cómo cuidar una peluca oncológica | Fundación SENO"
+  description="Aprendé a desenredar, lavar y secar correctamente una peluca entregada por Fundación SENO."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Pelucas',
+        href: '/pelucas'
+      },
+      {
+        name: 'Cuidado'
+      }
+    ]}
+  />
   <NavegacionPelucas pag="1" />
+
   <TituloPag titulo="Cuidados de la peluca" />
 
-  <main class="cuidados">
-    <section class="presentacion">
-      <div class="presentacion__contenido">
-        <span class="presentacion__etiqueta">Guía de cuidado</span>
+  <main class="wig-care-page">
+    <section
+      class="wig-care-hero"
+      aria-labelledby="wig-care-introduction-title"
+    >
+      <div class="wig-care-hero__content">
+        <p class="wig-care-kicker">Guía de cuidado</p>
 
-        <h1>Cómo cuidar correctamente tu peluca</h1>
+        <h2 id="wig-care-introduction-title">
+          Cómo cuidar correctamente tu peluca
+        </h2>
 
         <p>
-          Con algunos cuidados simples puedes mantener tu peluca limpia,
+          Con algunos cuidados simples podés mantener tu peluca limpia,
           desenredada y en buenas condiciones durante más tiempo.
         </p>
 
@@ -34,62 +61,69 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
         </p>
       </div>
 
-      <div class="presentacion__ilustracion" aria-hidden="true">
+      <div class="wig-care-hero__illustration" aria-hidden="true">
         <SvgPelo />
       </div>
     </section>
 
-    <section class="proceso" aria-labelledby="pasos-de-cuidado">
-      <div class="encabezado-seccion">
-        <span>Proceso recomendado</span>
-        <h2 id="pasos-de-cuidado">Cuidados paso a paso</h2>
+    <section class="wig-care-process" aria-labelledby="wig-care-steps-title">
+      <header class="wig-care-section-header">
+        <p class="wig-care-kicker">Proceso recomendado</p>
+
+        <h2 id="wig-care-steps-title">Cuidados paso a paso</h2>
 
         <p>
           Realizá cada etapa con movimientos suaves, sin retorcer, frotar ni
           tirar del cabello.
         </p>
-      </div>
+      </header>
 
-      <div class="pasos">
-        <article class="paso">
-          <div class="paso__encabezado">
-            <span class="paso__numero">1</span>
+      <div class="wig-care-steps">
+        <article class="wig-care-step">
+          <header class="wig-care-step__header">
+            <span class="wig-care-step__number" aria-hidden="true"> 1 </span>
 
             <div>
-              <span class="paso__categoria">Preparación</span>
+              <p class="wig-care-step__category">Preparación</p>
+
               <h3>Desenredado</h3>
             </div>
-          </div>
+          </header>
 
           <ul>
             <li>Trabajá siempre con el cabello completamente seco.</li>
+
             <li>Utilizá únicamente un peine de dientes anchos.</li>
+
             <li>Comenzá por las puntas y subí gradualmente.</li>
+
             <li>
-              Sostén el cabello para evitar tirar de la base de la peluca.
+              Sostené el cabello para evitar tirar de la base de la peluca.
             </li>
           </ul>
         </article>
 
-        <article class="paso paso--destacado">
-          <div class="paso__encabezado">
-            <span class="paso__numero">2</span>
+        <article class="wig-care-step
+            wig-care-step--featured">
+          <header class="wig-care-step__header">
+            <span class="wig-care-step__number" aria-hidden="true"> 2 </span>
 
             <div>
-              <span class="paso__categoria">Limpieza</span>
+              <p class="wig-care-step__category">Limpieza</p>
+
               <h3>Lavado</h3>
             </div>
-          </div>
+          </header>
 
           <ol>
             <li>
-              Colocá la peluca sobre una de tus manos y mantenla debajo del
+              Colocá la peluca sobre una de tus manos y mantenela debajo del
               grifo con agua fría o tibia.
             </li>
 
             <li>
-              Colocá una pequeña cantidad de champú y distribúyelo suavemente
-              con los dedos.
+              Colocá una pequeña cantidad de champú y distribuílo suavemente con
+              los dedos.
             </li>
 
             <li>
@@ -98,30 +132,31 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
             </li>
 
             <li>
-              Enjuaga dejando que el agua caiga suavemente sobre la peluca hasta
+              Enjuagá dejando que el agua caiga suavemente sobre la peluca hasta
               retirar todo el champú.
             </li>
 
             <li>
-              Aplicá acondicionador o crema de enjuague y déjalo actuar
-              aproximadamente durante 15 minutos.
+              Aplicá acondicionador o crema de enjuague y dejalo actuar durante
+              aproximadamente 15 minutos.
             </li>
 
             <li>
-              Vuelve a enjuagar sin frotar, retorcer ni apretar el cabello.
+              Volvé a enjuagar sin frotar, retorcer ni apretar el cabello.
             </li>
           </ol>
         </article>
 
-        <article class="paso">
-          <div class="paso__encabezado">
-            <span class="paso__numero">3</span>
+        <article class="wig-care-step">
+          <header class="wig-care-step__header">
+            <span class="wig-care-step__number" aria-hidden="true"> 3 </span>
 
             <div>
-              <span class="paso__categoria">Finalización</span>
+              <p class="wig-care-step__category">Finalización</p>
+
               <h3>Secado</h3>
             </div>
-          </div>
+          </header>
 
           <ol>
             <li>
@@ -132,17 +167,17 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
             <li>No la retuerzas ni la frotes contra la toalla.</li>
 
             <li>
-              Colócala sobre un soporte para pelucas para que pueda ventilarse
+              Colocala sobre un soporte para pelucas para que pueda ventilarse
               tanto por dentro como por fuera.
             </li>
 
             <li>
-              Déjala secar al aire y evita utilizar secadores u otras fuentes
+              Dejala secar al aire y evitá utilizar secadores u otras fuentes
               directas de calor.
             </li>
 
             <li>
-              Cuando esté semiseca, desenrédala suavemente y acomódala con el
+              Cuando esté semiseca, desenredala suavemente y acomodala con el
               peinado o los accesorios que desees.
             </li>
           </ol>
@@ -150,14 +185,15 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
       </div>
     </section>
 
-    <section class="advertencia" aria-labelledby="tratamientos-prohibidos">
-      <div class="advertencia__icono" aria-hidden="true">
+    <section class="wig-care-warning" aria-labelledby="wig-care-warning-title">
+      <span class="wig-care-warning__icon" aria-hidden="true">
         <SvgCuidado />
-      </div>
+      </span>
 
-      <div class="advertencia__contenido">
-        <span>Muy importante</span>
-        <h2 id="tratamientos-prohibidos">Evitá productos químicos</h2>
+      <div class="wig-care-warning__content">
+        <p class="wig-care-kicker">Muy importante</p>
+
+        <h2 id="wig-care-warning-title">Evitá productos químicos</h2>
 
         <p>
           Las pelucas entregadas no deben entrar en contacto con tinturas,
@@ -166,703 +202,897 @@ import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
           irreversible.
         </p>
 
-        <div class="prohibidos">
-          <div class="prohibido">
+        <ul class="wig-care-warning__list">
+          <li>
             <span aria-hidden="true">×</span>
-            <p>Teñir</p>
-          </div>
+            <span>Teñir</span>
+          </li>
 
-          <div class="prohibido">
+          <li>
             <span aria-hidden="true">×</span>
-            <p>Hacer permanentes</p>
-          </div>
+            <span>Hacer permanentes</span>
+          </li>
 
-          <div class="prohibido">
+          <li>
             <span aria-hidden="true">×</span>
-            <p>Realizar alisados</p>
-          </div>
+            <span>Realizar alisados</span>
+          </li>
 
-          <div class="prohibido">
+          <li>
             <span aria-hidden="true">×</span>
-            <p>Aplicar químicos</p>
-          </div>
-        </div>
+            <span>Aplicar químicos</span>
+          </li>
+        </ul>
       </div>
     </section>
 
-    <section class="resumen" aria-labelledby="recordatorio">
-      <div class="encabezado-seccion">
-        <span>Recordatorio rápido</span>
-        <h2 id="recordatorio">Lo más importante</h2>
-      </div>
+    <section class="wig-care-summary" aria-labelledby="wig-care-summary-title">
+      <header class="wig-care-section-header">
+        <p class="wig-care-kicker">Recordatorio rápido</p>
 
-      <div class="resumen__grid">
-        <article>
-          <span class="resumen__icono" aria-hidden="true">
-            <SvgPeine />
-          </span>
+        <h2 id="wig-care-summary-title">Lo más importante</h2>
+      </header>
 
-          <h3>Peine ancho</h3>
-          <p>Desenreda en seco, desde las puntas hacia arriba.</p>
-        </article>
+      <ul class="wig-care-summary__list">
+        <li>
+          <article class="wig-care-summary-card">
+            <span class="wig-care-summary-card__icon" aria-hidden="true">
+              <SvgPeine />
+            </span>
 
-        <article>
-          <span class="resumen__icono" aria-hidden="true">
-            <SvgGota />
-          </span>
+            <h3>Peine ancho</h3>
 
-          <h3>Agua fría o tibia</h3>
-          <p>Nunca utilices agua demasiado caliente.</p>
-        </article>
+            <p>Desenredá en seco, desde las puntas hacia arriba.</p>
+          </article>
+        </li>
 
-        <article>
-          <span class="resumen__icono" aria-hidden="true">
-            <SvgAire />
-          </span>
+        <li>
+          <article class="wig-care-summary-card">
+            <span class="wig-care-summary-card__icon" aria-hidden="true">
+              <SvgGota />
+            </span>
 
-          <h3>Secado al aire</h3>
-          <p>Déjala secar sobre un soporte, sin aplicar calor.</p>
-        </article>
+            <h3>Agua fría o tibia</h3>
 
-        <article>
-          <span class="resumen__icono" aria-hidden="true">
-            <SvgNoQuimico />
-          </span>
+            <p>Nunca utilices agua demasiado caliente.</p>
+          </article>
+        </li>
 
-          <h3>Sin químicos</h3>
-          <p>No teñir, alisar ni realizar tratamientos permanentes.</p>
-        </article>
-      </div>
+        <li>
+          <article class="wig-care-summary-card">
+            <span class="wig-care-summary-card__icon" aria-hidden="true">
+              <SvgAire />
+            </span>
+
+            <h3>Secado al aire</h3>
+
+            <p>Dejala secar sobre un soporte, sin aplicar calor.</p>
+          </article>
+        </li>
+
+        <li>
+          <article class="wig-care-summary-card">
+            <span class="wig-care-summary-card__icon" aria-hidden="true">
+              <SvgNoQuimico />
+            </span>
+
+            <h3>Sin químicos</h3>
+
+            <p>No teñir, alisar ni realizar tratamientos permanentes.</p>
+          </article>
+        </li>
+      </ul>
     </section>
 
-    <aside class="ayuda">
+    <aside class="wig-care-help" aria-labelledby="wig-care-help-title">
       <div>
-        <span>¿Tenés alguna duda?</span>
-        <h2>Consúltanos antes de aplicar un producto</h2>
+        <p class="wig-care-kicker">¿Tenés alguna duda?</p>
+
+        <h2 id="wig-care-help-title">
+          Consultanos antes de aplicar un producto
+        </h2>
 
         <p>
-          Si no estás segur@ de cómo lavar, peinar o cuidar tu peluca,
+          Si no estás seguro de cómo lavar, peinar o cuidar tu peluca,
           preguntanos antes de realizar cualquier tratamiento.
         </p>
       </div>
 
       <a href="#contacto">
-        Preguntar
+        <span>Preguntar</span>
 
-        <SvgFlecha />
+        <SvgFlecha aria-hidden="true" />
       </a>
     </aside>
   </main>
 </Layout>
 
 <style>
-  .cuidados {
-    --care-primary: var(--color-primary, #4174a9);
-    --care-primary-dark: var(--color-primary-hover, #26577f);
-    --care-secondary: var(--color-secondary, #d55e8d);
-    --care-text: var(--color-text, #28313a);
+  .wig-care-page {
+    --care-primary: var(--color-primary);
+
+    --care-primary-dark: var(--color-primary-hover);
+
+    --care-secondary: var(--color-secondary);
+
+    --care-text: var(--color-text);
+
     --care-muted: #68747f;
-    --care-background: #f7f9fb;
+    --care-surface: #f7f9fb;
     --care-border: #dce5ec;
     --care-warning: #a33b3b;
     --care-warning-background: #fff4f2;
 
-    width: min(1180px, calc(100% - 2rem));
-    margin: 2rem auto 5rem;
+    width: min(calc(100% - 2rem), 73.75rem);
+
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+
     color: var(--care-text);
-    font-family: var(--text-font-primary, system-ui, sans-serif);
   }
 
-  .presentacion {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
-    align-items: center;
-    gap: clamp(2rem, 6vw, 5rem);
-    min-height: 390px;
-    padding: clamp(2rem, 6vw, 5rem);
-    overflow: hidden;
-    border: 1px solid var(--care-border);
-    border-radius: 2rem;
-    background:
-      radial-gradient(
-        circle at 85% 20%,
-        rgb(213 94 141 / 14%),
-        transparent 32%
-      ),
-      linear-gradient(135deg, #f8fbfd 0%, #eef5fa 100%);
-  }
-
-  .presentacion::before,
-  .presentacion::after {
-    position: absolute;
-    content: '';
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  .presentacion::before {
-    right: -90px;
-    bottom: -130px;
-    width: 310px;
-    aspect-ratio: 1;
-    border: 45px solid rgb(65 116 169 / 7%);
-  }
-
-  .presentacion::after {
-    top: -80px;
-    left: 38%;
-    width: 170px;
-    aspect-ratio: 1;
-    background: rgb(255 255 255 / 45%);
-  }
-
-  .presentacion__contenido,
-  .presentacion__ilustracion {
-    position: relative;
-    z-index: 1;
-  }
-
-  .presentacion__etiqueta,
-  .encabezado-seccion > span,
-  .recomendacion-inicial > div:last-child > span,
-  .advertencia__contenido > span,
-  .ayuda > div > span {
-    display: block;
+  .wig-care-kicker {
     margin-bottom: 0.65rem;
+
     color: var(--care-primary-dark);
+
     font-size: 0.77rem;
     font-weight: 800;
+    line-height: 1.4;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .presentacion h1 {
-    max-width: 680px;
-    margin: 0 0 1.3rem;
+  /* ========================================================
+     HERO
+  ======================================================== */
+
+  .wig-care-hero {
+    min-height: 24rem;
+
+    padding: clamp(2rem, 6vw, 5rem);
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1.35fr)
+      minmax(13.75rem, 0.65fr);
+
+    align-items: center;
+
+    gap: clamp(2rem, 6vw, 5rem);
+
+    overflow: hidden;
+
+    background:
+      radial-gradient(
+        circle at 85% 20%,
+        rgba(213, 94, 141, 0.14),
+        transparent 32%
+      ),
+      linear-gradient(135deg, #f8fbfd 0%, #eef5fa 100%);
+
+    border: 1px solid var(--care-border);
+
+    border-radius: 2rem;
+  }
+
+  .wig-care-hero::before,
+  .wig-care-hero::after {
+    content: '';
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+  }
+
+  .wig-care-hero::before {
+    width: 19.5rem;
+
+    aspect-ratio: 1;
+
+    right: -5.5rem;
+    bottom: -8rem;
+
+    border: 2.8rem solid rgba(65, 116, 169, 0.07);
+  }
+
+  .wig-care-hero::after {
+    width: 10.5rem;
+
+    aspect-ratio: 1;
+
+    top: -5rem;
+    left: 38%;
+
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .wig-care-hero__content,
+  .wig-care-hero__illustration {
+    position: relative;
+    z-index: 1;
+  }
+
+  .wig-care-hero__content h2 {
+    max-width: 42.5rem;
+
+    margin-bottom: 1.3rem;
+
     color: var(--care-primary-dark);
+
     font-size: clamp(2rem, 5vw, 4rem);
+
     line-height: 1.05;
     text-wrap: balance;
   }
 
-  .presentacion p {
-    max-width: 680px;
-    margin: 0.65rem 0;
+  .wig-care-hero__content > p:not(.wig-care-kicker) {
+    max-width: 42.5rem;
+
+    margin-top: 0.65rem;
+
     color: var(--care-muted);
+
     font-size: clamp(1rem, 1.8vw, 1.15rem);
+
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .presentacion__ilustracion {
-    display: grid;
-    place-items: center;
-    width: min(100%, 290px);
+  .wig-care-hero__illustration {
+    width: min(100%, 18rem);
+
     aspect-ratio: 1;
+
     margin-inline: auto;
-    border: 1px solid rgb(65 116 169 / 15%);
-    border-radius: 50%;
-    background: rgb(255 255 255 / 67%);
-    box-shadow: 0 25px 60px rgb(38 87 127 / 13%);
-  }
 
-  .presentacion__ilustracion svg {
-    width: 72%;
-  }
-
-  .recomendacion-inicial {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1.5rem;
-    margin-top: 2rem;
-    padding: clamp(1.5rem, 4vw, 2.4rem);
-    border-left: 6px solid var(--care-primary);
-    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
-    background: #eef6fb;
-  }
-
-  .recomendacion-inicial__icono,
-  .advertencia__icono {
     display: grid;
     place-items: center;
-    flex-shrink: 0;
-    width: 58px;
-    height: 58px;
+
+    color: var(--care-primary);
+
+    background-color: rgba(255, 255, 255, 0.67);
+
+    border: 1px solid rgba(65, 116, 169, 0.15);
+
     border-radius: 50%;
-    background: #fff;
+
+    box-shadow: 0 1.55rem 3.75rem rgba(38, 87, 127, 0.13);
   }
 
-  .recomendacion-inicial__icono svg,
-  .advertencia__icono svg {
-    width: 29px;
+  .wig-care-hero__illustration :global(svg) {
+    width: 72%;
+    height: 72%;
+
+    color: currentColor;
   }
 
-  .recomendacion-inicial__icono {
-    color: var(--care-primary-dark);
-  }
+  /* ========================================================
+     SECTION HEADER
+  ======================================================== */
 
-  .recomendacion-inicial h2,
-  .advertencia h2,
-  .ayuda h2 {
-    margin: 0 0 0.7rem;
-    font-size: clamp(1.35rem, 3vw, 1.85rem);
-    line-height: 1.2;
-  }
-
-  .recomendacion-inicial p,
-  .advertencia p,
-  .ayuda p {
-    margin: 0;
-    line-height: 1.7;
-  }
-
-  .recomendacion-inicial strong {
-    display: block;
-    margin-top: 0.8rem;
-    color: var(--care-primary-dark);
-    line-height: 1.6;
-  }
-
-  .proceso,
-  .resumen {
+  .wig-care-process,
+  .wig-care-summary {
     padding-top: clamp(4rem, 9vw, 7rem);
   }
 
-  .encabezado-seccion {
-    max-width: 690px;
+  .wig-care-section-header {
+    width: min(100%, 43rem);
+
     margin: 0 auto clamp(2rem, 5vw, 3.5rem);
+
     text-align: center;
   }
 
-  .encabezado-seccion h2 {
-    margin: 0;
+  .wig-care-section-header h2 {
     color: var(--care-primary-dark);
+
     font-size: clamp(1.8rem, 4vw, 2.7rem);
+
     line-height: 1.15;
     text-wrap: balance;
   }
 
-  .encabezado-seccion p {
-    margin: 1rem 0 0;
+  .wig-care-section-header > p:last-child {
+    margin-top: 1rem;
+
     color: var(--care-muted);
+
     font-size: 1.05rem;
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .pasos {
+  /* ========================================================
+     CARE STEPS
+  ======================================================== */
+
+  .wig-care-steps {
     display: grid;
+
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+
     align-items: start;
+    gap: 1.5rem;
   }
 
-  .paso {
+  .wig-care-step {
+    min-width: 0;
+
     padding: clamp(1.5rem, 3vw, 2rem);
+
+    background-color: #ffffff;
+
     border: 1px solid var(--care-border);
+
     border-radius: 1.5rem;
-    background: #fff;
-    box-shadow: 0 14px 40px rgb(45 65 80 / 6%);
+
+    box-shadow: 0 0.9rem 2.5rem rgba(45, 65, 80, 0.06);
   }
 
-  .paso--destacado {
+  .wig-care-step--featured {
     grid-row: span 2;
-    background:
-      linear-gradient(rgb(255 255 255 / 97%), rgb(255 255 255 / 97%)),
-      var(--care-primary);
   }
 
-  .paso__encabezado {
+  .wig-care-step__header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.2rem;
+
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.2rem;
+
     border-bottom: 1px solid var(--care-border);
   }
 
-  .paso__numero {
+  .wig-care-step__number {
+    width: 3.15rem;
+    height: 3.15rem;
+
     display: grid;
     place-items: center;
-    flex-shrink: 0;
-    width: 50px;
-    height: 50px;
+
+    flex: 0 0 auto;
+
+    color: #ffffff;
+    background-color: var(--care-primary);
+
     border-radius: 1rem;
-    background: var(--care-primary);
-    color: #fff;
+
     font-size: 1.25rem;
     font-weight: 800;
-    box-shadow: 0 8px 20px rgb(65 116 169 / 22%);
+
+    box-shadow: 0 0.5rem 1.25rem rgba(65, 116, 169, 0.22);
   }
 
-  .paso__categoria {
-    display: block;
+  .wig-care-step__category {
     margin-bottom: 0.15rem;
+
     color: var(--care-muted);
+
     font-size: 0.72rem;
     font-weight: 800;
+    line-height: 1.3;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .paso h3 {
-    margin: 0;
+  .wig-care-step h3 {
     color: var(--care-primary-dark);
+
     font-size: 1.45rem;
+    line-height: 1.3;
   }
 
-  .paso ul,
-  .paso ol {
+  .wig-care-step ul,
+  .wig-care-step ol {
     display: grid;
     gap: 1rem;
-    margin: 0;
-    padding: 0;
+
     list-style: none;
-    counter-reset: cuidado;
+
+    counter-reset: care-step;
   }
 
-  .paso li {
-    position: relative;
+  .wig-care-step li {
     min-width: 0;
+
     padding-left: 2rem;
+
+    position: relative;
+
     color: var(--care-muted);
+
     line-height: 1.65;
+    text-wrap: pretty;
   }
 
-  .paso ul li::before {
-    position: absolute;
-    top: 0.68em;
-    left: 0.25rem;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--care-secondary);
+  .wig-care-step ul li::before {
     content: '';
+
+    width: 0.5rem;
+    height: 0.5rem;
+
+    position: absolute;
+    top: 0.72em;
+    left: 0.25rem;
+
+    background-color: var(--care-secondary);
+
+    border-radius: 50%;
+
     transform: translateY(-50%);
   }
 
-  .paso ol li {
-    counter-increment: cuidado;
+  .wig-care-step ol li {
+    counter-increment: care-step;
   }
 
-  .paso ol li::before {
+  .wig-care-step ol li::before {
+    content: counter(care-step) '.';
+
     position: absolute;
     top: 0;
     left: 0;
+
     color: var(--care-primary);
-    content: counter(cuidado) '.';
+
     font-weight: 800;
   }
 
-  .advertencia {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1.5rem;
+  /* ========================================================
+     WARNING
+  ======================================================== */
+
+  .wig-care-warning {
     margin-top: clamp(4rem, 9vw, 7rem);
+
     padding: clamp(1.5rem, 5vw, 3rem);
-    border: 1px solid #f0c7c2;
-    border-radius: 1.8rem;
-    background: var(--care-warning-background);
-  }
 
-  .advertencia__icono {
-    color: var(--care-warning);
-    box-shadow: 0 8px 25px rgb(163 59 59 / 12%);
-  }
-
-  .advertencia__contenido > span,
-  .advertencia h2 {
-    color: var(--care-warning);
-  }
-
-  .advertencia__contenido > p {
-    max-width: 900px;
-    color: #694d4d;
-  }
-
-  .prohibidos {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin-top: 1.7rem;
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    gap: 1.5rem;
+
+    background-color: var(--care-warning-background);
+
+    border: 1px solid #f0c7c2;
+
+    border-radius: 1.8rem;
   }
 
-  .prohibido {
+  .wig-care-warning__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--care-warning);
+
+    background-color: #ffffff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0.5rem 1.55rem rgba(163, 59, 59, 0.12);
+  }
+
+  .wig-care-warning__icon :global(svg) {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .wig-care-warning__content {
+    min-width: 0;
+  }
+
+  .wig-care-warning .wig-care-kicker,
+  .wig-care-warning h2 {
+    color: var(--care-warning);
+  }
+
+  .wig-care-warning h2 {
+    margin-bottom: 0.7rem;
+
+    font-size: clamp(1.35rem, 3vw, 1.85rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .wig-care-warning__content > p:last-of-type {
+    max-width: 56rem;
+
+    color: #694d4d;
+
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .wig-care-warning__list {
+    margin-top: 1.7rem;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 0.75rem;
+  }
+
+  .wig-care-warning__list li {
+    min-width: 0;
+
+    padding: 0.9rem 1rem;
+
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    min-width: 0;
-    padding: 0.9rem 1rem;
-    border: 1px solid #f0c7c2;
-    border-radius: 0.9rem;
-    background: rgb(255 255 255 / 68%);
-  }
 
-  .prohibido span {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--care-warning);
-    color: #fff;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .prohibido p {
     color: var(--care-warning);
+
+    background-color: rgba(255, 255, 255, 0.68);
+
+    border: 1px solid #f0c7c2;
+
+    border-radius: 0.9rem;
+
     font-size: 0.92rem;
     font-weight: 700;
   }
 
-  .resumen__grid {
+  .wig-care-warning__list li > span:first-child {
+    width: 1.5rem;
+    height: 1.5rem;
+
     display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    color: #ffffff;
+    background-color: var(--care-warning);
+
+    border-radius: 50%;
+
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  /* ========================================================
+     SUMMARY
+  ======================================================== */
+
+  .wig-care-summary__list {
+    display: grid;
+
     grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    align-items: stretch;
     gap: 1rem;
   }
 
-  .resumen article {
-    padding: 1.6rem;
-    border: 1px solid var(--care-border);
-    border-radius: 1.3rem;
-    background: var(--care-background);
-    text-align: center;
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease;
+  .wig-care-summary__list > li {
+    min-width: 0;
+
+    display: flex;
   }
 
-  .resumen__icono {
+  .wig-care-summary-card {
+    width: 100%;
+    height: 100%;
+
+    padding: 1.6rem;
+
+    background-color: var(--care-surface);
+
+    border: 1px solid var(--care-border);
+
+    border-radius: 1.3rem;
+
+    text-align: center;
+
+    transition:
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .wig-care-summary-card__icon {
+    width: 3.25rem;
+    height: 3.25rem;
+
+    margin: 0 auto 1rem;
+
     display: grid;
     place-items: center;
-    width: 52px;
-    height: 52px;
-    margin: 0 auto 1rem;
-    border-radius: 1rem;
-    background: #fff;
+
     color: var(--care-primary);
-    box-shadow: 0 8px 25px rgb(45 65 80 / 8%);
+
+    background-color: #ffffff;
+
+    border-radius: 1rem;
+
+    box-shadow: 0 0.5rem 1.55rem rgba(45, 65, 80, 0.08);
   }
 
-  .resumen__icono svg {
-    width: 27px;
+  .wig-care-summary-card__icon :global(svg) {
+    width: 1.7rem;
+    height: 1.7rem;
   }
 
-  .resumen h3 {
-    margin: 0 0 0.55rem;
+  .wig-care-summary-card h3 {
+    margin-bottom: 0.55rem;
+
     color: var(--care-primary-dark);
+
     font-size: 1.05rem;
+    line-height: 1.3;
   }
 
-  .resumen p {
-    margin: 0;
+  .wig-care-summary-card p {
     color: var(--care-muted);
+
     font-size: 0.92rem;
     line-height: 1.55;
+    text-wrap: pretty;
   }
 
-  .ayuda {
+  /* ========================================================
+     HELP CTA
+  ======================================================== */
+
+  .wig-care-help {
+    margin-top: clamp(4rem, 9vw, 7rem);
+
+    padding: clamp(1.7rem, 5vw, 3rem);
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 2rem;
-    margin-top: clamp(4rem, 9vw, 7rem);
-    padding: clamp(1.7rem, 5vw, 3rem);
+
+    color: #ffffff;
+    background-color: var(--care-primary-dark);
+
     border-radius: 1.8rem;
-    background: var(--care-primary-dark);
-    color: #fff;
   }
 
-  .ayuda > div {
-    max-width: 720px;
+  .wig-care-help > div {
+    max-width: 45rem;
   }
 
-  .ayuda > div > span {
-    color: rgb(255 255 255 / 68%);
+  .wig-care-help .wig-care-kicker {
+    color: rgba(255, 255, 255, 0.68);
   }
 
-  .ayuda h2 {
-    color: #fff;
+  .wig-care-help h2 {
+    margin-bottom: 0.7rem;
+
+    color: #ffffff;
+
+    font-size: clamp(1.35rem, 3vw, 1.85rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
   }
 
-  .ayuda p {
-    color: rgb(255 255 255 / 80%);
+  .wig-care-help p:last-child {
+    color: rgba(255, 255, 255, 0.8);
+
+    line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .ayuda a {
+  .wig-care-help a {
+    min-height: 3rem;
+
+    padding: 0.85rem 1.25rem;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.65rem;
-    flex-shrink: 0;
-    min-height: 48px;
-    padding: 0.85rem 1.25rem;
-    border: 2px solid #fff;
-    border-radius: 999px;
-    background: #fff;
+
+    flex: 0 0 auto;
+
     color: var(--care-primary-dark);
+
+    background-color: #ffffff;
+
+    border: 2px solid #ffffff;
+
+    border-radius: 999px;
+
     font-weight: 800;
+    line-height: 1.3;
     text-align: center;
     text-decoration: none;
+
     transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      transform 180ms ease;
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .ayuda a svg {
-    width: 20px;
+  .wig-care-help a :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+
+    color: currentColor;
+
     transform: rotate(90deg);
   }
 
+  .wig-care-help a:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
   @media (hover: hover) {
-    .resumen article:hover {
+    .wig-care-summary-card:hover {
+      box-shadow: 0 0.95rem 2.2rem rgba(45, 65, 80, 0.1);
+
       transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgb(45 65 80 / 10%);
     }
 
-    .ayuda a:hover {
-      background: transparent;
-      color: #fff;
+    .wig-care-help a:hover {
+      color: #ffffff;
+      background-color: transparent;
+
       transform: translateY(-2px);
     }
   }
 
   @media (max-width: 900px) {
-    .presentacion {
-      grid-template-columns: 1fr;
+    .wig-care-hero {
       min-height: auto;
+
+      grid-template-columns: minmax(0, 1fr);
+
       text-align: center;
     }
 
-    .presentacion__contenido {
+    .wig-care-hero__content {
       order: 2;
     }
 
-    .presentacion__ilustracion {
+    .wig-care-hero__illustration {
+      width: min(54vw, 13.75rem);
+
       order: 1;
-      width: min(54vw, 220px);
     }
 
-    .presentacion p {
+    .wig-care-hero__content > p:not(.wig-care-kicker) {
       margin-inline: auto;
     }
 
-    .pasos {
-      grid-template-columns: 1fr;
+    .wig-care-steps {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .paso--destacado {
+    .wig-care-step--featured {
       grid-row: auto;
     }
 
-    .prohibidos,
-    .resumen__grid {
+    .wig-care-warning__list,
+    .wig-care-summary__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .ayuda {
-      flex-direction: column;
+    .wig-care-help {
       align-items: flex-start;
+      flex-direction: column;
     }
   }
 
   @media (max-width: 600px) {
-    .cuidados {
-      width: min(100% - 1rem, 1180px);
+    .wig-care-page {
+      width: calc(100% - 1rem);
+
       margin-top: 1rem;
     }
 
-    .presentacion {
-      gap: 1.5rem;
+    .wig-care-hero {
       padding: 1.7rem 1.2rem;
+
+      gap: 1.5rem;
+
       border-radius: 1.4rem;
     }
 
-    .presentacion h1 {
+    .wig-care-hero__content h2 {
       font-size: clamp(1.8rem, 10vw, 2.7rem);
     }
 
-    .presentacion p {
+    .wig-care-hero__content > p:not(.wig-care-kicker) {
       font-size: 0.98rem;
       line-height: 1.65;
     }
 
-    .recomendacion-inicial,
-    .advertencia {
-      grid-template-columns: 1fr;
+    .wig-care-warning {
+      grid-template-columns: minmax(0, 1fr);
+
       gap: 1rem;
     }
 
-    .recomendacion-inicial {
-      border-left-width: 4px;
-      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    .wig-care-warning__icon {
+      width: 3.15rem;
+      height: 3.15rem;
     }
 
-    .recomendacion-inicial__icono,
-    .advertencia__icono {
-      width: 50px;
-      height: 50px;
-    }
-
-    .paso {
+    .wig-care-step {
       padding: 1.3rem;
+
       border-radius: 1.2rem;
     }
 
-    .paso__encabezado {
+    .wig-care-step__header {
       align-items: flex-start;
     }
 
-    .paso__numero {
-      width: 44px;
-      height: 44px;
+    .wig-care-step__number {
+      width: 2.75rem;
+      height: 2.75rem;
+
       border-radius: 0.85rem;
     }
 
-    .paso li {
+    .wig-care-step li {
       padding-left: 1.7rem;
+
       font-size: 0.95rem;
     }
 
-    .prohibidos {
-      grid-template-columns: 1fr;
+    .wig-care-warning__list,
+    .wig-care-summary__list {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .resumen__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .resumen article {
+    .wig-care-summary-card {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+
+      grid-template-columns:
+        auto
+        minmax(0, 1fr);
+
       column-gap: 1rem;
+
       text-align: left;
     }
 
-    .resumen__icono {
-      grid-row: span 2;
+    .wig-care-summary-card__icon {
       margin: 0;
+
+      grid-row: 1 / 3;
     }
 
-    .resumen h3 {
+    .wig-care-summary-card h3 {
       align-self: end;
     }
 
-    .ayuda {
+    .wig-care-help {
       padding: 1.6rem 1.3rem;
+
       border-radius: 1.3rem;
     }
 
-    .ayuda a {
+    .wig-care-help a {
       width: 100%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .resumen article,
-    .ayuda a {
+    .wig-care-summary-card,
+    .wig-care-help a {
       transition: none;
     }
   }

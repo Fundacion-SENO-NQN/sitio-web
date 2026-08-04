@@ -12,25 +12,45 @@ import SvgCorazon from '../../../assets/icon-common/icon-corazon.svg'
 import SvgUsuario from '../../../assets/icon-common/icon-user.svg'
 import SvgUsuarios from '../../../assets/icon-donar-cosas/icon-personas.svg'
 import SvgCheck from '../../../assets/icon-donar-cosas/icon-check.svg'
-import SvgMental from '../../../assets/icon-mision/icon-mental.svg'
 import SvgDinero from '../../../assets/icon-quiero-ayudar/icon-dinero.svg'
 import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 ---
 
-<Layout pag="Miembro protector">
-  <NavegacionQuieroAyudar pag="5" />
+<Layout
+  pag="Miembro protector"
+  seoTitle="Miembro Protector | Fundación SENO"
+  description="Sumate a la campaña Miembro Protector y acompañá mensualmente el trabajo de Fundación SENO con un aporte elegido según tus posibilidades."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Miembro protector'
+      }
+    ]}
+  />
+  <NavegacionQuieroAyudar pag="2" />
+
   <TituloPag titulo="Miembro protector" />
 
-  <main class="miembro-protector">
-    <section class="hero" aria-labelledby="titulo-miembro-protector">
-      <div class="hero__contenido">
-        <span class="etiqueta">Campaña Miembro Protector</span>
+  <main class="protector-page">
+    <section class="protector-hero" aria-labelledby="protector-hero-title">
+      <div class="protector-hero__content">
+        <p class="protector-kicker">Campaña Miembro Protector</p>
 
-        <h1 id="titulo-miembro-protector">
+        <h2 id="protector-hero-title">
           Acompañá nuestra misión todos los meses
-        </h1>
+        </h2>
 
-        <p class="hero__destacado">
+        <p class="protector-hero__highlight">
           Ser miembro protector es una manera de colaborar de forma continua con
           Fundación SENO y ayudarnos a construir un espacio cada vez más digno
           para las familias.
@@ -43,30 +63,39 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
           Fundación.
         </p>
 
-        <div class="hero__acciones">
-          <a class="boton boton--principal" href="#contacto">
-            Quiero conocer más
+        <div class="protector-hero__actions">
+          <a
+            class="protector-button protector-button--primary"
+            href="#contacto"
+          >
+            <span>Quiero conocer más</span>
 
-            <SvgFlecha />
+            <SvgFlecha
+              class="protector-button__icon protector-button__icon--down"
+              aria-hidden="true"
+            />
           </a>
 
-          <a class="boton boton--secundario" href="#como-funciona">
+          <a
+            class="protector-button protector-button--secondary"
+            href="#como-funciona"
+          >
             Cómo funciona
           </a>
         </div>
       </div>
 
-      <div class="hero__visual" aria-hidden="true">
-        <div class="ilustracion">
-          <span class="ilustracion__corazon">
+      <div class="protector-hero__visual" aria-hidden="true">
+        <div class="protector-illustration">
+          <span class="protector-illustration__heart">
             <SvgCorazon />
           </span>
 
-          <span class="ilustracion__casa">
+          <span class="protector-illustration__house">
             <SvgCasa />
           </span>
 
-          <div class="ilustracion__personas">
+          <div class="protector-illustration__people">
             <span>
               <SvgUsuario />
             </span>
@@ -80,22 +109,33 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
             </span>
           </div>
 
-          <span class="decoracion decoracion--uno"></span>
-          <span class="decoracion decoracion--dos"></span>
-          <span class="decoracion decoracion--tres"></span>
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--first"
+          ></span>
+
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--second"
+          ></span>
+
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--third"
+          ></span>
         </div>
       </div>
     </section>
 
-    <section class="mensaje-principal" aria-labelledby="una-ayuda-constante">
-      <div class="mensaje-principal__icono" aria-hidden="true">
+    <section
+      class="protector-message"
+      aria-labelledby="protector-message-title"
+    >
+      <span class="protector-message__icon" aria-hidden="true">
         <SvgCorazon />
-      </div>
+      </span>
 
       <div>
-        <span class="etiqueta">Una colaboración que nos acompaña</span>
+        <p class="protector-kicker">Una colaboración que nos acompaña</p>
 
-        <h2 id="una-ayuda-constante">
+        <h2 id="protector-message-title">
           Los aportes mensuales nos permiten seguir adelante
         </h2>
 
@@ -110,13 +150,13 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
 
     <section
       id="como-funciona"
-      class="funcionamiento"
-      aria-labelledby="titulo-funcionamiento"
+      class="protector-section protector-process"
+      aria-labelledby="protector-process-title"
     >
-      <header class="encabezado-seccion">
-        <span class="etiqueta">Una forma sencilla de colaborar</span>
+      <header class="protector-section__header">
+        <p class="protector-kicker">Una forma sencilla de colaborar</p>
 
-        <h2 id="titulo-funcionamiento">¿Cómo funciona la campaña?</h2>
+        <h2 id="protector-process-title">¿Cómo funciona la campaña?</h2>
 
         <p>
           Cada miembro protector elige libremente el valor de su aporte y
@@ -124,74 +164,85 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
         </p>
       </header>
 
-      <div class="funcionamiento__grid">
-        <article class="paso">
-          <span class="paso__numero">1</span>
+      <ol class="protector-process__list">
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 1 </span>
 
-          <div class="paso__icono" aria-hidden="true">
-            <SvgMonedas />
-          </div>
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgMonedas />
+            </span>
 
-          <h3>Eliges tu aporte</h3>
+            <h3>Elegís tu aporte</h3>
 
-          <p>
-            Cada persona puede seleccionar el valor mensual con el que desea
-            colaborar, según sus posibilidades.
-          </p>
-        </article>
+            <p>
+              Podés seleccionar el valor mensual con el que deseás colaborar,
+              según tus posibilidades.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">2</span>
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 2 </span>
 
-          <div class="paso__icono" aria-hidden="true">
-            <SvgCalendario />
-          </div>
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgCalendario />
+            </span>
 
-          <h3>Colaboras mensualmente</h3>
+            <h3>Colaborás mensualmente</h3>
 
-          <p>
-            El aporte periódico nos brinda una base constante para sostener
-            nuestros proyectos y necesidades.
-          </p>
-        </article>
+            <p>
+              El aporte periódico nos brinda una base constante para sostener
+              nuestros proyectos y necesidades.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">3</span>
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 3 </span>
 
-          <div class="paso__icono" aria-hidden="true">
-            <SvgCasa />
-          </div>
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
 
-          <h3>Ayudas a la Fundación</h3>
+            <h3>Ayudás a la Fundación</h3>
 
-          <p>
-            Tu colaboración puede convertirse en mejoras para la casa, nuevas
-            actividades o acciones que permitan seguir recaudando fondos.
-          </p>
-        </article>
+            <p>
+              Tu colaboración puede convertirse en mejoras para la casa, nuevas
+              actividades o acciones para recaudar fondos.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">4</span>
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 4 </span>
 
-          <div class="paso__icono" aria-hidden="true">
-            <SvgUsuarios />
-          </div>
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgUsuarios />
+            </span>
 
-          <h3>Formas parte de la misión</h3>
+            <h3>Formás parte de la misión</h3>
 
-          <p>
-            Los miembros protectores son parte del crecimiento de Fundación SENO
-            y del acompañamiento que brindamos a las familias.
-          </p>
-        </article>
-      </div>
+            <p>
+              Los miembros protectores son parte del crecimiento de Fundación
+              SENO y del acompañamiento que brindamos a las familias.
+            </p>
+          </article>
+        </li>
+      </ol>
     </section>
 
-    <section class="aporte" aria-labelledby="titulo-aporte">
-      <div class="aporte__contenido">
-        <span class="etiqueta">Vos eligís cómo colaborar</span>
+    <section
+      class="protector-contribution"
+      aria-labelledby="protector-contribution-title"
+    >
+      <div class="protector-contribution__content">
+        <p class="protector-kicker">Vos elegís cómo colaborar</p>
 
-        <h2 id="titulo-aporte">
+        <h2 id="protector-contribution-title">
           No existe un único valor para ser miembro protector
         </h2>
 
@@ -206,107 +257,130 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
           acompañar el trabajo de la Fundación y ayudarnos a continuar.
         </p>
 
-        <div class="aporte__destacado">
-          <SvgCheck />
+        <aside class="protector-contribution__highlight">
+          <SvgCheck aria-hidden="true" />
 
           <p>
             Cada aporte, sin importar su valor, se suma a muchos otros y se
             transforma en una ayuda concreta.
           </p>
-        </div>
+        </aside>
       </div>
 
-      <div class="aporte__visual" aria-hidden="true">
-        <span class="aporte__moneda aporte__moneda--uno">
+      <div class="protector-contribution__visual" aria-hidden="true">
+        <span
+          class="protector-contribution__item protector-contribution__item--first"
+        >
           <SvgMonedas />
         </span>
 
-        <span class="aporte__moneda aporte__moneda--dos">
-          <SvgMental />
+        <span class="protector-contribution__heart">
+          <SvgCorazon />
         </span>
 
-        <span class="aporte__corazon">
-          <SvgCorazon />
+        <span
+          class="protector-contribution__item protector-contribution__item--second"
+        >
+          <SvgDinero />
         </span>
       </div>
     </section>
 
-    <section class="destinos" aria-labelledby="titulo-destinos">
-      <header class="encabezado-seccion">
-        <span class="etiqueta">Un fondo para seguir creciendo</span>
+    <section
+      class="protector-section protector-destinations"
+      aria-labelledby="protector-destinations-title"
+    >
+      <header class="protector-section__header">
+        <p class="protector-kicker">Un fondo para seguir creciendo</p>
 
-        <h2 id="titulo-destinos">¿En qué se utilizan los aportes?</h2>
+        <h2 id="protector-destinations-title">
+          ¿En qué se utilizan los aportes?
+        </h2>
 
         <p>
           Los fondos de la campaña no tienen un único destino fijo. Se
-          administran según las necesidades y proyectos de la Fundación.
+          administran según las necesidades y los proyectos de la Fundación.
         </p>
       </header>
 
-      <div class="destinos__grid">
-        <article class="destino">
-          <div class="destino__icono" aria-hidden="true">
-            <SvgCasa />
-          </div>
+      <ul class="protector-destinations__list">
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
 
-          <h3>Mejorar la vivienda</h3>
+            <h3>Mejorar la vivienda</h3>
 
-          <p>
-            Realizar arreglos, mantenimiento y mejoras que permitan ofrecer un
-            espacio más cómodo y digno para las familias.
-          </p>
-        </article>
+            <p>
+              Realizar arreglos, mantenimiento y mejoras que permitan ofrecer un
+              espacio más cómodo y digno para las familias.
+            </p>
+          </article>
+        </li>
 
-        <article class="destino">
-          <div class="destino__icono" aria-hidden="true">
-            <SvgEstrella />
-          </div>
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgEstrella />
+            </span>
 
-          <h3>Continuar la obra</h3>
+            <h3>Continuar la obra</h3>
 
-          <p>
-            Avanzar en las diferentes etapas de construcción y adecuación de los
-            espacios de la Fundación.
-          </p>
-        </article>
+            <p>
+              Avanzar en las diferentes etapas de construcción y adecuación de
+              los espacios de la Fundación.
+            </p>
+          </article>
+        </li>
 
-        <article class="destino">
-          <div class="destino__icono" aria-hidden="true">
-            <SvgCalendario />
-          </div>
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgCalendario />
+            </span>
 
-          <h3>Organizar actividades</h3>
+            <h3>Organizar actividades</h3>
 
-          <p>
-            Acompañar eventos, encuentros y acciones que beneficien a las
-            familias y a la comunidad.
-          </p>
-        </article>
+            <p>
+              Acompañar eventos, encuentros y acciones que beneficien a las
+              familias y a la comunidad.
+            </p>
+          </article>
+        </li>
 
-        <article class="destino">
-          <div class="destino__icono" aria-hidden="true">
-            <SvgDinero />
-          </div>
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgDinero />
+            </span>
 
-          <h3>Generar nuevos fondos</h3>
+            <h3>Generar nuevos fondos</h3>
 
-          <p>
-            Impulsar iniciativas que permitan recaudar más recursos y sostener
-            futuros proyectos.
-          </p>
-        </article>
-      </div>
+            <p>
+              Impulsar iniciativas que permitan recaudar más recursos y sostener
+              futuros proyectos.
+            </p>
+          </article>
+        </li>
+      </ul>
     </section>
 
-    <section class="impacto" aria-labelledby="titulo-impacto">
-      <span class="impacto__comillas" aria-hidden="true">“</span>
+    <section class="protector-impact" aria-labelledby="protector-impact-title">
+      <span class="protector-impact__quote" aria-hidden="true"> “ </span>
 
       <div>
-        <span class="etiqueta">El valor de acompañar</span>
+        <p class="protector-kicker">El valor de acompañar</p>
 
-        <blockquote id="titulo-impacto">
-          Cada miembro protector nos ayuda a seguir construyendo una Fundación
-          más fuerte y un espacio más digno para las familias.
+        <h2 id="protector-impact-title" class="visually-hidden">
+          El impacto de los miembros protectores
+        </h2>
+
+        <blockquote>
+          <p>
+            Cada miembro protector nos ayuda a seguir construyendo una Fundación
+            más fuerte y un espacio más digno para las familias.
+          </p>
         </blockquote>
 
         <p>
@@ -317,923 +391,933 @@ import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
       </div>
     </section>
 
-    <aside class="llamada">
-      <div class="llamada__contenido">
-        <span class="etiqueta">Campaña Miembro Protector</span>
+    <aside class="protector-cta" aria-labelledby="protector-cta-title">
+      <div class="protector-cta__content">
+        <p class="protector-kicker">Campaña Miembro Protector</p>
 
-        <h2>Tu acompañamiento puede ayudarnos todos los meses</h2>
+        <h2 id="protector-cta-title">
+          Tu acompañamiento puede ayudarnos todos los meses
+        </h2>
 
         <p>
-          Comunícate con nosotros para conocer los valores disponibles y
-          cómo sumarte a la campaña.
+          Comunicate con nosotros para conocer los valores disponibles y cómo
+          sumarte a la campaña.
         </p>
       </div>
 
-      <a class="llamada__boton btn-flecha-der" href="#contacto">
-        Comunicarme con la Fundación
+      <a class="protector-button protector-cta__button" href="#contacto">
+        <span>Comunicarme con la Fundación</span>
 
-        <SvgFlecha />
+        <SvgFlecha
+          class="protector-button__icon protector-button__icon--down"
+          aria-hidden="true"
+        />
       </a>
     </aside>
   </main>
 </Layout>
 
 <style>
-  .miembro-protector {
-    --member-primary: var(--color-primary, #4178aa);
-    --member-primary-dark: var(--color-primary-hover, #25597f);
-    --member-secondary: var(--color-secondary, #d45d8c);
-    --member-text: var(--color-text, #28343e);
-    --member-muted: #667580;
-    --member-border: #dce6ed;
-    --member-background: #f5f9fb;
-    --member-success: #327a61;
-
-    width: min(1180px, calc(100% - 2rem));
-    margin: 2rem auto 5rem;
-    color: var(--member-text);
-    font-family: var(--text-font-primary, system-ui, sans-serif);
+  .protector-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+    color: var(--color-text);
   }
 
-  .etiqueta {
-    display: block;
+  .visually-hidden {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .protector-kicker {
     margin-bottom: 0.65rem;
-    color: var(--member-primary-dark);
+    color: var(--color-primary-hover);
     font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-weight: 700;
     line-height: 1.4;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 6rem);
-    min-height: 490px;
-    padding: clamp(2rem, 6vw, 5rem);
-    overflow: hidden;
-    border: 1px solid var(--member-border);
-    border-radius: 2rem;
-    background:
-      radial-gradient(
-        circle at 88% 18%,
-        rgb(212 93 140 / 16%),
-        transparent 29%
-      ),
-      radial-gradient(circle at 8% 92%, rgb(65 120 170 / 12%), transparent 26%),
-      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
-  }
-
-  .hero::before {
-    position: absolute;
-    right: -125px;
-    bottom: -145px;
-    width: 365px;
-    aspect-ratio: 1;
-    border: 52px solid rgb(65 120 170 / 6%);
-    border-radius: 50%;
-    content: '';
-  }
-
-  .hero__contenido,
-  .hero__visual {
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero h1 {
-    max-width: 760px;
-    margin: 0 0 1.3rem;
-    color: var(--member-primary-dark);
-    font-size: clamp(2.2rem, 5.2vw, 4.25rem);
-    line-height: 1.04;
-    text-wrap: balance;
-  }
-
-  .hero p {
-    max-width: 720px;
-    margin: 0.75rem 0;
-    color: var(--member-muted);
-    font-size: 1.03rem;
-    line-height: 1.75;
-  }
-
-  .hero .hero__destacado {
-    color: var(--member-text);
-    font-size: clamp(1.08rem, 2vw, 1.24rem);
-    font-weight: 600;
-  }
-
-  .hero__acciones {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.85rem;
-    margin-top: 1.7rem;
-  }
-
-  .boton,
-  .pertenencia a,
-  .llamada__boton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7rem;
-    min-height: 49px;
-    padding: 0.85rem 1.3rem;
-    border: 2px solid transparent;
-    border-radius: 999px;
-    font-weight: 800;
-    text-align: center;
-    text-decoration: none;
-    transition:
-      transform 180ms ease,
-      background-color 180ms ease,
-      color 180ms ease,
-      box-shadow 180ms ease;
-  }
-
-  .boton svg,
-  .pertenencia a svg,
-  .llamada__boton svg {
-    width: 20px;
-    flex-shrink: 0;
-  }
-
-  .boton--principal {
-    background: var(--member-primary-dark);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(37 89 127 / 22%);
-  }
-
-  .boton--principal svg {
-    transform: rotate(90deg);
-  }
-
-  .boton--secundario {
-    border-color: rgb(37 89 127 / 23%);
-    background: rgb(255 255 255 / 65%);
-    color: var(--member-primary-dark);
-  }
-
-  .hero__visual {
-    display: grid;
-    place-items: center;
-    min-height: 330px;
-  }
-
-  .ilustracion {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: min(100%, 330px);
-    aspect-ratio: 1;
-    border: 1px solid rgb(65 120 170 / 14%);
-    border-radius: 50%;
-    background: rgb(255 255 255 / 65%);
-    box-shadow: 0 28px 65px rgb(37 89 127 / 15%);
-  }
-
-  .ilustracion__casa {
-    display: grid;
-    place-items: center;
-    width: 120px;
-    aspect-ratio: 1;
-    border-radius: 1.8rem;
-    background: var(--member-primary);
-    color: #fff;
-    box-shadow: 0 18px 40px rgb(65 120 170 / 27%);
-    transform: translateY(-28px);
-  }
-
-  .ilustracion__casa svg {
-    width: 65px;
-  }
-
-  .ilustracion__corazon {
-    position: absolute;
-    top: 25px;
-    right: 38px;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    width: 70px;
-    aspect-ratio: 1;
-    border: 6px solid #fff;
-    border-radius: 50%;
-    background: var(--member-secondary);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(212 93 140 / 23%);
-  }
-
-  .ilustracion__corazon svg {
-    width: 38px;
-  }
-
-  .ilustracion__personas {
-    position: absolute;
-    right: 0;
-    bottom: 37px;
-    left: 0;
-    display: flex;
-    justify-content: center;
-  }
-
-  .ilustracion__personas span {
-    display: grid;
-    place-items: center;
-    width: 64px;
-    aspect-ratio: 1;
-    margin-left: -10px;
-    border: 5px solid #fff;
-    border-radius: 50%;
-    background: var(--member-background);
-    color: var(--member-primary);
-    box-shadow: 0 9px 22px rgb(37 89 127 / 12%);
-  }
-
-  .ilustracion__personas span:first-child {
-    margin-left: 0;
-  }
-
-  .ilustracion__personas span:nth-child(2) {
-    background: var(--member-primary-dark);
-    color: #fff;
-    transform: translateY(-8px);
-  }
-
-  .ilustracion__personas svg {
-    width: 34px;
-  }
-
-  .decoracion {
-    position: absolute;
-    display: block;
-    border-radius: 50%;
-  }
-
-  .decoracion--uno {
-    top: 55px;
-    left: 32px;
-    width: 25px;
-    aspect-ratio: 1;
-    background: rgb(212 93 140 / 35%);
-  }
-
-  .decoracion--dos {
-    right: 25px;
-    bottom: 80px;
-    width: 15px;
-    aspect-ratio: 1;
-    background: rgb(65 120 170 / 37%);
-  }
-
-  .decoracion--tres {
-    bottom: 50px;
-    left: 25px;
-    width: 38px;
-    aspect-ratio: 1;
-    border: 8px solid rgb(65 120 170 / 18%);
-  }
-
-  .mensaje-principal {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1.5rem;
-    margin-top: 2rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    border-left: 6px solid var(--member-secondary);
-    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
-    background: #fdf1f5;
-  }
-
-  .mensaje-principal__icono {
-    display: grid;
-    place-items: center;
-    width: 59px;
-    height: 59px;
-    border-radius: 50%;
-    background: #fff;
-    color: var(--member-secondary);
-    box-shadow: 0 10px 25px rgb(212 93 140 / 13%);
-  }
-
-  .mensaje-principal__icono svg {
-    width: 31px;
-  }
-
-  .mensaje-principal h2,
-  .aporte h2,
-  .pertenencia h2,
-  .llamada h2 {
-    margin: 0 0 0.8rem;
-    color: var(--member-primary-dark);
-    font-size: clamp(1.45rem, 3vw, 2rem);
-    line-height: 1.2;
-    text-wrap: balance;
-  }
-
-  .mensaje-principal p {
-    max-width: 920px;
-    margin: 0;
-    color: var(--member-muted);
-    line-height: 1.75;
-  }
-
-  .funcionamiento,
-  .destinos {
+  .protector-section {
     padding-top: clamp(4.5rem, 10vw, 7.5rem);
-    scroll-margin-top: 2rem;
   }
 
-  .encabezado-seccion {
-    max-width: 730px;
+  .protector-section__header {
+    width: min(100%, 45.5rem);
     margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
     text-align: center;
   }
 
-  .encabezado-seccion h2 {
-    margin: 0;
-    color: var(--member-primary-dark);
+  .protector-section__header h2 {
+    color: var(--color-primary-hover);
     font-size: clamp(1.9rem, 4vw, 2.8rem);
     line-height: 1.15;
     text-wrap: balance;
   }
 
-  .encabezado-seccion p {
-    margin: 1rem 0 0;
-    color: var(--member-muted);
+  .protector-section__header > p:last-child {
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     font-size: 1.04rem;
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .funcionamiento__grid,
-  .destinos__grid {
+  /* Hero */
+
+  .protector-hero {
+    min-height: 30.5rem;
+    padding: clamp(2rem, 6vw, 5rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(17.5rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 88% 18%,
+        color-mix(in srgb, var(--color-secondary) 16%, transparent),
+        transparent 29%
+      ),
+      radial-gradient(
+        circle at 8% 92%,
+        color-mix(in srgb, var(--color-primary) 12%, transparent),
+        transparent 26%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 18%,
+        var(--color-background)
+      );
+  }
+
+  .protector-hero::before {
+    content: '';
+    width: 22.8rem;
+    aspect-ratio: 1;
+    position: absolute;
+    right: -7.8rem;
+    bottom: -9rem;
+    border: 3.25rem solid
+      color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .protector-hero__content,
+  .protector-hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .protector-hero h2 {
+    max-width: 47.5rem;
+    margin-bottom: 1.3rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(2.2rem, 5.2vw, 4.25rem);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .protector-hero__content > p:not(.protector-kicker) {
+    max-width: 45rem;
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.03rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .protector-hero__content .protector-hero__highlight {
+    color: var(--color-text);
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
+    font-weight: 600;
+  }
+
+  .protector-hero__actions {
+    margin-top: 1.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  /* Buttons */
+
+  .protector-button {
+    width: fit-content;
+    min-height: 3.1rem;
+    padding: 0.85rem 1.3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .protector-button--primary {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 22%, transparent);
+  }
+
+  .protector-button--secondary {
+    color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 65%,
+      transparent
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-hover) 24%,
+      transparent
+    );
+  }
+
+  .protector-button__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    color: currentColor;
+  }
+
+  .protector-button__icon--down {
+    transform: rotate(90deg);
+  }
+
+  .protector-button:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  /* Illustration */
+
+  .protector-hero__visual {
+    min-height: 20.5rem;
+    display: grid;
+    place-items: center;
+  }
+
+  .protector-illustration {
+    width: min(100%, 20.5rem);
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 68%,
+      transparent
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+    border-radius: 50%;
+    box-shadow: 0 1.75rem 4rem
+      color-mix(in srgb, var(--color-primary-hover) 15%, transparent);
+  }
+
+  .protector-illustration__house {
+    width: 7.5rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border-radius: 1.8rem;
+    box-shadow: 0 1.1rem 2.5rem
+      color-mix(in srgb, var(--color-primary) 27%, transparent);
+    transform: translateY(-1.75rem);
+  }
+
+  .protector-illustration__house :global(svg) {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .protector-illustration__heart {
+    width: 4.4rem;
+    aspect-ratio: 1;
+    position: absolute;
+    top: 1.55rem;
+    right: 2.4rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+    border: 0.4rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-secondary) 23%, transparent);
+  }
+
+  .protector-illustration__heart :global(svg) {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .protector-illustration__people {
+    position: absolute;
+    right: 0;
+    bottom: 2.3rem;
+    left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .protector-illustration__people span {
+    width: 4rem;
+    aspect-ratio: 1;
+    margin-left: -0.65rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
+    border: 0.3rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.55rem 1.4rem
+      color-mix(in srgb, var(--color-primary-hover) 12%, transparent);
+  }
+
+  .protector-illustration__people span:first-child {
+    margin-left: 0;
+  }
+
+  .protector-illustration__people span:nth-child(2) {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    transform: translateY(-0.5rem);
+  }
+
+  .protector-illustration__people :global(svg) {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .protector-illustration__decoration {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+  }
+
+  .protector-illustration__decoration--first {
+    width: 1.55rem;
+    aspect-ratio: 1;
+    top: 3.4rem;
+    left: 2rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary) 35%,
+      transparent
+    );
+  }
+
+  .protector-illustration__decoration--second {
+    width: 0.95rem;
+    aspect-ratio: 1;
+    right: 1.55rem;
+    bottom: 5rem;
+    background-color: color-mix(in srgb, var(--color-primary) 37%, transparent);
+  }
+
+  .protector-illustration__decoration--third {
+    width: 2.4rem;
+    aspect-ratio: 1;
+    bottom: 3.1rem;
+    left: 1.55rem;
+    border: 0.5rem solid
+      color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  /* Intro message */
+
+  .protector-message {
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 30%,
+      var(--color-background)
+    );
+    border-left: 0.4rem solid var(--color-secondary);
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+  }
+
+  .protector-message__icon {
+    width: 3.7rem;
+    height: 3.7rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-secondary);
+    background-color: var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.65rem 1.6rem
+      color-mix(in srgb, var(--color-secondary) 13%, transparent);
+  }
+
+  .protector-message__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .protector-message h2,
+  .protector-contribution h2,
+  .protector-cta h2 {
+    margin-bottom: 0.8rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .protector-message > div > p:last-child {
+    max-width: 57.5rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  /* Process and destinations */
+
+  .protector-process {
+    scroll-margin-top: 2rem;
+  }
+
+  .protector-process__list,
+  .protector-destinations__list {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
     gap: 1.2rem;
   }
 
-  .paso,
-  .destino {
-    position: relative;
+  .protector-process__list > li,
+  .protector-destinations__list > li {
     min-width: 0;
-    padding: clamp(1.4rem, 3vw, 2rem);
-    overflow: hidden;
-    border: 1px solid var(--member-border);
-    border-radius: 1.5rem;
-    background: #fff;
-    box-shadow: 0 14px 40px rgb(38 63 80 / 6%);
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease;
+    display: flex;
   }
 
-  .paso__numero {
+  .protector-step,
+  .protector-destination {
+    width: 100%;
+    height: 100%;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.9rem 2.5rem rgba(38, 63, 80, 0.06);
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .protector-step__number {
     position: absolute;
     top: 1rem;
     right: 1.2rem;
-    color: rgb(37 89 127 / 16%);
+    color: color-mix(in srgb, var(--color-primary-hover) 16%, transparent);
     font-size: 2.2rem;
-    font-weight: 900;
+    font-weight: 700;
   }
 
-  .paso__icono,
-  .destino__icono {
+  .protector-step__icon,
+  .protector-destination__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+    margin-bottom: 1.25rem;
     display: grid;
     place-items: center;
-    width: 58px;
-    height: 58px;
-    margin-bottom: 1.25rem;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 32%,
+      var(--color-background)
+    );
     border-radius: 1.1rem;
-    background: #edf5fa;
-    color: var(--member-primary);
   }
 
-  .paso:nth-child(even) .paso__icono,
-  .destino:nth-child(even) .destino__icono {
-    background: #fbeaf1;
-    color: var(--member-secondary);
+  .protector-process__list > li:nth-child(even) .protector-step__icon,
+  .protector-destinations__list
+    > li:nth-child(even)
+    .protector-destination__icon {
+    color: var(--color-secondary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 40%,
+      var(--color-background)
+    );
   }
 
-  .paso__icono svg,
-  .destino__icono svg {
-    width: 31px;
+  .protector-step__icon :global(svg),
+  .protector-destination__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
   }
 
-  .paso h3,
-  .destino h3 {
-    margin: 0 0 0.75rem;
-    color: var(--member-primary-dark);
+  .protector-step h3,
+  .protector-destination h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-primary-hover);
     font-size: 1.27rem;
+    line-height: 1.3;
+    text-wrap: balance;
   }
 
-  .paso p,
-  .destino p {
-    margin: 0;
-    color: var(--member-muted);
+  .protector-step p,
+  .protector-destination p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.65;
+    text-wrap: pretty;
   }
 
-  .aporte {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(230px, 0.7fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 6rem);
+  /* Contribution */
+
+  .protector-contribution {
     margin-top: clamp(4.5rem, 10vw, 7.5rem);
     padding: clamp(2rem, 6vw, 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(14.4rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
     overflow: hidden;
-    border: 1px solid var(--member-border);
-    border-radius: 1.8rem;
     background:
       radial-gradient(
         circle at 90% 20%,
-        rgb(212 93 140 / 13%),
+        color-mix(in srgb, var(--color-secondary) 13%, transparent),
         transparent 30%
       ),
-      var(--member-background);
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 15%,
+        var(--color-background)
+      );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.8rem;
   }
 
-  .aporte h2 {
+  .protector-contribution h2 {
     font-size: clamp(1.8rem, 4vw, 2.7rem);
   }
 
-  .aporte__contenido > p {
-    max-width: 760px;
-    margin: 0.65rem 0;
-    color: var(--member-muted);
+  .protector-contribution__content > p:not(.protector-kicker) {
+    max-width: 47.5rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .aporte__destacado {
+  .protector-contribution__highlight {
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
-    margin-top: 1.5rem;
-    padding: 1rem 1.1rem;
-    border-left: 4px solid var(--member-success);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 34%,
+      var(--color-background)
+    );
+    border-left: 0.25rem solid var(--color-primary);
     border-radius: 0.2rem 1rem 1rem 0.2rem;
-    background: #edf8f3;
   }
 
-  .aporte__destacado svg {
-    width: 24px;
-    flex-shrink: 0;
-    color: var(--member-success)
+  .protector-contribution__highlight :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    color: var(--color-primary);
   }
 
-  .aporte__destacado p {
-    margin: 0;
-    color: #44675a;
-    font-weight: 650;
+  .protector-contribution__highlight p {
+    color: color-mix(in srgb, var(--color-text) 78%, transparent);
+    font-weight: 600;
     line-height: 1.6;
+    text-wrap: pretty;
   }
 
-  .aporte__visual {
+  .protector-contribution__visual {
+    min-height: 16.25rem;
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 260px;
   }
 
-  .aporte__corazon {
+  .protector-contribution__heart {
+    width: 7.8rem;
+    aspect-ratio: 1;
     display: grid;
     place-items: center;
-    width: 125px;
-    aspect-ratio: 1;
+    color: var(--color-background);
+    background-color: var(--color-secondary);
     border-radius: 50%;
-    background: var(--member-secondary);
-    color: #fff;
-    box-shadow: 0 20px 45px rgb(212 93 140 / 26%);
+    box-shadow: 0 1.25rem 2.8rem
+      color-mix(in srgb, var(--color-secondary) 26%, transparent);
   }
 
-  .aporte__corazon svg {
-    width: 68px;
+  .protector-contribution__heart :global(svg) {
+    width: 4.25rem;
+    height: 4.25rem;
   }
 
-  .aporte__moneda {
+  .protector-contribution__item {
+    width: 4.4rem;
+    aspect-ratio: 1;
     position: absolute;
     display: grid;
     place-items: center;
-    width: 70px;
-    aspect-ratio: 1;
-    border: 6px solid #fff;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border: 0.4rem solid var(--color-background);
     border-radius: 50%;
-    background: var(--member-primary);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(37 89 127 / 18%);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 18%, transparent);
   }
 
-  .aporte__moneda svg {
-    width: 37px;
+  .protector-contribution__item :global(svg) {
+    width: 2.3rem;
+    height: 2.3rem;
   }
 
-  .aporte__moneda--uno {
+  .protector-contribution__item--first {
     top: 8%;
     left: 5%;
     transform: rotate(-8deg);
   }
 
-  .aporte__moneda--dos {
+  .protector-contribution__item--second {
     right: 2%;
     bottom: 5%;
-    background: var(--member-primary-dark);
+    background-color: var(--color-primary-hover);
     transform: rotate(8deg);
   }
 
-  .pertenencia {
-    display: grid;
-    grid-template-columns: minmax(230px, 0.65fr) minmax(0, 1.35fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 6rem);
+  /* Impact */
+
+  .protector-impact {
     margin-top: clamp(4.5rem, 10vw, 7.5rem);
-    padding: clamp(2rem, 6vw, 4rem);
-    border-radius: 1.8rem;
-    background: var(--member-primary-dark);
-    color: #fff;
-  }
-
-  .pertenencia__visual {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .pertenencia__casa {
-    display: grid;
-    place-items: center;
-    width: 105px;
-    aspect-ratio: 1;
-    border-radius: 1.5rem;
-    background: #fff;
-    color: var(--member-primary);
-    box-shadow: 0 18px 40px rgb(0 0 0 / 20%);
-  }
-
-  .pertenencia__casa svg {
-    width: 58px;
-  }
-
-  .pertenencia__linea {
-    width: 2px;
-    height: 50px;
-    background: rgb(255 255 255 / 27%);
-  }
-
-  .pertenencia__personas {
-    display: flex;
-  }
-
-  .pertenencia__personas span {
-    display: grid;
-    place-items: center;
-    width: 62px;
-    aspect-ratio: 1;
-    margin-left: -10px;
-    border: 4px solid var(--member-primary-dark);
-    border-radius: 50%;
-    background: #fff;
-    color: var(--member-primary);
-  }
-
-  .pertenencia__personas span:first-child {
-    margin-left: 0;
-  }
-
-  .pertenencia__personas svg {
-    width: 33px;
-  }
-
-  .pertenencia .etiqueta {
-    color: rgb(255 255 255 / 65%);
-  }
-
-  .pertenencia h2 {
-    color: #fff;
-    font-size: clamp(1.8rem, 4vw, 2.7rem);
-  }
-
-  .pertenencia p {
-    max-width: 760px;
-    margin: 0.65rem 0;
-    color: rgb(255 255 255 / 78%);
-    line-height: 1.75;
-  }
-
-  .pertenencia a {
-    width: fit-content;
-    margin-top: 1.4rem;
-    border-color: #fff;
-    background: #fff;
-    color: var(--member-primary-dark);
-  }
-
-  .impacto {
+    padding: clamp(1.7rem, 5vw, 3rem);
     position: relative;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: clamp(1rem, 4vw, 2.5rem);
-    margin-top: clamp(4.5rem, 10vw, 7.5rem);
-    padding: clamp(1.7rem, 5vw, 3rem);
     overflow: hidden;
-    border: 1px solid #ebd7df;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 30%,
+      var(--color-background)
+    );
+    border: 1px solid
+      color-mix(in srgb, var(--color-secondary) 22%, transparent);
     border-radius: 1.7rem;
-    background: #fdf5f8;
   }
 
-  .impacto__comillas {
-    color: var(--member-secondary);
+  .protector-impact__quote {
+    height: fit-content;
+    color: var(--color-secondary);
     font-family: Georgia, serif;
     font-size: clamp(4rem, 10vw, 7rem);
     line-height: 0.8;
   }
 
-  .impacto blockquote {
-    max-width: 900px;
+  .protector-impact blockquote {
+    max-width: 56rem;
     margin: 0;
-    color: var(--member-primary-dark);
+  }
+
+  .protector-impact blockquote p {
+    color: var(--color-primary-hover);
     font-size: clamp(1.35rem, 3vw, 2rem);
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.4;
     text-wrap: balance;
   }
 
-  .impacto p {
-    max-width: 850px;
-    margin: 1rem 0 0;
-    color: var(--member-muted);
+  .protector-impact div > p:last-child {
+    max-width: 53rem;
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .llamada {
+  /* CTA */
+
+  .protector-cta {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    margin-top: clamp(4.5rem, 10vw, 7.5rem);
-    padding: clamp(1.7rem, 5vw, 3rem);
-    border: 1px solid var(--member-border);
-    border-radius: 1.8rem;
     background:
       radial-gradient(
         circle at 90% 20%,
-        rgb(212 93 140 / 12%),
+        color-mix(in srgb, var(--color-secondary) 12%, transparent),
         transparent 28%
       ),
-      var(--member-background);
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 15%,
+        var(--color-background)
+      );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.8rem;
   }
 
-  .llamada__contenido {
-    max-width: 760px;
+  .protector-cta__content {
+    max-width: 47.5rem;
   }
 
-  .llamada h2 {
+  .protector-cta h2 {
     font-size: clamp(1.55rem, 3vw, 2.2rem);
   }
 
-  .llamada p {
-    margin: 0;
-    color: var(--member-muted);
+  .protector-cta__content > p:last-child {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .llamada__boton {
-    flex-shrink: 0;
-    background: var(--member-primary-dark);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(37 89 127 / 20%);
+  .protector-cta__button {
+    flex: 0 0 auto;
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 20%, transparent);
   }
 
   @media (hover: hover) {
-    .boton--principal:hover,
-    .llamada__boton:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 17px 35px rgb(37 89 127 / 28%);
-    }
-
-    .boton--secundario:hover {
-      background: #fff;
+    .protector-button--primary:hover,
+    .protector-cta__button:hover {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 1rem 2.2rem
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
       transform: translateY(-3px);
     }
 
-    .paso:hover,
-    .destino:hover {
-      border-color: rgb(65 120 170 / 32%);
+    .protector-button--secondary:hover {
+      background-color: var(--color-background);
+      transform: translateY(-3px);
+    }
+
+    .protector-step:hover,
+    .protector-destination:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+      box-shadow: 0 1.25rem 2.8rem rgba(38, 63, 80, 0.11);
       transform: translateY(-6px);
-      box-shadow: 0 20px 45px rgb(38 63 80 / 11%);
-    }
-
-    .pertenencia a:hover {
-      background: transparent;
-      color: #fff;
-      transform: translateY(-3px);
     }
   }
 
   @media (max-width: 1000px) {
-    .funcionamiento__grid,
-    .destinos__grid {
+    .protector-process__list,
+    .protector-destinations__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 850px) {
-    .hero {
-      grid-template-columns: 1fr;
+    .protector-hero {
+      grid-template-columns: minmax(0, 1fr);
       text-align: center;
     }
 
-    .hero__contenido {
+    .protector-hero__content {
       order: 2;
     }
 
-    .hero__visual {
+    .protector-hero__visual {
+      min-height: 17.5rem;
       order: 1;
-      min-height: 280px;
     }
 
-    .hero p {
+    .protector-hero__content > p:not(.protector-kicker) {
       margin-inline: auto;
     }
 
-    .hero__acciones {
+    .protector-hero__actions {
       justify-content: center;
     }
 
-    .ilustracion {
-      width: min(65vw, 290px);
+    .protector-illustration {
+      width: min(65vw, 18rem);
     }
 
-    .aporte,
-    .pertenencia {
-      grid-template-columns: 1fr;
+    .protector-contribution {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .aporte__visual {
-      min-height: 230px;
+    .protector-contribution__visual {
+      min-height: 14.5rem;
     }
 
-    .pertenencia__visual {
-      flex-direction: row;
-      justify-content: center;
-    }
-
-    .pertenencia__linea {
-      width: 55px;
-      height: 2px;
-    }
-
-    .llamada {
-      flex-direction: column;
+    .protector-cta {
       align-items: flex-start;
+      flex-direction: column;
     }
   }
 
   @media (max-width: 600px) {
-    .miembro-protector {
-      width: min(100% - 1rem, 1180px);
+    .protector-page {
+      width: calc(100% - 1rem);
       margin-top: 1rem;
     }
 
-    .hero {
-      gap: 1.4rem;
+    .protector-hero {
       min-height: auto;
       padding: 1.7rem 1.2rem;
+      gap: 1.4rem;
       border-radius: 1.4rem;
     }
 
-    .hero h1 {
+    .protector-hero h2 {
       font-size: clamp(2rem, 10vw, 3rem);
     }
 
-    .hero p {
+    .protector-hero__content > p:not(.protector-kicker) {
       font-size: 0.97rem;
       line-height: 1.65;
     }
 
-    .hero__visual {
-      min-height: 225px;
+    .protector-hero__visual {
+      min-height: 14rem;
     }
 
-    .ilustracion {
-      width: min(76vw, 240px);
+    .protector-illustration {
+      width: min(76vw, 15rem);
     }
 
-    .ilustracion__casa {
-      width: 90px;
+    .protector-illustration__house {
+      width: 5.6rem;
       border-radius: 1.3rem;
     }
 
-    .ilustracion__casa svg {
-      width: 50px;
+    .protector-illustration__house :global(svg) {
+      width: 3.1rem;
+      height: 3.1rem;
     }
 
-    .ilustracion__corazon {
-      top: 15px;
-      right: 20px;
-      width: 55px;
-      border-width: 4px;
+    .protector-illustration__heart {
+      width: 3.45rem;
+      top: 0.95rem;
+      right: 1.25rem;
+      border-width: 0.25rem;
     }
 
-    .ilustracion__corazon svg {
-      width: 30px;
+    .protector-illustration__heart :global(svg) {
+      width: 1.9rem;
+      height: 1.9rem;
     }
 
-    .ilustracion__personas {
-      bottom: 25px;
+    .protector-illustration__people {
+      bottom: 1.55rem;
     }
 
-    .ilustracion__personas span {
-      width: 49px;
-      border-width: 4px;
+    .protector-illustration__people span {
+      width: 3.1rem;
+      border-width: 0.25rem;
     }
 
-    .ilustracion__personas svg {
-      width: 26px;
+    .protector-illustration__people :global(svg) {
+      width: 1.65rem;
+      height: 1.65rem;
     }
 
-    .hero__acciones {
+    .protector-hero__actions {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .boton {
+    .protector-button {
       width: 100%;
     }
 
-    .mensaje-principal {
-      grid-template-columns: 1fr;
+    .protector-message {
+      grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
-      border-left-width: 4px;
+      border-left-width: 0.25rem;
       border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
     }
 
-    .mensaje-principal__icono {
-      width: 51px;
-      height: 51px;
+    .protector-message__icon {
+      width: 3.2rem;
+      height: 3.2rem;
     }
 
-    .funcionamiento__grid,
-    .destinos__grid {
-      grid-template-columns: 1fr;
+    .protector-process__list,
+    .protector-destinations__list {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .paso,
-    .destino {
+    .protector-step,
+    .protector-destination {
       padding: 1.4rem;
       border-radius: 1.2rem;
     }
 
-    .aporte,
-    .pertenencia {
+    .protector-contribution {
       padding: 1.6rem 1.3rem;
       border-radius: 1.3rem;
     }
 
-    .aporte__visual {
-      min-height: 200px;
-      transform: scale(0.88);
+    .protector-contribution__visual {
+      min-height: 12.5rem;
+      transform: scale(0.9);
     }
 
-    .pertenencia__visual {
-      transform: scale(0.88);
-    }
-
-    .impacto {
-      grid-template-columns: 1fr;
+    .protector-impact {
+      grid-template-columns: minmax(0, 1fr);
       padding: 1.5rem 1.3rem;
       border-radius: 1.3rem;
     }
 
-    .impacto__comillas {
+    .protector-impact__quote {
       height: 2.5rem;
     }
 
-    .llamada {
+    .protector-cta {
       padding: 1.6rem 1.3rem;
       border-radius: 1.3rem;
-    }
-
-    .llamada__boton,
-    .pertenencia a {
-      width: 100%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .boton,
-    .pertenencia a,
-    .llamada__boton,
-    .paso,
-    .destino {
+    .protector-button,
+    .protector-step,
+    .protector-destination {
       transition: none;
     }
-  }
-
-  .btn-flecha-der svg {
-    transform: rotate(90deg);
   }
 </style>

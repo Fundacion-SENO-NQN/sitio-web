@@ -8,15 +8,11 @@ export function showToast(message, type = 'success') {
   document.body.appendChild(toast)
 
   setTimeout(() => {
-    requestAnimationFrame(() => {
-      toast.classList.add('show')
-    })
+    requestAnimationFrame(() => toast.classList.add('show'))
     setTimeout(() => {
       toast.classList.remove('show')
 
-      setTimeout(() => {
-        toast.remove()
-      }, 300)
+      setTimeout(toast.remove, 300)
     }, 2500)
   }, 100)
 }

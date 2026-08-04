@@ -22,39 +22,41 @@ const images: ImageMetadata[] = [
   Img6,
   Img7,
   Img8,
-  Img9,
+  Img9
 ]
 
 /*
- * We duplicate the first image at the end.
- * After showing the duplicate, JavaScript returns instantly to the real first
- * image, creating the infinite-loop effect.
+ * Se duplica la primera imagen al final.
+ * Al llegar a la copia, el carrusel vuelve a la imagen
+ * original sin animación para generar un bucle continuo.
  */
 const carouselImages = [...images, images[0]]
 ---
 
-<section
-  class="carousel"
-  data-carousel
+<donation-carousel
+  class="donation-carousel"
   data-real-images={images.length}
+  role="region"
+  aria-roledescription="carrusel"
   aria-label="Imágenes de donaciones recibidas por la Fundación SENO"
 >
-  <div class="track" data-carousel-track>
+  <div class="donation-carousel__track" data-carousel-track aria-live="off">
     {
       carouselImages.map((image, index) => {
         const isClone = index === images.length
 
         return (
           <Image
+            class="donation-carousel__slide"
             src={image}
             alt={
               isClone
                 ? ''
                 : `Donación recibida por la Fundación SENO, imagen ${index + 1}`
             }
-            class="slide"
             loading={index === 0 ? 'eager' : 'lazy'}
-            priority={index === 0}
+            fetchpriority={index === 0 ? 'high' : 'auto'}
+            decoding="async"
             draggable="false"
             aria-hidden={isClone ? 'true' : undefined}
           />
@@ -63,156 +65,273 @@ const carouselImages = [...images, images[0]]
     }
   </div>
 
-  <div class="overlay">
+  <div class="donation-carousel__overlay" aria-hidden="true">
     <p>Tu donación ayuda un montón</p>
   </div>
-</section>
+</donation-carousel>
 
 <script>
-  const TRANSITION_TIME = 800
   const SLIDE_INTERVAL = 5000
 
-  const carousels = document.querySelectorAll<HTMLElement>('[data-carousel]')
+  class DonationCarousel extends HTMLElement {
+    private track: HTMLElement | null = null
+    private slides: HTMLElement[] = []
 
-  carousels.forEach((carousel) => {
-    const track = carousel.querySelector<HTMLElement>('[data-carousel-track]')
+    private currentIndex = 0
+    private realImages = 0
+    private intervalId: number | undefined
+    private resizeFrame: number | undefined
 
-    if (!track) return
+    private interactionPaused = false
 
-    const slides = Array.from(track.querySelectorAll<HTMLElement>('.slide'))
+    private resizeObserver: ResizeObserver | null = null
+    private reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    )
 
-    const realImages = Number(carousel.dataset.realImages)
+    private abortController: AbortController | null = null
 
-    if (slides.length <= 1 || !realImages) return
-
-    let current = 0
-    let intervalId: number | undefined
-    let resizeFrame: number | undefined
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    const setTransform = () => {
-      const currentSlide = slides[current]
-
-      if (!currentSlide) return
-
-      track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
-    }
-
-    const repositionWithoutAnimation = () => {
-      track.style.transition = 'none'
-
-      setTransform()
-
-      // Forces the browser to apply the transform before restoring animation.
-      track.offsetHeight
-
-      track.style.transition = `transform ${TRANSITION_TIME}ms ease-in-out`
-    }
-
-    const moveToNextSlide = () => {
-      current += 1
-      setTransform()
-    }
-
-    const startCarousel = () => {
-      if (reducedMotion.matches || intervalId !== undefined) return
-
-      intervalId = window.setInterval(moveToNextSlide, SLIDE_INTERVAL)
-    }
-
-    const stopCarousel = () => {
-      if (intervalId === undefined) return
-
-      window.clearInterval(intervalId)
-      intervalId = undefined
-    }
-
-    /*
-     * When the cloned first slide finishes appearing, return to the real first
-     * slide without an animation.
-     */
-    track.addEventListener('transitionend', (event) => {
-      if (event.propertyName !== 'transform' || current !== realImages) {
+    connectedCallback(): void {
+      if (this.dataset.initialized === 'true') {
         return
       }
 
-      current = 0
-      repositionWithoutAnimation()
-    })
+      this.track = this.querySelector<HTMLElement>('[data-carousel-track]')
 
-    /*
-     * Slide widths change at the responsive breakpoints, so offsetLeft must be
-     * recalculated whenever the carousel changes size.
-     */
-    const resizeObserver = new ResizeObserver(() => {
-      if (resizeFrame !== undefined) {
-        window.cancelAnimationFrame(resizeFrame)
+      this.slides = Array.from(
+        this.querySelectorAll<HTMLElement>('.donation-carousel__slide')
+      )
+
+      this.realImages = Number.parseInt(this.dataset.realImages ?? '0', 10)
+
+      if (!this.track || this.slides.length <= 1 || this.realImages <= 1) {
+        return
       }
 
-      resizeFrame = window.requestAnimationFrame(() => {
-        repositionWithoutAnimation()
+      this.dataset.initialized = 'true'
+      this.abortController = new AbortController()
+
+      const { signal } = this.abortController
+
+      this.track.addEventListener('transitionend', this.handleTransitionEnd, {
+        signal
       })
-    })
 
-    resizeObserver.observe(carousel)
+      this.addEventListener('mouseenter', this.handleInteractionStart, {
+        signal
+      })
 
-    carousel.addEventListener('mouseenter', stopCarousel)
-    carousel.addEventListener('mouseleave', startCarousel)
+      this.addEventListener('mouseleave', this.handleInteractionEnd, { signal })
 
-    document.addEventListener('visibilitychange', () => {
+      this.addEventListener('focusin', this.handleInteractionStart, { signal })
+
+      this.addEventListener('focusout', this.handleFocusOut, { signal })
+
+      document.addEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange,
+        { signal }
+      )
+
+      this.reducedMotion.addEventListener(
+        'change',
+        this.handleReducedMotionChange
+      )
+
+      this.resizeObserver = new ResizeObserver(this.handleResize)
+
+      this.resizeObserver.observe(this)
+
+      this.updateMotionPreference()
+      this.repositionWithoutAnimation()
+      this.startCarousel()
+    }
+
+    disconnectedCallback(): void {
+      this.stopCarousel()
+
+      if (this.resizeFrame !== undefined) {
+        window.cancelAnimationFrame(this.resizeFrame)
+      }
+
+      this.resizeObserver?.disconnect()
+      this.resizeObserver = null
+
+      this.reducedMotion.removeEventListener(
+        'change',
+        this.handleReducedMotionChange
+      )
+
+      this.abortController?.abort()
+      this.abortController = null
+
+      delete this.dataset.initialized
+    }
+
+    private setTransform(): void {
+      if (!this.track) return
+
+      const currentSlide = this.slides[this.currentIndex]
+
+      if (!currentSlide) return
+
+      this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
+    }
+
+    private repositionWithoutAnimation(): void {
+      if (!this.track) return
+
+      this.track.style.transition = 'none'
+
+      this.setTransform()
+
+      /*
+       * Fuerza al navegador a aplicar la posición antes de
+       * volver a habilitar la transición definida en CSS.
+       */
+      this.track.getBoundingClientRect()
+
+      this.track.style.removeProperty('transition')
+    }
+
+    private moveToNextSlide = (): void => {
+      this.currentIndex += 1
+      this.setTransform()
+    }
+
+    private startCarousel(): void {
+      if (
+        this.reducedMotion.matches ||
+        this.interactionPaused ||
+        document.hidden ||
+        this.intervalId !== undefined
+      ) {
+        return
+      }
+
+      this.intervalId = window.setInterval(this.moveToNextSlide, SLIDE_INTERVAL)
+    }
+
+    private stopCarousel(): void {
+      if (this.intervalId === undefined) {
+        return
+      }
+
+      window.clearInterval(this.intervalId)
+      this.intervalId = undefined
+    }
+
+    private updateMotionPreference(): void {
+      if (!this.reducedMotion.matches) {
+        return
+      }
+
+      this.stopCarousel()
+
+      this.currentIndex = 0
+      this.repositionWithoutAnimation()
+    }
+
+    private handleTransitionEnd = (event: TransitionEvent): void => {
+      if (
+        event.propertyName !== 'transform' ||
+        this.currentIndex !== this.realImages
+      ) {
+        return
+      }
+
+      this.currentIndex = 0
+      this.repositionWithoutAnimation()
+    }
+
+    private handleInteractionStart = (): void => {
+      this.interactionPaused = true
+      this.stopCarousel()
+    }
+
+    private handleInteractionEnd = (): void => {
+      this.interactionPaused = false
+      this.startCarousel()
+    }
+
+    private handleFocusOut = (event: FocusEvent): void => {
+      const nextFocusedElement = event.relatedTarget
+
+      if (
+        nextFocusedElement instanceof Node &&
+        this.contains(nextFocusedElement)
+      ) {
+        return
+      }
+
+      this.handleInteractionEnd()
+    }
+
+    private handleVisibilityChange = (): void => {
       if (document.hidden) {
-        stopCarousel()
+        this.stopCarousel()
       } else {
-        startCarousel()
+        this.startCarousel()
       }
-    })
+    }
 
-    reducedMotion.addEventListener('change', () => {
-      if (reducedMotion.matches) {
-        stopCarousel()
-        current = 0
-        repositionWithoutAnimation()
-      } else {
-        startCarousel()
+    private handleReducedMotionChange = (): void => {
+      this.updateMotionPreference()
+
+      if (!this.reducedMotion.matches) {
+        this.startCarousel()
       }
-    })
+    }
 
-    startCarousel()
-  })
+    private handleResize = (): void => {
+      if (this.resizeFrame !== undefined) {
+        window.cancelAnimationFrame(this.resizeFrame)
+      }
+
+      this.resizeFrame = window.requestAnimationFrame(() => {
+        this.repositionWithoutAnimation()
+      })
+    }
+  }
+
+  if (!customElements.get('donation-carousel')) {
+    customElements.define('donation-carousel', DonationCarousel)
+  }
 </script>
 
 <style>
-  .carousel {
+  .donation-carousel {
     width: 100%;
     max-width: 100%;
     height: clamp(17rem, 35vw, 25rem);
 
     position: relative;
 
+    display: block;
+
     overflow: hidden;
+
     background-color: var(--color-secondary-light);
   }
 
-  .track {
+  .donation-carousel__track {
     width: 100%;
     height: 100%;
 
     display: flex;
 
+    transform: translate3d(0, 0, 0);
+
     transition: transform 800ms ease-in-out;
+
     will-change: transform;
   }
 
-  .slide {
-    /*
-     * Several images can be partially visible on desktop, preserving the
-     * original continuous-strip appearance.
-     */
+  .donation-carousel__slide {
     width: clamp(18rem, 38vw, 32rem);
+
     height: 100%;
 
-    display: block;
     flex: 0 0 clamp(18rem, 38vw, 32rem);
 
     object-fit: cover;
@@ -222,82 +341,160 @@ const carouselImages = [...images, images[0]]
     pointer-events: none;
   }
 
-  .overlay {
+  .donation-carousel__overlay {
     position: absolute;
     inset: 0;
 
     display: flex;
     align-items: flex-end;
 
-    background: color-mix(in srgb, var(--color-text) 25%, transparent);
+    background: rgba(18, 18, 18, 0.25);
 
     pointer-events: none;
   }
 
-  .overlay p {
+  .donation-carousel__overlay p {
     width: 100%;
 
-    margin: 0;
     padding: clamp(0.75rem, 2vw, 1.25rem);
 
     color: var(--color-text);
-    background: color-mix(
-      in srgb,
-      var(--color-secondary-light) 78%,
-      transparent
-    );
+
+    background: rgba(144, 184, 214, 0.86);
 
     font-family: var(--text-font-logo);
+
     font-size: clamp(1.8rem, 5vw, 3.5rem);
+
     line-height: 1.1;
     text-align: center;
+    text-wrap: balance;
   }
 
-  /*
-   * Tablet: each image occupies approximately two thirds of the carousel.
-   */
+  .donation-carousel__toggle {
+    min-height: 2.5rem;
+
+    padding: 0.55rem 0.8rem;
+
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+
+    color: #ffffff;
+
+    background-color: rgba(0, 0, 0, 0.66);
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    border-radius: 999px;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1;
+
+    backdrop-filter: blur(5px);
+
+    cursor: pointer;
+
+    transition:
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .donation-carousel__toggle:hover {
+    background-color: rgba(0, 0, 0, 0.86);
+
+    border-color: rgba(255, 255, 255, 0.65);
+  }
+
+  .donation-carousel__toggle:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary);
+  }
+
+  .donation-carousel__toggle-icon {
+    min-width: 0.9rem;
+
+    display: inline-flex;
+    justify-content: center;
+
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+
+  @media (hover: hover) {
+    .donation-carousel__toggle:hover {
+      transform: translateY(-1px);
+    }
+  }
+
   @media (max-width: 900px) {
-    .carousel {
+    .donation-carousel {
       height: clamp(16rem, 48vw, 22rem);
     }
 
-    .slide {
+    .donation-carousel__slide {
       width: 65%;
+
       flex-basis: 65%;
     }
   }
 
-  /*
-   * Mobile: exactly one complete image is visible at a time.
-   */
   @media (max-width: 600px) {
-    .carousel {
+    .donation-carousel {
       height: clamp(15rem, 75vw, 21rem);
     }
 
-    .slide {
+    .donation-carousel__slide {
       width: 100%;
+
       flex-basis: 100%;
     }
 
-    .overlay p {
+    .donation-carousel__overlay p {
       padding: 0.8rem 1rem;
+
       font-size: clamp(1.6rem, 8vw, 2.4rem);
+    }
+
+    .donation-carousel__toggle {
+      top: 0.65rem;
+      right: 0.65rem;
+
+      padding: 0.5rem 0.65rem;
     }
   }
 
   @media (max-width: 380px) {
-    .carousel {
+    .donation-carousel {
       height: 16rem;
     }
 
-    .overlay p {
+    .donation-carousel__overlay p {
       font-size: 1.5rem;
+    }
+
+    .donation-carousel__toggle span:last-child {
+      display: none;
+    }
+
+    .donation-carousel__toggle {
+      width: 2.5rem;
+      padding: 0;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .track {
+    .donation-carousel__track,
+    .donation-carousel__toggle {
       transition: none;
     }
   }

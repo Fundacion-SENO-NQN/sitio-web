@@ -106,4 +106,22 @@ impl R2Storage {
 
         Ok(())
     }
+
+    pub async fn upload_svg(
+        &self,
+        key: &str,
+        svg: Vec<u8>,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.client
+            .put_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .body(ByteStream::from(svg))
+            .content_type("image/svg+xml; charset=utf-8")
+            .cache_control("public, max-age=31536000, immutable")
+            .send()
+            .await?;
+
+        Ok(())
+    }
 }

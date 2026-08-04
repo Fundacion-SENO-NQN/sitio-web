@@ -17,22 +17,45 @@ import SvgDocumento from '../../../assets/icon-voluntariado/icon-contrato-cuadra
 import SvgDescargar from '../../../assets/icon-common/icon-descargar.svg'
 import SvgInformacion from '../../../assets/icon-common/icon-info.svg'
 import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
+
+const documentPath = '/documentos/constancia-regularidad-2026.pdf'
 ---
 
-<Layout pag="Empresas">
-  <NavegacionQuieroAyudar pag="6" />
+<Layout
+  pag="Empresas"
+  seoTitle="Empresas solidarias | Colaborar con Fundación SENO"
+  description="Conocé las distintas maneras en que una empresa puede colaborar con Fundación SENO mediante aportes, servicios, campañas y acuerdos institucionales."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Empresas'
+      }
+    ]}
+  />
+  <NavegacionQuieroAyudar pag="5" />
+
   <TituloPag titulo="Empresas" />
 
-  <main class="empresas">
-    <section class="hero" aria-labelledby="titulo-empresas">
-      <div class="hero__contenido">
-        <span class="etiqueta">Empresas que acompañan</span>
+  <main class="companies-page">
+    <section class="companies-hero" aria-labelledby="companies-hero-title">
+      <div class="companies-hero__content">
+        <p class="companies-kicker">Empresas que acompañan</p>
 
-        <h1 id="titulo-empresas">
+        <h2 id="companies-hero-title">
           Construyamos juntos una colaboración con propósito
-        </h1>
+        </h2>
 
-        <p class="hero__destacado">
+        <p class="companies-hero__highlight">
           Las empresas pueden colaborar con Fundación SENO mediante acuerdos
           adaptados a sus posibilidades, recursos y objetivos solidarios.
         </p>
@@ -43,51 +66,65 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
           necesidades de ambas partes.
         </p>
 
-        <div class="hero__acciones">
-          <a class="boton boton--principal" href="/contacto">
-            Comunicarse con la Fundación
+        <div class="companies-hero__actions">
+          <a
+            class="companies-button companies-button--primary"
+            href="#contacto"
+          >
+            <span>Comunicarse con la Fundación</span>
 
-            <SvgFlecha style="transform:rotate(90deg)"/>
+            <SvgFlecha
+              class="companies-button__icon companies-button__icon--down"
+              aria-hidden="true"
+            />
           </a>
 
-          <a class="boton boton--secundario" href="#formas-colaboracion">
+          <a
+            class="companies-button companies-button--secondary"
+            href="#formas-colaboracion"
+          >
             Formas de colaborar
           </a>
         </div>
       </div>
 
-      <div class="hero__visual" aria-hidden="true">
-        <div class="ilustracion">
-          <span class="ilustracion__empresa">
+      <div class="companies-hero__visual" aria-hidden="true">
+        <div class="companies-illustration">
+          <span class="companies-illustration__company">
             <SvgEmpresa />
           </span>
 
-          <span class="ilustracion__corazon">
+          <span class="companies-illustration__heart">
             <SvgCorazon />
           </span>
 
-          <span class="ilustracion__fundacion">
-            <SvgCasa/>
+          <span class="companies-illustration__foundation">
+            <SvgCasa />
           </span>
 
-          <span class="ilustracion__linea ilustracion__linea--uno"></span>
-          <span class="ilustracion__linea ilustracion__linea--dos"></span>
+          <span
+            class="companies-illustration__line companies-illustration__line--first"
+          ></span>
+
+          <span
+            class="companies-illustration__line companies-illustration__line--second"
+          ></span>
         </div>
       </div>
     </section>
 
     <section
-      class="acuerdo-principal"
-      aria-labelledby="acuerdos-personalizados"
+      class="companies-agreement"
+      aria-labelledby="companies-agreement-title"
     >
-      <div class="acuerdo-principal__icono" aria-hidden="true">
+      <span class="companies-agreement__icon" aria-hidden="true">
         <SvgCheck />
-      </div>
+      </span>
 
       <div>
-        <span class="etiqueta">Acuerdos personalizados</span>
+        <p class="companies-kicker">Acuerdos personalizados</p>
 
-        <h2 id="acuerdos-personalizados">
+        <h2 id="companies-agreement-title">
           Cada colaboración se conversa de manera particular
         </h2>
 
@@ -101,13 +138,15 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
 
     <section
       id="formas-colaboracion"
-      class="colaboraciones"
-      aria-labelledby="titulo-colaboraciones"
+      class="companies-section companies-collaborations"
+      aria-labelledby="companies-collaborations-title"
     >
-      <header class="encabezado-seccion">
-        <span class="etiqueta">Distintas maneras de acompañar</span>
+      <header class="companies-section__header">
+        <p class="companies-kicker">Distintas maneras de acompañar</p>
 
-        <h2 id="titulo-colaboraciones">¿Cómo puede colaborar una empresa?</h2>
+        <h2 id="companies-collaborations-title">
+          ¿Cómo puede colaborar una empresa?
+        </h2>
 
         <p>
           Los acuerdos pueden incluir aportes económicos, bienes, alimentos,
@@ -116,93 +155,108 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
         </p>
       </header>
 
-      <div class="colaboraciones__grid">
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgTarjeta />
-          </div>
+      <ul class="companies-collaborations__list">
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgTarjeta />
+            </span>
 
-          <h3>Donaciones monetarias</h3>
+            <h3>Donaciones monetarias</h3>
 
-          <p>
-            Aportes económicos únicos o periódicos destinados a sostener las
-            actividades y necesidades de la Fundación.
-          </p>
-        </article>
+            <p>
+              Aportes económicos únicos o periódicos destinados a sostener las
+              actividades y necesidades de la Fundación.
+            </p>
+          </article>
+        </li>
 
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgCaja />
-          </div>
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgCaja />
+            </span>
 
-          <h3>Bienes y elementos</h3>
+            <h3>Bienes y elementos</h3>
 
-          <p>
-            Muebles, equipamiento, tecnología, materiales, insumos y otros
-            objetos que puedan utilizarse en la casa o en actividades.
-          </p>
-        </article>
+            <p>
+              Muebles, equipamiento, tecnología, materiales, insumos y otros
+              objetos que puedan utilizarse en la casa o en actividades.
+            </p>
+          </article>
+        </li>
 
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgComida />
-          </div>
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgComida />
+            </span>
 
-          <h3>Alimentos</h3>
+            <h3>Alimentos</h3>
 
-          <p>
-            Productos alimenticios para acompañar las actividades de la
-            Fundación, las familias o las organizaciones con las que
-            colaboramos.
-          </p>
-        </article>
+            <p>
+              Productos alimenticios para acompañar las actividades de la
+              Fundación, las familias o las organizaciones con las que
+              colaboramos.
+            </p>
+          </article>
+        </li>
 
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgEngranajes />
-          </div>
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgEngranajes />
+            </span>
 
-          <h3>Servicios y recursos</h3>
+            <h3>Servicios y recursos</h3>
 
-          <p>
-            Trabajo profesional, transporte, difusión, impresión, logística u
-            otros servicios que permitan desarrollar un proyecto.
-          </p>
-        </article>
+            <p>
+              Trabajo profesional, transporte, difusión, impresión, logística u
+              otros servicios que permitan desarrollar un proyecto.
+            </p>
+          </article>
+        </li>
 
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgCalendario />
-          </div>
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgCalendario />
+            </span>
 
-          <h3>Eventos y campañas</h3>
+            <h3>Eventos y campañas</h3>
 
-          <p>
-            Participación, patrocinio o provisión de recursos para eventos y
-            acciones destinadas a recaudar fondos.
-          </p>
-        </article>
+            <p>
+              Participación, patrocinio o provisión de recursos para eventos y
+              acciones destinadas a recaudar fondos.
+            </p>
+          </article>
+        </li>
 
-        <article class="colaboracion">
-          <div class="colaboracion__icono" aria-hidden="true">
-            <SvgCorazon />
-          </div>
+        <li>
+          <article class="company-collaboration">
+            <span class="company-collaboration__icon" aria-hidden="true">
+              <SvgCorazon />
+            </span>
 
-          <h3>Otras propuestas</h3>
+            <h3>Otras propuestas</h3>
 
-          <p>
-            También pueden presentarse otras iniciativas. Cada idea será
-            conversada y evaluada directamente con la Fundación.
-          </p>
-        </article>
-      </div>
+            <p>
+              También pueden presentarse otras iniciativas. Cada idea será
+              conversada y evaluada directamente con la Fundación.
+            </p>
+          </article>
+        </li>
+      </ul>
     </section>
 
-    <section class="principios" aria-labelledby="titulo-principios">
-      <div class="principios__contenido">
-        <span class="etiqueta">Colaboración responsable</span>
+    <section
+      class="companies-principles"
+      aria-labelledby="companies-principles-title"
+    >
+      <div class="companies-principles__content">
+        <p class="companies-kicker">Colaboración responsable</p>
 
-        <h2 id="titulo-principios">
+        <h2 id="companies-principles-title">
           Los acuerdos deben respetar el estatuto de la Fundación
         </h2>
 
@@ -218,38 +272,39 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
         </p>
       </div>
 
-      <div class="principios__lista">
-        <div class="principio">
-          <SvgCheck />
-
+      <ul class="companies-principles__list">
+        <li>
+          <SvgCheck aria-hidden="true" />
           <span>Acuerdos claros entre ambas partes</span>
-        </div>
+        </li>
 
-        <div class="principio">
-          <SvgCheck />
-
+        <li>
+          <SvgCheck aria-hidden="true" />
           <span>Respeto por la misión institucional</span>
-        </div>
+        </li>
 
-        <div class="principio">
-          <SvgCheck />
-
+        <li>
+          <SvgCheck aria-hidden="true" />
           <span>Destino responsable de las donaciones</span>
-        </div>
+        </li>
 
-        <div class="principio">
-          <SvgCheck />
-
+        <li>
+          <SvgCheck aria-hidden="true" />
           <span>Comunicación directa con la Fundación</span>
-        </div>
-      </div>
+        </li>
+      </ul>
     </section>
 
-    <section class="proceso" aria-labelledby="titulo-proceso">
-      <header class="encabezado-seccion">
-        <span class="etiqueta">Cómo comenzar</span>
+    <section
+      class="companies-section companies-process"
+      aria-labelledby="companies-process-title"
+    >
+      <header class="companies-section__header">
+        <p class="companies-kicker">Cómo comenzar</p>
 
-        <h2 id="titulo-proceso">Un acuerdo se construye paso a paso</h2>
+        <h2 id="companies-process-title">
+          Un acuerdo se construye paso a paso
+        </h2>
 
         <p>
           El primer paso es comunicarse para presentar la propuesta y definir
@@ -257,58 +312,77 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
         </p>
       </header>
 
-      <div class="proceso__grid">
-        <article class="paso">
-          <span class="paso__numero">1</span>
+      <ol class="companies-process__list">
+        <li>
+          <article class="company-process-step">
+            <span class="company-process-step__number" aria-hidden="true">
+              1
+            </span>
 
-          <h3>Contacto inicial</h3>
+            <h3>Contacto inicial</h3>
 
-          <p>
-            La empresa se comunica con Fundación SENO y expresa su intención de
-            colaborar.
-          </p>
-        </article>
+            <p>
+              La empresa se comunica con Fundación SENO y expresa su intención
+              de colaborar.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">2</span>
+        <li>
+          <article class="company-process-step">
+            <span class="company-process-step__number" aria-hidden="true">
+              2
+            </span>
 
-          <h3>Presentación de la propuesta</h3>
+            <h3>Presentación de la propuesta</h3>
 
-          <p>
-            Se conversa sobre el tipo de aporte, sus características y las
-            posibilidades de ambas partes.
-          </p>
-        </article>
+            <p>
+              Se conversa sobre el tipo de aporte, sus características y las
+              posibilidades de ambas partes.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">3</span>
+        <li>
+          <article class="company-process-step">
+            <span class="company-process-step__number" aria-hidden="true">
+              3
+            </span>
 
-          <h3>Definición del acuerdo</h3>
+            <h3>Definición del acuerdo</h3>
 
-          <p>
-            Se establecen las condiciones, responsabilidades y documentación
-            correspondiente.
-          </p>
-        </article>
+            <p>
+              Se establecen las condiciones, responsabilidades y documentación
+              correspondiente.
+            </p>
+          </article>
+        </li>
 
-        <article class="paso">
-          <span class="paso__numero">4</span>
+        <li>
+          <article class="company-process-step">
+            <span class="company-process-step__number" aria-hidden="true">
+              4
+            </span>
 
-          <h3>Realización de la colaboración</h3>
+            <h3>Realización de la colaboración</h3>
 
-          <p>
-            Se coordina la entrega, transferencia, actividad o acción acordada
-            con la empresa.
-          </p>
-        </article>
-      </div>
+            <p>
+              Se coordina la entrega, transferencia, actividad o acción acordada
+              con la empresa.
+            </p>
+          </article>
+        </li>
+      </ol>
     </section>
 
-    <section class="documentacion" aria-labelledby="titulo-documentacion">
-      <div class="documentacion__contenido">
-        <span class="etiqueta">Documentación institucional</span>
+    <section
+      class="companies-documentation"
+      aria-labelledby="companies-documentation-title"
+    >
+      <div class="companies-documentation__content">
+        <p class="companies-kicker">Documentación institucional</p>
 
-        <h2 id="titulo-documentacion">
+        <h2 id="companies-documentation-title">
           Constancia de regularidad y personería jurídica
         </h2>
 
@@ -323,37 +397,45 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
           y la última memoria y balance informados.
         </p>
 
-        <div class="documentacion__acciones">
+        <div class="companies-documentation__actions">
           <a
-            class="documentacion__boton"
-            href="/documentos/constancia-regularidad-2026.pdf"
+            class="companies-button companies-button--primary"
+            href={documentPath}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Ver la constancia de regularidad 2026 en una pestaña nueva"
           >
-            Ver constancia
+            <span>Ver constancia</span>
 
-            <SvgFlecha style="transform:rotate(45deg)" />
+            <SvgFlecha
+              class="companies-button__icon companies-button__icon--external"
+              aria-hidden="true"
+            />
           </a>
 
           <a
-            class="documentacion__descarga"
-            href="/documentos/constancia-regularidad-2026.pdf"
+            class="companies-button companies-button--secondary"
+            href={documentPath}
             download
           >
-            Descargar PDF
+            <span>Descargar PDF</span>
 
-            <SvgDescargar />
+            <SvgDescargar class="companies-button__icon" aria-hidden="true" />
           </a>
         </div>
       </div>
 
-      <div class="documentacion__tarjeta">
-        <span class="documentacion__icono" aria-hidden="true">
+      <aside
+        class="company-document-card"
+        aria-label="Información de la constancia de regularidad"
+      >
+        <span class="company-document-card__icon" aria-hidden="true">
           <SvgDocumento />
         </span>
 
-        <span class="documentacion__tipo">Documento institucional</span>
-        <strong>Constancia de regularidad 2026</strong>
+        <p class="company-document-card__type">Documento institucional</p>
+
+        <h3>Constancia de regularidad 2026</h3>
 
         <ul>
           <li>Personería jurídica vigente</li>
@@ -361,11 +443,14 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
           <li>Memoria y balance registrados</li>
           <li>Emitida por Personas Jurídicas</li>
         </ul>
-      </div>
+      </aside>
     </section>
 
-    <aside class="aviso-documentacion">
-      <SvgInformacion />
+    <aside
+      class="companies-documentation-notice"
+      aria-label="Información sobre documentación adicional"
+    >
+      <SvgInformacion aria-hidden="true" />
 
       <p>
         Si la empresa necesita otra constancia, convenio, información legal o
@@ -374,23 +459,23 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
       </p>
     </aside>
 
-    <section class="impacto" aria-labelledby="titulo-impacto">
-      <div class="impacto__visual" aria-hidden="true">
-        <span class="impacto__empresa">
+    <section class="companies-impact" aria-labelledby="companies-impact-title">
+      <div class="companies-impact__visual" aria-hidden="true">
+        <span class="companies-impact__company">
           <SvgEmpresa />
         </span>
 
-        <span class="impacto__conexion"></span>
+        <span class="companies-impact__connection"></span>
 
-        <span class="impacto__corazon">
+        <span class="companies-impact__heart">
           <SvgCorazon />
         </span>
       </div>
 
-      <div class="impacto__contenido">
-        <span class="etiqueta">Un compromiso que genera impacto</span>
+      <div class="companies-impact__content">
+        <p class="companies-kicker">Un compromiso que genera impacto</p>
 
-        <h2 id="titulo-impacto">
+        <h2 id="companies-impact-title">
           Cada empresa puede transformar sus recursos en ayuda
         </h2>
 
@@ -408,184 +493,248 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
       </div>
     </section>
 
-    <aside class="llamada">
-      <div class="llamada__contenido">
-        <span class="etiqueta">Conversemos sobre la propuesta</span>
+    <aside class="companies-cta" aria-labelledby="companies-cta-title">
+      <div class="companies-cta__content">
+        <p class="companies-kicker">Conversemos sobre la propuesta</p>
 
-        <h2>¿Tu empresa quiere colaborar con Fundación SENO?</h2>
+        <h2 id="companies-cta-title">
+          ¿Tu empresa quiere colaborar con Fundación SENO?
+        </h2>
 
         <p>
-          Comunícate directamente con nosotros para presentar la propuesta,
+          Comunicate directamente con nosotros para presentar la propuesta,
           solicitar documentación y comenzar a definir el acuerdo.
         </p>
       </div>
 
-      <a class="llamada__boton" href="/contacto">
-        Contactar a la Fundación
+      <a class="companies-button companies-cta__button" href="#contacto">
+        <span>Contactar a la Fundación</span>
 
-        <SvgFlecha style="transform:rotate(90deg)"/>
+        <SvgFlecha
+          class="companies-button__icon companies-button__icon--down"
+          aria-hidden="true"
+        />
       </a>
     </aside>
   </main>
 </Layout>
 
 <style>
-  .empresas {
-    --company-primary: var(--color-primary, #4178aa);
-    --company-primary-dark: var(--color-primary-hover, #25597f);
-    --company-secondary: var(--color-secondary, #d45d8c);
-    --company-text: var(--color-text, #28343e);
-    --company-muted: #667580;
-    --company-border: #dce6ed;
-    --company-background: #f5f9fb;
-    --company-success: #327a61;
-
-    width: min(1180px, calc(100% - 2rem));
-    margin: 2rem auto 5rem;
-    color: var(--company-text);
-    font-family: var(--text-font-primary, system-ui, sans-serif);
+  .companies-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+    color: var(--color-text);
   }
 
-  .etiqueta {
-    display: block;
+  .companies-kicker {
     margin-bottom: 0.65rem;
-    color: var(--company-primary-dark);
+    color: var(--color-primary-hover);
     font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-weight: 700;
     line-height: 1.4;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .hero {
+  .companies-section {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .companies-section__header {
+    width: min(100%, 45.5rem);
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .companies-section__header h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .companies-section__header > p:last-child {
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.04rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* Hero */
+
+  .companies-hero {
+    min-height: 30.5rem;
+    padding: clamp(2rem, 6vw, 5rem);
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    grid-template-columns: minmax(0, 1.3fr) minmax(17.5rem, 0.7fr);
     align-items: center;
     gap: clamp(2rem, 7vw, 6rem);
-    min-height: 490px;
-    padding: clamp(2rem, 6vw, 5rem);
     overflow: hidden;
-    border: 1px solid var(--company-border);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
     border-radius: 2rem;
     background:
       radial-gradient(
         circle at 88% 18%,
-        rgb(212 93 140 / 15%),
+        color-mix(in srgb, var(--color-secondary) 16%, transparent),
         transparent 29%
       ),
-      radial-gradient(circle at 8% 92%, rgb(65 120 170 / 12%), transparent 26%),
-      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
+      radial-gradient(
+        circle at 8% 92%,
+        color-mix(in srgb, var(--color-primary) 12%, transparent),
+        transparent 26%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 18%,
+        var(--color-background)
+      );
   }
 
-  .hero::before {
-    position: absolute;
-    right: -125px;
-    bottom: -145px;
-    width: 365px;
-    aspect-ratio: 1;
-    border: 52px solid rgb(65 120 170 / 6%);
-    border-radius: 50%;
+  .companies-hero::before {
     content: '';
+    width: 22.8rem;
+    aspect-ratio: 1;
+    position: absolute;
+    right: -7.8rem;
+    bottom: -9rem;
+    border: 3.25rem solid
+      color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
   }
 
-  .hero__contenido,
-  .hero__visual {
+  .companies-hero__content,
+  .companies-hero__visual {
     position: relative;
     z-index: 1;
   }
 
-  .hero h1 {
-    max-width: 760px;
-    margin: 0 0 1.3rem;
-    color: var(--company-primary-dark);
+  .companies-hero h2 {
+    max-width: 47.5rem;
+    margin-bottom: 1.3rem;
+    color: var(--color-primary-hover);
     font-size: clamp(2.2rem, 5.2vw, 4.25rem);
     line-height: 1.04;
     text-wrap: balance;
+    overflow-wrap: anywhere;
   }
 
-  .hero p {
-    max-width: 720px;
-    margin: 0.75rem 0;
-    color: var(--company-muted);
+  .companies-hero__content > p:not(.companies-kicker) {
+    max-width: 45rem;
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
     font-size: 1.03rem;
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .hero__destacado {
-    color: var(--company-text) !important;
-    font-size: clamp(1.08rem, 2vw, 1.24rem) !important;
+  .companies-hero__content .companies-hero__highlight {
+    color: var(--color-text);
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
     font-weight: 600;
   }
 
-  .hero__acciones {
+  .companies-hero__actions {
+    margin-top: 1.7rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0.85rem;
-    margin-top: 1.7rem;
   }
 
-  .boton,
-  .documentacion__boton,
-  .documentacion__descarga,
-  .llamada__boton {
+  /* Buttons */
+
+  .companies-button {
+    width: fit-content;
+    min-height: 3.1rem;
+    padding: 0.85rem 1.3rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.7rem;
-    min-height: 49px;
-    padding: 0.85rem 1.3rem;
     border: 2px solid transparent;
     border-radius: 999px;
-    font-weight: 800;
+    font-weight: 700;
+    line-height: 1.3;
     text-align: center;
     text-decoration: none;
     transition:
-      transform 180ms ease,
-      background-color 180ms ease,
-      color 180ms ease,
-      box-shadow 180ms ease;
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .boton svg,
-  .documentacion__boton svg,
-  .documentacion__descarga svg,
-  .llamada__boton svg {
-    width: 20px;
-    flex-shrink: 0;
+  .companies-button--primary {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 22%, transparent);
   }
 
-  .boton--principal {
-    background: var(--company-primary-dark);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(37 89 127 / 22%);
+  .companies-button--secondary {
+    color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 65%,
+      transparent
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-hover) 24%,
+      transparent
+    );
   }
 
-  .boton--secundario {
-    border-color: rgb(37 89 127 / 23%);
-    background: rgb(255 255 255 / 65%);
-    color: var(--company-primary-dark);
+  .companies-button__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    color: currentColor;
   }
 
-  .hero__visual {
+  .companies-button__icon--down {
+    transform: rotate(90deg);
+  }
+
+  .companies-button__icon--external {
+    transform: rotate(45deg);
+  }
+
+  .companies-button:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  /* Illustration */
+
+  .companies-hero__visual {
+    min-height: 20.5rem;
     display: grid;
     place-items: center;
-    min-height: 330px;
   }
 
-  .ilustracion {
-    position: relative;
-    width: min(100%, 330px);
+  .companies-illustration {
+    width: min(100%, 20.5rem);
     aspect-ratio: 1;
-    border: 1px solid rgb(65 120 170 / 14%);
+    position: relative;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
     border-radius: 50%;
-    background: rgb(255 255 255 / 65%);
-    box-shadow: 0 28px 65px rgb(37 89 127 / 15%);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 68%,
+      transparent
+    );
+    box-shadow: 0 1.75rem 4rem
+      color-mix(in srgb, var(--color-primary-hover) 15%, transparent);
   }
 
-  .ilustracion__empresa,
-  .ilustracion__fundacion,
-  .ilustracion__corazon {
+  .companies-illustration__company,
+  .companies-illustration__foundation,
+  .companies-illustration__heart {
     position: absolute;
     z-index: 2;
     display: grid;
@@ -593,735 +742,792 @@ import SvgEngranajes from '../../../assets/icon-common/icon-engranajes.svg'
     border-radius: 50%;
   }
 
-  .ilustracion__empresa,
-  .ilustracion__fundacion {
-    width: 105px;
+  .companies-illustration__company,
+  .companies-illustration__foundation {
+    width: 6.55rem;
     aspect-ratio: 1;
-    background: var(--company-primary);
-    color: #fff;
-    box-shadow: 0 18px 40px rgb(65 120 170 / 24%);
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    box-shadow: 0 1.1rem 2.5rem
+      color-mix(in srgb, var(--color-primary) 24%, transparent);
   }
 
-  .ilustracion__empresa {
-    top: 52px;
-    left: 28px;
+  .companies-illustration__company {
+    top: 3.25rem;
+    left: 1.75rem;
   }
 
-  .ilustracion__fundacion {
-    right: 28px;
-    bottom: 52px;
-    background: var(--company-primary-dark);
+  .companies-illustration__foundation {
+    right: 1.75rem;
+    bottom: 3.25rem;
+    background-color: var(--color-primary-hover);
   }
 
-  .ilustracion__corazon {
+  .companies-illustration__heart {
+    width: 4.9rem;
+    aspect-ratio: 1;
     top: 50%;
     left: 50%;
-    width: 78px;
-    aspect-ratio: 1;
-    border: 6px solid #fff;
-    background: var(--company-secondary);
-    color: #fff;
-    box-shadow: 0 14px 30px rgb(212 93 140 / 25%);
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+    border: 0.4rem solid var(--color-background);
+    box-shadow: 0 0.9rem 1.9rem
+      color-mix(in srgb, var(--color-secondary) 25%, transparent);
     transform: translate(-50%, -50%);
   }
 
-  .ilustracion svg {
-    width: 55%;
+  .companies-illustration__company :global(svg),
+  .companies-illustration__foundation :global(svg) {
+    width: 3.5rem;
+    height: 3.5rem;
   }
 
-  .ilustracion__linea {
+  .companies-illustration__heart :global(svg) {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
+  .companies-illustration__line {
+    width: 6.25rem;
+    height: 0.2rem;
     position: absolute;
     z-index: 1;
-    width: 100px;
-    height: 3px;
-    background: rgb(65 120 170 / 25%);
+    background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
     transform-origin: center;
   }
 
-  .ilustracion__linea--uno {
-    top: 130px;
-    left: 95px;
+  .companies-illustration__line--first {
+    top: 8.1rem;
+    left: 5.9rem;
     transform: rotate(32deg);
   }
 
-  .ilustracion__linea--dos {
-    right: 92px;
-    bottom: 126px;
+  .companies-illustration__line--second {
+    right: 5.75rem;
+    bottom: 7.9rem;
     transform: rotate(32deg);
   }
 
-  .acuerdo-principal {
+  /* Main agreement */
+
+  .companies-agreement {
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 1.5rem;
-    margin-top: 2rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    border-left: 6px solid var(--company-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 28%,
+      var(--color-background)
+    );
+    border-left: 0.4rem solid var(--color-primary);
     border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
-    background: #edf6fb;
   }
 
-  .acuerdo-principal__icono {
+  .companies-agreement__icon {
+    width: 3.7rem;
+    height: 3.7rem;
     display: grid;
     place-items: center;
-    width: 59px;
-    height: 59px;
+    color: var(--color-primary);
+    background-color: var(--color-background);
     border-radius: 50%;
-    background: #fff;
-    color: var(--company-primary);
-    box-shadow: 0 10px 25px rgb(65 120 170 / 13%);
+    box-shadow: 0 0.65rem 1.6rem
+      color-mix(in srgb, var(--color-primary) 13%, transparent);
   }
 
-  .acuerdo-principal__icono svg {
-    width: 30px;
+  .companies-agreement__icon :global(svg) {
+    width: 1.9rem;
+    height: 1.9rem;
   }
 
-  .acuerdo-principal h2,
-  .principios h2,
-  .documentacion h2,
-  .impacto h2,
-  .llamada h2 {
-    margin: 0 0 0.8rem;
-    color: var(--company-primary-dark);
+  .companies-agreement h2,
+  .companies-documentation h2,
+  .companies-impact h2,
+  .companies-cta h2 {
+    margin-bottom: 0.8rem;
+    color: var(--color-primary-hover);
     font-size: clamp(1.45rem, 3vw, 2rem);
     line-height: 1.2;
     text-wrap: balance;
   }
 
-  .acuerdo-principal p {
-    max-width: 920px;
-    margin: 0;
-    color: var(--company-muted);
+  .companies-agreement > div > p:last-child {
+    max-width: 57.5rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .colaboraciones,
-  .proceso {
-    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  /* Collaboration types */
+
+  .companies-collaborations {
     scroll-margin-top: 2rem;
   }
 
-  .encabezado-seccion {
-    max-width: 730px;
-    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
-    text-align: center;
-  }
-
-  .encabezado-seccion h2 {
-    margin: 0;
-    color: var(--company-primary-dark);
-    font-size: clamp(1.9rem, 4vw, 2.8rem);
-    line-height: 1.15;
-    text-wrap: balance;
-  }
-
-  .encabezado-seccion p {
-    margin: 1rem 0 0;
-    color: var(--company-muted);
-    font-size: 1.04rem;
-    line-height: 1.7;
-  }
-
-  .colaboraciones__grid {
+  .companies-collaborations__list {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
     gap: 1.2rem;
   }
 
-  .colaboracion {
+  .companies-collaborations__list > li {
     min-width: 0;
-    padding: clamp(1.4rem, 3vw, 2rem);
-    border: 1px solid var(--company-border);
-    border-radius: 1.5rem;
-    background: #fff;
-    box-shadow: 0 14px 40px rgb(38 63 80 / 6%);
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease;
+    display: flex;
   }
 
-  .colaboracion__icono {
+  .company-collaboration {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    color: var(--color-primary);
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.9rem 2.5rem rgba(38, 63, 80, 0.06);
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .company-collaboration__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+    margin-bottom: 1.25rem;
     display: grid;
     place-items: center;
-    width: 58px;
-    height: 58px;
-    margin-bottom: 1.25rem;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 32%,
+      var(--color-background)
+    );
     border-radius: 1.1rem;
-    background: #edf5fa;
-    color: var(--company-primary);
   }
 
-  .colaboracion:nth-child(even) .colaboracion__icono {
-    background: #fbeaf1;
-    color: var(--company-secondary);
+  .companies-collaborations__list
+    > li:nth-child(even)
+    .company-collaboration__icon {
+    color: var(--color-secondary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 40%,
+      var(--color-background)
+    );
   }
 
-  .colaboracion__icono svg {
-    width: 31px;
+  .company-collaboration__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
   }
 
-  .colaboracion h3 {
-    margin: 0 0 0.75rem;
-    color: var(--company-primary-dark);
+  .company-collaboration h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-primary-hover);
     font-size: 1.27rem;
+    line-height: 1.3;
+    text-wrap: balance;
   }
 
-  .colaboracion p {
-    margin: 0;
-    color: var(--company-muted);
+  .company-collaboration p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.65;
+    text-wrap: pretty;
   }
 
-  .principios {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 5rem);
+  /* Principles */
+
+  .companies-principles {
     margin-top: clamp(4.5rem, 10vw, 7.5rem);
     padding: clamp(2rem, 6vw, 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(17.5rem, 0.8fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 5rem);
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
     border-radius: 1.8rem;
-    background: var(--company-primary-dark);
-    color: #fff;
   }
 
-  .principios .etiqueta {
-    color: rgb(255 255 255 / 65%);
+  .companies-principles .companies-kicker {
+    color: color-mix(in srgb, var(--color-background) 66%, transparent);
   }
 
-  .principios h2 {
-    color: #fff;
+  .companies-principles h2 {
+    margin-bottom: 0.8rem;
+    color: var(--color-background);
     font-size: clamp(1.8rem, 4vw, 2.7rem);
+    line-height: 1.2;
+    text-wrap: balance;
   }
 
-  .principios p {
-    max-width: 760px;
-    margin: 0.65rem 0;
-    color: rgb(255 255 255 / 78%);
+  .companies-principles__content > p:not(.companies-kicker) {
+    max-width: 47.5rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-background) 78%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .principios__lista {
+  .companies-principles__list {
     display: grid;
     gap: 0.85rem;
   }
 
-  .principio {
+  .companies-principles__list li {
+    padding: 1rem;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: 0.8rem;
-    padding: 1rem;
-    border: 1px solid rgb(255 255 255 / 14%);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 7%,
+      transparent
+    );
+    border: 1px solid
+      color-mix(in srgb, var(--color-background) 14%, transparent);
     border-radius: 1rem;
-    background: rgb(255 255 255 / 7%);
   }
 
-  .principio svg {
-    width: 25px;
-    color: var(--company-secondary);
+  .companies-principles__list :global(svg) {
+    width: 1.55rem;
+    height: 1.55rem;
+    color: var(--color-secondary);
   }
 
-  .principio span {
-    color: #fff;
-    font-weight: 650;
+  .companies-principles__list span {
+    color: var(--color-background);
+    font-weight: 600;
     line-height: 1.5;
   }
 
-  .proceso__grid {
+  /* Process */
+
+  .companies-process__list {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
     gap: 1.2rem;
+    counter-reset: none;
   }
 
-  .paso {
-    position: relative;
+  .companies-process__list > li {
     min-width: 0;
-    padding: 2rem 1.5rem 1.5rem;
-    border: 1px solid var(--company-border);
-    border-radius: 1.4rem;
-    background: var(--company-background);
+    display: flex;
   }
 
-  .paso__numero {
+  .company-process-step {
+    width: 100%;
+    height: 100%;
+    padding: 2rem 1.5rem 1.5rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 15%,
+      var(--color-background)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.4rem;
+  }
+
+  .company-process-step__number {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1.2rem;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 1.2rem;
+    color: var(--color-background);
+    background-color: var(--color-primary);
     border-radius: 1rem;
-    background: var(--company-primary);
-    color: #fff;
+    box-shadow: 0 0.55rem 1.4rem
+      color-mix(in srgb, var(--color-primary) 21%, transparent);
     font-size: 1.15rem;
-    font-weight: 900;
-    box-shadow: 0 9px 22px rgb(65 120 170 / 21%);
+    font-weight: 700;
   }
 
-  .paso h3 {
-    margin: 0 0 0.65rem;
-    color: var(--company-primary-dark);
+  .company-process-step h3 {
+    margin-bottom: 0.65rem;
+    color: var(--color-primary-hover);
     font-size: 1.18rem;
+    line-height: 1.3;
+    text-wrap: balance;
   }
 
-  .paso p {
-    margin: 0;
-    color: var(--company-muted);
+  .company-process-step p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.65;
+    text-wrap: pretty;
   }
 
-  .documentacion {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 5rem);
+  /* Documentation */
+
+  .companies-documentation {
     margin-top: clamp(4.5rem, 10vw, 7.5rem);
     padding: clamp(2rem, 6vw, 4rem);
-    border: 1px solid var(--company-border);
-    border-radius: 1.8rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(16.25rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 5rem);
     background:
       radial-gradient(
         circle at 95% 10%,
-        rgb(212 93 140 / 12%),
+        color-mix(in srgb, var(--color-secondary) 12%, transparent),
         transparent 28%
       ),
-      var(--company-background);
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 15%,
+        var(--color-background)
+      );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.8rem;
   }
 
-  .documentacion h2 {
+  .companies-documentation h2 {
     font-size: clamp(1.8rem, 4vw, 2.7rem);
   }
 
-  .documentacion__contenido > p {
-    max-width: 760px;
-    margin: 0.65rem 0;
-    color: var(--company-muted);
+  .companies-documentation__content > p:not(.companies-kicker) {
+    max-width: 47.5rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .documentacion__acciones {
+  .companies-documentation__actions {
+    margin-top: 1.5rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0.8rem;
-    margin-top: 1.5rem;
   }
 
-  .documentacion__boton {
-    background: var(--company-primary-dark);
-    color: #fff;
-    box-shadow: 0 12px 28px rgb(37 89 127 / 20%);
-  }
-
-  .documentacion__descarga {
-    border-color: var(--company-primary-dark);
-    color: var(--company-primary-dark);
-  }
-
-  .documentacion__tarjeta {
+  .company-document-card {
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 1.5rem;
-    border: 1px solid var(--company-border);
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
     border-radius: 1.5rem;
-    background: #fff;
+    box-shadow: 0 1.1rem 2.8rem rgba(38, 63, 80, 0.1);
     text-align: center;
-    box-shadow: 0 18px 45px rgb(38 63 80 / 10%);
   }
 
-  .documentacion__icono {
+  .company-document-card__icon {
+    width: 4.9rem;
+    height: 4.9rem;
+    margin-bottom: 1.2rem;
     display: grid;
     place-items: center;
-    width: 78px;
-    height: 78px;
-    margin-bottom: 1.2rem;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 32%,
+      var(--color-background)
+    );
     border-radius: 1.3rem;
-    background: #edf5fa;
-    color: var(--company-primary);
   }
 
-  .documentacion__icono svg {
-    width: 42px;
+  .company-document-card__icon :global(svg) {
+    width: 2.65rem;
+    height: 2.65rem;
   }
 
-  .documentacion__tipo {
-    color: var(--company-muted);
+  .company-document-card__type {
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
     font-size: 0.72rem;
-    font-weight: 800;
+    font-weight: 700;
+    line-height: 1.4;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .documentacion__tarjeta strong {
+  .company-document-card h3 {
     margin-top: 0.35rem;
-    color: var(--company-primary-dark);
+    color: var(--color-primary-hover);
     font-size: 1.2rem;
+    line-height: 1.3;
   }
 
-  .documentacion__tarjeta ul {
+  .company-document-card ul {
+    width: 100%;
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
     display: grid;
     gap: 0.65rem;
-    width: 100%;
-    margin: 1.4rem 0 0;
-    padding: 1.2rem 0 0;
-    border-top: 1px solid var(--company-border);
-    list-style: none;
+    border-top: 1px solid var(--color-light-grey);
     text-align: left;
   }
 
-  .documentacion__tarjeta li {
-    position: relative;
+  .company-document-card li {
     padding-left: 1.5rem;
-    color: var(--company-muted);
+    position: relative;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     font-size: 0.9rem;
     line-height: 1.5;
   }
 
-  .documentacion__tarjeta li::before {
+  .company-document-card li::before {
+    content: '✓';
     position: absolute;
     left: 0;
-    color: var(--company-success);
-    content: '✓';
-    font-weight: 900;
+    color: var(--color-primary);
+    font-weight: 700;
   }
 
-  .aviso-documentacion {
+  .companies-documentation-notice {
+    margin-top: 1.3rem;
+    padding: 1rem 1.2rem;
     display: flex;
     align-items: flex-start;
     gap: 0.9rem;
-    margin-top: 1.3rem;
-    padding: 1rem 1.2rem;
-    border-left: 4px solid var(--company-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 28%,
+      var(--color-background)
+    );
+    border-left: 0.25rem solid var(--color-primary);
     border-radius: 0.25rem 1rem 1rem 0.25rem;
-    background: #edf6fb;
   }
 
-  .aviso-documentacion svg {
-    width: 25px;
-    flex-shrink: 0;
-    color: var(--company-primary);
+  .companies-documentation-notice :global(svg) {
+    width: 1.55rem;
+    height: 1.55rem;
+    flex: 0 0 auto;
+    color: var(--color-primary);
   }
 
-  .aviso-documentacion p {
-    margin: 0;
-    color: var(--company-muted);
+  .companies-documentation-notice p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     font-weight: 600;
     line-height: 1.6;
+    text-wrap: pretty;
   }
 
-  .impacto {
-    display: grid;
-    grid-template-columns: minmax(230px, 0.65fr) minmax(0, 1.35fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 6rem);
+  /* Impact */
+
+  .companies-impact {
     margin-top: clamp(4.5rem, 10vw, 7.5rem);
     padding: clamp(2rem, 6vw, 4rem);
-    border: 1px solid var(--company-border);
+    display: grid;
+    grid-template-columns: minmax(14.4rem, 0.65fr) minmax(0, 1.35fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
     border-radius: 1.8rem;
-    background: #fff;
   }
 
-  .impacto__visual {
+  .companies-impact__visual {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .impacto__empresa,
-  .impacto__corazon {
+  .companies-impact__company,
+  .companies-impact__heart {
+    width: 5.65rem;
+    aspect-ratio: 1;
     display: grid;
     place-items: center;
-    width: 90px;
-    aspect-ratio: 1;
+    color: var(--color-background);
     border-radius: 50%;
   }
 
-  .impacto__empresa {
-    background: var(--company-primary);
-    color: #fff;
+  .companies-impact__company {
+    background-color: var(--color-primary);
   }
 
-  .impacto__corazon {
-    background: var(--company-secondary);
-    color: #fff;
+  .companies-impact__heart {
+    background-color: var(--color-secondary);
   }
 
-  .impacto__empresa svg,
-  .impacto__corazon svg {
-    width: 49px;
+  .companies-impact__company :global(svg),
+  .companies-impact__heart :global(svg) {
+    width: 3.05rem;
+    height: 3.05rem;
   }
 
-  .impacto__conexion {
-    width: 55px;
-    height: 3px;
-    background: var(--company-border);
+  .companies-impact__connection {
+    width: 3.45rem;
+    height: 0.2rem;
+    background-color: var(--color-light-grey);
   }
 
-  .impacto h2 {
+  .companies-impact h2 {
     font-size: clamp(1.8rem, 4vw, 2.7rem);
   }
 
-  .impacto p {
-    max-width: 760px;
-    margin: 0.65rem 0;
-    color: var(--company-muted);
+  .companies-impact__content > p:not(.companies-kicker) {
+    max-width: 47.5rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
     line-height: 1.75;
+    text-wrap: pretty;
   }
 
-  .llamada {
+  /* Final CTA */
+
+  .companies-cta {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    margin-top: clamp(4.5rem, 10vw, 7.5rem);
-    padding: clamp(1.7rem, 5vw, 3rem);
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
     border-radius: 1.8rem;
-    background: var(--company-primary-dark);
-    color: #fff;
   }
 
-  .llamada__contenido {
-    max-width: 760px;
+  .companies-cta__content {
+    max-width: 47.5rem;
   }
 
-  .llamada .etiqueta {
-    color: rgb(255 255 255 / 65%);
+  .companies-cta .companies-kicker {
+    color: color-mix(in srgb, var(--color-background) 66%, transparent);
   }
 
-  .llamada h2 {
-    color: #fff;
+  .companies-cta h2 {
+    color: var(--color-background);
     font-size: clamp(1.55rem, 3vw, 2.2rem);
   }
 
-  .llamada p {
-    margin: 0;
-    color: rgb(255 255 255 / 78%);
+  .companies-cta__content > p:last-child {
+    color: color-mix(in srgb, var(--color-background) 78%, transparent);
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .llamada__boton {
-    flex-shrink: 0;
-    border-color: #fff;
-    background: #fff;
-    color: var(--company-primary-dark);
+  .companies-cta__button {
+    flex: 0 0 auto;
+    color: var(--color-primary-hover);
+    background-color: var(--color-background);
+    border-color: var(--color-background);
   }
 
   @media (hover: hover) {
-    .boton--principal:hover,
-    .documentacion__boton:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 17px 35px rgb(37 89 127 / 28%);
-    }
-
-    .boton--secundario:hover,
-    .documentacion__descarga:hover {
-      background: #fff;
+    .companies-button--primary:hover {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 1rem 2.2rem
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
       transform: translateY(-3px);
     }
 
-    .colaboracion:hover {
-      border-color: rgb(65 120 170 / 32%);
+    .companies-button--secondary:hover {
+      background-color: var(--color-background);
+      transform: translateY(-3px);
+    }
+
+    .company-collaboration:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+      box-shadow: 0 1.25rem 2.8rem rgba(38, 63, 80, 0.11);
       transform: translateY(-6px);
-      box-shadow: 0 20px 45px rgb(38 63 80 / 11%);
     }
 
-    .llamada__boton:hover {
-      background: transparent;
-      color: #fff;
+    .companies-cta__button:hover {
+      color: var(--color-background);
+      background-color: transparent;
+      border-color: var(--color-background);
       transform: translateY(-3px);
     }
   }
 
   @media (max-width: 1000px) {
-    .colaboraciones__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .proceso__grid {
+    .companies-collaborations__list,
+    .companies-process__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 850px) {
-    .hero {
-      grid-template-columns: 1fr;
+    .companies-hero {
+      grid-template-columns: minmax(0, 1fr);
       text-align: center;
     }
 
-    .hero__contenido {
+    .companies-hero__content {
       order: 2;
     }
 
-    .hero__visual {
+    .companies-hero__visual {
+      min-height: 17.5rem;
       order: 1;
-      min-height: 280px;
     }
 
-    .hero p {
+    .companies-hero__content > p:not(.companies-kicker) {
       margin-inline: auto;
     }
 
-    .hero__acciones {
+    .companies-hero__actions {
       justify-content: center;
     }
 
-    .ilustracion {
-      width: min(65vw, 290px);
+    .companies-illustration {
+      width: min(65vw, 18rem);
     }
 
-    .principios,
-    .documentacion,
-    .impacto {
-      grid-template-columns: 1fr;
+    .companies-principles,
+    .companies-documentation,
+    .companies-impact {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .impacto__visual {
+    .companies-impact__visual {
       order: 2;
     }
 
-    .llamada {
-      flex-direction: column;
+    .companies-cta {
       align-items: flex-start;
+      flex-direction: column;
     }
   }
 
   @media (max-width: 600px) {
-    .empresas {
-      width: min(100% - 1rem, 1180px);
+    .companies-page {
+      width: calc(100% - 1rem);
       margin-top: 1rem;
     }
 
-    .hero {
-      gap: 1.4rem;
+    .companies-hero {
       min-height: auto;
       padding: 1.7rem 1.2rem;
+      gap: 1.4rem;
       border-radius: 1.4rem;
     }
 
-    .hero h1 {
+    .companies-hero h2 {
       font-size: clamp(2rem, 10vw, 3rem);
     }
 
-    .hero p {
+    .companies-hero__content > p:not(.companies-kicker) {
       font-size: 0.97rem;
       line-height: 1.65;
     }
 
-    .hero__visual {
-      min-height: 225px;
+    .companies-hero__visual {
+      min-height: 14rem;
     }
 
-    .ilustracion {
-      width: min(76vw, 240px);
+    .companies-illustration {
+      width: min(76vw, 15rem);
     }
 
-    .ilustracion__empresa,
-    .ilustracion__fundacion {
-      width: 76px;
+    .companies-illustration__company,
+    .companies-illustration__foundation {
+      width: 4.75rem;
     }
 
-    .ilustracion__empresa {
-      top: 38px;
-      left: 20px;
+    .companies-illustration__company {
+      top: 2.4rem;
+      left: 1.25rem;
     }
 
-    .ilustracion__fundacion {
-      right: 20px;
-      bottom: 38px;
+    .companies-illustration__foundation {
+      right: 1.25rem;
+      bottom: 2.4rem;
     }
 
-    .ilustracion__corazon {
-      width: 60px;
-      border-width: 4px;
+    .companies-illustration__heart {
+      width: 3.75rem;
+      border-width: 0.25rem;
     }
 
-    .ilustracion__linea {
-      width: 75px;
+    .companies-illustration__company :global(svg),
+    .companies-illustration__foundation :global(svg) {
+      width: 2.5rem;
+      height: 2.5rem;
     }
 
-    .ilustracion__linea--uno {
-      top: 100px;
-      left: 70px;
+    .companies-illustration__heart :global(svg) {
+      width: 2rem;
+      height: 2rem;
     }
 
-    .ilustracion__linea--dos {
-      right: 67px;
-      bottom: 95px;
+    .companies-illustration__line {
+      width: 4.7rem;
     }
 
-    .hero__acciones {
+    .companies-illustration__line--first {
+      top: 6.25rem;
+      left: 4.4rem;
+    }
+
+    .companies-illustration__line--second {
+      right: 4.2rem;
+      bottom: 5.9rem;
+    }
+
+    .companies-hero__actions,
+    .companies-documentation__actions {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .boton {
+    .companies-button {
       width: 100%;
     }
 
-    .acuerdo-principal {
-      grid-template-columns: 1fr;
+    .companies-agreement {
+      grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
-      border-left-width: 4px;
+      border-left-width: 0.25rem;
       border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
     }
 
-    .acuerdo-principal__icono {
-      width: 51px;
-      height: 51px;
+    .companies-agreement__icon {
+      width: 3.2rem;
+      height: 3.2rem;
     }
 
-    .colaboraciones__grid,
-    .proceso__grid {
-      grid-template-columns: 1fr;
+    .companies-collaborations__list,
+    .companies-process__list {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .colaboracion,
-    .paso {
+    .company-collaboration,
+    .company-process-step {
       padding: 1.4rem;
       border-radius: 1.2rem;
     }
 
-    .principios,
-    .documentacion,
-    .impacto {
+    .companies-principles,
+    .companies-documentation,
+    .companies-impact {
       padding: 1.6rem 1.3rem;
       border-radius: 1.3rem;
     }
 
-    .documentacion__acciones {
-      display: grid;
-      grid-template-columns: 1fr;
+    .companies-impact__company,
+    .companies-impact__heart {
+      width: 4.5rem;
     }
 
-    .documentacion__boton,
-    .documentacion__descarga {
-      width: 100%;
+    .companies-impact__company :global(svg),
+    .companies-impact__heart :global(svg) {
+      width: 2.4rem;
+      height: 2.4rem;
     }
 
-    .impacto__empresa,
-    .impacto__corazon {
-      width: 72px;
+    .companies-impact__connection {
+      width: 2.2rem;
     }
 
-    .impacto__conexion {
-      width: 35px;
-    }
-
-    .llamada {
+    .companies-cta {
       padding: 1.6rem 1.3rem;
       border-radius: 1.3rem;
-    }
-
-    .llamada__boton {
-      width: 100%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .boton,
-    .documentacion__boton,
-    .documentacion__descarga,
-    .llamada__boton,
-    .colaboracion {
+    .companies-button,
+    .company-collaboration {
       transition: none;
     }
   }

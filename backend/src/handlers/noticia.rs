@@ -7,11 +7,10 @@ use crate::{
     utils::{date_spanish::fecha_actual_espanol, image::convert_to_avif},
 };
 use axum::{
-    Json, Router,
+    Json,
     extract::{Multipart, Path, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, patch},
 };
 use bytes::Bytes;
 use std::sync::Arc;
@@ -21,20 +20,6 @@ const MAX_IMAGES: usize = 10;
 const MAX_IMAGE_SIZE: usize = 12 * 1024 * 1024;
 
 const VALID_IMAGE_TYPES: [&str; 4] = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-
-/* ==========================================================
-   RUTAS
-========================================================== */
-
-pub fn routes() -> Router<Arc<AppState>> {
-    Router::new()
-        .route("/noticias", get(get_all).post(create))
-        .route("/noticias/order", patch(change_order))
-        .route(
-            "/noticias/:id",
-            get(get_by_id).patch(update).delete(delete_by_id),
-        )
-}
 
 /* ==========================================================
    GET /noticias
@@ -182,7 +167,9 @@ pub async fn update(
             state.r2.delete_objects(&keys).await.map_err(|error| {
                 eprintln!("Error deleting old news images: {error}");
 
-                ApiError::BadRequest(String::from("No se pudieron eliminar las imágenes anteriores."))
+                ApiError::BadRequest(String::from(
+                    "No se pudieron eliminar las imágenes anteriores.",
+                ))
             })?;
         }
 

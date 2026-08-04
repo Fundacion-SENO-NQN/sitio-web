@@ -1,24 +1,31 @@
-<p class="txt-footer-info">
-  Acompañamos a niños y adolescentes con cáncer, junto a sus familias, durante
-  todo el tratamiento, brindando apoyo emocional, económico, material y mucho
-  más.
+---
+interface Props {
+  texto?: string
+}
+
+const {
+  texto = `Acompañamos a niños y adolescentes con cáncer, junto a sus familias, durante todo el tratamiento, brindando apoyo emocional, económico, material y mucho más.`
+} = Astro.props
+---
+
+<p class="footer-description">
+  {texto}
 </p>
 
 <style>
-  .txt-footer-info {
+  .footer-description {
     width: 100%;
     max-width: 32rem;
-    margin: 0;
 
     color: var(--color-text);
 
-    font-family: var(--text-font-primary);
-    line-height: 1.6;
+    line-height: 1.65;
     text-align: left;
+    text-wrap: pretty;
   }
 
   @media (max-width: 1100px) {
-    .txt-footer-info {
+    .footer-description {
       text-align: center;
     }
   }

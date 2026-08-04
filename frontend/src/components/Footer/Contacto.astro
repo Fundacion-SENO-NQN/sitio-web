@@ -1,253 +1,352 @@
 ---
 import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
-
 import SvgWhatsapp from '../../assets/icon-contacto/icon-whatsapp.svg'
 import SvgTelefono from '../../assets/icon-contacto/icon-telefono.svg'
 import SvgEmail from '../../assets/icon-contacto/icon-email.svg'
 
 import contacto from '../../data/contacto/contacto.json'
+
+const phoneNumber = String(contacto.telefono).replace(/[^\d+]/g, '')
+
+const whatsappHref =
+  'https://api.whatsapp.com/send?phone=542994564725&text=Hola%20Fundaci%C3%B3n%20SENO'
+
+const phoneHref = `tel:${phoneNumber}`
+const emailHref = `mailto:${contacto.email}`
 ---
 
-<section class="section-contacto" id="contacto">
-  <div class="contacto-presentacion">
-    <div class="corazon-container">
-      <SvgCorazon class="img-footer-contacto" />
-    </div>
+<section class="contact-section" id="contacto" aria-labelledby="contact-title">
+  <div class="contact-section__introduction">
+    <span class="contact-section__heart" aria-hidden="true">
+      <SvgCorazon class="contact-section__heart-icon" />
+    </span>
 
-    <div>
-      <h2>Estamos para estar junto a vos</h2>
+    <div class="contact-section__introduction-text">
+      <h2 id="contact-title">Estamos para estar junto a vos</h2>
 
       <p>Si necesitás ayuda o tenés dudas, no dudes en escribirnos.</p>
     </div>
   </div>
 
-  <ul class="lista-contacto">
-    <li class="container-contacto">
-      <div class="container-svg-contacto">
-        <SvgWhatsapp class="svg-whatsapp" />
-      </div>
+  <ul class="contact-section__list">
+    <li>
+      <a
+        class="contact-card"
+        href={whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contactar a Fundación SENO por WhatsApp"
+      >
+        <span class="contact-card__icon-container" aria-hidden="true">
+          <SvgWhatsapp
+            class="contact-card__icon
+              contact-card__icon--filled"
+          />
+        </span>
 
-      <div class="container-contacto-info">
-        <h3>WhatsApp</h3>
-        <p>{contacto.whatsapp}</p>
-      </div>
+        <span class="contact-card__information">
+          <strong>WhatsApp</strong>
+          <span>{contacto.whatsapp}</span>
+        </span>
+      </a>
     </li>
 
-    <li class="container-contacto">
-      <div class="container-svg-contacto">
-        <SvgTelefono class="svg-phone" />
-      </div>
+    <li>
+      <a
+        class="contact-card"
+        href={phoneHref}
+        aria-label={`Llamar al teléfono ${contacto.telefono}`}
+      >
+        <span class="contact-card__icon-container" aria-hidden="true">
+          <SvgTelefono
+            class="contact-card__icon
+              contact-card__icon--outlined"
+          />
+        </span>
 
-      <div class="container-contacto-info">
-        <h3>Teléfono</h3>
-        <p>{contacto.telefono}</p>
-      </div>
+        <span class="contact-card__information">
+          <strong>Teléfono</strong>
+          <span>{contacto.telefono}</span>
+        </span>
+      </a>
     </li>
 
-    <li class="container-contacto">
-      <div class="container-svg-contacto">
-        <SvgEmail class="svg-email" />
-      </div>
+    <li>
+      <a
+        class="contact-card"
+        href={emailHref}
+        aria-label={`Enviar un correo a ${contacto.email}`}
+      >
+        <span class="contact-card__icon-container" aria-hidden="true">
+          <SvgEmail
+            class="contact-card__icon
+              contact-card__icon--outlined"
+          />
+        </span>
 
-      <div class="container-contacto-info">
-        <h3>Correo electrónico</h3>
-        <p>{contacto.email}</p>
-      </div>
+        <span class="contact-card__information">
+          <strong>Correo electrónico</strong>
+          <span>{contacto.email}</span>
+        </span>
+      </a>
     </li>
   </ul>
 </section>
 
 <style>
-  .section-contacto {
-    box-sizing: border-box;
+  .contact-section {
+    width: min(calc(100% - 2rem), 87.5rem);
 
-    width: min(calc(100% - 2rem), 1400px);
+    margin-inline: auto;
+
     padding: clamp(1.25rem, 3vw, 2rem);
 
     display: grid;
-    grid-template-columns: minmax(17rem, 0.9fr) minmax(0, 1.7fr);
+
+    grid-template-columns:
+      minmax(17rem, 0.9fr)
+      minmax(0, 1.7fr);
+
     align-items: center;
+
     gap: clamp(1.5rem, 4vw, 3rem);
 
-    border-radius: 1rem;
+    color: var(--color-text);
     background-color: var(--color-secondary-light);
 
-    font-family: var(--text-font-primary);
+    border-radius: var(--radius);
   }
 
-  .contacto-presentacion {
+  .contact-section__introduction {
     min-width: 0;
 
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
     align-items: center;
     gap: 1rem;
   }
 
-  .corazon-container {
+  .contact-section__heart {
     width: 3rem;
     height: 3rem;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-grid;
+    place-items: center;
 
-    flex-shrink: 0;
+    flex: 0 0 auto;
+
+    color: var(--color-secondary);
+    background-color: var(--color-background);
 
     border-radius: 50%;
-    background-color: var(--color-background);
   }
 
-  .img-footer-contacto {
+  .contact-section__heart-icon {
     width: 1.75rem;
     height: 1.75rem;
-
-    fill: none;
-    stroke: var(--color-secondary);
-    stroke-width: 2;
   }
 
-  .section-contacto h2,
-  .section-contacto h3,
-  .section-contacto p {
-    margin: 0;
+  .contact-section__introduction-text {
+    min-width: 0;
   }
 
-  .section-contacto h2 {
+  .contact-section h2 {
     margin-bottom: 0.4rem;
 
     color: var(--color-text);
+
     font-size: clamp(1.2rem, 2vw, 1.6rem);
-    line-height: 1.2;
+
+    line-height: 1.25;
+    text-wrap: balance;
   }
 
-  .contacto-presentacion p {
-    line-height: 1.5;
+  .contact-section__introduction p {
+    line-height: 1.55;
+    text-wrap: pretty;
   }
 
-  .lista-contacto {
+  .contact-section__list {
     min-width: 0;
-    margin: 0;
-    padding: 0;
+
     padding-left: clamp(1.5rem, 3vw, 3rem);
 
     display: grid;
+
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(1rem, 2vw, 2rem);
+
+    gap: clamp(0.75rem, 2vw, 1.5rem);
 
     border-left: 1px solid var(--color-secondary);
-    list-style: none;
   }
 
-  .container-contacto {
+  .contact-section__list li {
     min-width: 0;
+  }
+
+  .contact-card {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
+    padding: 0.5rem;
 
     display: flex;
     align-items: center;
     gap: 0.8rem;
+
+    color: var(--color-text);
+
+    border: 1px solid transparent;
+
+    border-radius: var(--radius-small);
+
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .container-svg-contacto {
+  .contact-card__icon-container {
     width: 2.7rem;
     height: 2.7rem;
 
-    display: flex;
+    display: inline-grid;
+    place-items: center;
+
     flex: 0 0 2.7rem;
-    align-items: center;
-    justify-content: center;
+
+    color: var(--color-secondary);
+    background-color: var(--color-background);
 
     border-radius: 50%;
-    background-color: var(--color-background);
   }
 
-  .container-contacto svg {
+  .contact-card__icon {
     width: 1.5rem;
     height: 1.5rem;
   }
 
-  .container-contacto-info {
+  .contact-card__icon--filled {
+    fill: currentColor;
+  }
+
+  .contact-card__icon--outlined {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+
+  .contact-card__information {
     min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
   }
 
-  .container-contacto-info h3 {
-    margin-bottom: 0.25rem;
+  .contact-card__information strong {
+    color: var(--color-text);
+
     font-size: 1rem;
+    line-height: 1.3;
   }
 
-  .container-contacto-info p {
-    overflow-wrap: anywhere;
+  .contact-card__information span {
+    color: var(--color-text);
 
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     line-height: 1.4;
+    overflow-wrap: anywhere;
   }
 
-  .svg-whatsapp {
-    fill: var(--color-secondary);
+  .contact-card:hover {
+    color: var(--color-secondary-hover);
+
+    background-color: rgba(255, 255, 255, 0.45);
+
+    border-color: rgba(21, 130, 203, 0.25);
   }
 
-  .svg-phone {
-    fill: none;
-    stroke: var(--color-secondary);
-    stroke-width: 2;
+  .contact-card:focus-visible {
+    outline: none;
+
+    background-color: rgba(255, 255, 255, 0.55);
+
+    box-shadow: 0 0 0 3px var(--color-secondary);
   }
 
-  .svg-email {
-    fill: none;
-    stroke: var(--color-secondary);
-    stroke-width: 2;
+  @media (hover: hover) {
+    .contact-card:hover {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 1050px) {
-    .section-contacto {
-      grid-template-columns: 1fr;
+    .contact-section {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .lista-contacto {
+    .contact-section__list {
       padding-top: 1.5rem;
       padding-left: 0;
 
       border-top: 1px solid var(--color-secondary);
-      border-left: none;
+
+      border-left: 0;
     }
   }
 
   @media (max-width: 750px) {
-    .lista-contacto {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+    .contact-section__list {
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 0.75rem;
     }
 
-    .container-contacto {
+    .contact-card {
       padding: 0.75rem;
 
-      border-radius: 0.75rem;
-      background-color: color-mix(
-        in srgb,
-        var(--color-background) 45%,
-        transparent
-      );
+      background-color: rgba(255, 255, 255, 0.35);
     }
   }
 
   @media (max-width: 480px) {
-    .section-contacto {
+    .contact-section {
       width: calc(100% - 1.5rem);
+
       padding: 1.25rem;
     }
 
-    .contacto-presentacion {
-      grid-template-columns: 1fr;
+    .contact-section__introduction {
+      grid-template-columns: minmax(0, 1fr);
+
       text-align: center;
     }
 
-    .corazon-container {
+    .contact-section__heart {
       margin-inline: auto;
     }
 
-    .container-svg-contacto {
+    .contact-card__icon-container {
       width: 2.5rem;
       height: 2.5rem;
+
       flex-basis: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-card {
+      transition: none;
     }
   }
 </style>

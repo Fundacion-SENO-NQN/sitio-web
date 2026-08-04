@@ -1,198 +1,278 @@
-import { getMembers } from '../common/api.js'
+import { createListController } from '../common/listController.js'
 
-import { renderMembers } from './table.js'
+import { createOrderController } from '../common/orderController.js'
 
-import { openCreateMemberModal, registerMemberModalEvents } from './modal.js'
+import { membersApi } from '../common/resources.js'
 
-import { registerMemberDeleteEvents } from './delete.js'
+import { showToast } from '../common/toast.js'
+
+import { createMiembrosTable } from './table.js'
+
+import { createMiembroModal } from './modal.js'
+
+import { createMiembroDeleteController } from './delete.js'
+
+import { memberImagePicker } from './images.js'
 
 /* ==========================================================
-   STATE
+   RENDERIZADOR
 ========================================================== */
 
-export let members = []
-
-export let filteredMembers = []
-
-let currentSort = 'order'
-
-let ascending = true
+/*
+ * El renderizador definitivo se crea después de los
+ * controladores de orden, edición y eliminación.
+ *
+ * Esta función intermedia evita dependencias circulares.
+ */
+let renderMiembros = () => {}
 
 /* ==========================================================
-   DOM
+   LISTA
 ========================================================== */
 
-const searchInput = document.getElementById('searchMembers')
+export const miembrosController = createListController({
+  load: membersApi.list,
 
-const sortName = document.getElementById('sortName')
+  render(context) {
+    renderMiembros(context)
+  },
 
-const sortDate = document.getElementById('sortDate')
+  searchInput: '#searchMembers',
 
-const btnNewMember = document.getElementById('btnNewMember')
+  emptyElement: '#membersEmpty',
 
-const btnEmptyNewMember = document.getElementById('btnEmptyNewMember')
+  tableElement: '.tableWrapper',
+
+  createButtons: ['#btnNewMember', '#btnEmptyNewMember'],
+
+  sortButtons: {
+    name: '#sortName',
+
+    date: '#sortDate'
+  },
+
+  onCreate() {
+    miembroModal.openCreate()
+  },
+
+  searchValues(miembro) {
+    return [
+      miembro.nombre,
+      miembro.apellido,
+
+      `${miembro.nombre ?? ''} ${miembro.apellido ?? ''}`,
+
+      miembro.puesto,
+      miembro.descripcion
+    ]
+  },
+
+  sorters: {
+    order(miembroA, miembroB) {
+      return Number(miembroA.orden) - Number(miembroB.orden)
+    },
+
+    name(miembroA, miembroB) {
+      const nombreA = obtenerNombreCompleto(miembroA)
+
+      const nombreB = obtenerNombreCompleto(miembroB)
+
+      return nombreA.localeCompare(nombreB, 'es-AR', {
+        sensitivity: 'base'
+      })
+    },
+
+    date(miembroA, miembroB) {
+      return (
+        obtenerTimestamp(miembroA.created_at) -
+        obtenerTimestamp(miembroB.created_at)
+      )
+    }
+  },
+
+  defaultSort: 'order',
+
+  defaultAscending: true,
+
+  messages: {
+    emptyTitle: 'No hay miembros cargados',
+
+    emptyDescription:
+      'Agregá el primer miembro para que aparezca en el sitio web.',
+
+    noResultsTitle: 'No se encontraron miembros',
+
+    noResultsDescription: 'Probá buscar por nombre, puesto o descripción.',
+
+    loadError: 'No se pudieron cargar los miembros.'
+  },
+
+  /*
+   * La página original utiliza "hidden" en lugar de
+   * "oculto".
+   */
+  hiddenClass: 'hidden',
+
+  singular: 'miembro',
+
+  plural: 'miembros',
+
+  onError(error) {
+    showToast(
+      error instanceof Error
+        ? error.message
+        : 'No se pudieron cargar los miembros.',
+      'error'
+    )
+  }
+})
+
+/*
+ * Alias en inglés para mantener compatibilidad con algunos
+ * nombres utilizados durante la refactorización.
+ */
+export const membersController = miembrosController
 
 /* ==========================================================
-   INITIALIZATION
+   ORDEN
+========================================================== */
+
+export const miembrosOrderController = createOrderController({
+  listController: miembrosController,
+
+  changeOrder: membersApi.changeOrder,
+
+  refresh: miembrosController.refresh,
+
+  optimistic: true,
+
+  refreshAfterChange: true,
+
+  refreshAfterError: true,
+
+  errorMessage: 'No se pudo cambiar el orden de los miembros.'
+})
+
+export const membersOrderController = miembrosOrderController
+
+/* ==========================================================
+   MODAL DE CREACIÓN Y EDICIÓN
+========================================================== */
+
+export const miembroModal = createMiembroModal({
+  create: membersApi.create,
+
+  update: membersApi.update,
+
+  refresh: miembrosController.refresh,
+
+  imagePicker: memberImagePicker
+})
+
+/* ==========================================================
+   MODAL DE ELIMINACIÓN
+========================================================== */
+
+export const miembroDeleteController = createMiembroDeleteController({
+  remove: membersApi.remove,
+
+  refresh: miembrosController.refresh
+})
+
+/* ==========================================================
+   TABLA
+========================================================== */
+
+renderMiembros = createMiembrosTable({
+  orderController: miembrosOrderController,
+
+  onEdit(miembro) {
+    miembroModal.openEdit(miembro)
+  },
+
+  onDelete(miembro) {
+    miembroDeleteController.open(miembro)
+  }
+})
+
+/* ==========================================================
+   EXPORTACIONES DE COMPATIBILIDAD
+========================================================== */
+
+export function refreshMembers(options) {
+  return miembrosController.refresh(options)
+}
+
+export function refreshMiembros(options) {
+  return miembrosController.refresh(options)
+}
+
+export function applyFilters() {
+  return miembrosController.applyFilters()
+}
+
+export function aplicarFiltros() {
+  return miembrosController.applyFilters()
+}
+
+export function obtenerMiembros() {
+  return miembrosController.items
+}
+
+export function obtenerMiembrosFiltrados() {
+  return miembrosController.filteredItems
+}
+
+export function getMemberById(id) {
+  return miembrosController.getById(id)
+}
+
+export function obtenerMiembroPorId(id) {
+  return miembrosController.getById(id)
+}
+
+/* ==========================================================
+   INICIALIZACIÓN
 ========================================================== */
 
 async function init() {
-  registerGeneralEvents()
+  memberImagePicker.initialize()
+  miembroModal.initialize()
+  miembroDeleteController.initialize()
 
-  registerMemberModalEvents()
-
-  registerMemberDeleteEvents()
-
-  await refreshMembers()
-}
-
-/* ==========================================================
-   LOAD
-========================================================== */
-
-export async function refreshMembers() {
   try {
-    members = await getMembers()
-
-    members.sort((a, b) => a.orden - b.orden)
-
-    applyFilters()
+    await miembrosController.initialize()
   } catch (error) {
-    console.error('Error loading members:', error)
-
-    filteredMembers = []
-
-    renderMembers()
-  }
-}
-
-/* ==========================================================
-   EVENTS
-========================================================== */
-
-function registerGeneralEvents() {
-  btnNewMember?.addEventListener('click', openCreateMemberModal)
-
-  btnEmptyNewMember?.addEventListener('click', openCreateMemberModal)
-
-  searchInput?.addEventListener('input', applyFilters)
-
-  sortName?.addEventListener('click', () => changeSort('name'))
-
-  sortDate?.addEventListener('click', () => changeSort('date'))
-
-  sortName?.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-
-      changeSort('name')
-    }
-  })
-
-  sortDate?.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-
-      changeSort('date')
-    }
-  })
-}
-
-/* ==========================================================
-   FILTERING
-========================================================== */
-
-export function applyFilters() {
-  const search = searchInput?.value.trim().toLocaleLowerCase('es') ?? ''
-
-  filteredMembers = members.filter((member) => {
-    if (!search) {
-      return true
-    }
-
-    const fullName = `${member.nombre} ${member.apellido}`.toLocaleLowerCase(
-      'es',
+    /*
+     * listController ya mostró la notificación de error.
+     * La captura evita una promesa rechazada sin controlar
+     * durante la carga inicial.
+     */
+    console.error(
+      'Falló la inicialización de la administración de miembros:',
+      error
     )
-
-    const position = member.puesto?.toLocaleLowerCase('es') ?? ''
-
-    const description = member.descripcion?.toLocaleLowerCase('es') ?? ''
-
-    return (
-      fullName.includes(search) ||
-      position.includes(search) ||
-      description.includes(search)
-    )
-  })
-
-  sortFilteredMembers()
-
-  renderMembers()
-}
-
-/* ==========================================================
-   SORTING
-========================================================== */
-
-function changeSort(sort) {
-  if (currentSort === sort) {
-    ascending = !ascending
-  } else {
-    currentSort = sort
-    ascending = true
   }
-
-  applyFilters()
-}
-
-function sortFilteredMembers() {
-  filteredMembers.sort((memberA, memberB) => {
-    let result = 0
-
-    switch (currentSort) {
-      case 'name': {
-        const nameA = `${memberA.nombre} ${memberA.apellido}`
-
-        const nameB = `${memberB.nombre} ${memberB.apellido}`
-
-        result = nameA.localeCompare(nameB, 'es', {
-          sensitivity: 'base',
-        })
-
-        break
-      }
-
-      case 'date': {
-        const dateA = new Date(memberA.created_at).getTime()
-
-        const dateB = new Date(memberB.created_at).getTime()
-
-        result = dateA - dateB
-
-        break
-      }
-
-      case 'order':
-      default:
-        result = memberA.orden - memberB.orden
-
-        break
-    }
-
-    return ascending ? result : -result
-  })
 }
 
 /* ==========================================================
    HELPERS
 ========================================================== */
 
-export function getMemberById(id) {
-  return members.find((member) => member.id === id)
+function obtenerNombreCompleto(miembro) {
+  return [miembro?.nombre, miembro?.apellido].filter(Boolean).join(' ').trim()
+}
+
+function obtenerTimestamp(value) {
+  if (!value) return 0
+
+  const timestamp = new Date(value).getTime()
+
+  return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
 /* ==========================================================
-   START
+   EJECUCIÓN
 ========================================================== */
 
 init()

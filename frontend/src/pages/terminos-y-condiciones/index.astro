@@ -1,18 +1,23 @@
 ---
 import Layout from '../../layouts/Layout.astro'
+
 import TituloPag from '../../components/Common/TituloPag.astro'
 
 const ultimaActualizacion = '30 de julio de 2026'
 ---
 
-<Layout pag="Términos y condiciones">
+<Layout
+  pag="Términos y condiciones"
+  seoTitle="Términos, privacidad y datos | Fundación SENO"
+  description="Términos y condiciones, política de privacidad y procedimiento de eliminación de datos de Fundación SENO."
+>
   <TituloPag titulo="Términos y condiciones" />
 
-  <main class="pagina-legal">
-    <header class="introduccion">
-      <p class="introduccion__fecha">
-        Última actualización: 
-        <time datetime="2026-07-30"> {ultimaActualizacion}</time>
+  <main class="legal-page">
+    <header class="legal-intro">
+      <p class="legal-intro__date">
+        Última actualización:
+        <time datetime="2026-07-30">{ultimaActualizacion}</time>
       </p>
 
       <p>
@@ -23,9 +28,9 @@ const ultimaActualizacion = '30 de julio de 2026'
       </p>
     </header>
 
-    <div class="contenido">
-      <nav class="indice" aria-label="Contenido de los términos y condiciones">
-        <strong>Contenido</strong>
+    <div class="legal-layout">
+      <nav class="legal-index" aria-labelledby="legal-index-title">
+        <h2 id="legal-index-title">Contenido</h2>
 
         <ol>
           <li><a href="#identificacion">Identificación</a></li>
@@ -37,7 +42,9 @@ const ultimaActualizacion = '30 de julio de 2026'
           <li><a href="#comunicaciones">Comunicaciones</a></li>
           <li><a href="#redes-sociales">Redes sociales</a></li>
           <li><a href="#donaciones">Donaciones y pagos</a></li>
-          <li><a href="#propiedad-intelectual">Propiedad intelectual</a></li>
+          <li>
+            <a href="#propiedad-intelectual">Propiedad intelectual</a>
+          </li>
           <li><a href="#disponibilidad">Disponibilidad</a></li>
           <li><a href="#privacidad">Política de privacidad</a></li>
           <li><a href="#datos-recopilados">Datos recopilados</a></li>
@@ -48,28 +55,32 @@ const ultimaActualizacion = '30 de julio de 2026'
           <li><a href="#derechos">Derechos de las personas</a></li>
           <li><a href="#eliminacion">Eliminación de datos</a></li>
           <li><a href="#cambios">Cambios</a></li>
+          <li><a href="#legislacion">Legislación aplicable</a></li>
           <li><a href="#contacto">Contacto</a></li>
         </ol>
       </nav>
 
-      <article class="documento">
+      <article id="contenido-legal" class="legal-document">
         <section id="identificacion">
           <h2>1. Identificación de la organización</h2>
 
           <p>
-            Este sitio web y su plataforma institucional son administrados por <strong>
-            Fundación S.E.N.O. – Sendero de Esperanza para el Niño Oncológico
+            Este sitio web y su plataforma institucional son administrados por
+            <strong>
+              Fundación S.E.N.O. – Sendero de Esperanza para el Niño Oncológico
             </strong>, en adelante, “Fundación SENO” o “la Fundación”.
           </p>
 
-          <dl class="datos-institucionales">
+          <dl class="institution-data">
             <div>
               <dt>Domicilio</dt>
+
               <dd>San Carlos 1330, Neuquén Capital, Neuquén, Argentina.</dd>
             </div>
 
             <div>
               <dt>Correo electrónico</dt>
+
               <dd>
                 <a href="mailto:contacto@fundacionseno.org">
                   contacto@fundacionseno.org
@@ -79,6 +90,7 @@ const ultimaActualizacion = '30 de julio de 2026'
 
             <div>
               <dt>Sitio web</dt>
+
               <dd>fundacionseno.org</dd>
             </div>
           </dl>
@@ -739,7 +751,7 @@ const ultimaActualizacion = '30 de julio de 2026'
 
           <p>La solicitud deberá enviarse a:</p>
 
-          <p class="correo-destacado">
+          <p class="highlight-email">
             <a
               href="mailto:contacto@fundacionseno.org?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos"
             >
@@ -816,7 +828,7 @@ const ultimaActualizacion = '30 de julio de 2026'
           </p>
         </section>
 
-        <section>
+        <section id="legislacion">
           <h2>21. Legislación aplicable</h2>
 
           <p>
@@ -839,9 +851,10 @@ const ultimaActualizacion = '30 de julio de 2026'
             tratamiento de datos personales:
           </p>
 
-          <dl class="datos-institucionales">
+          <dl class="institution-data">
             <div>
               <dt>Organización</dt>
+
               <dd>
                 Fundación S.E.N.O. – Sendero de Esperanza para el Niño
                 Oncológico
@@ -850,6 +863,7 @@ const ultimaActualizacion = '30 de julio de 2026'
 
             <div>
               <dt>Correo electrónico</dt>
+
               <dd>
                 <a href="mailto:contacto@fundacionseno.org">
                   contacto@fundacionseno.org
@@ -859,6 +873,7 @@ const ultimaActualizacion = '30 de julio de 2026'
 
             <div>
               <dt>Domicilio</dt>
+
               <dd>San Carlos 1330, Neuquén Capital, Neuquén, Argentina.</dd>
             </div>
           </dl>
@@ -869,256 +884,334 @@ const ultimaActualizacion = '30 de julio de 2026'
 </Layout>
 
 <style>
-  .pagina-legal {
-    box-sizing: border-box;
-    width: min(100% - 2rem, 75rem);
-    margin: 2rem auto 5rem;
-    color: var(--color-text, #303942);
-    font-family: var(--text-font-primary, system-ui, sans-serif);
+  .legal-page {
+    width: min(calc(100% - 2rem), 75rem);
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+    color: var(--color-text);
   }
 
-  .introduccion {
+  .legal-intro {
     margin-bottom: 2rem;
-    padding: 1.25rem 1.5rem;
-    border-left: 4px solid var(--color-primary);
-    background: rgb(65 120 170 / 7%);
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-left: 0.25rem solid var(--color-primary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
   }
 
-  .introduccion p {
+  .legal-intro p {
     max-width: 75ch;
-    margin: 0;
     line-height: 1.7;
+    text-wrap: pretty;
   }
 
-  .introduccion__fecha {
-    margin-bottom: 0.65rem !important;
+  .legal-intro__date {
+    margin-bottom: 0.65rem;
     color: var(--color-primary-hover);
     font-size: 0.9rem;
     font-weight: 700;
   }
 
-  .contenido {
+  .legal-intro__date time {
+    white-space: nowrap;
+  }
+
+  .legal-layout {
     display: grid;
-    grid-template-columns: 15rem minmax(0, 1fr);
+    grid-template-columns: minmax(13rem, 15rem) minmax(0, 1fr);
     align-items: start;
     gap: clamp(2rem, 5vw, 4rem);
   }
 
-  .indice {
+  /* Índice */
+
+  .legal-index {
+    max-height: calc(100dvh - 2rem);
+    padding: 1.25rem;
     position: sticky;
     top: 1rem;
-    max-height: calc(100vh - 2rem);
-    padding: 1.25rem;
     overflow-y: auto;
-    border: 1px solid rgb(0 0 0 / 12%);
-    border-radius: 0.5rem;
-    background: var(--color-background, #fff);
+    background-color: var(--color-background);
+    border: 1px solid var(--color-light-grey);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    scrollbar-width: thin;
   }
 
-  .indice strong {
-    display: block;
-    margin-bottom: 0.75rem;
+  .legal-index h2 {
+    margin-bottom: 0.9rem;
     color: var(--color-primary-hover);
+    font-size: 1rem;
+    line-height: 1.3;
   }
 
-  .indice ol {
+  .legal-index ol {
     display: grid;
-    gap: 0.45rem;
-    margin: 0;
-    padding-left: 1.25rem;
+    gap: 0.4rem;
+    padding-left: 1.3rem;
   }
 
-  .indice li {
+  .legal-index li {
     color: var(--color-primary-hover);
     font-size: 0.85rem;
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
-  .indice a {
+  .legal-index a {
     color: inherit;
     text-decoration: none;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
   }
 
-  .indice a:hover {
-    text-decoration: underline;
+  .legal-index a:focus-visible {
+    border-radius: 0.15rem;
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 2px;
   }
 
-  .documento {
+  /* Documento */
+
+  .legal-document {
     min-width: 0;
   }
 
-  .documento section {
-    padding-block: 0.5rem 2.5rem;
-    border-bottom: 1px solid rgb(0 0 0 / 10%);
-    scroll-margin-top: 1rem;
+  .legal-document section {
+    padding-block: 0.5rem clamp(2rem, 5vw, 2.75rem);
+    border-bottom: 1px solid var(--color-light-grey);
+    scroll-margin-top: 2rem;
   }
 
-  .documento section + section {
-    padding-top: 2.5rem;
+  .legal-document section + section {
+    padding-top: clamp(2rem, 5vw, 2.75rem);
   }
 
-  .documento section:last-child {
+  .legal-document section:last-child {
     border-bottom: 0;
   }
 
-  .documento h2 {
-    margin: 0 0 1rem;
+  .legal-document h2 {
+    margin-bottom: 1rem;
     color: var(--color-primary-hover);
     font-size: clamp(1.3rem, 3vw, 1.75rem);
     line-height: 1.25;
+    text-wrap: balance;
   }
 
-  .documento h3 {
+  .legal-document h3 {
     margin: 1.75rem 0 0.75rem;
     color: var(--color-primary-hover);
     font-size: 1.1rem;
+    line-height: 1.35;
   }
 
-  .documento p,
-  .documento li,
-  .documento dd {
+  .legal-document p,
+  .legal-document li,
+  .legal-document dd {
     line-height: 1.75;
   }
 
-  .documento p {
+  .legal-document p {
     max-width: 78ch;
-    margin: 0.75rem 0;
+    margin-block: 0.75rem;
+    text-wrap: pretty;
   }
 
-  .documento ul,
-  .documento ol {
+  .legal-document ul,
+  .legal-document ol {
+    max-width: 78ch;
+    margin-block: 1rem;
+    padding-left: 1.5rem;
     display: grid;
     gap: 0.45rem;
-    max-width: 78ch;
-    padding-left: 1.5rem;
   }
 
-  .documento a {
+  .legal-document li::marker {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  .legal-document a {
     color: var(--color-primary-hover);
+    font-weight: 600;
     overflow-wrap: anywhere;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
   }
 
-  .datos-institucionales {
-    display: grid;
-    gap: 0;
+  .legal-document a:focus-visible {
+    border-radius: 0.15rem;
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  /* Datos institucionales */
+
+  .institution-data {
     max-width: 48rem;
-    margin: 1.25rem 0 0;
-    border: 1px solid rgb(0 0 0 / 12%);
+    margin-top: 1.25rem;
+    display: grid;
+    overflow: hidden;
+    border: 1px solid var(--color-light-grey);
+    border-radius: var(--radius-small);
   }
 
-  .datos-institucionales div {
+  .institution-data > div {
     display: grid;
     grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
   }
 
-  .datos-institucionales div + div {
-    border-top: 1px solid rgb(0 0 0 / 12%);
+  .institution-data > div + div {
+    border-top: 1px solid var(--color-light-grey);
   }
 
-  .datos-institucionales dt,
-  .datos-institucionales dd {
+  .institution-data dt,
+  .institution-data dd {
     margin: 0;
     padding: 0.85rem 1rem;
   }
 
-  .datos-institucionales dt {
-    background: rgb(65 120 170 / 7%);
+  .institution-data dt {
     color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
     font-weight: 700;
   }
 
-  .correo-destacado {
+  .institution-data dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .highlight-email {
     width: fit-content;
+    max-width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid var(--color-primary);
-    border-radius: 0.4rem;
-    background: rgb(65 120 170 / 7%);
+    border-radius: var(--radius-small);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
     font-weight: 700;
+  }
+
+  @media (hover: hover) {
+    .legal-index a:hover,
+    .legal-document a:hover {
+      text-decoration: underline;
+    }
   }
 
   @media (max-width: 50rem) {
-    .contenido {
-      grid-template-columns: 1fr;
+    .legal-layout {
+      grid-template-columns: minmax(0, 1fr);
       gap: 2rem;
     }
 
-    .indice {
-      position: static;
+    .legal-index {
       max-height: none;
+      position: static;
     }
 
-    .indice ol {
+    .legal-index ol {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: 2rem;
     }
   }
 
   @media (max-width: 35rem) {
-    .pagina-legal {
-      width: min(100% - 1rem, 75rem);
+    .legal-page {
+      width: calc(100% - 1rem);
       margin-top: 1rem;
     }
 
-    .introduccion {
+    .legal-intro,
+    .legal-index {
       padding: 1rem;
     }
 
-    .indice {
-      padding: 1rem;
+    .legal-index ol {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .indice ol {
-      grid-template-columns: 1fr;
-    }
-
-    .documento section {
+    .legal-document section {
       padding-bottom: 2rem;
     }
 
-    .documento section + section {
+    .legal-document section + section {
       padding-top: 2rem;
     }
 
-    .datos-institucionales div {
-      grid-template-columns: 1fr;
+    .institution-data > div {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .datos-institucionales div + div {
-      border-top: 1px solid rgb(0 0 0 / 12%);
-    }
-
-    .datos-institucionales dd {
-      border-top: 1px solid rgb(0 0 0 / 8%);
+    .institution-data dd {
+      border-top: 1px solid var(--color-light-grey);
     }
   }
 
   @media print {
-    .pagina-legal {
+    .legal-page {
       width: 100%;
       margin: 0;
       color: #000;
     }
 
-    .indice {
+    .legal-index {
       display: none;
     }
 
-    .contenido {
+    .legal-layout {
       display: block;
     }
 
-    .introduccion,
-    .datos-institucionales dt,
-    .correo-destacado {
+    .legal-intro {
+      padding-inline: 0;
+      border-left: 0;
       background: transparent;
     }
 
-    .documento section {
-      break-inside: avoid;
+    .legal-document section {
+      break-inside: auto;
+      page-break-inside: auto;
     }
 
-    .documento a {
+    .legal-document h2,
+    .legal-document h3 {
+      break-after: avoid;
+      page-break-after: avoid;
       color: #000;
+    }
+
+    .legal-document p,
+    .legal-document li {
+      orphans: 3;
+      widows: 3;
+    }
+
+    .institution-data,
+    .highlight-email {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .institution-data dt,
+    .highlight-email {
+      background: transparent;
+    }
+
+    .legal-document a {
+      color: #000;
+      font-weight: inherit;
       text-decoration: none;
     }
   }

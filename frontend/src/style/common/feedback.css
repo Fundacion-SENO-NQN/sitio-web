@@ -1,0 +1,890 @@
+/* ==========================================================
+   ADMIN FEEDBACK
+
+   Incluye:
+   - Toasts
+   - Alertas
+   - Estados de carga
+   - Overlays
+   - Spinners
+   - Barras de progreso
+   - Skeletons
+
+   Clases recomendadas:
+   - .toastContainer
+   - .toast
+   - .alert
+   - .loading
+   - .loadingOverlay
+   - .spinner
+   - .progress
+========================================================== */
+
+/* ==========================================================
+   TOAST CONTAINER
+
+   Recomendado cuando common/toast.js cree un contenedor
+   compartido para todas las notificaciones.
+========================================================== */
+
+:where(.toastContainer, .contenedor-toast, .adminToastContainer) {
+  width: min(calc(100% - 2.5rem), 26rem);
+
+  position: fixed;
+
+  right: 1.25rem;
+
+  bottom: 1.25rem;
+
+  z-index: var(--admin-z-toast);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: stretch;
+
+  gap: 0.7rem;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   TOAST
+
+   El posicionamiento por defecto funciona con el toast.js
+   actual, que inserta el elemento directamente en body.
+========================================================== */
+
+.toast,
+.adminToast {
+  box-sizing: border-box;
+
+  width: min(calc(100% - 2rem), 26rem);
+
+  min-width: 0;
+
+  min-height: 3rem;
+
+  padding: 0.9rem 1rem;
+
+  position: fixed;
+
+  top: 0;
+
+  left: 50%;
+
+  z-index: var(--admin-z-toast);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  border-top: 0;
+
+  border-radius: 0 0 var(--admin-radius) var(--admin-radius);
+
+  box-shadow: var(--admin-shadow-toast);
+
+  font-family: var(--text-font-primary);
+
+  font-size: 0.9rem;
+
+  font-weight: 650;
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+
+  opacity: 0;
+
+  pointer-events: auto;
+
+  transform: translate(-50%, -110%);
+
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease;
+}
+
+/* ==========================================================
+   TOAST INSIDE CONTAINER
+
+   Cuando existe un contenedor, cada toast deja de ser fixed.
+========================================================== */
+
+:where(.toastContainer, .contenedor-toast, .adminToastContainer)
+  > :where(.toast, .adminToast) {
+  width: 100%;
+
+  position: relative;
+
+  top: auto;
+
+  left: auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  border-radius: var(--admin-radius);
+
+  opacity: 0;
+
+  transform: translateX(1.5rem);
+}
+
+/* ==========================================================
+   TOAST VISIBLE STATES
+
+   Los scripts actuales utilizan:
+   - .show
+   - .visible
+========================================================== */
+
+.toast.show,
+.toast.visible,
+.adminToast.show,
+.adminToast.visible {
+  opacity: 1;
+
+  transform: translate(-50%, 0);
+}
+
+:where(.toastContainer, .contenedor-toast, .adminToastContainer)
+  > :where(.toast, .adminToast):where(.show, .visible) {
+  transform: translateX(0);
+}
+
+/* ==========================================================
+   TOAST TYPES
+========================================================== */
+
+:where(.toast.success, .toast-exito, .adminToastSuccess) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-primary-hover);
+}
+
+:where(.toast.error, .toast-error, .adminToastError) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-red);
+}
+
+:where(.toast.warning, .toast-advertencia, .adminToastWarning) {
+  color: var(--admin-text);
+
+  background-color: var(--color-yellow);
+
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:where(.toast.info, .toast-informacion, .adminToastInfo) {
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+}
+
+/* ==========================================================
+   TOAST CONTENT
+========================================================== */
+
+:where(.toastIcon, .toast-icono, .adminToastIcon) {
+  width: 1.75rem;
+
+  height: 1.75rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  color: currentColor;
+
+  background-color: rgba(255, 255, 255, 0.16);
+
+  border-radius: 50%;
+
+  font-size: 0.85rem;
+
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+:where(.toast.warning, .toast-advertencia, .adminToastWarning)
+  :where(.toastIcon, .toast-icono, .adminToastIcon) {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+:where(.toastContent, .toast-contenido, .adminToastContent) {
+  min-width: 0;
+
+  display: flex;
+
+  flex: 1 1 auto;
+
+  flex-direction: column;
+
+  gap: 0.15rem;
+}
+
+:where(.toastTitle, .toast-titulo, .adminToastTitle) {
+  color: inherit;
+
+  font-size: 0.9rem;
+
+  font-weight: 800;
+
+  line-height: 1.3;
+}
+
+:where(.toastMessage, .toast-mensaje, .adminToastMessage) {
+  margin: 0;
+
+  color: inherit;
+
+  font-size: 0.86rem;
+
+  font-weight: 600;
+
+  line-height: 1.45;
+
+  opacity: 0.96;
+}
+
+/* ==========================================================
+   TOAST CLOSE BUTTON
+========================================================== */
+
+:where(.toastClose, .toast-cerrar, .adminToastClose) {
+  appearance: none;
+
+  width: 1.9rem;
+
+  height: 1.9rem;
+
+  padding: 0;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  color: inherit;
+
+  background-color: transparent;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  font: inherit;
+
+  font-size: 1rem;
+
+  line-height: 1;
+
+  opacity: 0.8;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition);
+}
+
+:where(.toastClose, .toast-cerrar, .adminToastClose):hover {
+  background-color: rgba(255, 255, 255, 0.16);
+
+  opacity: 1;
+}
+
+:where(.toastClose, .toast-cerrar, .adminToastClose):focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+
+  opacity: 1;
+}
+
+/* ==========================================================
+   INLINE ALERT
+========================================================== */
+
+:where(.alert, .mensaje-estado, .adminAlert) {
+  width: 100%;
+
+  min-width: 0;
+
+  margin: 0;
+
+  padding: 0.85rem 1rem;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface-soft);
+
+  border: var(--admin-border);
+
+  border-left-width: 0.3rem;
+
+  border-radius: var(--admin-radius-small);
+
+  font-size: 0.88rem;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   ALERT TYPES
+========================================================== */
+
+:where(.alert.info, .alertInfo, .mensaje-estado-info, .adminAlertInfo) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-soft);
+
+  border-color: var(--color-secondary-light);
+
+  border-left-color: var(--color-secondary);
+}
+
+:where(
+  .alert.success,
+  .alertSuccess,
+  .mensaje-estado-exito,
+  .adminAlertSuccess
+) {
+  color: var(--color-primary-hover);
+
+  background-color: var(--admin-primary-soft);
+
+  border-color: var(--color-primary-light);
+
+  border-left-color: var(--color-primary);
+}
+
+:where(
+  .alert.warning,
+  .alertWarning,
+  .mensaje-estado-advertencia,
+  .adminAlertWarning
+) {
+  color: #5f5f00;
+
+  background-color: var(--admin-warning-soft);
+
+  border-color: rgba(160, 160, 0, 0.28);
+
+  border-left-color: var(--color-yellow);
+}
+
+:where(.alert.error, .alertError, .mensaje-estado-error, .adminAlertError) {
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--admin-danger-border);
+
+  border-left-color: var(--color-red);
+}
+
+/* ==========================================================
+   INLINE LOADING STATE
+========================================================== */
+
+:where(.loading, .estado-carga, .adminLoading) {
+  width: 100%;
+
+  min-height: 8rem;
+
+  padding: 3rem 1rem;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.9rem;
+
+  font-weight: 650;
+
+  text-align: center;
+
+  cursor: progress;
+}
+
+/* ==========================================================
+   PAGE LOADING STATE
+========================================================== */
+
+:where(
+  .pageLoading,
+  .pantalla-carga,
+  .adminPageLoading,
+  #pantalla-carga-users,
+  #pantalla-carga-roles
+) {
+  width: 100%;
+
+  min-height: 18rem;
+
+  padding: clamp(2rem, 7vw, 4rem);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-large);
+
+  font-size: 0.92rem;
+
+  font-weight: 650;
+
+  text-align: center;
+
+  cursor: progress;
+}
+
+/* ==========================================================
+   GLOBAL LOADING OVERLAY
+
+   #modal-carga se mantiene por compatibilidad con logros y
+   la carga de imágenes de donación.
+========================================================== */
+
+:where(
+  .loadingOverlay,
+  .pantalla-carga-global,
+  .adminLoadingOverlay,
+  #modal-carga
+) {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: var(--admin-z-loading);
+
+  width: 100%;
+
+  height: 100%;
+
+  padding: var(--admin-space-large);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text);
+
+  background-color: rgba(255, 255, 255, 0.82);
+
+  backdrop-filter: blur(3px);
+
+  font-size: 0.92rem;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  cursor: progress;
+}
+
+/* ==========================================================
+   MODAL LOADING IDS
+
+   Compatibilidad con los elementos de usuarios y roles.
+========================================================== */
+
+:where(
+  #modal-carga-user,
+  #modal-carga-role,
+  #modal-carga-confirm,
+  #modalCargaConfirm
+) {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 10;
+
+  width: 100%;
+
+  height: 100%;
+
+  padding: var(--admin-space-large);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text);
+
+  background-color: rgba(255, 255, 255, 0.84);
+
+  backdrop-filter: blur(2px);
+
+  border-radius: inherit;
+
+  font-size: 0.9rem;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  cursor: progress;
+}
+
+/* ==========================================================
+   HIDDEN LOADING STATES
+========================================================== */
+
+:where(
+  .loading,
+  .estado-carga,
+  .adminLoading,
+  .pageLoading,
+  .pantalla-carga,
+  .adminPageLoading,
+  .loadingOverlay,
+  .pantalla-carga-global,
+  .adminLoadingOverlay,
+  #pantalla-carga-users,
+  #pantalla-carga-roles,
+  #modal-carga,
+  #modal-carga-user,
+  #modal-carga-role,
+  #modal-carga-confirm,
+  #modalCargaConfirm
+):where(.hidden, .oculto, [hidden], [aria-hidden='true']) {
+  display: none !important;
+}
+
+/* ==========================================================
+   SPINNER
+========================================================== */
+
+.spinner,
+.adminSpinner {
+  width: 2rem;
+
+  height: 2rem;
+
+  display: inline-block;
+
+  flex: 0 0 auto;
+
+  border: 3px solid var(--color-secondary-light);
+
+  border-top-color: var(--color-secondary);
+
+  border-radius: 50%;
+
+  animation: adminFeedbackSpinner 0.75s linear infinite;
+}
+
+/* ==========================================================
+   SPINNER SIZES
+========================================================== */
+
+:where(.spinnerSmall, .spinner-pequeno, .adminSpinnerSmall) {
+  width: 1.15rem;
+
+  height: 1.15rem;
+
+  border-width: 2px;
+}
+
+:where(.spinnerLarge, .spinner-grande, .adminSpinnerLarge) {
+  width: 2.8rem;
+
+  height: 2.8rem;
+
+  border-width: 4px;
+}
+
+/* ==========================================================
+   SPINNER ON DARK BACKGROUND
+========================================================== */
+
+:where(.spinnerLight, .spinner-claro, .adminSpinnerLight) {
+  border-color: rgba(255, 255, 255, 0.35);
+
+  border-top-color: #ffffff;
+}
+
+/* ==========================================================
+   LOADING TEXT
+========================================================== */
+
+:where(.loadingText, .texto-carga, .adminLoadingText) {
+  margin: 0;
+
+  color: inherit;
+
+  font-size: 0.9rem;
+
+  font-weight: 650;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   PROGRESS
+========================================================== */
+
+:where(.progress, .barra-progreso, .adminProgress) {
+  width: 100%;
+
+  height: 0.6rem;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background-color: var(--admin-surface-muted);
+
+  border: 1px solid var(--admin-border-color);
+
+  border-radius: var(--admin-radius-pill);
+}
+
+/* ==========================================================
+   PROGRESS VALUE
+========================================================== */
+
+:where(.progressValue, .barra-progreso-valor, .adminProgressValue) {
+  width: var(--progress-value, 0%);
+
+  height: 100%;
+
+  display: block;
+
+  background-color: var(--color-secondary);
+
+  border-radius: inherit;
+
+  transition: width 250ms ease;
+}
+
+/* ==========================================================
+   INDETERMINATE PROGRESS
+========================================================== */
+
+:where(
+    .progress.indeterminate,
+    .barra-progreso.indeterminada,
+    .adminProgressIndeterminate
+  )
+  :where(.progressValue, .barra-progreso-valor, .adminProgressValue) {
+  width: 40%;
+
+  position: absolute;
+
+  animation: adminProgressIndeterminate 1.15s ease-in-out infinite;
+}
+
+/* ==========================================================
+   SKELETON
+========================================================== */
+
+:where(.skeleton, .esqueleto, .adminSkeleton) {
+  position: relative;
+
+  overflow: hidden;
+
+  color: transparent !important;
+
+  background-color: var(--admin-surface-muted);
+
+  border-radius: var(--admin-radius-small);
+
+  user-select: none;
+
+  pointer-events: none;
+}
+
+:where(.skeleton, .esqueleto, .adminSkeleton)::after {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+
+  transform: translateX(-100%);
+
+  animation: adminSkeletonLoading 1.4s ease-in-out infinite;
+}
+
+/* ==========================================================
+   SKELETON VARIANTS
+========================================================== */
+
+:where(.skeletonText, .esqueleto-texto, .adminSkeletonText) {
+  width: 100%;
+
+  height: 0.9rem;
+}
+
+:where(.skeletonTextShort, .esqueleto-texto-corto, .adminSkeletonTextShort) {
+  width: 55%;
+}
+
+:where(.skeletonCircle, .esqueleto-circulo, .adminSkeletonCircle) {
+  width: 3rem;
+
+  height: 3rem;
+
+  border-radius: 50%;
+}
+
+/* ==========================================================
+   ANIMATIONS
+========================================================== */
+
+@keyframes adminFeedbackSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes adminProgressIndeterminate {
+  from {
+    left: -40%;
+  }
+
+  to {
+    left: 100%;
+  }
+}
+
+@keyframes adminSkeletonLoading {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.toastContainer, .contenedor-toast, .adminToastContainer) {
+    width: auto;
+
+    right: 0.75rem;
+
+    bottom: 0.75rem;
+
+    left: 0.75rem;
+  }
+
+  body > :where(.toast, .adminToast) {
+    width: calc(100% - 1.5rem);
+
+    max-width: none;
+  }
+
+  :where(.toast, .adminToast) {
+    padding: 0.85rem 0.9rem;
+
+    font-size: 0.86rem;
+  }
+
+  :where(
+    .pageLoading,
+    .pantalla-carga,
+    .adminPageLoading,
+    #pantalla-carga-users,
+    #pantalla-carga-roles
+  ) {
+    min-height: 15rem;
+
+    padding: 2rem 1rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .toast,
+    .adminToast,
+    .progressValue,
+    .barra-progreso-valor,
+    .adminProgressValue
+  ) {
+    transition: none;
+  }
+
+  :where(.spinner, .adminSpinner, .skeleton, .esqueleto, .adminSkeleton),
+  :where(
+      .progress.indeterminate,
+      .barra-progreso.indeterminada,
+      .adminProgressIndeterminate
+    )
+    :where(.progressValue, .barra-progreso-valor, .adminProgressValue) {
+    animation: none;
+  }
+
+  :where(.skeleton, .esqueleto, .adminSkeleton)::after {
+    display: none;
+  }
+}

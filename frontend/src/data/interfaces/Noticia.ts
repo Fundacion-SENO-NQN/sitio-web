@@ -3,4 +3,5 @@ export default interface Noticia {
   titulo: string
   fecha: string
   content: string
+  created_at: Date
 }

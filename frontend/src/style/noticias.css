@@ -1,0 +1,363 @@
+/* ==========================================================
+   NEWS ADMINISTRATION
+
+   Estilos específicos de la administración de noticias.
+   Los componentes compartidos se importan desde common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.noticias-admin {
+  --admin-table-cell-padding: 0.9rem;
+}
+
+/* ==========================================================
+   PAGE HEADER
+
+   La administración de noticias tiene una cabecera visual
+   con degradado azul y verde.
+========================================================== */
+
+.noticias-admin .cabecera-pagina {
+  padding: clamp(1.25rem, 3vw, 2rem);
+
+  color: var(--admin-text);
+
+  background:
+    linear-gradient(135deg, rgba(21, 130, 203, 0.09), rgba(131, 192, 67, 0.09)),
+    var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-large);
+
+  box-shadow: var(--admin-shadow);
+}
+
+.noticias-admin .cabecera-texto {
+  min-width: 0;
+}
+
+.noticias-admin .seccion {
+  margin-bottom: 0.4rem;
+
+  display: block;
+
+  color: var(--color-secondary-hover);
+
+  font-size: 0.8rem;
+
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  line-height: 1.2;
+
+  text-transform: uppercase;
+}
+
+.noticias-admin .cabecera-pagina h1 {
+  color: var(--color-secondary-hover);
+
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+
+  line-height: 1.15;
+}
+
+.noticias-admin .cabecera-pagina p {
+  max-width: 50rem;
+
+  margin-top: 0.65rem;
+
+  line-height: 1.6;
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.tabla-noticias,
+.newsTable {
+  min-width: 70rem;
+}
+
+/* ==========================================================
+   NEWS IMAGE
+========================================================== */
+
+.imagen-noticia-tabla,
+.newsImage {
+  width: 5.5rem;
+
+  height: 3.75rem;
+
+  border-radius: 0.65rem;
+}
+
+.imagen-noticia-error,
+.newsImageError {
+  background: linear-gradient(
+    135deg,
+    var(--admin-surface-muted),
+    var(--admin-surface)
+  );
+}
+
+/* ==========================================================
+   NEWS INFORMATION
+========================================================== */
+
+.info-noticia,
+.newsInfo {
+  min-width: 17rem;
+
+  max-width: 27rem;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.3rem;
+}
+
+.info-noticia strong,
+.newsInfo strong,
+.newsTitle {
+  color: var(--admin-text);
+
+  font-size: 0.97rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.info-noticia p,
+.newsInfo p,
+.newsDescription {
+  margin: 0;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: var(--admin-text-muted);
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2;
+}
+
+/* ==========================================================
+   PUBLISHED DATE
+========================================================== */
+
+.fecha-noticia,
+.newsPublishedDate {
+  min-width: 10rem;
+
+  color: var(--admin-text);
+
+  font-weight: 650;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   IMAGE COUNT
+========================================================== */
+
+.noticias-admin .cantidad-imagenes,
+.newsImageCount {
+  min-width: 6.5rem;
+
+  text-align: center;
+
+  font-weight: 750;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   CREATED DATE
+========================================================== */
+
+.fecha-creacion,
+.newsCreatedAt {
+  min-width: 9rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.84rem;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+.fecha-creacion time,
+.newsCreatedAt time {
+  color: inherit;
+
+  font: inherit;
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.acciones-noticia,
+.newsActions {
+  min-width: 10.5rem;
+}
+
+/* ==========================================================
+   NEWS MODAL
+========================================================== */
+
+#modal-noticia :where(.modal-contenido, .modalContent),
+.modal-noticia-contenido,
+.newsModalContent {
+  width: min(100%, 52rem);
+}
+
+/* ==========================================================
+   NEWS FORM
+========================================================== */
+
+.form-noticia textarea,
+#noticia-contenido,
+.newsContentInput {
+  min-height: 13rem;
+}
+
+/*
+ * La fecha visible de publicación puede utilizar formato de
+ * fecha o texto dependiendo del HTML del módulo.
+ */
+.form-noticia :is(input[type='date'], input[type='datetime-local']) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   NEWS IMAGES
+========================================================== */
+
+.noticias-admin .imagenes-actuales {
+  margin-top: 1.25rem;
+}
+
+/*
+ * Las imágenes de noticias son principalmente horizontales.
+ */
+.noticias-admin
+  :where(.galeria-preview, .selectedImagesGallery, .currentImagesGallery)
+  :where(.preview-imagen, .imagePreviewItem, .preview)
+  img {
+  width: 100%;
+
+  height: auto;
+
+  aspect-ratio: 16 / 10;
+
+  object-fit: cover;
+}
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.noticias-admin :where(.estado-icono, .emptyStateIcon):empty::before {
+  content: '📰';
+}
+
+/* ==========================================================
+   ERROR STATE
+========================================================== */
+
+.noticias-admin
+  #estado-error
+  :where(.estado-icono, .emptyStateIcon):empty::before {
+  content: '!';
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  .tabla-noticias,
+  .newsTable {
+    min-width: 65rem;
+  }
+
+  .info-noticia,
+  .newsInfo {
+    min-width: 15rem;
+
+    max-width: 23rem;
+  }
+
+  .fecha-noticia,
+  .newsPublishedDate {
+    min-width: 9rem;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  .noticias-admin {
+    --admin-table-cell-padding: 0.8rem;
+  }
+
+  .noticias-admin .cabecera-pagina {
+    padding: 1.15rem;
+  }
+
+  .tabla-noticias,
+  .newsTable {
+    min-width: 61rem;
+  }
+
+  .form-noticia textarea,
+  #noticia-contenido,
+  .newsContentInput {
+    min-height: 11rem;
+  }
+
+  .noticias-admin
+    :where(.galeria-preview, .selectedImagesGallery, .currentImagesGallery)
+    :where(.preview-imagen, .imagePreviewItem, .preview)
+    img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  .noticias-admin .cabecera-pagina h1 {
+    font-size: 1.55rem;
+  }
+}

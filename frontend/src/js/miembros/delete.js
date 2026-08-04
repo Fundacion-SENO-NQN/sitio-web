@@ -1,160 +1,99 @@
-import { refreshMembers } from './miembros.js'
-
-import { deleteMember } from '../common/api.js'
-
-import { showToast } from '../common/toast.js'
+import { createDeleteController } from '../common/deleteController.js'
 
 /* ==========================================================
-   DOM
+   DELETE CONTROLLER FACTORY
 ========================================================== */
 
-const modal = document.getElementById('deleteMemberModal')
-
-const deleteText = document.getElementById('deleteMemberText')
-
-const cancelButton = document.getElementById('btnCancelDeleteMember')
-
-const deleteButton = document.getElementById('btnDeleteMember')
-
-/* ==========================================================
-   STATE
-========================================================== */
-
-let deletingMember = null
-
-let deleting = false
-
-/* ==========================================================
-   EVENTS
-========================================================== */
-
-export function registerMemberDeleteEvents() {
-  cancelButton?.addEventListener('click', closeDeleteMemberModal)
-
-  deleteButton?.addEventListener('click', confirmDeleteMember)
-
-  modal?.addEventListener('click', (event) => {
-    if (event.target === modal) {
-      closeDeleteMemberModal()
-    }
+export function createMiembroDeleteController({ remove, refresh } = {}) {
+  validarConfiguracion({
+    remove,
+    refresh
   })
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal?.classList.contains('hidden')) {
-      closeDeleteMemberModal()
-    }
-  })
-}
+  return createDeleteController({
+    modal: '#deleteMemberModal',
 
-/* ==========================================================
-   OPEN
-========================================================== */
+    confirmButton: '#btnDeleteMember',
 
-export function openDeleteMemberModal(member) {
-  if (deleting) {
-    return
-  }
+    cancelButtons: ['#btnCancelDeleteMember'],
 
-  deletingMember = member
-
-  if (deleteText) {
-    const fullName = `${member.nombre} ${member.apellido}`.trim()
-
-    deleteText.textContent =
-      `¿Seguro que querés eliminar a “${fullName}”? ` +
-      'Esta acción no se puede deshacer.'
-  }
-
-  modal?.classList.remove('hidden')
-
-  document.body.style.overflow = 'hidden'
-
-  cancelButton?.focus()
-}
-
-/* ==========================================================
-   CLOSE
-========================================================== */
-
-export function closeDeleteMemberModal() {
-  if (deleting) {
-    return
-  }
-
-  modal?.classList.add('hidden')
-
-  document.body.style.overflow = ''
-
-  deletingMember = null
-
-  resetDeleteButton()
-}
-
-/* ==========================================================
-   DELETE
-========================================================== */
-
-async function confirmDeleteMember() {
-  if (deleting || !deletingMember) {
-    return
-  }
-
-  deleting = true
-
-  setDeletingState(true)
-
-  const memberName =
-    `${deletingMember.nombre} ${deletingMember.apellido}`.trim()
-
-  try {
-    await deleteMember(deletingMember.id)
+    textElement: '#deleteMemberText',
 
     /*
-     * Close manually because closeDeleteMemberModal()
-     * does not close while `deleting` is true.
+     * Esta página utiliza la clase "hidden" en lugar de
+     * "oculto".
      */
-    modal?.classList.add('hidden')
+    hiddenClass: 'hidden',
 
-    document.body.style.overflow = ''
+    focusElement: '#btnCancelDeleteMember',
 
-    deletingMember = null
+    lockBodyScroll: true,
 
-    showToast(`${memberName} fue eliminado correctamente.`, 'success')
+    remove,
+    refresh,
 
-    await refreshMembers()
-  } catch (error) {
-    console.error('Error deleting member:', error)
+    getId(miembro) {
+      return obtenerIdMiembro(miembro)
+    },
 
-    showToast(error.message || 'No se pudo eliminar el miembro.', 'error', 5000)
-  } finally {
-    deleting = false
+    getName(miembro) {
+      return obtenerNombreCompleto(miembro)
+    },
 
-    resetDeleteButton()
-  }
+    buildConfirmationText(_miembro, { name }) {
+      return (
+        `¿Seguro que querés eliminar a “${name}”? ` +
+        'Esta acción no se puede deshacer.'
+      )
+    },
+
+    defaultText:
+      '¿Seguro que querés eliminar este miembro? Esta acción no se puede deshacer.',
+
+    deletingText: 'Eliminando...',
+
+    confirmButtonText: 'Eliminar',
+
+    successMessage({ name }) {
+      return `${name} fue eliminado ` + 'correctamente.'
+    },
+
+    errorMessage: 'No se pudo eliminar el miembro.'
+  })
 }
 
 /* ==========================================================
-   BUTTON STATE
+   MEMBER DATA
 ========================================================== */
 
-function setDeletingState(isDeleting) {
-  if (deleteButton) {
-    deleteButton.disabled = isDeleting
-    deleteButton.textContent = isDeleting ? 'Eliminando...' : 'Eliminar'
-  }
+function obtenerIdMiembro(miembro) {
+  const id = Number(miembro?.id)
 
-  if (cancelButton) {
-    cancelButton.disabled = isDeleting
-  }
+  if (!Number.isInteger(id) || id <= 0)
+    throw new TypeError('El miembro no tiene un id válido.')
+
+  return id
 }
 
-function resetDeleteButton() {
-  if (deleteButton) {
-    deleteButton.disabled = false
-    deleteButton.textContent = 'Eliminar'
-  }
+function obtenerNombreCompleto(miembro) {
+  const nombreCompleto = [miembro?.nombre, miembro?.apellido]
+    .map((valor) => String(valor ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
 
-  if (cancelButton) {
-    cancelButton.disabled = false
-  }
+  if (nombreCompleto) return nombreCompleto
+
+  return (`miembro n.º ` + `${miembro?.id ?? ''}`).trim()
+}
+
+/* ==========================================================
+   CONFIGURATION
+========================================================== */
+
+function validarConfiguracion({ remove, refresh }) {
+  if (typeof remove !== 'function')
+    throw new TypeError('createMiembroDeleteController requiere remove.')
+
+  if (typeof refresh !== 'function')
+    throw new TypeError('createMiembroDeleteController requiere refresh.')
 }

@@ -1,0 +1,757 @@
+/* ==========================================================
+   ADMIN MODALS
+
+   Clases recomendadas:
+   - .modal
+   - .modalContent
+   - .modalHeader
+   - .modalBody
+   - .modalFooter
+   - .modalClose
+   - .modalSmall
+   - .modalLarge
+   - .deleteModal
+
+   Se conservan los nombres existentes en español.
+========================================================== */
+
+/* ==========================================================
+   BACKDROP
+========================================================== */
+
+:where(.modal, .adminModal) {
+  position: fixed;
+  inset: 0;
+  z-index: var(--admin-z-modal);
+
+  width: 100%;
+  height: 100%;
+
+  padding: clamp(0.75rem, 3vw, 2rem);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-modal-background);
+
+  backdrop-filter: var(--admin-backdrop-blur);
+
+  animation: adminModalBackdropIn 160ms ease-out;
+}
+
+/*
+ * Algunas páginas utilizan un elemento interno para el
+ * fondo del modal.
+ */
+:where(.modal-fondo, .modalBackdrop, .adminModalBackdrop) {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: var(--admin-modal-background);
+
+  backdrop-filter: var(--admin-backdrop-blur);
+
+  cursor: default;
+}
+
+/*
+ * Evita aplicar dos capas oscuras cuando el modal ya tiene
+ * un elemento .modal-fondo.
+ */
+.modal:has(> :where(.modal-fondo, .modalBackdrop, .adminModalBackdrop)) {
+  background-color: transparent;
+
+  backdrop-filter: none;
+}
+
+/* ==========================================================
+   HIDDEN STATE
+========================================================== */
+
+:where(.modal, .adminModal).hidden,
+:where(.modal, .adminModal).oculto,
+:where(.modal, .adminModal)[hidden],
+:where(.modal, .adminModal)[aria-hidden='true'] {
+  display: none !important;
+}
+
+/* ==========================================================
+   MODAL CONTENT
+========================================================== */
+
+:where(.modalContent, .modal-contenido, .adminModalContent) {
+  position: relative;
+  z-index: 1;
+
+  width: min(100%, 47.5rem);
+
+  max-height: min(92vh, 56rem);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: 1px solid rgba(255, 255, 255, 0.65);
+
+  border-radius: var(--admin-radius-large);
+
+  box-shadow: var(--admin-shadow-modal), var(--admin-shadow);
+
+  animation: adminModalContentIn 190ms ease-out;
+
+  scrollbar-color: var(--admin-border-color) transparent;
+
+  scrollbar-width: thin;
+}
+
+/* ==========================================================
+   MODAL SIZES
+========================================================== */
+
+:where(.modalSmall, .adminModalSmall, .modal-eliminar-contenido, .deleteModal) {
+  width: min(100%, 30rem);
+}
+
+:where(.modalMedium, .adminModalMedium) {
+  width: min(100%, 42rem);
+}
+
+:where(.modalLarge, .adminModalLarge, .modal-evento-contenido) {
+  width: min(100%, 56rem);
+}
+
+:where(.modalExtraLarge, .adminModalExtraLarge) {
+  width: min(100%, 68rem);
+}
+
+/* ==========================================================
+   CONTENT SCROLLBAR
+========================================================== */
+
+:where(.modalContent, .modal-contenido, .adminModalContent)::-webkit-scrollbar {
+  width: 0.625rem;
+}
+
+:where(
+  .modalContent,
+  .modal-contenido,
+  .adminModalContent
+)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(
+  .modalContent,
+  .modal-contenido,
+  .adminModalContent
+)::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border-color);
+
+  border: 2px solid var(--admin-surface);
+
+  border-radius: var(--admin-radius-pill);
+}
+
+:where(
+    .modalContent,
+    .modal-contenido,
+    .adminModalContent
+  )::-webkit-scrollbar-thumb:hover {
+  background-color: var(--admin-text-muted);
+}
+
+/* ==========================================================
+   MODAL HEADER
+========================================================== */
+
+:where(.modalHeader, .modal-cabecera, .adminModalHeader) {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 1.15rem clamp(1.15rem, 4vw, 2rem);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--admin-space-medium);
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-sticky-background);
+
+  border-bottom: var(--admin-border);
+
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================
+   NON-STICKY HEADER
+========================================================== */
+
+:where(
+  .modalHeaderStatic,
+  .adminModalHeaderStatic,
+  .deleteModal .modalHeader,
+  .deleteModal .modal-cabecera
+) {
+  position: static;
+}
+
+/* ==========================================================
+   MODAL TITLE CONTAINER
+========================================================== */
+
+:where(
+  .modalHeaderContent,
+  .modal-cabecera-contenido,
+  .adminModalHeaderContent
+) {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* ==========================================================
+   MODAL TITLE
+========================================================== */
+
+:where(.modalHeader, .modal-cabecera, .adminModalHeader) :is(h1, h2, h3) {
+  margin: 0;
+
+  color: var(--color-secondary-hover);
+
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+
+  font-weight: 750;
+
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+:where(.modalHeader, .modal-cabecera, .adminModalHeader) p {
+  margin: 0.3rem 0 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.85rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   SECTION LABEL
+========================================================== */
+
+:where(.modalSectionLabel, .modal-seccion, .adminModalSectionLabel) {
+  margin-bottom: 0.25rem;
+
+  display: block;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.73rem;
+
+  font-weight: 750;
+
+  letter-spacing: 0.07em;
+
+  line-height: 1.2;
+
+  text-transform: uppercase;
+}
+
+/* ==========================================================
+   CLOSE BUTTON
+========================================================== */
+
+:where(.modalClose, .boton-cerrar, .adminModalClose) {
+  appearance: none;
+
+  width: 2.5rem;
+
+  height: 2.5rem;
+
+  padding: 0;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid transparent;
+
+  border-radius: 50%;
+
+  color: var(--admin-text-muted);
+
+  background-color: transparent;
+
+  font: inherit;
+
+  font-size: 1.55rem;
+
+  font-weight: 500;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(.modalClose, .boton-cerrar, .adminModalClose):hover:not(:disabled) {
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--admin-danger-border);
+
+  transform: rotate(4deg);
+}
+
+:where(.modalClose, .boton-cerrar, .adminModalClose):active:not(:disabled) {
+  transform: rotate(0);
+}
+
+:where(.modalClose, .boton-cerrar, .adminModalClose):focus-visible {
+  outline: none;
+
+  box-shadow: var(--admin-focus);
+}
+
+:where(.modalClose, .boton-cerrar, .adminModalClose):disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* ==========================================================
+   MODAL BODY
+========================================================== */
+
+:where(.modalBody, .modal-cuerpo, .adminModalBody) {
+  width: 100%;
+  min-width: 0;
+
+  padding: clamp(1.15rem, 4vw, 2rem);
+
+  flex: 1 1 auto;
+}
+
+/* ==========================================================
+   MODAL FOOTER
+========================================================== */
+
+:where(.modalFooter, .modal-footer, .adminModalFooter) {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 1rem clamp(1.15rem, 4vw, 2rem);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--admin-space);
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-sticky-background);
+
+  border-top: var(--admin-border);
+
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================
+   FOOTER CONTENT
+========================================================== */
+
+:where(.modalFooterMessage, .modal-footer-mensaje, .adminModalFooterMessage) {
+  margin-right: auto;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   FORM MODAL
+
+   Evita que un formulario cree una segunda barra de scroll
+   distinta de la del contenido.
+========================================================== */
+
+:where(.modalContent, .modal-contenido, .adminModalContent) > form {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+}
+
+/* ==========================================================
+   DELETE / CONFIRMATION MODAL
+========================================================== */
+
+:where(.deleteBody, .eliminar-contenido, .confirmationBody, .adminDeleteBody) {
+  width: 100%;
+
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+
+  color: var(--admin-text);
+
+  text-align: center;
+}
+
+/* ==========================================================
+   DELETE ICON
+========================================================== */
+
+:where(.deleteIcon, .eliminar-icono, .adminDeleteIcon) {
+  width: 4rem;
+
+  height: 4rem;
+
+  margin: 0 auto 1rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  font-size: 2rem;
+
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+/*
+ * Cuando no hay un elemento específico para el icono, puede
+ * generarse mediante la clase .deleteBodyIcon.
+ */
+.deleteBodyIcon::before,
+.adminDeleteBodyIcon::before {
+  content: '!';
+
+  width: 4rem;
+
+  height: 4rem;
+
+  margin: 0 auto 1rem;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: var(--color-red);
+
+  background-color: var(--admin-danger-soft);
+
+  font-size: 2rem;
+
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+/* ==========================================================
+   DELETE TITLE
+========================================================== */
+
+:where(.deleteBody, .eliminar-contenido, .confirmationBody, .adminDeleteBody)
+  :is(h2, h3) {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: 1.15rem;
+
+  line-height: 1.35;
+}
+
+/* ==========================================================
+   DELETE TEXT
+========================================================== */
+
+:where(.deleteBody, .eliminar-contenido, .confirmationBody, .adminDeleteBody)
+  p {
+  margin: 0.8rem 0 0;
+
+  color: #555555;
+
+  font-size: 0.98rem;
+
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+:where(.deleteWarning, .advertencia, .adminDeleteWarning) {
+  color: var(--color-red) !important;
+
+  font-size: 0.85rem !important;
+
+  font-weight: 700;
+}
+
+/* ==========================================================
+   MODAL LOADING OVERLAY
+========================================================== */
+
+:where(.modalLoading, .modal-carga, .adminModalLoading) {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 10;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: var(--admin-space-large);
+
+  color: var(--admin-text);
+
+  background-color: rgba(255, 255, 255, 0.82);
+
+  backdrop-filter: blur(2px);
+
+  border-radius: inherit;
+
+  cursor: progress;
+}
+
+:where(.modalLoading, .modal-carga, .adminModalLoading).hidden,
+:where(.modalLoading, .modal-carga, .adminModalLoading)[hidden],
+:where(.modalLoading, .modal-carga, .adminModalLoading)[aria-hidden='true'] {
+  display: none !important;
+}
+
+/* ==========================================================
+   MODAL BUSY STATE
+========================================================== */
+
+:where(.modal, .adminModal)[aria-busy='true']
+  :where(.modalClose, .boton-cerrar, .adminModalClose) {
+  opacity: 0.45;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   ANIMATIONS
+========================================================== */
+
+@keyframes adminModalBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes adminModalContentIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(0.75rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  :where(.modalContent, .modal-contenido, .adminModalContent) {
+    max-height: 94vh;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+
+   En pantallas pequeñas, el modal se presenta como una hoja
+   inferior para aprovechar mejor el espacio.
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.modal, .adminModal) {
+    padding: 0;
+
+    align-items: flex-end;
+  }
+
+  :where(.modalContent, .modal-contenido, .adminModalContent) {
+    width: 100%;
+
+    max-width: none;
+
+    max-height: 96dvh;
+
+    border-right: 0;
+
+    border-bottom: 0;
+
+    border-left: 0;
+
+    border-radius: var(--admin-radius-large) var(--admin-radius-large) 0 0;
+
+    animation-name: adminModalMobileIn;
+  }
+
+  :where(.modalHeader, .modal-cabecera, .adminModalHeader) {
+    padding: 1rem;
+  }
+
+  :where(.modalBody, .modal-cuerpo, .adminModalBody) {
+    padding: 1rem;
+  }
+
+  :where(.modalFooter, .modal-footer, .adminModalFooter) {
+    padding: 0.9rem 1rem;
+
+    align-items: stretch;
+
+    flex-direction: column-reverse;
+  }
+
+  :where(.modalFooter, .modal-footer, .adminModalFooter)
+    > :where(.button, .boton, .adminButton) {
+    width: 100%;
+  }
+
+  :where(.modalFooterMessage, .modal-footer-mensaje, .adminModalFooterMessage) {
+    width: 100%;
+
+    margin: 0;
+
+    text-align: center;
+  }
+
+  :where(
+    .deleteBody,
+    .eliminar-contenido,
+    .confirmationBody,
+    .adminDeleteBody
+  ) {
+    padding: 1.5rem 1rem;
+  }
+}
+
+@keyframes adminModalMobileIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(2rem);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  :where(.modalHeader, .modal-cabecera, .adminModalHeader) :is(h1, h2, h3) {
+    font-size: 1.15rem;
+  }
+
+  :where(.modalClose, .boton-cerrar, .adminModalClose) {
+    width: 2.25rem;
+
+    height: 2.25rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .modal,
+    .adminModal,
+    .modalContent,
+    .modal-contenido,
+    .adminModalContent
+  ) {
+    animation: none;
+  }
+
+  :where(.modalClose, .boton-cerrar, .adminModalClose) {
+    transition: none;
+  }
+}

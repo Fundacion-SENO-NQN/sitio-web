@@ -1,0 +1,109 @@
+---
+import JsonLd from '../SEO/JsonLd.astro'
+
+interface BreadcrumbItem {
+  name: string
+  href?: string
+}
+
+interface Props {
+  items: BreadcrumbItem[]
+}
+
+const { items } = Astro.props
+
+const site = Astro.site ?? new URL('https://fundacionseno.org')
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+
+    ...(item.href
+      ? {
+          item: new URL(item.href, site).href
+        }
+      : {})
+  }))
+}
+---
+
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <ol>
+    {
+      items.map((item, index) => {
+        const isCurrent = index === items.length - 1
+
+        return (
+          <li>
+            {item.href && !isCurrent ? (
+              <a href={item.href}>{item.name}</a>
+            ) : (
+              <span aria-current={isCurrent ? 'page' : undefined}>
+                {item.name}
+              </span>
+            )}
+          </li>
+        )
+      })
+    }
+  </ol>
+</nav>
+
+<JsonLd data={breadcrumbSchema} />
+
+<style>
+  .breadcrumbs {
+    width: min(calc(100% - 2rem), 75rem);
+    margin: 1rem auto;
+  }
+
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-text);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .breadcrumbs li:not(:last-child)::after {
+    content: '/';
+    color: var(--color-primary);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-primary-hover);
+    text-decoration: none;
+  }
+
+  .breadcrumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .breadcrumbs a:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 2px;
+  }
+
+  .breadcrumbs [aria-current='page'] {
+    font-weight: 600;
+  }
+
+  @media (max-width: 500px) {
+    .breadcrumbs {
+      width: calc(100% - 1rem);
+    }
+  }
+</style>

@@ -1,202 +1,236 @@
 ---
+interface Integrante {
+  id: number
+  order: number
+  nombre: string
+  apellido: string
+  puesto: string
+  descripcion: string
+  created_at: Date
+}
+
 interface Props {
-  integrante: {
-    id: number
-    order: number
-    nombre: string
-    apellido: string
-    puesto: string
-    descripcion: string
-    created_at: Date
-  }
+  integrante: Integrante
   priority?: boolean
 }
 
 const { integrante, priority = false } = Astro.props
 
-const R2_PUBLIC_URL = import.meta.env.PUBLIC_IMG_URL
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
 
-const imageUrl = `${R2_PUBLIC_URL}/img_equipo/${integrante.id}.avif`
+const imageUrl = `${IMG_URL}/img_equipo/${integrante.id}.avif`
+
+const fullName = `${integrante.nombre} ${integrante.apellido}`.trim()
+
+const headingId = `integrante-${integrante.id}-nombre`
 ---
 
-<li class="integrante">
-  <div class="imagen-container">
+<li class="team-member" aria-labelledby={headingId}>
+  <div class="team-member__image-container">
     <img
+      class="team-member__image"
       src={imageUrl}
-      alt={`Foto de ${integrante.nombre} ${integrante.apellido}`}
-      class="imagen-integrante"
+      alt={`Foto de ${fullName}`}
       loading={priority ? 'eager' : 'lazy'}
       fetchpriority={priority ? 'high' : 'auto'}
       decoding="async"
+      width="800"
+      height="1000"
     />
   </div>
 
-  <div class="contenido">
-    <header class="cabecera">
-      <h2>
-        {integrante.nombre}
-        {integrante.apellido}
+  <div class="team-member__content">
+    <header class="team-member__header">
+      <h2 id={headingId}>
+        {fullName}
       </h2>
 
-      <p class="puesto">
-        {integrante.puesto}
-      </p>
+      {
+        integrante.puesto && (
+          <p class="team-member__position">{integrante.puesto}</p>
+        )
+      }
     </header>
 
-    <div class="descripcion">
-      <p>{integrante.descripcion}</p>
-    </div>
+    {
+      integrante.descripcion && (
+        <div class="team-member__description">
+          <p>{integrante.descripcion}</p>
+        </div>
+      )
+    }
   </div>
 </li>
 
 <style>
-  .integrante {
-    box-sizing: border-box;
-
+  .team-member {
     width: 100%;
     min-width: 0;
 
     display: grid;
-    grid-template-columns: clamp(9rem, 18vw, 12rem) minmax(0, 1fr);
+
+    grid-template-columns:
+      clamp(9rem, 18vw, 12rem)
+      minmax(0, 1fr);
 
     overflow: hidden;
 
-    border: 1px solid var(--color-primary-hover);
-    border-radius: 1rem;
+    color: var(--color-text);
     background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary-hover);
+
+    border-radius: var(--radius);
+
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
 
-    font-family: var(--text-font-primary);
-
     transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease;
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .imagen-container {
+  .team-member__image-container {
     min-height: 12rem;
 
+    overflow: hidden;
+
     background-color: var(--color-primary-light);
+
     border-right: 1px solid var(--color-primary-hover);
   }
 
-  .imagen-integrante {
+  .team-member__image {
     width: 100%;
     height: 100%;
 
-    display: block;
-
     object-fit: cover;
     object-position: center;
+
+    transition: transform 350ms ease;
   }
 
-  .contenido {
+  .team-member__content {
     min-width: 0;
 
     display: flex;
     flex-direction: column;
   }
 
-  .cabecera {
+  .team-member__header {
     min-width: 0;
   }
 
-  .cabecera h2 {
-    box-sizing: border-box;
-
+  .team-member__header h2 {
     min-height: 3.2rem;
-    margin: 0;
+
     padding: 0.75rem clamp(1rem, 3vw, 1.5rem);
 
     display: flex;
     align-items: center;
 
-    background-color: var(--color-primary-hover);
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
 
     font-size: clamp(1.2rem, 3vw, 1.55rem);
+
     line-height: 1.25;
+    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
-  .puesto {
-    box-sizing: border-box;
-
+  .team-member__position {
     min-height: 2.25rem;
-    margin: 0;
+
     padding: 0.45rem clamp(1rem, 3vw, 1.5rem);
 
     display: flex;
     align-items: center;
 
-    background-color: var(--color-light-grey);
     color: var(--color-text);
+    background-color: var(--color-light-grey);
 
     font-size: clamp(0.9rem, 2vw, 1rem);
-    font-weight: 600;
-    line-height: 1.35;
+
+    font-weight: 650;
+    line-height: 1.4;
     overflow-wrap: anywhere;
   }
 
-  .descripcion {
+  .team-member__description {
     min-width: 0;
+
     padding: clamp(1rem, 3vw, 1.5rem);
 
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
     align-items: center;
   }
 
-  .descripcion p {
-    margin: 0;
-
+  .team-member__description p {
     color: var(--color-text);
 
     line-height: 1.7;
+    text-wrap: pretty;
     overflow-wrap: anywhere;
   }
 
   @media (hover: hover) {
-    .integrante:hover {
-      transform: translateY(-3px);
+    .team-member:hover {
+      border-color: var(--color-primary);
+
       box-shadow: 0 14px 38px rgba(0, 0, 0, 0.11);
+
+      transform: translateY(-3px);
+    }
+
+    .team-member:hover .team-member__image {
+      transform: scale(1.025);
     }
   }
 
   @media (max-width: 750px) {
-    .integrante {
-      grid-template-columns: 8rem minmax(0, 1fr);
+    .team-member {
+      grid-template-columns:
+        8rem
+        minmax(0, 1fr);
     }
 
-    .imagen-container {
+    .team-member__image-container {
       min-height: 11rem;
     }
 
-    .descripcion {
+    .team-member__description {
       align-items: flex-start;
     }
   }
 
   @media (max-width: 560px) {
-    .integrante {
+    .team-member {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .imagen-container {
+    .team-member__image-container {
       width: 100%;
       min-height: 0;
+
       aspect-ratio: 4 / 3;
 
-      border-right: none;
+      border-right: 0;
+
       border-bottom: 1px solid var(--color-primary-hover);
     }
 
-    .imagen-integrante {
+    .team-member__image {
       object-position: center 25%;
     }
 
-    .cabecera h2 {
+    .team-member__header h2 {
       min-height: auto;
+
       padding: 0.8rem 1rem;
 
       justify-content: center;
@@ -205,8 +239,9 @@ const imageUrl = `${R2_PUBLIC_URL}/img_equipo/${integrante.id}.avif`
       text-align: center;
     }
 
-    .puesto {
+    .team-member__position {
       min-height: auto;
+
       padding: 0.55rem 1rem;
 
       justify-content: center;
@@ -214,33 +249,30 @@ const imageUrl = `${R2_PUBLIC_URL}/img_equipo/${integrante.id}.avif`
       text-align: center;
     }
 
-    .descripcion {
+    .team-member__description {
       padding: 1rem;
     }
 
-    .descripcion p {
+    .team-member__description p {
       font-size: 0.96rem;
       line-height: 1.6;
     }
   }
 
   @media (max-width: 360px) {
-    .imagen-container {
-      aspect-ratio: 1 / 1;
+    .team-member__image-container {
+      aspect-ratio: 1;
     }
 
-    .cabecera h2 {
+    .team-member__header h2 {
       font-size: 1.15rem;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .integrante {
+    .team-member,
+    .team-member__image {
       transition: none;
-    }
-
-    .integrante:hover {
-      transform: none;
     }
   }
 </style>
