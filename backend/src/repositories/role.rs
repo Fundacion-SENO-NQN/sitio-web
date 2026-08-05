@@ -143,7 +143,7 @@ pub async fn create(db: &PgPool, request: CreateRoleRequest) -> ApiResult<RoleWi
     .fetch_one(&mut *tx)
     .await?;
 
-    for service_id in &request.service_ids {
+    for service_id in &request.service_id {
         sqlx::query(
             r#"
             INSERT INTO roles_services
@@ -191,7 +191,7 @@ pub async fn update(
     .await?;
 
     // Replace permissions if provided
-    if let Some(service_ids) = request.service_ids {
+    if let Some(service_ids) = request.service_id {
         sqlx::query(
             r#"
             DELETE FROM roles_services
