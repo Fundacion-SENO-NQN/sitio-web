@@ -39,3 +39,4 @@ aws-config = { version = "1.10.1", features = ["behavior-version-latest"] }
 aws-sdk-s3 = "1.140.0"
 bytes = "1.12.1"
 svg-hush = "0.9.6"
+reqwest = "0.13.4"

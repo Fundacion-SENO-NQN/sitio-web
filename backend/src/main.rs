@@ -1,10 +1,10 @@
-use crate::services::email::EmailService;
 use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
         equipo, evento, health, img_donation, logro, logro_fav, metodo_donacion, noticia, roles,
         service, user, voluntariado,
     },
+    services::{email::EmailService, frontend_rebuild::FrontendRebuildService},
 };
 use axum::{
     Router,
@@ -39,6 +39,7 @@ pub struct AppState {
     pub team: RwLock<Vec<Equipo>>,
     pub logros: RwLock<Vec<Logro>>,
     pub r2: utils::r2::R2Storage,
+    pub frontend_rebuild: FrontendRebuildService,
 }
 
 #[tokio::main]
@@ -53,7 +54,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
 
-    let address = format!("127.0.0.1:{port}");
+    let address = format!("0.0.0.0:{port}");
 
     /* ========================================================
      * CORS
@@ -103,6 +104,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .expect("No se pudo cargar r2");
 
+    let frontend_rebuild = FrontendRebuildService::from_env(db.clone());
+
+    frontend_rebuild.clone().start();
+
     let state = Arc::new(AppState {
         db,
         email,
@@ -110,6 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         team: RwLock::new(Vec::new()),
         logros: RwLock::new(Vec::new()),
         r2,
+        frontend_rebuild,
     });
 
     /* ========================================================
