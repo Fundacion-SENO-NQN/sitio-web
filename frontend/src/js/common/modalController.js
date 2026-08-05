@@ -369,8 +369,6 @@ export function createFormModalController({
     elements.modal.setAttribute('aria-hidden', 'false')
 
     state.opened = true
-
-    if (lockBodyScroll) document.body.style.overflow = 'hidden'
   }
 
   function hideModal() {
@@ -379,8 +377,6 @@ export function createFormModalController({
     elements.modal.setAttribute('aria-hidden', 'true')
 
     state.opened = false
-
-    if (lockBodyScroll) document.body.style.overflow = ''
   }
 
   /* ========================================================
