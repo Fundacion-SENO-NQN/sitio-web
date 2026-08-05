@@ -138,7 +138,7 @@ export const donationImagesApi = {
 
     formData.append('image', file, file.name)
 
-    return request('/img_donacion', {
+    return request('/donaciones/img', {
       method: 'PUT',
       body: formData
     })

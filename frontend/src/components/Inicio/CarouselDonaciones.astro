@@ -73,72 +73,28 @@ const images = Array.from(
 
 <script>
   const SLIDE_INTERVAL = 5000
+  const TRANSITION_DURATION = 800
+  const RESET_DELAY = TRANSITION_DURATION + 100
 
   class DonationCarousel extends HTMLElement {
     private track: HTMLElement | null = null
-
     private slides: HTMLImageElement[] = []
 
     private currentIndex = 0
     private realImages = 0
 
     private intervalId: number | undefined
-    private resizeFrame: number | undefined
-
-    private interactionPaused = false
+    private resetTimerId: number | undefined
+    private resizeFrameId: number | undefined
 
     private resizeObserver: ResizeObserver | null = null
-
-    private reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    )
-
     private abortController: AbortController | null = null
 
     connectedCallback(): void {
-      if (this.dataset.initialized) {
+      if (this.dataset.initialized === 'true') {
         return
       }
 
-      this.dataset.initialized = 'pending'
-
-      this.initialize().catch((error) => {
-        console.error(
-          'No se pudo inicializar el carrusel de donaciones:',
-          error
-        )
-
-        this.showEmptyState()
-      })
-    }
-
-    disconnectedCallback(): void {
-      this.stopCarousel()
-
-      if (this.resizeFrame !== undefined) {
-        window.cancelAnimationFrame(this.resizeFrame)
-        this.resizeFrame = undefined
-      }
-
-      this.resizeObserver?.disconnect()
-      this.resizeObserver = null
-
-      this.reducedMotion.removeEventListener(
-        'change',
-        this.handleReducedMotionChange
-      )
-
-      this.abortController?.abort()
-      this.abortController = null
-
-      this.slides = []
-      this.realImages = 0
-      this.currentIndex = 0
-
-      delete this.dataset.initialized
-    }
-
-    private async initialize(): Promise<void> {
       this.track = this.querySelector<HTMLElement>('[data-carousel-track]')
 
       if (!this.track) {
@@ -146,122 +102,216 @@ const images = Array.from(
         return
       }
 
+      this.dataset.initialized = 'true'
+
       this.abortController = new AbortController()
 
       const { signal } = this.abortController
 
-      const initialImages = Array.from(
-        this.querySelectorAll<HTMLImageElement>('[data-carousel-image]')
-      )
+      this.registerImageErrors(signal)
 
-      const imageResults = await Promise.all(
-        initialImages.map((image) => waitForImage(image, signal))
-      )
+      this.track.addEventListener('transitionend', this.handleTransitionEnd, {
+        signal
+      })
 
-      if (signal.aborted || !this.isConnected) {
-        return
+      this.resizeObserver = new ResizeObserver(this.handleResize)
+
+      this.resizeObserver.observe(this)
+
+      /*
+       * Do not wait for every image to load.
+       *
+       * The slides already have fixed dimensions, so their
+       * positions can be calculated immediately.
+       */
+      this.refreshSlides()
+    }
+
+    disconnectedCallback(): void {
+      this.stopCarousel()
+      this.clearResetTimer()
+
+      if (this.resizeFrameId !== undefined) {
+        window.cancelAnimationFrame(this.resizeFrameId)
+
+        this.resizeFrameId = undefined
       }
 
-      const validImages: HTMLImageElement[] = []
+      this.resizeObserver?.disconnect()
+      this.resizeObserver = null
 
-      initialImages.forEach((image, index) => {
-        if (imageResults[index]) {
-          validImages.push(image)
-        } else {
+      this.abortController?.abort()
+      this.abortController = null
+
+      this.track = null
+      this.slides = []
+
+      this.currentIndex = 0
+      this.realImages = 0
+
+      delete this.dataset.initialized
+    }
+
+    /* ======================================================
+       IMAGES
+    ====================================================== */
+
+    private registerImageErrors(signal: AbortSignal): void {
+      const images = this.querySelectorAll<HTMLImageElement>(
+        '[data-carousel-image]'
+      )
+
+      images.forEach((image) => {
+        image.addEventListener(
+          'error',
+          () => {
+            image.remove()
+
+            this.refreshSlides()
+          },
+          {
+            once: true,
+            signal
+          }
+        )
+
+        /*
+         * The error may have happened before the custom
+         * element was initialized.
+         */
+        if (image.complete && image.naturalWidth === 0) {
           image.remove()
         }
       })
+    }
 
-      this.realImages = validImages.length
+    private refreshSlides(): void {
+      if (!this.track) {
+        return
+      }
+
+      this.stopCarousel()
+      this.clearResetTimer()
+
+      /*
+       * Remove the old clone before rebuilding the slide
+       * collection.
+       */
+      this.track
+        .querySelectorAll('[data-carousel-clone]')
+        .forEach((clone) => clone.remove())
+
+      const realSlides = Array.from(
+        this.track.querySelectorAll<HTMLImageElement>('[data-carousel-image]')
+      )
+
+      this.realImages = realSlides.length
+      this.currentIndex = 0
 
       if (this.realImages === 0) {
+        this.slides = []
+
         this.showEmptyState()
         return
       }
 
       this.hideEmptyState()
 
-      /*
-       * The last slide is a clone of the first valid image.
-       *
-       * When the transition reaches this clone, the track
-       * immediately returns to the original first slide
-       * without animation.
-       */
-      if (this.realImages > 1) {
-        const firstImage = validImages[0]
+      if (this.realImages === 1) {
+        this.slides = realSlides
 
-        const clonedImage = firstImage.cloneNode(true) as HTMLImageElement
-
-        clonedImage.alt = ''
-        clonedImage.loading = 'lazy'
-        clonedImage.fetchPriority = 'auto'
-
-        clonedImage.removeAttribute('data-carousel-image')
-
-        clonedImage.setAttribute('aria-hidden', 'true')
-
-        clonedImage.classList.add('donation-carousel__slide--clone')
-
-        this.track.appendChild(clonedImage)
-
-        this.slides = [...validImages, clonedImage]
-      } else {
-        this.slides = validImages
-      }
-
-      this.currentIndex = 0
-      this.dataset.initialized = 'true'
-
-      this.repositionWithoutAnimation()
-
-      if (this.realImages <= 1) {
+        this.repositionWithoutAnimation()
         return
       }
 
-      this.registerEvents(signal)
+      /*
+       * Clone the first slide so the last forward movement
+       * remains continuous.
+       */
+      const clone = realSlides[0].cloneNode(true) as HTMLImageElement
 
-      this.resizeObserver = new ResizeObserver(this.handleResize)
+      clone.alt = ''
+      clone.loading = 'eager'
+      clone.fetchPriority = 'auto'
 
-      this.resizeObserver.observe(this)
+      clone.removeAttribute('data-carousel-image')
 
-      this.updateMotionPreference()
-      this.startCarousel()
+      clone.setAttribute('data-carousel-clone', '')
+
+      clone.setAttribute('aria-hidden', 'true')
+
+      clone.classList.add('donation-carousel__slide--clone')
+
+      this.track.appendChild(clone)
+
+      this.slides = [...realSlides, clone]
+
+      window.requestAnimationFrame(() => {
+        if (!this.isConnected) {
+          return
+        }
+
+        this.repositionWithoutAnimation()
+        this.startCarousel()
+      })
     }
 
-    private registerEvents(signal: AbortSignal): void {
-      this.track?.addEventListener('transitionend', this.handleTransitionEnd, {
-        signal
-      })
+    /* ======================================================
+       MOVEMENT
+    ====================================================== */
 
-      this.addEventListener('mouseenter', this.handleInteractionStart, {
-        signal
-      })
+    private startCarousel(): void {
+      if (this.realImages <= 1 || this.intervalId !== undefined) {
+        return
+      }
 
-      this.addEventListener('mouseleave', this.handleInteractionEnd, {
-        signal
-      })
+      this.intervalId = window.setInterval(this.moveToNextSlide, SLIDE_INTERVAL)
+    }
 
-      this.addEventListener('focusin', this.handleInteractionStart, {
-        signal
-      })
+    private stopCarousel(): void {
+      if (this.intervalId === undefined) {
+        return
+      }
 
-      this.addEventListener('focusout', this.handleFocusOut, {
-        signal
-      })
+      window.clearInterval(this.intervalId)
 
-      document.addEventListener(
-        'visibilitychange',
-        this.handleVisibilityChange,
-        {
-          signal
-        }
-      )
+      this.intervalId = undefined
+    }
 
-      this.reducedMotion.addEventListener(
-        'change',
-        this.handleReducedMotionChange
-      )
+    private moveToNextSlide = (): void => {
+      if (!this.track || this.realImages <= 1) {
+        return
+      }
+
+      /*
+       * Recover defensively if the previous clone reset did
+       * not execute.
+       */
+      if (this.currentIndex >= this.realImages) {
+        this.resetToFirstSlide()
+      }
+
+      this.currentIndex += 1
+
+      this.setTransform()
+
+      /*
+       * transitionend normally resets the carousel after
+       * reaching the clone. This timer is a fallback for
+       * browsers or CSS configurations where transitionend
+       * is not emitted.
+       */
+      if (this.currentIndex === this.realImages) {
+        this.clearResetTimer()
+
+        this.resetTimerId = window.setTimeout(() => {
+          this.resetTimerId = undefined
+
+          if (this.currentIndex === this.realImages) {
+            this.resetToFirstSlide()
+          }
+        }, RESET_DELAY)
+      }
     }
 
     private setTransform(): void {
@@ -276,6 +326,14 @@ const images = Array.from(
       }
 
       this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
+    }
+
+    private resetToFirstSlide(): void {
+      this.clearResetTimer()
+
+      this.currentIndex = 0
+
+      this.repositionWithoutAnimation()
     }
 
     private repositionWithoutAnimation(): void {
@@ -296,52 +354,6 @@ const images = Array.from(
       this.track.style.removeProperty('transition')
     }
 
-    private moveToNextSlide = (): void => {
-      if (this.realImages <= 1 || this.currentIndex >= this.realImages) {
-        return
-      }
-
-      this.currentIndex += 1
-
-      this.setTransform()
-    }
-
-    private startCarousel(): void {
-      if (
-        this.realImages <= 1 ||
-        this.reducedMotion.matches ||
-        this.interactionPaused ||
-        document.hidden ||
-        this.intervalId !== undefined
-      ) {
-        return
-      }
-
-      this.intervalId = window.setInterval(this.moveToNextSlide, SLIDE_INTERVAL)
-    }
-
-    private stopCarousel(): void {
-      if (this.intervalId === undefined) {
-        return
-      }
-
-      window.clearInterval(this.intervalId)
-
-      this.intervalId = undefined
-    }
-
-    private updateMotionPreference(): void {
-      if (!this.reducedMotion.matches) {
-        return
-      }
-
-      this.stopCarousel()
-
-      this.currentIndex = 0
-
-      this.repositionWithoutAnimation()
-    }
-
     private handleTransitionEnd = (event: TransitionEvent): void => {
       if (
         event.propertyName !== 'transform' ||
@@ -350,66 +362,42 @@ const images = Array.from(
         return
       }
 
-      this.currentIndex = 0
-
-      this.repositionWithoutAnimation()
+      this.resetToFirstSlide()
     }
 
-    private handleInteractionStart = (): void => {
-      this.interactionPaused = true
-
-      this.stopCarousel()
-    }
-
-    private handleInteractionEnd = (): void => {
-      this.interactionPaused = false
-
-      this.startCarousel()
-    }
-
-    private handleFocusOut = (event: FocusEvent): void => {
-      const nextFocusedElement = event.relatedTarget
-
-      if (
-        nextFocusedElement instanceof Node &&
-        this.contains(nextFocusedElement)
-      ) {
+    private clearResetTimer(): void {
+      if (this.resetTimerId === undefined) {
         return
       }
 
-      this.handleInteractionEnd()
+      window.clearTimeout(this.resetTimerId)
+
+      this.resetTimerId = undefined
     }
 
-    private handleVisibilityChange = (): void => {
-      if (document.hidden) {
-        this.stopCarousel()
-      } else {
-        this.startCarousel()
-      }
-    }
-
-    private handleReducedMotionChange = (): void => {
-      this.updateMotionPreference()
-
-      if (!this.reducedMotion.matches) {
-        this.startCarousel()
-      }
-    }
+    /* ======================================================
+       RESIZE
+    ====================================================== */
 
     private handleResize = (): void => {
-      if (this.resizeFrame !== undefined) {
-        window.cancelAnimationFrame(this.resizeFrame)
+      if (this.resizeFrameId !== undefined) {
+        window.cancelAnimationFrame(this.resizeFrameId)
       }
 
-      this.resizeFrame = window.requestAnimationFrame(() => {
-        this.resizeFrame = undefined
+      this.resizeFrameId = window.requestAnimationFrame(() => {
+        this.resizeFrameId = undefined
 
         this.repositionWithoutAnimation()
       })
     }
 
+    /* ======================================================
+       EMPTY STATE
+    ====================================================== */
+
     private showEmptyState(): void {
       this.stopCarousel()
+      this.clearResetTimer()
 
       this.track?.setAttribute('hidden', '')
 
@@ -437,43 +425,6 @@ const images = Array.from(
 
       this.classList.remove('donation-carousel--empty')
     }
-  }
-
-  function waitForImage(
-    image: HTMLImageElement,
-    signal: AbortSignal
-  ): Promise<boolean> {
-    if (image.complete) {
-      return Promise.resolve(image.naturalWidth > 0)
-    }
-
-    return new Promise((resolve) => {
-      let completed = false
-
-      const finish = (valid: boolean): void => {
-        if (completed) {
-          return
-        }
-
-        completed = true
-
-        resolve(valid)
-      }
-
-      image.addEventListener('load', () => finish(true), {
-        once: true,
-        signal
-      })
-
-      image.addEventListener('error', () => finish(false), {
-        once: true,
-        signal
-      })
-
-      signal.addEventListener('abort', () => finish(false), {
-        once: true
-      })
-    })
   }
 
   if (!customElements.get('donation-carousel')) {
