@@ -187,8 +187,6 @@ export function createDeleteController({
 
     state.opened = true
 
-    if (lockBodyScroll) document.body.style.overflow = 'hidden'
-
     window.requestAnimationFrame(() => {
       const element =
         resolveFocusElement(elements.focusElement) ??
@@ -284,8 +282,6 @@ export function createDeleteController({
 
     state.opened = false
     state.item = null
-
-    if (lockBodyScroll) document.body.style.overflow = ''
 
     restoreConfirmationText()
 
