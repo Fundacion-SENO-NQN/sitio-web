@@ -138,7 +138,7 @@ export function createRoleModal({
       return {
         name: roleNameInput.value.trim(),
 
-        services: obtenerServiciosSeleccionados(servicesContainer)
+        service_id: obtenerServiciosSeleccionados(servicesContainer)
       }
     },
 
