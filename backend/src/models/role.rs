@@ -33,11 +33,11 @@ pub struct RoleWithServices {
 #[derive(Debug, Deserialize)]
 pub struct CreateRoleRequest {
     pub name: String,
-    pub service_ids: Vec<i64>,
+    pub service_id: Vec<i64>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct PatchRoleRequest {
     pub name: Option<String>,
-    pub service_ids: Option<Vec<i64>>,
+    pub service_id: Option<Vec<i64>>,
 }
