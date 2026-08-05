@@ -8,6 +8,7 @@ interface Props {
 const { id, mensaje = 'Cargando...', oculto = false } = Astro.props
 
 const elementId = `modal-carga${id ? `-${id}` : ''}`
+const elementTxtId = `loading-text${id ? `-${id}` : ''}`
 ---
 
 <div
@@ -21,5 +22,5 @@ const elementId = `modal-carga${id ? `-${id}` : ''}`
 >
   <span class="spinner spinnerLarge" aria-hidden="true"></span>
 
-  <p class="loadingText">{mensaje}</p>
+  <p id={elementTxtId} class="loadingText">{mensaje}</p>
 </div>

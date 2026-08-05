@@ -179,7 +179,6 @@ export function createFormModalController({
      * Also supports modals where the modal itself acts
      * as the background container.
      */
-    elements.modal.addEventListener('click', handleModalClick, eventOptions)
 
     document.addEventListener('keydown', handleKeydown, eventOptions)
 
@@ -462,10 +461,6 @@ export function createFormModalController({
   /* ========================================================
      EVENTS
   ======================================================== */
-
-  function handleModalClick(event) {
-    if (event.target === elements.modal) close()
-  }
 
   function handleKeydown(event) {
     if (event.key !== 'Escape' || !state.opened) return

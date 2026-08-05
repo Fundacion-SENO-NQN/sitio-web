@@ -955,17 +955,33 @@ function appendNormalizedFields(formData, entries) {
   entries.forEach(({ name, value, include, descriptor }) => {
     if (!include) return
 
-    if (descriptor.type === 'array')
-      appendArray(formData, name, value, descriptor.formDataMode)
+    if (descriptor.type === 'array') {
+      appendArray(
+        formData,
+        name,
+        value,
+        descriptor.formDataMode
+      )
 
-    return
+      return
+    }
 
-    if (descriptor.type === 'raw' && descriptor.formDataMode === 'json')
-      formData.append(name, JSON.stringify(value))
+    if (
+      descriptor.type === 'raw' &&
+      descriptor.formDataMode === 'json'
+    ) {
+      formData.append(
+        name,
+        JSON.stringify(value)
+      )
 
-    return
+      return
+    }
 
-    formData.append(name, serializeFormDataValue(value))
+    formData.append(
+      name,
+      serializeFormDataValue(value)
+    )
   })
 }
 

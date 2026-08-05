@@ -11,4 +11,5 @@ pub fn routes() -> Router<Arc<AppState>> {
                 .patch(noticia::update)
                 .delete(noticia::delete_by_id),
         )
+        .route("/ultimas_noticias", get(noticia::get_latest_news))
 }

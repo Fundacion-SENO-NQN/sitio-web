@@ -15,6 +15,11 @@ import { createSeoDescription, plainText, toIsoDate } from '../../utils/seo'
 type PageState = 'ready' | 'not-found' | 'error'
 
 type NoticiaSeo = Noticia & {
+  cant_img?: number | null
+
+  content?: string | null
+  contenido?: string | null
+
   created_at?: string | Date | null
   updated_at?: string | Date | null
 }
@@ -64,6 +69,7 @@ if (!Number.isInteger(parsedId) || parsedId <= 0) {
 
 if (pageState !== 'ready') {
   Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
+
   Astro.response.headers.set('Cache-Control', 'no-store')
 } else {
   Astro.response.headers.set(
@@ -73,27 +79,58 @@ if (pageState !== 'ready') {
 }
 
 const site = Astro.site ?? new URL('https://fundacionseno.org')
+
 const homeUrl = new URL('/', site).href
+
 const pageUrl = noticia
   ? new URL(`/noticias/${noticia.id}`, site).href
   : new URL(Astro.url.pathname, site).href
 
 const organizationId = `${homeUrl}#organization`
+
 const websiteId = `${homeUrl}#website`
+
 const logoUrl = new URL('/img/seo/logo-fundacion-seno.png', site).href
 
-const imageUrl = noticia
-  ? `${IMG_URL}/img_noticias/${noticia.id}.avif`
+const imageCount = noticia ? normalizeImageCount(noticia.cant_img) : 0
+
+const imageVersion = createImageVersion(
+  noticia?.updated_at ?? noticia?.created_at
+)
+
+const imageUrls = noticia
+  ? Array.from(
+      {
+        length: imageCount
+      },
+      (_, index) =>
+        createNewsImageUrl({
+          baseUrl: IMG_URL,
+          newsId: noticia!.id,
+          imageIndex: index,
+          version: imageVersion
+        })
+    )
+  : []
+
+const primaryImageUrl = imageUrls[0]
+
+const legacyImageUrl = noticia
+  ? `${IMG_URL}/img_noticias/${noticia.id}.avif` +
+    (imageVersion ? `?v=${imageVersion}` : '')
   : undefined
 
+const newsContent = String(noticia?.content ?? noticia?.contenido ?? '').trim()
+
 const description = createSeoDescription(
-  noticia?.content,
+  newsContent,
   noticia
     ? `Conocé esta noticia de Fundación SENO: ${noticia.titulo}.`
     : 'Información de noticias de Fundación SENO.'
 )
 
 const datePublished = toIsoDate(noticia?.created_at)
+
 const dateModified = toIsoDate(noticia?.updated_at) ?? datePublished
 
 const pageTitle =
@@ -102,62 +139,133 @@ const pageTitle =
     ? 'Noticia no encontrada'
     : 'Noticia no disponible')
 
-const contentParagraphs = String(noticia?.content ?? '')
+const contentParagraphs = newsContent
   .split(/\r?\n\s*\r?\n/)
   .map((paragraph) => paragraph.trim())
   .filter(Boolean)
 
-const newsSchema =
-  noticia && imageUrl
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'NewsArticle',
-        '@id': `${pageUrl}#article`,
-        mainEntityOfPage: {
-          '@type': 'WebPage',
-          '@id': pageUrl
-        },
-        url: pageUrl,
-        headline: noticia.titulo,
-        description,
-        articleBody: plainText(noticia.content),
-        image: [imageUrl],
-        ...(datePublished ? { datePublished } : {}),
-        ...(dateModified ? { dateModified } : {}),
-        inLanguage: 'es-AR',
-        articleSection: 'Noticias',
-        isAccessibleForFree: true,
-        author: {
-          '@type': 'Organization',
-          '@id': organizationId,
-          name: 'Fundación SENO',
-          url: homeUrl
-        },
-        publisher: {
-          '@type': 'Organization',
-          '@id': organizationId,
-          name: 'Fundación SENO',
-          url: homeUrl,
-          logo: {
-            '@type': 'ImageObject',
-            url: logoUrl,
-            contentUrl: logoUrl,
-            width: 512,
-            height: 512
+const newsSchema = noticia
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      '@id': `${pageUrl}#article`,
+
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': pageUrl
+      },
+
+      url: pageUrl,
+      headline: noticia.titulo,
+      description,
+
+      articleBody: plainText(newsContent),
+
+      ...(imageUrls.length > 0
+        ? {
+            image: imageUrls
           }
-        },
-        isPartOf: {
-          '@id': websiteId
+        : {}),
+
+      ...(datePublished
+        ? {
+            datePublished
+          }
+        : {}),
+
+      ...(dateModified
+        ? {
+            dateModified
+          }
+        : {}),
+
+      inLanguage: 'es-AR',
+      articleSection: 'Noticias',
+      isAccessibleForFree: true,
+
+      author: {
+        '@type': 'Organization',
+        '@id': organizationId,
+        name: 'Fundación SENO',
+        url: homeUrl
+      },
+
+      publisher: {
+        '@type': 'Organization',
+        '@id': organizationId,
+        name: 'Fundación SENO',
+        url: homeUrl,
+
+        logo: {
+          '@type': 'ImageObject',
+          url: logoUrl,
+          contentUrl: logoUrl,
+          width: 512,
+          height: 512
         }
+      },
+
+      isPartOf: {
+        '@id': websiteId
       }
-    : null
+    }
+  : null
+
+function normalizeImageCount(value: unknown): number {
+  /*
+   * Compatibilidad con noticias creadas antes de agregar
+   * cant_img a la respuesta.
+   */
+  if (value === undefined) {
+    return 1
+  }
+
+  if (value === null) {
+    return 0
+  }
+
+  const count = Number(value)
+
+  if (!Number.isInteger(count) || count < 0) {
+    return 0
+  }
+
+  return Math.min(count, 10)
+}
+
+function createImageVersion(value: string | Date | null | undefined): string {
+  if (!value) {
+    return ''
+  }
+
+  return encodeURIComponent(String(value))
+}
+
+function createNewsImageUrl({
+  baseUrl,
+  newsId,
+  imageIndex,
+  version
+}: {
+  baseUrl: string
+  newsId: number
+  imageIndex: number
+  version: string
+}): string {
+  const url = `${baseUrl}/img_noticias/` + `${newsId}/${imageIndex}.avif`
+
+  return version ? `${url}?v=${version}` : url
+}
 ---
 
 <Layout
   pag={pageTitle}
   seoTitle={noticia ? `${noticia.titulo} | Noticias Fundación SENO` : pageTitle}
   description={description}
-  image={imageUrl}
+  image={primaryImageUrl}
+  imageAlt={noticia
+    ? `Imagen principal de la noticia ${noticia.titulo}`
+    : undefined}
   noindex={pageState !== 'ready'}
   ogType={noticia ? 'article' : 'website'}
   publishedTime={datePublished}
@@ -208,19 +316,73 @@ const newsSchema =
               </header>
             )}
 
-            {imageUrl && (
-              <figure class="news-article__figure">
-                <img
-                  class="news-article__image"
-                  src={imageUrl}
-                  alt={`Imagen de la noticia ${noticia.titulo}`}
-                  width="1600"
-                  height="1000"
-                  loading="eager"
-                  fetchpriority="high"
-                  decoding="async"
-                />
-              </figure>
+            {primaryImageUrl && (
+              <section
+                class="news-gallery"
+                aria-label={
+                  imageCount === 1
+                    ? 'Imagen de la noticia'
+                    : `Galería de ${imageCount} imágenes`
+                }
+              >
+                <figure class="news-gallery__main" data-news-image-container>
+                  <img
+                    class="news-gallery__main-image"
+                    src={primaryImageUrl}
+                    alt={
+                      imageCount === 1
+                        ? `Imagen de la noticia ${noticia.titulo}`
+                        : `Imagen 1 de ${imageCount} de la noticia ${noticia.titulo}`
+                    }
+                    width="1600"
+                    height="1000"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    data-news-image
+                    data-fallback-src={legacyImageUrl}
+                  />
+
+                  <span
+                    class="news-gallery__placeholder"
+                    aria-hidden="true"
+                    data-news-image-placeholder
+                    hidden
+                  >
+                    Imagen no disponible
+                  </span>
+                </figure>
+
+                {imageUrls.length > 1 && (
+                  <div class="news-gallery__additional">
+                    {imageUrls.slice(1).map((imageUrl, index) => (
+                      <figure
+                        class="news-gallery__item"
+                        data-news-image-container
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Imagen ${index + 2} de ${imageCount} de la noticia ${noticia.titulo}`}
+                          width="1600"
+                          height="1000"
+                          loading="lazy"
+                          decoding="async"
+                          data-news-image
+                        />
+
+                        <span
+                          class="news-gallery__placeholder"
+                          aria-hidden="true"
+                          data-news-image-placeholder
+                          hidden
+                        >
+                          Imagen no disponible
+                        </span>
+                      </figure>
+                    ))}
+                  </div>
+                )}
+              </section>
             )}
 
             <div class="news-article__content">
@@ -266,17 +428,61 @@ const newsSchema =
   }
 </Layout>
 
+<script>
+  function initializeNewsGalleryImages() {
+    const images = document.querySelectorAll<HTMLImageElement>(
+      '[data-news-image]:not([data-image-initialized])'
+    )
+
+    images.forEach((image) => {
+      image.dataset.imageInitialized = 'true'
+
+      image.addEventListener('error', () => {
+        const fallbackUrl = image.dataset.fallbackSrc
+
+        if (fallbackUrl) {
+          delete image.dataset.fallbackSrc
+          image.src = fallbackUrl
+
+          return
+        }
+
+        image.hidden = true
+
+        const container = image.closest('[data-news-image-container]')
+
+        const placeholder = container?.querySelector<HTMLElement>(
+          '[data-news-image-placeholder]'
+        )
+
+        if (placeholder) {
+          placeholder.hidden = false
+        }
+      })
+    })
+  }
+
+  initializeNewsGalleryImages()
+
+  document.addEventListener('astro:page-load', initializeNewsGalleryImages)
+</script>
+
 <style>
   .news-detail {
     width: min(calc(100% - 2rem), 65rem);
+
     margin: 2rem auto clamp(4rem, 8vw, 7rem);
   }
 
   .news-article {
     overflow: hidden;
+
     background-color: var(--color-background);
+
     border: 1px solid var(--color-light-grey);
+
     border-radius: var(--radius);
+
     box-shadow: var(--shadow);
   }
 
@@ -288,7 +494,9 @@ const newsSchema =
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
     color: #667580;
+
     font-size: 0.94rem;
     line-height: 1.5;
   }
@@ -296,7 +504,9 @@ const newsSchema =
   .news-article__date-icon {
     display: grid;
     place-items: center;
+
     flex: 0 0 auto;
+
     color: var(--color-primary-hover);
   }
 
@@ -305,30 +515,103 @@ const newsSchema =
     height: 1.25rem;
   }
 
-  .news-article__figure {
+  /* ========================================================
+     IMAGE GALLERY
+  ======================================================== */
+
+  .news-gallery {
     width: 100%;
+
+    padding: 0 clamp(0rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .news-gallery__main,
+  .news-gallery__item {
+    min-height: 12rem;
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
     background-color: var(--color-secondary-light);
   }
 
-  .news-article__image {
+  .news-gallery__main {
+    width: 100%;
+
+    border-radius: var(--radius-small);
+  }
+
+  .news-gallery__main-image {
     width: 100%;
     height: auto;
     max-height: 40rem;
+
     display: block;
+
     aspect-ratio: 16 / 10;
+
     object-fit: cover;
     object-position: center;
   }
 
+  .news-gallery__additional {
+    margin-top: 0.75rem;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+
+    gap: 0.75rem;
+  }
+
+  .news-gallery__item {
+    border-radius: var(--radius-small);
+  }
+
+  .news-gallery__item img {
+    width: 100%;
+    height: 100%;
+    min-height: 15rem;
+    max-height: 28rem;
+
+    display: block;
+
+    aspect-ratio: 4 / 3;
+
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .news-gallery__placeholder {
+    padding: 1.5rem;
+
+    color: #667580;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* ========================================================
+     CONTENT
+  ======================================================== */
+
   .news-article__content {
     width: min(100%, 50rem);
+
     margin-inline: auto;
+
     padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 3rem);
   }
 
   .news-article__content p {
     color: var(--color-text);
+
     font-size: clamp(1rem, 2vw, 1.08rem);
+
     line-height: 1.8;
     overflow-wrap: anywhere;
     white-space: pre-line;
@@ -340,15 +623,19 @@ const newsSchema =
 
   .news-article__footer {
     padding: 1.25rem clamp(1.25rem, 5vw, 3rem);
+
     border-top: 1px solid var(--color-light-grey);
   }
 
   .news-article__back {
     width: fit-content;
+
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+
     color: var(--color-primary-hover);
+
     font-weight: 700;
     text-decoration: none;
   }
@@ -360,29 +647,45 @@ const newsSchema =
   .news-article__back:focus-visible,
   .news-detail-status a:focus-visible {
     outline: 3px solid var(--color-primary-light);
+
     outline-offset: 3px;
+
     border-radius: 0.2rem;
   }
 
+  /* ========================================================
+     ERROR / NOT FOUND
+  ======================================================== */
+
   .news-detail-status {
     width: min(100%, 42rem);
+
     margin-inline: auto;
+
     padding: clamp(2rem, 7vw, 4rem);
+
     color: var(--color-text);
+
     background-color: rgba(21, 130, 203, 0.05);
+
     border: 1px dashed var(--color-primary-light);
+
     border-radius: var(--radius);
+
     text-align: center;
   }
 
   .news-detail-status--error {
     background-color: rgba(211, 47, 47, 0.06);
+
     border-color: rgba(211, 47, 47, 0.4);
   }
 
   .news-detail-status h1 {
     color: var(--color-primary-hover);
+
     font-size: clamp(1.5rem, 5vw, 2.2rem);
+
     line-height: 1.25;
     text-wrap: balance;
   }
@@ -393,7 +696,9 @@ const newsSchema =
 
   .news-detail-status p {
     margin-top: 0.75rem;
+
     color: #667580;
+
     line-height: 1.65;
     text-wrap: pretty;
   }
@@ -401,10 +706,15 @@ const newsSchema =
   .news-detail-status a {
     margin-top: 1.25rem;
     padding: 0.75rem 1rem;
+
     display: inline-flex;
+
     color: var(--color-background);
+
     background-color: var(--color-primary-hover);
+
     border-radius: var(--radius-small);
+
     font-weight: 700;
     text-decoration: none;
   }
@@ -422,6 +732,7 @@ const newsSchema =
   @media (max-width: 600px) {
     .news-detail {
       width: calc(100% - 1rem);
+
       margin-top: 1rem;
     }
 
@@ -429,8 +740,26 @@ const newsSchema =
       border-radius: var(--radius-small);
     }
 
-    .news-article__image {
+    .news-gallery {
+      padding-inline: 0;
+    }
+
+    .news-gallery__main {
+      border-radius: 0;
+    }
+
+    .news-gallery__main-image {
       aspect-ratio: 4 / 3;
+    }
+
+    .news-gallery__additional {
+      padding-inline: 0.75rem;
+
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .news-gallery__item img {
+      min-height: 12rem;
     }
 
     .news-article__content {

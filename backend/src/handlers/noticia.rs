@@ -1,7 +1,7 @@
 use crate::{
     AppState,
     auth::{auth_user::AuthUser, services::ADMIN_NOTICIAS},
-    error::api_error::ApiError,
+    error::api_error::{ApiError, ApiResult},
     models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
     repositories::noticia::{self, ChangeOrderError},
     utils::{date_spanish::fecha_actual_espanol, image::convert_to_avif},
@@ -113,7 +113,7 @@ pub async fn create(
 }
 
 /* ==========================================================
-   PATCH /noticias/:id
+   PATCH /noticias/{id}
 ========================================================== */
 
 pub async fn update(
@@ -143,7 +143,6 @@ pub async fn update(
     let has_new_images = !payload.images.is_empty();
 
     let mut new_image_count = None;
-
     if has_new_images {
         let converted_images = convert_images(payload.images).await?;
 
@@ -175,7 +174,6 @@ pub async fn update(
 
         new_image_count = Some(converted_images.len() as i64);
     }
-
     let updated = noticia::update(
         &state.db,
         id,
@@ -189,7 +187,6 @@ pub async fn update(
     .await
     .map_err(ApiError::from)?
     .ok_or_else(|| ApiError::BadRequest(String::from("La noticia no existe.")))?;
-
     Ok(Json(updated))
 }
 
@@ -461,4 +458,20 @@ fn optional_required_text(
 
 fn invalid_form_field(field: &str) -> ApiError {
     ApiError::BadRequest(String::from(format!("El campo {field} no es válido.")))
+}
+
+/* ==========================================================
+   OBTENER ÚLTIMAS NOTICIAS
+========================================================== */
+
+pub async fn get_latest_news(
+    State(state): State<Arc<AppState>>,
+) -> ApiResult<Json<Vec<Noticia>>> {
+    let noticias =
+        noticia::get_latest(
+            &state.db,
+        )
+        .await?;
+
+    Ok(Json(noticias))
 }

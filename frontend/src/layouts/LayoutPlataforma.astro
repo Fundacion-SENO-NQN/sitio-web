@@ -1,6 +1,7 @@
 ---
 import '../style/general.css'
 import '../style/common/index.css'
+import ModalCarga from '../components/Common/ModalCarga.astro'
 
 interface Props {
   titulo?: string
@@ -33,6 +34,8 @@ const pageTitle = titulo ? `${titulo} | Plataforma SENO` : 'Plataforma SENO'
     <div class="platform-layout">
       <slot />
     </div>
+
+    <ModalCarga id="global" />
   </body>
 </html>
 

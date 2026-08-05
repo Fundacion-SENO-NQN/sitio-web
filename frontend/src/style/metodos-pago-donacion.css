@@ -1,10 +1,12 @@
-.paymentMethodsPage {
+:root {
   --payment-muted: #667580;
   --payment-border: #d9e2e8;
   --payment-surface: #f5f8fa;
   --payment-danger: #b42318;
   --payment-danger-light: #fff2f0;
+}
 
+.paymentMethodsPage {
   width: 100%;
   min-width: 0;
   padding: clamp(1rem, 3vw, 2rem);

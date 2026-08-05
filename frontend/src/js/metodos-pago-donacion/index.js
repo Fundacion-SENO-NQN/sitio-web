@@ -128,39 +128,6 @@ const formController = createFormModalController({
     )
   },
 
-  populate(form, method) {
-    setFormControlValue(form, 'nombre', method.nombre)
-
-    setFormControlValue(form, 'descripcion', method.descripcion)
-
-    informationController.populate(method.informacion)
-
-    iconPicker.showCurrentImages({
-      urls: [getDonationMethodIconUrl(method)],
-
-      title: method.nombre,
-      cacheBust: false
-    })
-  },
-
-  clear(form) {
-    form.reset()
-
-    informationController.clear()
-
-    iconPicker.reset()
-  },
-
-  onOpenCreate() {
-    iconPicker.setRequired(true)
-
-    iconPicker.setHelpText('El ícono SVG es obligatorio al crear un método.')
-
-    informationController.add(null, {
-      focus: false
-    })
-  },
-
   onOpenEdit() {
     iconPicker.setRequired(false)
 

@@ -85,11 +85,14 @@ export function createLogroModal({
 
     titleElement: '#modalTitle',
 
-    cancelButtons: ['#btnCancel'],
+    saveButton: '#btnSaveAchievement',
 
-    /*
-     * El propio contenedor del modal funciona como fondo.
-     */
+    closeButtons: ['#btnCancel'],
+
+    cancelButtons: ['#btnCancelForm'],
+
+    backdrop: '#achievementModal .modalBackdrop',
+
     hiddenClass: 'hidden',
 
     createTitle: 'Crear logro',
@@ -135,11 +138,6 @@ export function createLogroModal({
 
         contenido: contentInput.value,
 
-        /*
-         * Conserva la posición al editar.
-         *
-         * La implementación original enviaba 0 al crear.
-         */
         orden: editing ? Number(item?.orden) : 0,
 
         image: imagePicker.files[0] ?? null
@@ -165,10 +163,6 @@ export function createLogroModal({
     },
 
     onOpenEdit() {
-      /*
-       * No seleccionar una imagen nueva mantiene la imagen
-       * actual del logro.
-       */
       imagePicker.setRequired(false)
     },
 

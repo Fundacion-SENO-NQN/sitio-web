@@ -489,6 +489,10 @@
    la carga de imágenes de donación.
 ========================================================== */
 
+.loadingOverlay {
+  z-index: 9999999999999999 !important;
+}
+
 :where(
   .loadingOverlay,
   .pantalla-carga-global,

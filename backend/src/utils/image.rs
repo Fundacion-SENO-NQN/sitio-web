@@ -1,7 +1,9 @@
-use image::{GenericImageView, ImageFormat, imageops::FilterType};
+use image::{
+    ExtendedColorType, GenericImageView, ImageEncoder, ImageError, ImageFormat,
+    codecs::avif::AvifEncoder, imageops::FilterType,
+};
 use std::{
     fs,
-    io::Cursor,
     path::{Path, PathBuf},
 };
 
@@ -40,14 +42,22 @@ pub fn delete_image(image_path: PathBuf) -> Result<(), Box<dyn std::error::Error
     Ok(())
 }
 
-const MAX_IMAGE_DIMENSION: u32 = 1920;
+const MAX_IMAGE_DIMENSION: u32 = 1280;
+const AVIF_SPEED: u8 = 10;
+const AVIF_QUALITY: u8 = 70;
 
-pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, image::ImageError> {
+pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
+    let input_format = image::guess_format(bytes)?;
+
+    if input_format == ImageFormat::Avif {
+        return Ok(bytes.to_vec());
+    }
+
     let original = image::load_from_memory(bytes)?;
 
-    let (width, height) = original.dimensions();
+    let (original_width, original_height) = original.dimensions();
 
-    let image = if width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION {
+    let image = if original_width > MAX_IMAGE_DIMENSION || original_height > MAX_IMAGE_DIMENSION {
         original.resize(
             MAX_IMAGE_DIMENSION,
             MAX_IMAGE_DIMENSION,
@@ -57,9 +67,16 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, image::ImageError> {
         original
     };
 
-    let mut output = Cursor::new(Vec::new());
+    let rgba = image.to_rgba8();
 
-    image.write_to(&mut output, ImageFormat::Avif)?;
+    let (width, height) = rgba.dimensions();
 
-    Ok(output.into_inner())
+    let mut output = Vec::new();
+
+    let encoder = AvifEncoder::new_with_speed_quality(&mut output, AVIF_SPEED, AVIF_QUALITY)
+        .with_num_threads(None);
+
+    encoder.write_image(rgba.as_raw(), width, height, ExtendedColorType::Rgba8)?;
+
+    Ok(output)
 }

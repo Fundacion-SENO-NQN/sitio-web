@@ -1,3 +1,4 @@
+const MAX_IMAGES = 10
 const MAX_IMAGE_SIZE = 12 * 1024 * 1024
 
 const VALID_IMAGE_TYPES = new Set([
@@ -6,6 +7,8 @@ const VALID_IMAGE_TYPES = new Set([
   'image/webp',
   'image/avif'
 ])
+
+const VALID_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif'])
 
 /* ==========================================================
    FORM DATA
@@ -21,11 +24,19 @@ export function buildNewsFormData({
   orden,
   order,
 
+  /*
+   * Compatibilidad con componentes antiguos que entregan
+   * una única imagen.
+   */
   image = null,
 
   /*
-   * Compatibilidad con la implementación anterior, que
-   * entregaba un arreglo o FileList llamado "images".
+   * Nueva selección múltiple. Puede ser:
+   *
+   * - File[]
+   * - FileList
+   * - Un único File
+   * - null
    */
   images = null
 } = {}) {
@@ -41,12 +52,12 @@ export function buildNewsFormData({
 
   const normalizedOrder = normalizeOrder(orden ?? order ?? 0)
 
-  const normalizedImage = normalizeSingleImage({
+  const normalizedImages = normalizeImageSelection({
     image,
     images
   })
 
-  if (normalizedImage) validateNewsImage(normalizedImage)
+  validateNewsImages(normalizedImages)
 
   const formData = new FormData()
 
@@ -57,19 +68,28 @@ export function buildNewsFormData({
   /*
    * POST /noticias necesita el orden.
    *
-   * PATCH /noticias/:id actualmente ignora este campo,
-   * porque el orden se modifica mediante el endpoint
-   * específico de reordenamiento.
+   * PATCH /noticias/:id puede ignorarlo cuando el orden se
+   * modifica mediante el endpoint específico.
    */
   formData.append('orden', String(normalizedOrder))
 
-  if (normalizedImage)
-    formData.append('image', normalizedImage, normalizedImage.name)
+  /*
+   * Todos los archivos utilizan el mismo nombre de campo.
+   *
+   * En multipart se enviará:
+   *
+   * images: archivo-1
+   * images: archivo-2
+   * images: archivo-3
+   */
+  normalizedImages.forEach((currentImage) => {
+    formData.append('images', currentImage, currentImage.name)
+  })
 
   /*
-   * No se envía "fecha":
+   * No se envía fecha:
    *
-   * - Al crear, el backend genera la fecha actual.
+   * - Al crear, el backend genera la fecha.
    * - Al editar, conserva la fecha existente.
    */
 
@@ -77,8 +97,8 @@ export function buildNewsFormData({
 }
 
 /*
- * Alias para los archivos que todavía utilicen el nombre
- * anterior en español.
+ * Alias para los archivos que todavía utilizan el nombre
+ * anterior.
  */
 export const buildNoticiaFormData = buildNewsFormData
 
@@ -87,33 +107,33 @@ export const buildNoticiaFormData = buildNewsFormData
 ========================================================== */
 
 export function validateNewsImage(image) {
-  if (!(image instanceof File))
-    throw new TypeError('La imagen no es un archivo válido.')
+  if (!(image instanceof File)) {
+    throw new TypeError('Una de las imágenes no es un archivo válido.')
+  }
 
-  if (!VALID_IMAGE_TYPES.has(image.type))
-    throw new Error('La imagen debe ser JPG, PNG, WebP o AVIF.')
+  if (image.size === 0) {
+    throw new Error(`La imagen “${image.name}” está vacía.`)
+  }
 
-  if (image.size === 0) throw new Error('La imagen está vacía.')
+  if (image.size > MAX_IMAGE_SIZE) {
+    throw new Error(`La imagen “${image.name}” supera el límite de 12 MB.`)
+  }
 
-  if (image.size > MAX_IMAGE_SIZE)
-    throw new Error('La imagen supera el límite de 12 MB.')
+  if (!isValidImageFormat(image)) {
+    throw new Error(`La imagen “${image.name}” debe ser JPG, PNG, WebP o AVIF.`)
+  }
 
   return image
 }
 
-/* ==========================================================
-   LEGACY ARRAY VALIDATION
-========================================================== */
-
 export function validateNewsImages(images) {
   const normalizedImages = normalizeImages(images)
 
-  if (normalizedImages.length > 1)
-    throw new Error('Cada noticia admite una sola imagen.')
+  if (normalizedImages.length > MAX_IMAGES) {
+    throw new Error(`Cada noticia admite como máximo ${MAX_IMAGES} imágenes.`)
+  }
 
-  normalizedImages.forEach((image) => {
-    validateNewsImage(image)
-  })
+  normalizedImages.forEach(validateNewsImage)
 
   return normalizedImages
 }
@@ -124,8 +144,14 @@ export const validateImages = validateNewsImages
    CREATE VALIDATION
 ========================================================== */
 
+/*
+ * Se conserva para componentes antiguos que trabajan con una
+ * única imagen.
+ */
 export function validateCreateNewsImage(image) {
-  if (!image) throw new Error('Seleccioná una imagen para la noticia.')
+  if (!image) {
+    throw new Error('Seleccioná al menos una imagen para la noticia.')
+  }
 
   return validateNewsImage(image)
 }
@@ -133,8 +159,9 @@ export function validateCreateNewsImage(image) {
 export function validateCreateImages(images) {
   const normalizedImages = validateNewsImages(images)
 
-  if (normalizedImages.length === 0)
-    throw new Error('Seleccioná una imagen para la noticia.')
+  if (normalizedImages.length === 0) {
+    throw new Error('Seleccioná al menos una imagen para la noticia.')
+  }
 
   return normalizedImages
 }
@@ -143,23 +170,32 @@ export function validateCreateImages(images) {
    IMAGE NORMALIZATION
 ========================================================== */
 
-function normalizeSingleImage({ image, images }) {
-  if (image !== null && image !== undefined) return image
+function normalizeImageSelection({ image, images }) {
+  const normalized = [...normalizeImages(image), ...normalizeImages(images)]
 
-  if (images === null || images === undefined) return null
-
-  const normalizedImages = normalizeImages(images)
-
-  if (normalizedImages.length > 1)
-    throw new Error('Cada noticia admite una sola imagen.')
-
-  return normalizedImages[0] ?? null
+  /*
+   * Evita agregar dos veces el mismo objeto File cuando un
+   * componente entrega simultáneamente image e images.
+   */
+  return [...new Set(normalized)]
 }
 
 function normalizeImages(images) {
-  if (images === null || images === undefined) return []
+  if (images === null || images === undefined) {
+    return []
+  }
 
-  if (images instanceof File) return [images]
+  if (images instanceof File) {
+    return [images]
+  }
+
+  if (typeof FileList !== 'undefined' && images instanceof FileList) {
+    return Array.from(images)
+  }
+
+  if (Array.isArray(images)) {
+    return [...images]
+  }
 
   try {
     return Array.from(images)
@@ -168,19 +204,50 @@ function normalizeImages(images) {
   }
 }
 
+function isValidImageFormat(image) {
+  /*
+   * Algunos navegadores pueden entregar un MIME vacío,
+   * especialmente con determinados archivos AVIF.
+   *
+   * Por eso se valida también la extensión.
+   */
+  const validMime =
+    image.type === '' ||
+    VALID_IMAGE_TYPES.has(image.type.toLocaleLowerCase('en-US'))
+
+  const extension = getFileExtension(image.name)
+
+  const validExtension = VALID_IMAGE_EXTENSIONS.has(extension)
+
+  return validMime && validExtension
+}
+
+function getFileExtension(filename) {
+  const normalizedFilename = String(filename ?? '').trim()
+
+  const lastDot = normalizedFilename.lastIndexOf('.')
+
+  if (lastDot === -1 || lastDot === normalizedFilename.length - 1) {
+    return ''
+  }
+
+  return normalizedFilename.slice(lastDot + 1).toLocaleLowerCase('en-US')
+}
+
 /* ==========================================================
    ORDER
 ========================================================== */
 
 function normalizeOrder(value) {
-  const order = Number(value)
+  const normalizedOrder = Number(value)
 
-  if (!Number.isInteger(order) || order < 0)
+  if (!Number.isInteger(normalizedOrder) || normalizedOrder < 0) {
     throw new TypeError(
       'El orden de la noticia debe ser un entero no negativo.'
     )
+  }
 
-  return order
+  return normalizedOrder
 }
 
 /* ==========================================================
@@ -190,7 +257,9 @@ function normalizeOrder(value) {
 function cleanRequiredText(value, errorMessage) {
   const cleaned = String(value ?? '').trim()
 
-  if (!cleaned) throw new Error(errorMessage)
+  if (!cleaned) {
+    throw new Error(errorMessage)
+  }
 
   return cleaned
 }

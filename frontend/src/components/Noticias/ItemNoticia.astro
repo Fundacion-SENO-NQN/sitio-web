@@ -3,8 +3,16 @@ import type Noticia from '../../data/interfaces/Noticia'
 
 import IconCalendario from '../../assets/icon-noticias/icon-calendario.svg'
 
+type NoticiaConImagenes = Noticia & {
+  cant_img?: number | null
+  created_at?: string | Date | null
+  updated_at?: string | Date | null
+  contenido?: string | null
+  content?: string | null
+}
+
 interface Props {
-  noticia: Noticia
+  noticia: NoticiaConImagenes
   priority?: boolean
 }
 
@@ -16,26 +24,129 @@ const IMG_URL = (
 ).replace(/\/+$/, '')
 
 const newsUrl = `/noticias/${noticia.id}`
-const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
+
+/*
+ * Cuando cant_img no existe, se asume una imagen para
+ * mantener compatibilidad con las noticias anteriores.
+ *
+ * Cuando el backend envía explícitamente 0, no se intenta
+ * mostrar ninguna imagen.
+ */
+const imageCount = normalizeImageCount(noticia.cant_img)
+
+const version = createImageVersion(noticia.updated_at ?? noticia.created_at)
+
+const imageUrl =
+  imageCount > 0
+    ? createNewsImageUrl({
+        baseUrl: IMG_URL,
+        newsId: noticia.id,
+        imageIndex: 0,
+        version
+      })
+    : null
+
+/*
+ * Compatibilidad temporal con el sistema anterior:
+ *
+ * img_noticias/{id}.avif
+ *
+ * Puede eliminarse cuando todas las noticias hayan sido
+ * migradas al nuevo directorio.
+ */
+const legacyImageUrl =
+  `${IMG_URL}/img_noticias/${noticia.id}.avif` +
+  (version ? `?v=${version}` : '')
+
+const description = String(noticia.content ?? noticia.contenido ?? '').trim()
+
+function normalizeImageCount(value: unknown): number {
+  if (value === null) {
+    return 0
+  }
+
+  if (value === undefined) {
+    return 1
+  }
+
+  const count = Number(value)
+
+  if (!Number.isInteger(count) || count < 0) {
+    return 0
+  }
+
+  return Math.min(count, 10)
+}
+
+function createImageVersion(value: string | Date | null | undefined): string {
+  if (!value) {
+    return ''
+  }
+
+  return encodeURIComponent(String(value))
+}
+
+function createNewsImageUrl({
+  baseUrl,
+  newsId,
+  imageIndex,
+  version
+}: {
+  baseUrl: string
+  newsId: number
+  imageIndex: number
+  version: string
+}): string {
+  const url = `${baseUrl}/img_noticias/${newsId}/${imageIndex}.avif`
+
+  return version ? `${url}?v=${version}` : url
+}
 ---
 
 <article class="news-card">
-  <a
-    class="news-card__image-link"
-    href={newsUrl}
-    aria-label={`Leer noticia: ${noticia.titulo}`}
-  >
-    <img
-      class="news-card__image"
-      src={imageUrl}
-      alt=""
-      loading={priority ? 'eager' : 'lazy'}
-      fetchpriority={priority ? 'high' : 'auto'}
-      decoding="async"
-      width="1600"
-      height="1000"
-    />
-  </a>
+  {
+    imageUrl && (
+      <a
+        class="news-card__image-link"
+        href={newsUrl}
+        aria-label={`Leer noticia: ${noticia.titulo}`}
+        data-news-image-container
+      >
+        <img
+          class="news-card__image"
+          src={imageUrl}
+          alt=""
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          decoding="async"
+          width="1600"
+          height="1000"
+          data-news-image
+          data-fallback-src={legacyImageUrl}
+        />
+
+        <span
+          class="news-card__image-placeholder"
+          aria-hidden="true"
+          data-news-image-placeholder
+          hidden
+        >
+          Imagen no disponible
+        </span>
+
+        {imageCount > 1 && (
+          <span
+            class="news-card__image-count"
+            aria-label={`${imageCount} imágenes`}
+          >
+            <span aria-hidden="true">▧</span>
+
+            {imageCount}
+          </span>
+        )}
+      </a>
+    )
+  }
 
   <div class="news-card__content">
     {
@@ -54,7 +165,7 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
       </a>
     </h3>
 
-    {noticia.content && <p class="news-card__description">{noticia.content}</p>}
+    {description && <p class="news-card__description">{description}</p>}
 
     <a
       class="news-card__link"
@@ -67,6 +178,45 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
     </a>
   </div>
 </article>
+
+<script>
+  function initializeNewsCardImages() {
+    const images = document.querySelectorAll<HTMLImageElement>(
+      '[data-news-image]:not([data-image-initialized])'
+    )
+
+    images.forEach((image) => {
+      image.dataset.imageInitialized = 'true'
+
+      image.addEventListener('error', () => {
+        const fallbackUrl = image.dataset.fallbackSrc
+
+        if (fallbackUrl) {
+          delete image.dataset.fallbackSrc
+          image.src = fallbackUrl
+
+          return
+        }
+
+        image.hidden = true
+
+        const container = image.closest('[data-news-image-container]')
+
+        const placeholder = container?.querySelector<HTMLElement>(
+          '[data-news-image-placeholder]'
+        )
+
+        if (placeholder) {
+          placeholder.hidden = false
+        }
+      })
+    })
+  }
+
+  initializeNewsCardImages()
+
+  document.addEventListener('astro:page-load', initializeNewsCardImages)
+</script>
 
 <style>
   .news-card {
@@ -85,7 +235,6 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
     background-color: var(--color-background);
 
     border: 1px solid var(--color-light-grey);
-
     border-radius: var(--radius);
 
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
@@ -97,7 +246,12 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
   }
 
   .news-card__image-link {
-    display: block;
+    min-height: 12rem;
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
 
     overflow: hidden;
 
@@ -107,7 +261,6 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
   .news-card__image-link:focus-visible {
     outline: none;
 
-    position: relative;
     z-index: 1;
 
     box-shadow: inset 0 0 0 4px var(--color-secondary);
@@ -117,12 +270,48 @@ const imageUrl = `${IMG_URL}/img_noticias/${noticia.id}.avif`
     width: 100%;
     height: auto;
 
+    display: block;
+
     aspect-ratio: 16 / 10;
 
     object-fit: cover;
     object-position: center;
 
     transition: transform 350ms ease;
+  }
+
+  .news-card__image-placeholder {
+    padding: 1rem;
+
+    color: #667580;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .news-card__image-count {
+    min-width: 2.6rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.6rem;
+
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+
+    color: #ffffff;
+    background-color: rgba(15, 23, 32, 0.78);
+
+    border-radius: 999px;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
   }
 
   .news-card__content {

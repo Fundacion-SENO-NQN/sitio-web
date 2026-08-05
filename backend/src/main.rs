@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
 
-    let address = format!("0.0.0.0:{port}");
+    let address = format!("127.0.0.1:{port}");
 
     /* ========================================================
      * CORS
@@ -140,8 +140,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
      * ====================================================== */
 
     let listener = tokio::net::TcpListener::bind(&address).await?;
-
-    println!("Backend server running on http://{address}");
 
     axum::serve(listener, app).await?;
 

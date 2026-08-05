@@ -209,6 +209,7 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
       const username = window.localStorage.getItem('username')?.trim()
 
       if (!token || !username) {
+        console.log('entre')
         this.clearAuthentication()
         window.location.replace('/login/')
         return
@@ -237,6 +238,7 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
         )
 
         if (response.status === 401 || response.status === 403) {
+          console.log('entre en el error')
           this.clearAuthentication()
           window.location.replace('/login/')
           return
@@ -281,6 +283,7 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
         }
       } finally {
         this.setLoading(false)
+        document.getElementById('modal-carga-global')?.remove()
       }
     }
 

@@ -1,26 +1,29 @@
-const API = 'https://sitio-web-fundacion-seno.fly.dev';
+const rawApiUrl = import.meta.env.PUBLIC_API_URL
 
-export async function api<T>(
-    path: string,
-    init: RequestInit = {},
-): Promise<T> {
+if (!rawApiUrl)
+  throw new Error(
+    'PUBLIC_API_URL is not configured. Add it to the environment variables.'
+  )
 
-    const token = localStorage.getItem("token");
+const API = rawApiUrl.replace(/\/+$/, '')
 
-    const headers = new Headers(init.headers);
+export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem('token')
 
-    if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-    }
+  const headers = new Headers(init.headers)
 
-    const response = await fetch(`${API}${path}`, {
-        ...init,
-        headers,
-    });
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`)
+  }
 
-    if (!response.ok) {
-        throw new Error(await response.text());
-    }
+  const response = await fetch(`${API}${path}`, {
+    ...init,
+    headers
+  })
 
-    return response.json();
+  if (!response.ok) {
+    throw new Error(await response.text())
+  }
+
+  return response.json()
 }

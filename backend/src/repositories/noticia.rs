@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use sqlx::{PgPool, Postgres, QueryBuilder};
+use sqlx::PgPool;
 
 use crate::models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia};
 
@@ -140,51 +140,47 @@ pub async fn update(
     id: i64,
     changes: UpdateNoticia,
 ) -> Result<Option<Noticia>, sqlx::Error> {
-    let has_changes = changes.fecha.is_some()
-        || changes.titulo.is_some()
-        || changes.contenido.is_some()
-        || changes.cant_img.is_some();
+    let UpdateNoticia {
+        fecha,
+        titulo,
+        contenido,
+        cant_img,
+    } = changes;
 
-    if !has_changes {
+    /*
+     * Avoid executing an unnecessary UPDATE when the request
+     * does not contain any changes.
+     */
+    if fecha.is_none() && titulo.is_none() && contenido.is_none() && cant_img.is_none() {
         return get_by_id(pool, id).await;
     }
 
-    let mut query = QueryBuilder::<Postgres>::new("UPDATE noticias SET ");
-
-    {
-        let mut fields = query.separated(", ");
-
-        if let Some(fecha) = changes.fecha {
-            fields.push("fecha = ").push_bind(fecha);
-        }
-
-        if let Some(titulo) = changes.titulo {
-            fields.push("titulo = ").push_bind(titulo);
-        }
-
-        if let Some(contenido) = changes.contenido {
-            fields.push("contenido = ").push_bind(contenido);
-        }
-
-        if let Some(cant_img) = changes.cant_img {
-            fields.push("cant_img = ").push_bind(cant_img);
-        }
-    }
-
-    query.push(" WHERE id = ").push_bind(id).push(
+    sqlx::query_as::<_, Noticia>(
         r#"
-            RETURNING
-                id,
-                created_at,
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            "#,
-    );
-
-    query.build_query_as::<Noticia>().fetch_optional(pool).await
+        UPDATE noticias
+        SET
+            fecha = COALESCE($1, fecha),
+            titulo = COALESCE($2, titulo),
+            contenido = COALESCE($3, contenido),
+            cant_img = COALESCE($4, cant_img)
+        WHERE id = $5
+        RETURNING
+            id,
+            created_at,
+            fecha,
+            titulo,
+            orden,
+            contenido,
+            cant_img
+        "#,
+    )
+    .bind(fecha)
+    .bind(titulo)
+    .bind(contenido)
+    .bind(cant_img)
+    .bind(id)
+    .fetch_optional(pool)
+    .await
 }
 
 /* ==========================================================
@@ -463,4 +459,33 @@ pub enum ChangeOrderError {
     Invalid(String),
     NotFound,
     Database(sqlx::Error),
+}
+
+/* ==========================================================
+   OBTENER ÚLTIMAS NOTICIAS
+========================================================== */
+
+const LATEST_NEWS_LIMIT: i64 = 4;
+
+pub async fn get_latest(pool: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
+    sqlx::query_as::<_, Noticia>(
+        r#"
+        SELECT
+            id,
+            created_at,
+            fecha,
+            titulo,
+            orden,
+            contenido,
+            cant_img
+        FROM noticias
+        ORDER BY
+            created_at DESC,
+            id DESC
+        LIMIT $1
+        "#,
+    )
+    .bind(LATEST_NEWS_LIMIT)
+    .fetch_all(pool)
+    .await
 }

@@ -1,3 +1,5 @@
+import { startLoading } from './loadingScreen.js'
+
 const rawApiUrl = import.meta.env.PUBLIC_API_URL
 
 if (!rawApiUrl)
@@ -39,7 +41,15 @@ function removeSession() {
 
 export async function request(
   path,
-  { body = undefined, headers = undefined, ...options } = {}
+  {
+    body = undefined,
+    headers = undefined,
+
+    globalLoading = true,
+    loadingMessage = null,
+
+    ...options
+  } = {}
 ) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
@@ -47,51 +57,81 @@ export async function request(
 
   const token = getToken()
 
-  /*
-   * The previous implementation sent:
-   *
-   * Authorization: Bearer null
-   *
-   * when no token existed.
-   */
-  if (token && !requestHeaders.has('Authorization'))
+  if (token && !requestHeaders.has('Authorization')) {
     requestHeaders.set('Authorization', `Bearer ${token}`)
+  }
 
   const normalizedBody = normalizeBody(body, requestHeaders)
 
-  let response
+  const method = String(options.method ?? 'GET').toUpperCase()
+
+  const finishLoading = globalLoading
+    ? startLoading(loadingMessage ?? getDefaultLoadingMessage(method))
+    : () => {}
 
   try {
-    response = await fetch(`${BASE_URL}${normalizedPath}`, {
-      ...options,
-      headers: requestHeaders,
-      body: normalizedBody
-    })
-  } catch (error) {
-    console.error('Could not connect to API:', error)
+    let response
 
-    throw new ApiError('No se pudo conectar con el servidor.', {
-      status: 0,
-      body: error
-    })
+    try {
+      response = await fetch(`${BASE_URL}${normalizedPath}`, {
+        ...options,
+
+        headers: requestHeaders,
+        body: normalizedBody
+      })
+    } catch (error) {
+      console.error('Could not connect to API:', error)
+
+      throw new ApiError('No se pudo conectar con el servidor.', {
+        status: 0,
+        body: error
+      })
+    }
+
+    if (response.status === 401) {
+      removeSession()
+
+      throw new ApiError('Tu sesión venció. Volvé a iniciar sesión.', {
+        status: response.status
+      })
+    }
+
+    if (response.status === 403) {
+      throw new ApiError('No tenés permisos para realizar esta acción.', {
+        status: response.status
+      })
+    }
+
+    if (!response.ok) {
+      throw await createResponseError(response)
+    }
+
+    /*
+     * Await is intentional. Without it, the finally block
+     * could hide the loading screen before parsing finishes.
+     */
+    return await parseResponse(response)
+  } finally {
+    finishLoading()
   }
+}
 
-  if (response.status === 401) {
-    removeSession()
+function getDefaultLoadingMessage(method) {
+  switch (method) {
+    case 'POST':
+      return 'Creando...'
 
-    throw new ApiError('Tu sesión venció. Volvé a iniciar sesión.', {
-      status: response.status
-    })
+    case 'PUT':
+    case 'PATCH':
+      return 'Guardando cambios...'
+
+    case 'DELETE':
+      return 'Eliminando...'
+
+    case 'GET':
+    default:
+      return 'Cargando información...'
   }
-
-  if (response.status === 403)
-    throw new ApiError('No tenés permisos para realizar esta acción.', {
-      status: response.status
-    })
-
-  if (!response.ok) throw await createResponseError(response)
-
-  return parseResponse(response)
 }
 
 /* ==========================================================

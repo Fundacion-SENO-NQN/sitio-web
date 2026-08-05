@@ -23,7 +23,7 @@ const MAX_IMAGE_BYTES: usize = 12 * 1024 * 1024;
 
 pub async fn get_all_eventos(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Evento>>> {
     let eventos = repositories::evento::get_all(&state.db).await?;
-
+    println!("holaa");
     Ok(Json(eventos))
 }
 
@@ -51,8 +51,9 @@ pub async fn create_evento(
     State(state): State<Arc<AppState>>,
     mut multipart: Multipart,
 ) -> ApiResult<(StatusCode, Json<Evento>)> {
+    println!("Entre al handler");
     user.require(ADMIN_EVENTOS)?;
-
+    println!("Pase permisos");
     let mut titulo = String::new();
     let mut descripcion = String::new();
 
@@ -64,7 +65,7 @@ pub async fn create_evento(
     let mut url_titulo: Option<String> = None;
 
     let mut images: Vec<Vec<u8>> = Vec::new();
-
+    println!("Pase inicializaciones");
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid event multipart body: {error}",);
 
@@ -123,26 +124,26 @@ pub async fn create_evento(
             _ => {}
         }
     }
-
+    println!("Pase while");
     let titulo = titulo.trim();
     let descripcion = descripcion.trim();
 
     validate_required(titulo, "El título es requerido.")?;
 
     validate_required(descripcion, "La descripción es requerida.")?;
-
+    println!("Pase validaciones");
     if images.is_empty() {
         return Err(ApiError::BadRequest(
             "Debe proporcionar al menos una imagen.".into(),
         ));
     }
-
+    println!("Pase images.is_empty()");
     let url_data = build_create_url(url, url_titulo)?;
 
     let avif_images = convert_images(images)?;
 
     let cant_img = avif_images.len() as i64;
-
+    println!("pase images");
     let evento = repositories::evento::create(
         &state.db,
         titulo,
@@ -154,7 +155,7 @@ pub async fn create_evento(
         url_data,
     )
     .await?;
-
+    println!("Pase create");
     let mut uploaded_images = 0usize;
 
     for (index, avif_image) in avif_images.into_iter().enumerate() {
@@ -186,7 +187,7 @@ pub async fn create_evento(
 
         uploaded_images += 1;
     }
-
+    println!("Pase for");
     Ok((StatusCode::CREATED, Json(evento)))
 }
 
@@ -384,13 +385,11 @@ pub async fn change_order_eventos(
     Json(request): Json<Vec<ChangeOrderEvento>>,
 ) -> ApiResult<StatusCode> {
     user.require(ADMIN_EVENTOS)?;
-
     if request.is_empty() {
         return Err(ApiError::BadRequest(
             "Debe proporcionar al menos un evento.".into(),
         ));
     }
-
     let mut ids = HashSet::new();
     let mut orders = HashSet::new();
 
@@ -415,7 +414,6 @@ pub async fn change_order_eventos(
             return Err(ApiError::BadRequest("Orden duplicado.".into()));
         }
     }
-
     repositories::evento::change_order(&state.db, request).await?;
 
     Ok(StatusCode::NO_CONTENT)
@@ -430,12 +428,13 @@ pub async fn delete_evento(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i64>,
 ) -> ApiResult<Json<Evento>> {
+    println!("entre");
     user.require(ADMIN_EVENTOS)?;
-
+    println!("pase require");
     let evento = repositories::evento::delete(&state.db, id).await?;
-
+    println!("pase delete evento");
     delete_event_images(&state, evento.id, evento.cant_img as usize).await;
-
+    println!("pase delete imagenes");
     Ok(Json(evento))
 }
 
