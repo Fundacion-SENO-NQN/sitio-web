@@ -1,73 +1,42 @@
-use crate::models::img_donation::DonationImagesState;
-use image::{ImageEncoder, codecs::avif::AvifEncoder};
-use std::{env, fs, fs::File, io::BufWriter, path::PathBuf};
+use sqlx::{Postgres, Transaction};
 
-fn get_route_next_img() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut state_path = PathBuf::from(env::var("ROUTE_TO_DATA")?);
-    state_path.push("imgDonacion");
-    state_path.push("nextImg.json");
-    Ok(state_path)
+/* ==========================================================
+   RESERVAR SIGUIENTE POSICIÓN
+========================================================== */
+
+/*
+ * Reserves the next donation-image position.
+ *
+ * The update is performed inside the caller's transaction.
+ * Therefore:
+ *
+ * - Concurrent requests cannot reserve the same position.
+ * - If the R2 upload fails, rolling back the transaction also
+ *   rolls back the index change.
+ */
+pub async fn reserve_next_slot(
+    transaction: &mut Transaction<'_, Postgres>,
+) -> Result<i32, sqlx::Error> {
+    sqlx::query_scalar::<_, i32>(
+        r#"
+        UPDATE public.img_donation_state
+        SET
+            next_index = (next_index + 1) % 10,
+            updated_at = clock_timestamp()
+        WHERE id = 1
+        RETURNING
+            (next_index + 9) % 10
+        "#,
+    )
+    .fetch_optional(&mut **transaction)
+    .await?
+    .ok_or(sqlx::Error::RowNotFound)
 }
 
-fn get_route_img_donation() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut state_path = PathBuf::from(env::var("ROUTE_TO_IMG")?);
-    state_path.push("img_donaciones");
-    Ok(state_path)
-}
+/* ==========================================================
+   CLAVE R2
+========================================================== */
 
-fn load_donation_state() -> Result<DonationImagesState, Box<dyn std::error::Error>> {
-    if !std::path::Path::new(&get_route_next_img()?).exists() {
-        return Ok(DonationImagesState { next: 0 });
-    }
-
-    let content = fs::read_to_string(get_route_next_img()?)?;
-    Ok(serde_json::from_str(&content)?)
-}
-
-fn save_donation_state(state: &DonationImagesState) -> Result<(), Box<dyn std::error::Error>> {
-    fs::write(get_route_next_img()?, serde_json::to_string_pretty(state)?)?;
-    Ok(())
-}
-
-pub fn replace_oldest_donation_image(bytes: &[u8]) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut state = load_donation_state()?;
-
-    let mut img = image::load_from_memory(bytes)?;
-
-    const MAX_WIDTH: u32 = 1920;
-
-    if img.width() > MAX_WIDTH {
-        let ratio = MAX_WIDTH as f32 / img.width() as f32;
-        let new_height = (img.height() as f32 * ratio) as u32;
-
-        img = img.resize(MAX_WIDTH, new_height, image::imageops::FilterType::Lanczos3);
-    }
-
-    let mut path = get_route_img_donation()?;
-    path.push(format!("{}.avif", state.next));
-
-    if path.exists() {
-        std::fs::remove_file(&path)?;
-    }
-
-    let file = File::create(&path)?;
-    let writer = BufWriter::new(file);
-
-    let encoder = AvifEncoder::new(writer);
-
-    encoder.write_image(
-        img.as_bytes(),
-        img.width(),
-        img.height(),
-        img.color().into(),
-    )?;
-
-    state.next = (state.next + 1) % 10;
-
-    save_donation_state(&state)?;
-
-    let mut route = get_route_img_donation()?;
-    route.push(format!("{}.avif", (state.next + 9) % 10));
-
-    Ok(route)
+pub fn donation_image_key(slot: i32) -> String {
+    format!("img_donaciones/{slot}.avif")
 }

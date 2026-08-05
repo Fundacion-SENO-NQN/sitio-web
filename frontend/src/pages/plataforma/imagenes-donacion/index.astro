@@ -17,11 +17,11 @@ import '../../../style/uploadImages.css'
   <main class="adminPage upload-page">
     <section class="uploadCard" aria-labelledby="upload-title">
       <header class="uploadCardHeader">
-        <h2 id="upload-title">Subir una nueva imagen</h2>
+        <h2 id="upload-title">Subir nuevas imágenes</h2>
 
         <p id="upload-description">
-          Seleccioná una fotografía. La plataforma reemplazará automáticamente
-          la imagen de donación más antigua.
+          Podés seleccionar hasta 10 fotografías. Cada imagen reemplazará,
+          individualmente, la fotografía de donación más antigua.
         </p>
       </header>
 
@@ -30,38 +30,50 @@ import '../../../style/uploadImages.css'
           <input
             id="images"
             class="srOnly"
-            name="image"
+            name="images"
             type="file"
             accept="image/jpeg,image/png,image/webp,image/avif"
             aria-describedby="upload-description upload-formats"
+            multiple
             required
           />
 
           <span class="imagePickerIcon icon" aria-hidden="true"> 🖼️ </span>
 
-          <strong> Soltá la imagen acá </strong>
+          <strong> Soltá las imágenes acá </strong>
 
-          <span> O hacé clic para seleccionarla </span>
+          <span> O hacé clic para seleccionarlas </span>
 
-          <small id="upload-formats"> JPG, PNG, WebP o AVIF </small>
+          <small id="upload-formats">
+            Hasta 10 imágenes JPG, PNG, WebP o AVIF. Máximo 12 MB por archivo.
+          </small>
         </label>
 
         <div
           id="previewContainer"
-          class="imagePreviewContainer previewContainer"
-          aria-label="Vista previa de la imagen seleccionada"
+          class="imagePreviewContainer previewContainer hidden"
+          aria-label="Vista previa de las imágenes seleccionadas"
           aria-live="polite"
         >
         </div>
 
         <div class="uploadActions">
           <button
+            id="btnClearImages"
+            class="button buttonGhost"
+            type="button"
+            disabled
+          >
+            Limpiar selección
+          </button>
+
+          <button
             id="btnUpload"
             class="button buttonPrimary primaryButton"
             type="submit"
             disabled
           >
-            Subir imagen
+            Subir imágenes
           </button>
         </div>
       </form>
@@ -71,8 +83,9 @@ import '../../../style/uploadImages.css'
       <strong>Tené en cuenta</strong>
 
       <p>
-        La imagen se convertirá automáticamente al formato utilizado por el
-        sitio web. Verificá que la fotografía sea clara antes de subirla.
+        Las imágenes se convertirán automáticamente al formato utilizado por el
+        sitio web. Las cargas se procesan una por una para evitar que dos
+        fotografías intenten reemplazar la misma posición.
       </p>
     </aside>
   </main>

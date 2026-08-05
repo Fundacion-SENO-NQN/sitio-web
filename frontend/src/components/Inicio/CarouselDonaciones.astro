@@ -1,69 +1,70 @@
 ---
-import { Image } from 'astro:assets'
-
-import Img0 from '../../assets/img_donaciones/0.avif'
-import Img1 from '../../assets/img_donaciones/1.avif'
-import Img2 from '../../assets/img_donaciones/2.avif'
-import Img3 from '../../assets/img_donaciones/3.avif'
-import Img4 from '../../assets/img_donaciones/4.avif'
-import Img5 from '../../assets/img_donaciones/5.avif'
-import Img6 from '../../assets/img_donaciones/6.avif'
-import Img7 from '../../assets/img_donaciones/7.avif'
-import Img8 from '../../assets/img_donaciones/8.avif'
-import Img9 from '../../assets/img_donaciones/9.avif'
-
-const images: ImageMetadata[] = [
-  Img0,
-  Img1,
-  Img2,
-  Img3,
-  Img4,
-  Img5,
-  Img6,
-  Img7,
-  Img8,
-  Img9
-]
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
 
 /*
- * Se duplica la primera imagen al final.
- * Al llegar a la copia, el carrusel vuelve a la imagen
- * original sin animación para generar un bucle continuo.
+ * The backend stores the donation carousel in ten fixed
+ * positions:
+ *
+ * img_donaciones/0.avif
+ * img_donaciones/1.avif
+ * ...
+ * img_donaciones/9.avif
  */
-const carouselImages = [...images, images[0]]
+const IMAGE_COUNT = 10
+
+/*
+ * This value changes on every Astro build.
+ *
+ * Since the backend overwrites existing R2 objects while
+ * keeping the same filename, this query parameter prevents
+ * the browser or CDN from continuing to use an old image
+ * after the automatic frontend rebuild.
+ */
+const buildVersion = Date.now().toString()
+
+const images = Array.from(
+  {
+    length: IMAGE_COUNT
+  },
+  (_, index) => ({
+    index,
+
+    src: `${IMG_URL}/img_donaciones/${index}.avif` + `?v=${buildVersion}`
+  })
+)
 ---
 
 <donation-carousel
   class="donation-carousel"
-  data-real-images={images.length}
   role="region"
   aria-roledescription="carrusel"
   aria-label="Imágenes de donaciones recibidas por la Fundación SENO"
 >
   <div class="donation-carousel__track" data-carousel-track aria-live="off">
     {
-      carouselImages.map((image, index) => {
-        const isClone = index === images.length
-
-        return (
-          <Image
-            class="donation-carousel__slide"
-            src={image}
-            alt={
-              isClone
-                ? ''
-                : `Donación recibida por la Fundación SENO, imagen ${index + 1}`
-            }
-            loading={index === 0 ? 'eager' : 'lazy'}
-            fetchpriority={index === 0 ? 'high' : 'auto'}
-            decoding="async"
-            draggable="false"
-            aria-hidden={isClone ? 'true' : undefined}
-          />
-        )
-      })
+      images.map(({ index, src }) => (
+        <img
+          class="donation-carousel__slide"
+          src={src}
+          alt={`Donación recibida por la Fundación SENO, imagen ${index + 1}`}
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchpriority={index === 0 ? 'high' : 'auto'}
+          decoding="async"
+          draggable="false"
+          width="1920"
+          height="1280"
+          data-carousel-image
+        />
+      ))
     }
   </div>
+
+  <p class="donation-carousel__empty" data-carousel-empty role="status" hidden>
+    Las imágenes de donaciones no están disponibles en este momento.
+  </p>
 
   <div class="donation-carousel__overlay" aria-hidden="true">
     <p>Tu donación ayuda un montón</p>
@@ -75,16 +76,19 @@ const carouselImages = [...images, images[0]]
 
   class DonationCarousel extends HTMLElement {
     private track: HTMLElement | null = null
-    private slides: HTMLElement[] = []
+
+    private slides: HTMLImageElement[] = []
 
     private currentIndex = 0
     private realImages = 0
+
     private intervalId: number | undefined
     private resizeFrame: number | undefined
 
     private interactionPaused = false
 
     private resizeObserver: ResizeObserver | null = null
+
     private reducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     )
@@ -92,59 +96,20 @@ const carouselImages = [...images, images[0]]
     private abortController: AbortController | null = null
 
     connectedCallback(): void {
-      if (this.dataset.initialized === 'true') {
+      if (this.dataset.initialized) {
         return
       }
 
-      this.track = this.querySelector<HTMLElement>('[data-carousel-track]')
+      this.dataset.initialized = 'pending'
 
-      this.slides = Array.from(
-        this.querySelectorAll<HTMLElement>('.donation-carousel__slide')
-      )
+      this.initialize().catch((error) => {
+        console.error(
+          'No se pudo inicializar el carrusel de donaciones:',
+          error
+        )
 
-      this.realImages = Number.parseInt(this.dataset.realImages ?? '0', 10)
-
-      if (!this.track || this.slides.length <= 1 || this.realImages <= 1) {
-        return
-      }
-
-      this.dataset.initialized = 'true'
-      this.abortController = new AbortController()
-
-      const { signal } = this.abortController
-
-      this.track.addEventListener('transitionend', this.handleTransitionEnd, {
-        signal
+        this.showEmptyState()
       })
-
-      this.addEventListener('mouseenter', this.handleInteractionStart, {
-        signal
-      })
-
-      this.addEventListener('mouseleave', this.handleInteractionEnd, { signal })
-
-      this.addEventListener('focusin', this.handleInteractionStart, { signal })
-
-      this.addEventListener('focusout', this.handleFocusOut, { signal })
-
-      document.addEventListener(
-        'visibilitychange',
-        this.handleVisibilityChange,
-        { signal }
-      )
-
-      this.reducedMotion.addEventListener(
-        'change',
-        this.handleReducedMotionChange
-      )
-
-      this.resizeObserver = new ResizeObserver(this.handleResize)
-
-      this.resizeObserver.observe(this)
-
-      this.updateMotionPreference()
-      this.repositionWithoutAnimation()
-      this.startCarousel()
     }
 
     disconnectedCallback(): void {
@@ -152,6 +117,7 @@ const carouselImages = [...images, images[0]]
 
       if (this.resizeFrame !== undefined) {
         window.cancelAnimationFrame(this.resizeFrame)
+        this.resizeFrame = undefined
       }
 
       this.resizeObserver?.disconnect()
@@ -165,29 +131,165 @@ const carouselImages = [...images, images[0]]
       this.abortController?.abort()
       this.abortController = null
 
+      this.slides = []
+      this.realImages = 0
+      this.currentIndex = 0
+
       delete this.dataset.initialized
     }
 
+    private async initialize(): Promise<void> {
+      this.track = this.querySelector<HTMLElement>('[data-carousel-track]')
+
+      if (!this.track) {
+        this.showEmptyState()
+        return
+      }
+
+      this.abortController = new AbortController()
+
+      const { signal } = this.abortController
+
+      const initialImages = Array.from(
+        this.querySelectorAll<HTMLImageElement>('[data-carousel-image]')
+      )
+
+      const imageResults = await Promise.all(
+        initialImages.map((image) => waitForImage(image, signal))
+      )
+
+      if (signal.aborted || !this.isConnected) {
+        return
+      }
+
+      const validImages: HTMLImageElement[] = []
+
+      initialImages.forEach((image, index) => {
+        if (imageResults[index]) {
+          validImages.push(image)
+        } else {
+          image.remove()
+        }
+      })
+
+      this.realImages = validImages.length
+
+      if (this.realImages === 0) {
+        this.showEmptyState()
+        return
+      }
+
+      this.hideEmptyState()
+
+      /*
+       * The last slide is a clone of the first valid image.
+       *
+       * When the transition reaches this clone, the track
+       * immediately returns to the original first slide
+       * without animation.
+       */
+      if (this.realImages > 1) {
+        const firstImage = validImages[0]
+
+        const clonedImage = firstImage.cloneNode(true) as HTMLImageElement
+
+        clonedImage.alt = ''
+        clonedImage.loading = 'lazy'
+        clonedImage.fetchPriority = 'auto'
+
+        clonedImage.removeAttribute('data-carousel-image')
+
+        clonedImage.setAttribute('aria-hidden', 'true')
+
+        clonedImage.classList.add('donation-carousel__slide--clone')
+
+        this.track.appendChild(clonedImage)
+
+        this.slides = [...validImages, clonedImage]
+      } else {
+        this.slides = validImages
+      }
+
+      this.currentIndex = 0
+      this.dataset.initialized = 'true'
+
+      this.repositionWithoutAnimation()
+
+      if (this.realImages <= 1) {
+        return
+      }
+
+      this.registerEvents(signal)
+
+      this.resizeObserver = new ResizeObserver(this.handleResize)
+
+      this.resizeObserver.observe(this)
+
+      this.updateMotionPreference()
+      this.startCarousel()
+    }
+
+    private registerEvents(signal: AbortSignal): void {
+      this.track?.addEventListener('transitionend', this.handleTransitionEnd, {
+        signal
+      })
+
+      this.addEventListener('mouseenter', this.handleInteractionStart, {
+        signal
+      })
+
+      this.addEventListener('mouseleave', this.handleInteractionEnd, {
+        signal
+      })
+
+      this.addEventListener('focusin', this.handleInteractionStart, {
+        signal
+      })
+
+      this.addEventListener('focusout', this.handleFocusOut, {
+        signal
+      })
+
+      document.addEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange,
+        {
+          signal
+        }
+      )
+
+      this.reducedMotion.addEventListener(
+        'change',
+        this.handleReducedMotionChange
+      )
+    }
+
     private setTransform(): void {
-      if (!this.track) return
+      if (!this.track) {
+        return
+      }
 
       const currentSlide = this.slides[this.currentIndex]
 
-      if (!currentSlide) return
+      if (!currentSlide) {
+        return
+      }
 
       this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
     }
 
     private repositionWithoutAnimation(): void {
-      if (!this.track) return
+      if (!this.track) {
+        return
+      }
 
       this.track.style.transition = 'none'
 
       this.setTransform()
 
       /*
-       * Fuerza al navegador a aplicar la posición antes de
-       * volver a habilitar la transición definida en CSS.
+       * Force the browser to apply the position before
+       * restoring the CSS transition.
        */
       this.track.getBoundingClientRect()
 
@@ -195,12 +297,18 @@ const carouselImages = [...images, images[0]]
     }
 
     private moveToNextSlide = (): void => {
+      if (this.realImages <= 1 || this.currentIndex >= this.realImages) {
+        return
+      }
+
       this.currentIndex += 1
+
       this.setTransform()
     }
 
     private startCarousel(): void {
       if (
+        this.realImages <= 1 ||
         this.reducedMotion.matches ||
         this.interactionPaused ||
         document.hidden ||
@@ -218,6 +326,7 @@ const carouselImages = [...images, images[0]]
       }
 
       window.clearInterval(this.intervalId)
+
       this.intervalId = undefined
     }
 
@@ -229,6 +338,7 @@ const carouselImages = [...images, images[0]]
       this.stopCarousel()
 
       this.currentIndex = 0
+
       this.repositionWithoutAnimation()
     }
 
@@ -241,16 +351,19 @@ const carouselImages = [...images, images[0]]
       }
 
       this.currentIndex = 0
+
       this.repositionWithoutAnimation()
     }
 
     private handleInteractionStart = (): void => {
       this.interactionPaused = true
+
       this.stopCarousel()
     }
 
     private handleInteractionEnd = (): void => {
       this.interactionPaused = false
+
       this.startCarousel()
     }
 
@@ -289,9 +402,78 @@ const carouselImages = [...images, images[0]]
       }
 
       this.resizeFrame = window.requestAnimationFrame(() => {
+        this.resizeFrame = undefined
+
         this.repositionWithoutAnimation()
       })
     }
+
+    private showEmptyState(): void {
+      this.stopCarousel()
+
+      this.track?.setAttribute('hidden', '')
+
+      const emptyElement = this.querySelector<HTMLElement>(
+        '[data-carousel-empty]'
+      )
+
+      if (emptyElement) {
+        emptyElement.hidden = false
+      }
+
+      this.classList.add('donation-carousel--empty')
+    }
+
+    private hideEmptyState(): void {
+      this.track?.removeAttribute('hidden')
+
+      const emptyElement = this.querySelector<HTMLElement>(
+        '[data-carousel-empty]'
+      )
+
+      if (emptyElement) {
+        emptyElement.hidden = true
+      }
+
+      this.classList.remove('donation-carousel--empty')
+    }
+  }
+
+  function waitForImage(
+    image: HTMLImageElement,
+    signal: AbortSignal
+  ): Promise<boolean> {
+    if (image.complete) {
+      return Promise.resolve(image.naturalWidth > 0)
+    }
+
+    return new Promise((resolve) => {
+      let completed = false
+
+      const finish = (valid: boolean): void => {
+        if (completed) {
+          return
+        }
+
+        completed = true
+
+        resolve(valid)
+      }
+
+      image.addEventListener('load', () => finish(true), {
+        once: true,
+        signal
+      })
+
+      image.addEventListener('error', () => finish(false), {
+        once: true,
+        signal
+      })
+
+      signal.addEventListener('abort', () => finish(false), {
+        once: true
+      })
+    })
   }
 
   if (!customElements.get('donation-carousel')) {
@@ -329,8 +511,9 @@ const carouselImages = [...images, images[0]]
 
   .donation-carousel__slide {
     width: clamp(18rem, 38vw, 32rem);
-
     height: 100%;
+
+    display: block;
 
     flex: 0 0 clamp(18rem, 38vw, 32rem);
 
@@ -339,6 +522,29 @@ const carouselImages = [...images, images[0]]
 
     user-select: none;
     pointer-events: none;
+  }
+
+  .donation-carousel__empty {
+    width: min(calc(100% - 2rem), 38rem);
+
+    margin: 0;
+    padding: 1.25rem;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    z-index: 1;
+
+    color: var(--color-text);
+    background-color: rgba(255, 255, 255, 0.9);
+
+    border-radius: var(--radius-small);
+
+    line-height: 1.6;
+    text-align: center;
+
+    transform: translate(-50%, -50%);
   }
 
   .donation-carousel__overlay {
@@ -353,87 +559,23 @@ const carouselImages = [...images, images[0]]
     pointer-events: none;
   }
 
+  .donation-carousel--empty .donation-carousel__overlay {
+    display: none;
+  }
+
   .donation-carousel__overlay p {
     width: 100%;
 
     padding: clamp(0.75rem, 2vw, 1.25rem);
 
     color: var(--color-text);
-
     background: rgba(144, 184, 214, 0.86);
 
     font-family: var(--text-font-logo);
-
     font-size: clamp(1.8rem, 5vw, 3.5rem);
-
     line-height: 1.1;
     text-align: center;
     text-wrap: balance;
-  }
-
-  .donation-carousel__toggle {
-    min-height: 2.5rem;
-
-    padding: 0.55rem 0.8rem;
-
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-
-    color: #ffffff;
-
-    background-color: rgba(0, 0, 0, 0.66);
-
-    border: 1px solid rgba(255, 255, 255, 0.3);
-
-    border-radius: 999px;
-
-    font-size: 0.82rem;
-    font-weight: 700;
-    line-height: 1;
-
-    backdrop-filter: blur(5px);
-
-    cursor: pointer;
-
-    transition:
-      background-color var(--transition),
-      border-color var(--transition),
-      box-shadow var(--transition),
-      transform var(--transition);
-  }
-
-  .donation-carousel__toggle:hover {
-    background-color: rgba(0, 0, 0, 0.86);
-
-    border-color: rgba(255, 255, 255, 0.65);
-  }
-
-  .donation-carousel__toggle:focus-visible {
-    outline: none;
-
-    box-shadow: 0 0 0 3px var(--color-primary);
-  }
-
-  .donation-carousel__toggle-icon {
-    min-width: 0.9rem;
-
-    display: inline-flex;
-    justify-content: center;
-
-    font-size: 0.8rem;
-    line-height: 1;
-  }
-
-  @media (hover: hover) {
-    .donation-carousel__toggle:hover {
-      transform: translateY(-1px);
-    }
   }
 
   @media (max-width: 900px) {
@@ -464,13 +606,6 @@ const carouselImages = [...images, images[0]]
 
       font-size: clamp(1.6rem, 8vw, 2.4rem);
     }
-
-    .donation-carousel__toggle {
-      top: 0.65rem;
-      right: 0.65rem;
-
-      padding: 0.5rem 0.65rem;
-    }
   }
 
   @media (max-width: 380px) {
@@ -481,20 +616,10 @@ const carouselImages = [...images, images[0]]
     .donation-carousel__overlay p {
       font-size: 1.5rem;
     }
-
-    .donation-carousel__toggle span:last-child {
-      display: none;
-    }
-
-    .donation-carousel__toggle {
-      width: 2.5rem;
-      padding: 0;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .donation-carousel__track,
-    .donation-carousel__toggle {
+    .donation-carousel__track {
       transition: none;
     }
   }

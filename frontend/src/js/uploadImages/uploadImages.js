@@ -10,51 +10,29 @@ const MAX_IMAGES = 10
 
 const MAX_IMAGE_SIZE = 12 * 1024 * 1024
 
+const VALID_IMAGE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif'
+])
+
+const VALID_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif'])
+
 /* ==========================================================
-   ELEMENTOS
+   ELEMENTS
 ========================================================== */
 
 const form = requireElement('#uploadForm', 'formulario de imágenes de donación')
 
 const uploadButton = requireElement('#btnUpload', 'botón para subir imágenes')
 
-const dropZone = requireElement('#dropZone', 'zona de arrastre de imágenes')
-
-const previewContainer = requireElement(
-  '#previewContainer',
-  'contenedor de vistas previas'
-)
+const clearButton = document.querySelector('#btnClearImages')
 
 const modalCarga = requireElement('#modal-carga', 'indicador de carga')
 
 /* ==========================================================
-   IMAGE PICKER
-========================================================== */
-
-export const donationImagePicker = createImagePicker({
-  input: '#images',
-
-  dropZone: '#dropZone',
-
-  previewContainer: '#previewContainer',
-
-  multiple: true,
-
-  maxFiles: MAX_IMAGES,
-
-  maxFileSize: MAX_IMAGE_SIZE,
-
-  dragClass: 'drag',
-
-  previewClassName: 'preview',
-
-  removeButtonClassName: 'remove',
-
-  hiddenClass: 'hidden'
-})
-
-/* ==========================================================
-   ESTADO
+   STATE
 ========================================================== */
 
 const state = {
@@ -65,10 +43,58 @@ const state = {
   totalUploads: 0
 }
 
-const events = createEventScope()
+let events = null
 
 /* ==========================================================
-   CONTROLADOR PÚBLICO
+   IMAGE PICKER
+========================================================== */
+
+export const donationImagePicker = createImagePicker({
+  input: '#images',
+
+  dropZone: '#dropZone',
+
+  /*
+   * This is the correct option name expected by
+   * common/imagePicker.js.
+   */
+  selectedContainer: '#previewContainer',
+
+  multiple: true,
+
+  maxFiles: MAX_IMAGES,
+
+  maxFileSize: MAX_IMAGE_SIZE,
+
+  allowedTypes: VALID_IMAGE_TYPES,
+
+  allowedExtensions: VALID_IMAGE_EXTENSIONS,
+
+  hiddenClass: 'hidden',
+
+  draggingClass: 'drag',
+
+  disabledClass: 'disabled',
+
+  previewClass: 'preview',
+
+  previewNumberClass: 'previewNumber',
+
+  /*
+   * imagePicker already calls onChange after:
+   *
+   * - input selection
+   * - drag and drop
+   * - reset
+   * - setFiles()
+   */
+  onChange() {
+    updateUploadButton()
+  }
+})
+
+/* ==========================================================
+   PUBLIC CONTROLLER
 ========================================================== */
 
 export const donationImagesController = {
@@ -80,7 +106,7 @@ export const donationImagesController = {
   clear: clearSelection,
 
   get files() {
-    return [...donationImagePicker.files]
+    return donationImagePicker.files
   },
 
   get uploading() {
@@ -93,48 +119,41 @@ export const donationImagesController = {
 ========================================================== */
 
 function initialize() {
-  if (state.initialized) return donationImagesController
+  if (state.initialized) {
+    return donationImagesController
+  }
+
+  events = createEventScope()
 
   donationImagePicker.initialize()
 
   events.on(form, 'submit', uploadSelectedImages)
 
-  /*
-   * El selector actualiza primero su estado interno.
-   * Después sincronizamos el texto y estado del botón.
-   */
-  events.on(
-    requireElement('#images', 'selector de imágenes'),
-    'change',
-    synchronizeSoon
-  )
-
-  events.on(dropZone, 'drop', synchronizeSoon)
-
-  /*
-   * Los botones para eliminar vistas previas se crean
-   * dinámicamente dentro del contenedor.
-   */
-  events.on(previewContainer, 'click', synchronizeSoon)
+  if (clearButton) {
+    events.on(clearButton, 'click', clearSelection)
+  }
 
   hideLoading()
   updateUploadButton()
 
   state.initialized = true
-
+  document.getElementById('modal-carga-global').remove()
   return donationImagesController
 }
 
 function destroy() {
-  if (!state.initialized) return
+  if (!state.initialized) {
+    return
+  }
 
-  events.destroy()
+  events?.destroy()
+  events = null
 
-  donationImagePicker.reset()
-  donationImagePicker.setDisabled(false)
+  donationImagePicker.destroy()
 
   state.initialized = false
   state.uploading = false
+
   state.currentUpload = 0
   state.totalUploads = 0
 
@@ -149,10 +168,14 @@ function destroy() {
 async function uploadSelectedImages(event) {
   event?.preventDefault()
 
-  if (state.uploading) return false
+  if (state.uploading) {
+    return false
+  }
+
+  let files
 
   try {
-    donationImagePicker.validate()
+    files = donationImagePicker.validate()
 
     donationImagePicker.requireFiles('Seleccioná al menos una imagen.')
   } catch (error) {
@@ -161,12 +184,16 @@ async function uploadSelectedImages(event) {
       'warning'
     )
 
-    donationImagePicker.focus?.()
+    donationImagePicker.focus()
 
     return false
   }
 
-  const files = [...donationImagePicker.files]
+  /*
+   * Use an independent array because the picker state may
+   * be changed later when preserving pending files.
+   */
+  files = [...files]
 
   state.uploading = true
   state.currentUpload = 0
@@ -181,11 +208,11 @@ async function uploadSelectedImages(event) {
 
   try {
     /*
-     * Las imágenes se envían secuencialmente.
+     * The backend replaces the oldest donation image on
+     * every request.
      *
-     * El backend reemplaza la imagen de donación más antigua
-     * en cada petición. Ejecutarlas en paralelo podría hacer
-     * que varias peticiones intenten reemplazar la misma.
+     * Sequential requests avoid two requests attempting to
+     * replace the same image simultaneously.
      */
     for (let index = 0; index < files.length; index += 1) {
       state.currentUpload = index + 1
@@ -197,7 +224,7 @@ async function uploadSelectedImages(event) {
       uploadedImages += 1
     }
 
-    clearSelection()
+    donationImagePicker.reset()
 
     showToast(createSuccessMessage(uploadedImages), 'success')
 
@@ -206,30 +233,44 @@ async function uploadSelectedImages(event) {
     console.error('No se pudieron subir las imágenes de donación:', error)
 
     /*
-     * Como cada imagen se guarda mediante una petición
-     * independiente, puede haber cargas parciales.
+     * Preserve only files that were not uploaded.
      *
-     * Se limpia la selección para evitar que el usuario
-     * vuelva a subir accidentalmente las ya guardadas.
+     * Example:
+     *
+     * Selected: A, B, C
+     * Uploaded: A
+     * Failed:   B
+     *
+     * The picker keeps B and C, so A is not accidentally
+     * uploaded again.
      */
     if (uploadedImages > 0) {
-      clearSelection()
+      const pendingFiles = files.slice(uploadedImages)
+
+      donationImagePicker.setFiles(pendingFiles)
 
       showToast(
         createPartialErrorMessage({
           uploadedImages,
+
           totalImages: files.length,
 
           error
         }),
         'error'
       )
-    } else
+    } else {
+      /*
+       * No image was uploaded, so keep the complete
+       * selection available for retrying.
+       */
       showToast(getErrorMessage(error, 'No se pudo subir la imagen.'), 'error')
+    }
 
     return false
   } finally {
     state.uploading = false
+
     state.currentUpload = 0
     state.totalUploads = 0
 
@@ -245,13 +286,11 @@ async function uploadSelectedImages(event) {
 ========================================================== */
 
 function clearSelection() {
-  donationImagePicker.reset()
+  if (state.uploading) {
+    return
+  }
 
-  /*
-   * reset() elimina los archivos, las vistas previas y
-   * libera las URL creadas mediante URL.createObjectURL().
-   */
-  updateUploadButton()
+  donationImagePicker.reset()
 }
 
 /* ==========================================================
@@ -259,7 +298,7 @@ function clearSelection() {
 ========================================================== */
 
 function updateUploadButton() {
-  const fileCount = donationImagePicker.files.length
+  const fileCount = donationImagePicker.count
 
   uploadButton.disabled = state.uploading || fileCount === 0
 
@@ -268,15 +307,25 @@ function updateUploadButton() {
   if (state.uploading) {
     uploadButton.textContent = createUploadingText()
 
+    if (clearButton) {
+      clearButton.disabled = true
+    }
+
     return
   }
 
   uploadButton.textContent =
-    fileCount > 1 ? `Subir ${fileCount} imágenes` : 'Subir imagen'
+    fileCount === 1 ? 'Subir imagen' : `Subir ${fileCount} imágenes`
+
+  if (clearButton) {
+    clearButton.disabled = fileCount === 0
+  }
 }
 
 function createUploadingText() {
-  if (state.totalUploads <= 1) return 'Subiendo imagen...'
+  if (state.totalUploads <= 1) {
+    return 'Subiendo imagen...'
+  }
 
   return (
     `Subiendo imagen ` +
@@ -292,8 +341,6 @@ function createUploadingText() {
 function showLoading() {
   modalCarga.hidden = false
 
-  modalCarga.style.display = 'flex'
-
   modalCarga.setAttribute('aria-hidden', 'false')
 
   modalCarga.setAttribute('aria-busy', 'true')
@@ -301,8 +348,6 @@ function showLoading() {
 
 function hideLoading() {
   modalCarga.hidden = true
-
-  modalCarga.style.display = 'none'
 
   modalCarga.setAttribute('aria-hidden', 'true')
 
@@ -322,7 +367,7 @@ function createSuccessMessage(amount) {
 function createPartialErrorMessage({ uploadedImages, totalImages, error }) {
   const pendingImages = Math.max(totalImages - uploadedImages, 0)
 
-  const uploadText =
+  const uploadedText =
     uploadedImages === 1
       ? 'Se cargó 1 imagen'
       : `Se cargaron ${uploadedImages} imágenes`
@@ -332,32 +377,27 @@ function createPartialErrorMessage({ uploadedImages, totalImages, error }) {
       ? 'Quedó 1 imagen sin cargar.'
       : `Quedaron ${pendingImages} imágenes sin cargar.`
 
-  return (
-    `${uploadText}, pero ocurrió un error. ` +
-    `${pendingText} ` +
-    getErrorMessage(error, '')
-  ).trim()
+  const errorMessage = getErrorMessage(error, '')
+
+  return [`${uploadedText}, pero ocurrió un error.`, pendingText, errorMessage]
+    .filter(Boolean)
+    .join(' ')
 }
 
 function getErrorMessage(error, fallback) {
-  if (typeof error?.message === 'string' && error.message.trim())
+  if (error instanceof Error && error.message.trim()) {
     return error.message.trim()
+  }
 
-  if (typeof error === 'string' && error.trim()) return error.trim()
+  if (typeof error === 'string' && error.trim()) {
+    return error.trim()
+  }
 
   return fallback
 }
 
 /* ==========================================================
-   SYNCHRONIZATION
-========================================================== */
-
-function synchronizeSoon() {
-  window.setTimeout(updateUploadButton, 0)
-}
-
-/* ==========================================================
-   EJECUCIÓN
+   EXECUTION
 ========================================================== */
 
 initialize()
