@@ -236,6 +236,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
             return Err(ApiError::NotFound);
         }
     }
+    println!("no hay chance que haya llegado aca");
 
     for member in &order {
         sqlx::query(

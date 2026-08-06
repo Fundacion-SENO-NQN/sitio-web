@@ -343,6 +343,7 @@ pub async fn change_order_equipo(
             "Debe proporcionar al menos un miembro.".into(),
         ));
     }
+    println!("q");
 
     let mut ids = HashSet::new();
     let mut orders = HashSet::new();
@@ -354,15 +355,21 @@ pub async fn change_order_equipo(
             ));
         }
 
+        println!("que hago aca");
+
         if !ids.insert(item.id) {
             return Err(ApiError::BadRequest("Id de miembro duplicado.".into()));
         }
 
+        println!("bueno esto ya es bastante");
+
         if !orders.insert(item.orden) {
             return Err(ApiError::BadRequest("Orden duplicado.".into()));
         }
-    }
 
+        println!("okay");
+    }
+    println!("pase esto?");
     repositories::equipo::change_order(&state.db, request).await?;
 
     Ok(StatusCode::NO_CONTENT)
