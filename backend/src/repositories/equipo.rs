@@ -207,6 +207,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
     println!("LLEGUE ACAAAAAAAAAAAAAA");
     let mut tx = db.begin().await?;
     println!("en serio falle aca");
+    println!("order: {:?}", order);
     /*
      * Use values based on the row ID rather than the target
      * order.
