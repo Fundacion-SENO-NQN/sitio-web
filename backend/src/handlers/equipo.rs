@@ -360,12 +360,14 @@ pub async fn change_order_equipo(
         println!("que hago aca");
 
         if !ids.insert(item.id) {
+            println!("ENTRE AL PRIMER ERROR");
             return Err(ApiError::BadRequest("Id de miembro duplicado.".into()));
         }
 
         println!("bueno esto ya es bastante");
 
         if !orders.insert(item.orden) {
+            println!("ENTRE A ESTE ERROR");
             return Err(ApiError::BadRequest("Orden duplicado.".into()));
         }
 
