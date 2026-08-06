@@ -11,7 +11,7 @@ use axum::{
     extract::DefaultBodyLimit,
     http::{
         HeaderValue, Method,
-        header::{AUTHORIZATION, CONTENT_TYPE},
+        header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     },
 };
 use dotenvy::dotenv;
@@ -86,11 +86,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_methods([
             Method::GET,
             Method::POST,
+            Method::PUT,
             Method::PATCH,
             Method::DELETE,
-            Method::PUT,
+            Method::OPTIONS,
         ])
-        .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT]);
 
     /* ========================================================
      * DATABASE AND STATE
