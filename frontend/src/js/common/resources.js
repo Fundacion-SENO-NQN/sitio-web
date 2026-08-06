@@ -23,7 +23,7 @@ usersApi.changePassword = (id, password) => {
 
   return request(`/users/password/${id}`, {
     method: 'PATCH',
-    body: password
+    body: { password }
   })
 }
 
