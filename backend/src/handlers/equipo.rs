@@ -358,6 +358,8 @@ pub async fn change_order_equipo(
         }
 
         println!("que hago aca");
+        println!("item: {:?}", item);
+        println!("tuve q haber impreso el item");
 
         if !ids.insert(item.id) {
             println!("ENTRE AL PRIMER ERROR");
