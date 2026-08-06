@@ -3,6 +3,7 @@ use crate::{
     models::equipo::{ChangeOrderEquipo, Equipo, UpdateEquipo},
 };
 use sqlx::PgPool;
+use std::collections::HashSet;
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Equipo>> {
     Ok(sqlx::query_as::<_, Equipo>(
@@ -203,34 +204,160 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Equipo> {
    CHANGE ORDER
 ========================================================== */
 
+const EQUIPO_ORDER_LOCK: i64 = 982_451_654;
+
 pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResult<()> {
-    println!("LLEGUE ACAAAAAAAAAAAAAA");
-    let mut tx = db.begin().await?;
-    println!("en serio falle aca");
-    println!("order: {:?}", order);
-    /*
-     * Use values based on the row ID rather than the target
-     * order.
-     *
-     * The previous implementation used:
-     *
-     *     orden = -new_order
-     *
-     * But when new_order is 0:
-     *
-     *     -0 == 0
-     *
-     * That can still violate the UNIQUE constraint.
-     */
+    if order.is_empty() {
+        return Err(ApiError::BadRequest(
+            "Debe proporcionar al menos un miembro.".into(),
+        ));
+    }
+
+    let mut received_ids = HashSet::new();
+    let mut received_orders = HashSet::new();
+
     for member in &order {
+        if member.id <= 0 {
+            return Err(ApiError::BadRequest(
+                "Uno de los ids de miembro no es válido.".into(),
+            ));
+        }
+
+        if member.orden < 0 {
+            return Err(ApiError::BadRequest(
+                "El orden no puede ser negativo.".into(),
+            ));
+        }
+
+        if !received_ids.insert(member.id) {
+            return Err(ApiError::BadRequest(
+                "Hay ids de miembros repetidos.".into(),
+            ));
+        }
+
+        if !received_orders.insert(member.orden) {
+            return Err(ApiError::BadRequest("Hay órdenes repetidos.".into()));
+        }
+    }
+
+    let mut tx = db.begin().await?;
+
+    /*
+     * Prevents two reorder operations from running at the
+     * same time and choosing conflicting temporary orders.
+     */
+    sqlx::query(
+        r#"
+        SELECT pg_advisory_xact_lock($1)
+        "#,
+    )
+    .bind(EQUIPO_ORDER_LOCK)
+    .execute(&mut *tx)
+    .await?;
+
+    let total_members = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COUNT(*)
+        FROM equipo
+        "#,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    for member in &order {
+        if member.orden >= total_members {
+            return Err(ApiError::BadRequest(format!(
+                "El orden {} está fuera del rango permitido.",
+                member.orden,
+            )));
+        }
+    }
+
+    let ids = order.iter().map(|member| member.id).collect::<Vec<_>>();
+
+    /*
+     * Lock and read every member that participates in the
+     * reorder.
+     */
+    let current_rows = sqlx::query_as::<_, (i64, i64)>(
+        r#"
+        SELECT
+            id,
+            orden
+        FROM equipo
+        WHERE id = ANY($1)
+        FOR UPDATE
+        "#,
+    )
+    .bind(&ids)
+    .fetch_all(&mut *tx)
+    .await?;
+
+    if current_rows.len() != order.len() {
+        return Err(ApiError::NotFound);
+    }
+
+    /*
+     * When only some members are sent, their destination
+     * positions must be the same positions currently occupied
+     * by that group.
+     *
+     * Example:
+     *
+     * Member A currently has order 2.
+     * Member B currently has order 3.
+     *
+     * Valid destinations: 2 and 3.
+     *
+     * Sending destination 4 would collide with a member that
+     * was not included in the request.
+     */
+    let current_orders = current_rows
+        .iter()
+        .map(|(_, current_order)| *current_order)
+        .collect::<HashSet<_>>();
+
+    if current_orders != received_orders {
+        return Err(ApiError::BadRequest(
+            "Los órdenes enviados no coinciden con las posiciones actuales de los miembros seleccionados."
+                .into(),
+        ));
+    }
+
+    /*
+     * Temporary orders must be:
+     *
+     * - Positive, because orden has CHECK (orden >= 0).
+     * - Outside the currently used range.
+     * - Unique for every member.
+     */
+    let temporary_base = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COALESCE(MAX(orden), -1) + 1
+        FROM equipo
+        "#,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    /*
+     * First move every selected member outside the active
+     * order range. This frees their original positions.
+     */
+    for (index, member) in order.iter().enumerate() {
+        let temporary_order = temporary_base
+            .checked_add(index as i64)
+            .ok_or(ApiError::InternalServerError)?;
+
         let result = sqlx::query(
             r#"
             UPDATE equipo
-            SET orden = -$1 - 1
-            WHERE id = $1
+            SET orden = $1
+            WHERE id = $2
             "#,
         )
-        .bind(member.id + 1)
+        .bind(temporary_order)
+        .bind(member.id)
         .execute(&mut *tx)
         .await?;
 
@@ -238,10 +365,13 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
             return Err(ApiError::NotFound);
         }
     }
-    println!("no hay chance que haya llegado aca");
 
+    /*
+     * Now the original positions are free, so the final
+     * orders can be assigned without violating UNIQUE.
+     */
     for member in &order {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             UPDATE equipo
             SET orden = $1
@@ -252,6 +382,10 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
         .bind(member.id)
         .execute(&mut *tx)
         .await?;
+
+        if result.rows_affected() != 1 {
+            return Err(ApiError::NotFound);
+        }
     }
 
     tx.commit().await?;
