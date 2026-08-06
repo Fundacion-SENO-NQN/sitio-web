@@ -4,6 +4,7 @@ import LayoutPlataforma from '../../layouts/LayoutPlataforma.astro'
 import ModalCarga from '../../components/Common/ModalCarga.astro'
 
 import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
+import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.svg'
 ---
 
 <LayoutPlataforma titulo="Inicio">
@@ -19,6 +20,11 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
 
         <p>Seleccioná uno de los servicios disponibles para comenzar.</p>
       </div>
+
+      <a class="manual" href="/documentos/manual-de-uso.pdf" target="_blank">
+        <SvgDocumento />
+        <p>Manual de uso</p>
+      </a>
 
       <button
         id="logout"
@@ -354,6 +360,17 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
 </script>
 
 <style>
+  .manual {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .manual svg {
+    height: 2rem;
+  }
+
   .platformHome {
     width: 100%;
     min-height: 100vh;
@@ -604,7 +621,7 @@ import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
       gap: 1rem;
     }
 
-    .platformHomeLogout {
+    .platformHomeLogout, .manual {
       width: 100%;
     }
 
