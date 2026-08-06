@@ -226,7 +226,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
         let result = sqlx::query(
             r#"
             UPDATE equipo
-            SET orden = -id - 1
+            SET orden = -$1 - 1
             WHERE id = $1
             "#,
         )
