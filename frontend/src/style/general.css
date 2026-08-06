@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "olivier";
-  src: url("/fonts/olivier-demo.ttf") format("truetype");
+  font-family: 'olivier';
+  src: url('/fonts/olivier_demo.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,10 +14,6 @@
 ========================================================== */
 
 :root {
-  /* ========================================================
-     TYPOGRAPHY
-  ======================================================== */
-
   --text-font-primary:
     system-ui, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
