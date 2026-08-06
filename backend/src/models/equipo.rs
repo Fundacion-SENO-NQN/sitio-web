@@ -20,7 +20,7 @@ pub struct UpdateEquipo {
     pub descripcion: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ChangeOrderEquipo {
     pub id: i64,
     pub orden: i64,

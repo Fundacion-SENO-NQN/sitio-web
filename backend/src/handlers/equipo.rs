@@ -348,6 +348,8 @@ pub async fn change_order_equipo(
     let mut ids = HashSet::new();
     let mut orders = HashSet::new();
 
+    println!("request: {:?}", request);
+
     for item in &request {
         if item.orden < 0 {
             return Err(ApiError::BadRequest(
