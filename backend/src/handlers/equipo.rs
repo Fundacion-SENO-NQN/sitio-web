@@ -335,8 +335,9 @@ pub async fn change_order_equipo(
     State(state): State<Arc<AppState>>,
     Json(request): Json<Vec<ChangeOrderEquipo>>,
 ) -> ApiResult<StatusCode> {
+    println!("entre");
     user.require(ADMIN_MIEMBROS)?;
-
+    println!("es el require verdad");
     if request.is_empty() {
         return Err(ApiError::BadRequest(
             "Debe proporcionar al menos un miembro.".into(),
