@@ -5,7 +5,7 @@ use crate::{
     models::{
         role::{CreateRoleRequest, PatchRoleRequest, Role, RoleWithServices},
         service::Service,
-        user::{CreateUserRequest, PatchUserRequest, UserResponse},
+        user::{ChangePasswordRequest, CreateUserRequest, PatchUserRequest, UserResponse},
     },
     repositories::{self, user::delete},
 };
@@ -20,15 +20,12 @@ pub async fn get_all_users(
     AuthUser(admin): AuthUser,
     State(state): State<Arc<AppState>>,
 ) -> ApiResult<Json<Vec<UserResponse>>> {
-    println!("get_all_users");
     admin.require(ADMIN_USERS)?;
-    println!("pase admin");
     let users = repositories::user::get_all(&state.db)
         .await?
         .into_iter()
         .map(UserResponse::from)
         .collect();
-    println!("pase users");
     Ok(Json(users))
 }
 
@@ -37,20 +34,13 @@ pub async fn create_user(
     State(state): State<Arc<AppState>>,
     Json(request): Json<CreateUserRequest>,
 ) -> ApiResult<(StatusCode, Json<UserResponse>)> {
-    println!("Estoy en el handler");
     admin.require(ADMIN_USERS)?;
-
-    println!("Llegue aca");
 
     if validate_password(&request.password).is_err() {
         return Err(validate_password(&request.password).err().unwrap());
     }
 
-    println!("Pase validacion de password");
-
     let password_hash = auth::password::hash_password(&request.password)?;
-
-    println!("Tengo password_hash");
 
     let user = repositories::user::create(
         &state.db,
@@ -62,8 +52,6 @@ pub async fn create_user(
         request.role_id,
     )
     .await?;
-
-    println!("A punto de enviar");
 
     Ok((StatusCode::CREATED, Json(user.into())))
 }
@@ -153,45 +141,45 @@ pub async fn patch_user_active(
 pub async fn patch_user_password(
     AuthUser(admin): AuthUser,
     State(state): State<Arc<AppState>>,
-    axum::extract::Path(id): axum::extract::Path<i64>,
-    Json(new_password): Json<String>,
+    Path(id): Path<i64>,
+    Json(payload): Json<ChangePasswordRequest>,
 ) -> ApiResult<(StatusCode, Json<UserResponse>)> {
     admin.require(ADMIN_USERS)?;
 
-    // User must exist.
     let user = repositories::user::get_by_id(&state.db, id)
         .await?
         .ok_or(ApiError::NotFound)?;
 
+    /*
+     * El usuario autenticado solamente puede cambiar
+     * su propia contraseña.
+     */
     if user.username != admin.username {
         return Err(ApiError::Unauthorized);
     }
 
-    // Optional.
     if !user.active {
         return Err(ApiError::BadRequest(
             "No se puede cambiar la contraseña de un usuario desactivado.".into(),
         ));
     }
 
-    // Password policy.
-    if validate_password(&new_password).is_err() {
-        return Err(validate_password(&new_password).unwrap_err());
-    }
+    let new_password = payload.password;
 
-    // Optional: avoid reusing the same password.
+    validate_password(&new_password)?;
+
+    /*
+     * Evita guardar nuevamente la contraseña actual.
+     */
     if auth::password::verify_password(&new_password, &user.password_hash) {
         return Err(ApiError::BadRequest(
-            "La nueva contraseña debe de ser diferente a la actual.".into(),
+            "La nueva contraseña debe ser diferente a la actual.".into(),
         ));
     }
 
-    repositories::user::change_password(
-        &state.db,
-        id,
-        auth::password::hash_password(&new_password)?,
-    )
-    .await?;
+    let new_password_hash = auth::password::hash_password(&new_password)?;
+
+    repositories::user::change_password(&state.db, id, new_password_hash).await?;
 
     Ok((StatusCode::OK, Json(user.into())))
 }

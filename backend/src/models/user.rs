@@ -77,3 +77,8 @@ pub struct LoginResponse {
     pub last_name: String,
     pub role_name: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ChangePasswordRequest {
+    pub password: String,
+}
