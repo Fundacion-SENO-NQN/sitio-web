@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "olivier";
+  src: url("/fonts/olivier-demo.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ==========================================================
    GLOBAL DESIGN TOKENS
 
