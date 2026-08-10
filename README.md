@@ -1,4 +1,4 @@
-This README was generated with AI.
+> This README was generated with AI.
 
 # Fundación S.E.N.O. — Official Website & Administration Platform
 
