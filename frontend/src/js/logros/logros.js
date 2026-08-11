@@ -110,6 +110,8 @@ export const logrosController = createListController({
     }
   },
 
+  searchInput: '#buscar-logros',
+
   defaultSort: 'order',
 
   defaultAscending: true,

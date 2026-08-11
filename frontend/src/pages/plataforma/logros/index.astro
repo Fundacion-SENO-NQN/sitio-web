@@ -28,6 +28,22 @@ import '../../../style/logros.css'
         <span>Nuevo logro</span>
       </button>
 
+      <label class="searchField buscador" for="buscar-logros">
+        <span class="srOnly sr-only"> Buscar logros </span>
+
+        <span class="searchFieldIcon icono-busqueda" aria-hidden="true">
+          ⌕
+        </span>
+
+        <input
+          id="buscar-logros"
+          type="search"
+          placeholder="Buscar por título o contenido..."
+          autocomplete="off"
+          aria-describedby="cantidad-eventos"
+        />
+      </label>
+
       <button
         id="btnFeatured"
         class="button buttonSecondary secondary"
