@@ -1,5 +1,5 @@
 ---
-export const prerender = false
+import type { GetStaticPaths } from 'astro'
 
 import Layout from '../../layouts/Layout.astro'
 import GaleriaEvento from '../../components/Eventos/GaleriaEvento.astro'
@@ -10,94 +10,179 @@ import type Evento from '../../data/interfaces/Evento'
 
 import { createSeoDescription, toIsoDate } from '../../utils/seo'
 
-const API_URL = (
-  import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
-).replace(/\/+$/, '')
+/* ==========================================================
+   STATIC RENDERING
+========================================================== */
 
-type PageState = 'ready' | 'not-found' | 'error'
+export const prerender = true
+
+/* ==========================================================
+   TYPES
+========================================================== */
 
 type EventoSeo = Evento & {
   start_at?: string | Date | null
   end_at?: string | Date | null
+
   previous_start_at?: string | Date | null
+
+  created_at?: string | Date | null
   updated_at?: string | Date | null
+
   location_name?: string | null
+
   street_address?: string | null
   address_locality?: string | null
   address_region?: string | null
   postal_code?: string | null
   address_country?: string | null
+
   event_status?: 'scheduled' | 'cancelled' | 'postponed' | 'rescheduled'
+
   image_url?: string | null
   image_urls?: string[] | null
 }
 
-const parsedId = Number(Astro.params.id)
-
-let pageState: PageState = 'ready'
-let evento: EventoSeo | null = null
-
-if (!Number.isInteger(parsedId) || parsedId <= 0) {
-  pageState = 'not-found'
-  Astro.response.status = 404
-} else {
-  try {
-    const response = await fetch(`${API_URL}/eventos/${parsedId}`)
-
-    if (response.status === 404) {
-      pageState = 'not-found'
-      Astro.response.status = 404
-    } else if (!response.ok) {
-      throw new Error(`La API respondió con estado ${response.status}`)
-    } else {
-      const data: unknown = await response.json()
-
-      if (!data || typeof data !== 'object') {
-        throw new TypeError('La respuesta del evento no es válida')
-      }
-
-      evento = data as EventoSeo
-    }
-  } catch (error) {
-    pageState = 'error'
-    Astro.response.status = 503
-
-    console.error('No se pudo cargar el evento:', error)
-  }
+interface Props {
+  evento: EventoSeo
 }
 
-if (pageState !== 'ready') {
-  Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
-  Astro.response.headers.set('Cache-Control', 'no-store')
-} else
-  Astro.response.headers.set(
-    'Cache-Control',
-    'public, max-age=60, s-maxage=300, stale-while-revalidate=3600'
+/* ==========================================================
+   STATIC PATHS
+
+   This code only runs during the Astro build.
+
+   The visitor will NOT execute any API request when opening
+   /eventos/:id.
+========================================================== */
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const API_URL = (
+    import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
+  ).replace(/\/+$/, '')
+  /*
+   * First obtain all existing events so Astro knows which
+   * URLs need to exist.
+   */
+  const response = await fetch(`${API_URL}/eventos`)
+
+  if (!response.ok) {
+    throw new Error(
+      `No se pudieron obtener los eventos durante el build. ` +
+        `La API respondió con estado ${response.status}.`
+    )
+  }
+
+  const data: unknown = await response.json()
+
+  if (!Array.isArray(data)) {
+    throw new TypeError('La API de eventos no devolvió un arreglo.')
+  }
+
+  const eventIds = data
+    .map((item) => {
+      if (!item || typeof item !== 'object' || !('id' in item)) {
+        return null
+      }
+
+      const id = Number(item.id)
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return null
+      }
+
+      return id
+    })
+    .filter((id): id is number => id !== null)
+
+  /*
+   * Load the complete version of every event.
+   *
+   * We use /eventos/:id because this guarantees that each
+   * generated page gets the same complete data that the
+   * previous SSR implementation used.
+   *
+   * Promise.all allows the requests to happen concurrently
+   * during the build.
+   */
+  const eventos = await Promise.all(
+    eventIds.map(async (id) => {
+      const eventResponse = await fetch(`${API_URL}/eventos/${id}`)
+
+      if (!eventResponse.ok) {
+        throw new Error(
+          `No se pudo obtener el evento ${id} durante el build. ` +
+            `Estado: ${eventResponse.status}.`
+        )
+      }
+
+      const eventData: unknown = await eventResponse.json()
+
+      if (!eventData || typeof eventData !== 'object') {
+        throw new TypeError(`La respuesta del evento ${id} no es válida.`)
+      }
+
+      return eventData as EventoSeo
+    })
   )
 
-const paragraphs = evento?.descripcion
+  return eventos.map((evento) => ({
+    params: {
+      id: String(evento.id)
+    },
+
+    props: {
+      evento
+    }
+  }))
+}
+
+/* ==========================================================
+   EVENT
+
+   From this point onward no API request is necessary.
+   The event was injected by getStaticPaths().
+========================================================== */
+
+const { evento } = Astro.props as Props
+
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
+
+const paragraphs = evento.descripcion
   ? evento.descripcion
       .split(/\r?\n/)
       .map((paragraph) => paragraph.trim())
       .filter(Boolean)
   : []
 
-const normalizeExternalUrl = (value?: string | null): string | null => {
-  if (!value) return null
+/* ==========================================================
+   URL HELPERS
+========================================================== */
+
+function normalizeExternalUrl(value?: string | null): string | null {
+  if (!value) {
+    return null
+  }
 
   try {
     const url = new URL(value)
 
-    return url.protocol === 'http:' || url.protocol === 'https:'
-      ? url.href
-      : null
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return null
+    }
+
+    return url.href
   } catch {
     return null
   }
 }
 
-const normalizeImageUrl = (value?: string | null): string | null => {
-  if (!value) return null
+function normalizeImageUrl(value?: string | null): string | null {
+  if (!value) {
+    return null
+  }
 
   try {
     return new URL(value, Astro.site ?? 'https://fundacionseno.org').href
@@ -106,85 +191,154 @@ const normalizeImageUrl = (value?: string | null): string | null => {
   }
 }
 
-const eventExternalUrl = normalizeExternalUrl(evento?.url)
+/* ==========================================================
+   PAGE DATA
+========================================================== */
 
-const pageTitle =
-  evento?.titulo ??
-  (pageState === 'not-found' ? 'Evento no encontrado' : 'Evento no disponible')
+const eventExternalUrl = normalizeExternalUrl(evento.url)
+
+const pageTitle = evento.titulo
 
 const pageDescription = createSeoDescription(
-  evento?.descripcion,
-  evento
-    ? `${evento.titulo}. Conocé la información de este evento de Fundación SENO.`
-    : 'Información de eventos de Fundación SENO.'
+  evento.descripcion,
+
+  `${evento.titulo}. Conocé la información de este evento de Fundación SENO.`
 )
 
+/* ==========================================================
+   URLS
+========================================================== */
+
 const site = Astro.site ?? new URL('https://fundacionseno.org')
+
 const homeUrl = new URL('/', site).href
-const pageUrl = evento
-  ? new URL(`/eventos/${evento.id}`, site).href
-  : new URL(Astro.url.pathname, site).href
+
+const pageUrl = new URL(`/eventos/${evento.id}`, site).href
+
 const organizationId = `${homeUrl}#organization`
 
-const startDate = toIsoDate(evento?.start_at)
-const endDate = toIsoDate(evento?.end_at)
-const previousStartDate = toIsoDate(evento?.previous_start_at)
+/* ==========================================================
+   DATES
+========================================================== */
+
+const startDate = toIsoDate(evento.start_at)
+
+const endDate = toIsoDate(evento.end_at)
+
+const previousStartDate = toIsoDate(evento.previous_start_at)
+
+/* ==========================================================
+   IMAGES
+========================================================== */
 
 const eventImages = [
-  ...(Array.isArray(evento?.image_urls) ? evento.image_urls : []),
-  evento?.image_url
+  ...(Array.isArray(evento.image_urls) ? evento.image_urls : []),
+
+  evento.image_url
 ]
   .map((image) => normalizeImageUrl(image))
   .filter((image): image is string => Boolean(image))
 
+/* ==========================================================
+   EVENT STATUS
+========================================================== */
+
 const eventStatusMap = {
   scheduled: 'https://schema.org/EventScheduled',
+
   cancelled: 'https://schema.org/EventCancelled',
+
   postponed: 'https://schema.org/EventPostponed',
+
   rescheduled: 'https://schema.org/EventRescheduled'
 } as const
 
+/* ==========================================================
+   LOCATION
+========================================================== */
+
 const hasStructuredLocation = Boolean(
-  evento?.location_name &&
-  evento?.street_address &&
-  evento?.address_locality &&
-  evento?.address_region &&
-  evento?.address_country
+  evento.location_name &&
+  evento.street_address &&
+  evento.address_locality &&
+  evento.address_region &&
+  evento.address_country
 )
 
+/* ==========================================================
+   STRUCTURED DATA
+========================================================== */
+
 const eventSchema =
-  evento && startDate && hasStructuredLocation
+  startDate && hasStructuredLocation
     ? {
         '@context': 'https://schema.org',
+
         '@type': 'Event',
+
         '@id': `${pageUrl}#event`,
+
         name: evento.titulo,
+
         description: pageDescription,
+
         url: pageUrl,
+
         startDate,
-        ...(endDate ? { endDate } : {}),
-        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        eventStatus: eventStatusMap[evento.event_status ?? 'scheduled'],
-        ...(previousStartDate && evento.event_status === 'rescheduled'
-          ? { previousStartDate }
+
+        ...(endDate
+          ? {
+              endDate
+            }
           : {}),
+
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+
+        eventStatus: eventStatusMap[evento.event_status ?? 'scheduled'],
+
+        ...(previousStartDate && evento.event_status === 'rescheduled'
+          ? {
+              previousStartDate
+            }
+          : {}),
+
         location: {
           '@type': 'Place',
+
           name: evento.location_name,
+
           address: {
             '@type': 'PostalAddress',
+
             streetAddress: evento.street_address,
+
             addressLocality: evento.address_locality,
+
             addressRegion: evento.address_region,
+
             addressCountry: evento.address_country,
-            ...(evento.postal_code ? { postalCode: evento.postal_code } : {})
+
+            ...(evento.postal_code
+              ? {
+                  postalCode: evento.postal_code
+                }
+              : {})
           }
         },
-        ...(eventImages.length > 0 ? { image: eventImages } : {}),
+
+        ...(eventImages.length > 0
+          ? {
+              image: eventImages
+            }
+          : {}),
+
         organizer: {
           '@type': 'Organization',
+
           '@id': organizationId,
+
           name: 'Fundación SENO',
+
           url: homeUrl
         }
       }
@@ -193,32 +347,27 @@ const eventSchema =
 
 <Layout
   pag={pageTitle}
-  seoTitle={evento ? `${evento.titulo} | Eventos Fundación SENO` : pageTitle}
+  seoTitle={`${evento.titulo} | Eventos Fundación SENO`}
   description={pageDescription}
   image={eventImages[0]}
-  noindex={pageState !== 'ready'}
 >
   {eventSchema && <JsonLd data={eventSchema} />}
 
-  {
-    evento && (
-      <Breadcrumbs
-        items={[
-          {
-            name: 'Inicio',
-            href: '/'
-          },
-          {
-            name: 'Eventos',
-            href: '/eventos'
-          },
-          {
-            name: evento.titulo
-          }
-        ]}
-      />
-    )
-  }
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Eventos',
+        href: '/eventos'
+      },
+      {
+        name: evento.titulo
+      }
+    ]}
+  />
 
   <main class="event-detail-page">
     <nav
@@ -226,112 +375,104 @@ const eventSchema =
       aria-label="Navegación de eventos"
     >
       <a class="event-detail-page__back" href="/eventos/">
-        <span aria-hidden="true">←</span>
-        <span>Volver a eventos</span>
+        <span aria-hidden="true"> ← </span>
+
+        <span> Volver a eventos </span>
       </a>
     </nav>
 
-    {
-      evento ? (
-        <article class="event-detail" aria-labelledby="event-title">
-          <div class="event-detail__gallery">
-            <GaleriaEvento
-              eventoId={evento.id}
-              titulo={evento.titulo}
-              cantidad={evento.cant_img}
-            />
-          </div>
+    <article class="event-detail" aria-labelledby="event-title">
+      <div class="event-detail__gallery">
+        <GaleriaEvento
+          eventoId={evento.id}
+          titulo={evento.titulo}
+          cantidad={evento.cant_img}
+        />
+      </div>
 
-          <div class="event-detail__content">
-            <header class="event-detail__header">
-              <p class="event-detail__category">Evento</p>
+      <div class="event-detail__content">
+        <header class="event-detail__header">
+          <p class="event-detail__category">Evento</p>
 
-              <h1 id="event-title">{evento.titulo}</h1>
-            </header>
+          <h1 id="event-title">
+            {evento.titulo}
+          </h1>
+        </header>
 
-            {(evento.fecha || evento.horario || evento.lugar) && (
-              <dl class="event-detail__metadata">
-                {evento.fecha && (
-                  <div class="event-detail__metadata-item">
-                    <dt>
-                      <span aria-hidden="true">📅</span>
-                      <span>Fecha</span>
-                    </dt>
-                    <dd>{evento.fecha}</dd>
-                  </div>
-                )}
+        {
+          (evento.fecha || evento.horario || evento.lugar) && (
+            <dl class="event-detail__metadata">
+              {evento.fecha && (
+                <div class="event-detail__metadata-item">
+                  <dt>
+                    <span aria-hidden="true">📅</span>
 
-                {evento.horario && (
-                  <div class="event-detail__metadata-item">
-                    <dt>
-                      <span aria-hidden="true">🕒</span>
-                      <span>Horario</span>
-                    </dt>
-                    <dd>{evento.horario}</dd>
-                  </div>
-                )}
+                    <span>Fecha</span>
+                  </dt>
 
-                {evento.lugar && (
-                  <div class="event-detail__metadata-item">
-                    <dt>
-                      <span aria-hidden="true">📍</span>
-                      <span>Lugar</span>
-                    </dt>
-                    <dd>{evento.lugar}</dd>
-                  </div>
-                )}
-              </dl>
-            )}
+                  <dd>{evento.fecha}</dd>
+                </div>
+              )}
 
-            {paragraphs.length > 0 && (
-              <section
-                class="event-detail__description"
-                aria-label="Descripción del evento"
+              {evento.horario && (
+                <div class="event-detail__metadata-item">
+                  <dt>
+                    <span aria-hidden="true">🕒</span>
+
+                    <span>Horario</span>
+                  </dt>
+
+                  <dd>{evento.horario}</dd>
+                </div>
+              )}
+
+              {evento.lugar && (
+                <div class="event-detail__metadata-item">
+                  <dt>
+                    <span aria-hidden="true">📍</span>
+
+                    <span>Lugar</span>
+                  </dt>
+
+                  <dd>{evento.lugar}</dd>
+                </div>
+              )}
+            </dl>
+          )
+        }
+
+        {
+          paragraphs.length > 0 && (
+            <section
+              class="event-detail__description"
+              aria-label="Descripción del evento"
+            >
+              {paragraphs.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+            </section>
+          )
+        }
+
+        {
+          eventExternalUrl && (
+            <div class="event-detail__actions">
+              <a
+                class="event-detail__external-link"
+                href={eventExternalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${evento.url_titulo || 'Más información'} sobre ${evento.titulo} en una pestaña nueva`}
               >
-                {paragraphs.map((paragraph) => (
-                  <p>{paragraph}</p>
-                ))}
-              </section>
-            )}
+                <span>{evento.url_titulo || 'Más información'}</span>
 
-            {eventExternalUrl && (
-              <div class="event-detail__actions">
-                <a
-                  class="event-detail__external-link"
-                  href={eventExternalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${evento.url_titulo || 'Más información'} sobre ${evento.titulo} en una pestaña nueva`}
-                >
-                  <span>{evento.url_titulo || 'Más información'}</span>
-                  <span aria-hidden="true">↗</span>
-                </a>
-              </div>
-            )}
-          </div>
-        </article>
-      ) : (
-        <section
-          class:list={[
-            'event-detail-status',
-            {
-              'event-detail-status--error': pageState === 'error'
-            }
-          ]}
-          role={pageState === 'error' ? 'alert' : 'status'}
-        >
-          <h1>{pageTitle}</h1>
-
-          <p>
-            {pageState === 'not-found'
-              ? 'El evento que buscás no existe o ya no se encuentra publicado.'
-              : 'No pudimos obtener la información del evento. Intentá nuevamente más tarde.'}
-          </p>
-
-          <a href="/eventos/">Ver todos los eventos</a>
-        </section>
-      )
-    }
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </article>
   </main>
 </Layout>
 
@@ -411,7 +552,9 @@ const eventSchema =
     font-size: 0.82rem;
     font-weight: 800;
     line-height: 1.3;
+
     letter-spacing: 0.08em;
+
     text-transform: uppercase;
   }
 
@@ -421,6 +564,7 @@ const eventSchema =
     font-size: clamp(1.9rem, 5vw, 3rem);
 
     line-height: 1.12;
+
     text-wrap: balance;
     overflow-wrap: anywhere;
   }
@@ -432,6 +576,7 @@ const eventSchema =
 
     display: flex;
     flex-direction: column;
+
     gap: 0.85rem;
 
     background-color: rgba(21, 130, 203, 0.06);
@@ -456,6 +601,7 @@ const eventSchema =
   .event-detail__metadata dt {
     display: flex;
     align-items: flex-start;
+
     gap: 0.45rem;
 
     color: var(--color-secondary-hover);
@@ -470,6 +616,7 @@ const eventSchema =
     color: var(--color-text);
 
     line-height: 1.5;
+
     overflow-wrap: anywhere;
   }
 
@@ -477,6 +624,7 @@ const eventSchema =
     color: var(--color-text);
 
     line-height: 1.75;
+
     text-wrap: pretty;
   }
 
@@ -500,9 +648,11 @@ const eventSchema =
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     gap: 0.5rem;
 
     color: var(--color-background);
+
     background-color: var(--color-secondary);
 
     border: 1px solid var(--color-secondary);
@@ -530,67 +680,6 @@ const eventSchema =
     outline: none;
 
     box-shadow: 0 0 0 3px var(--color-secondary-light);
-  }
-
-  .event-detail-status {
-    width: min(100%, 42rem);
-
-    margin: clamp(2rem, 8vw, 5rem) auto;
-
-    padding: clamp(2rem, 7vw, 4rem);
-
-    color: var(--color-text);
-    background-color: rgba(21, 130, 203, 0.05);
-
-    border: 1px dashed var(--color-secondary-light);
-
-    border-radius: var(--radius);
-
-    text-align: center;
-  }
-
-  .event-detail-status--error {
-    background-color: rgba(211, 47, 47, 0.06);
-
-    border-color: rgba(211, 47, 47, 0.4);
-  }
-
-  .event-detail-status h1 {
-    color: var(--color-secondary-hover);
-
-    font-size: clamp(1.5rem, 5vw, 2.2rem);
-
-    line-height: 1.25;
-    text-wrap: balance;
-  }
-
-  .event-detail-status--error h1 {
-    color: #b42318;
-  }
-
-  .event-detail-status p {
-    margin-top: 0.75rem;
-
-    color: #667580;
-
-    line-height: 1.65;
-    text-wrap: pretty;
-  }
-
-  .event-detail-status a {
-    margin-top: 1.25rem;
-
-    padding: 0.75rem 1rem;
-
-    display: inline-flex;
-
-    color: var(--color-background);
-    background-color: var(--color-secondary);
-
-    border-radius: var(--radius-small);
-
-    font-weight: 700;
-    text-decoration: none;
   }
 
   @media (hover: hover) {
