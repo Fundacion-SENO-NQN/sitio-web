@@ -1,0 +1,194 @@
+---
+import SvgReturn from '../../assets/icon-common/icon-return.svg'
+
+interface Props {
+  title: string
+  content?: string
+  backHref?: string
+  backLabel?: string
+}
+
+const {
+  title,
+  content,
+  backHref = '/plataforma/',
+  backLabel = 'Volver a la plataforma'
+} = Astro.props
+---
+
+<header class="pageHeader platformHeader">
+  <div class="pageHeaderText platformHeader__content">
+    <h1>{title}</h1>
+
+    {content && <p>{content}</p>}
+  </div>
+
+  <a
+    class="button platformHeader__back"
+    href={backHref}
+    aria-label={backLabel}
+    title={backLabel}
+  >
+    <SvgReturn class="platformHeader__backIcon" aria-hidden="true" />
+
+    <span class="srOnly">{backLabel}</span>
+  </a>
+</header>
+
+<style>
+  /*
+   * .pageHeader y .pageHeaderText provienen de:
+   * plataforma/common/base.css
+   *
+   * .button y .buttonGhost provienen de:
+   * plataforma/common/buttons.css
+   */
+
+  .platformHeader {
+    width: 100%;
+
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+
+    margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
+
+    display: grid;
+
+    padding-inline: clamp(1rem, 3vw, 2rem);
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+
+    align-items: start;
+
+    gap: var(--admin-space-medium);
+  }
+
+  .platformHeader__content {
+    min-width: 0;
+  }
+
+  .platformHeader__content h1 {
+    margin: 0;
+
+    color: var(--admin-text);
+
+    font-size: clamp(1.7rem, 4vw, 2.15rem);
+
+    font-weight: 800;
+    line-height: 1.2;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .platformHeader__content p {
+    max-width: 48rem;
+
+    margin: 0.5rem 0 0;
+
+    color: var(--admin-text-muted);
+
+    font-size: 0.95rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .platformHeader__back {
+    width: 3rem;
+    min-width: 3rem;
+    height: 3rem;
+    min-height: 3rem;
+
+    padding: 0;
+
+    display: inline-grid;
+    place-items: center;
+
+    justify-self: end;
+
+    color: var(--color-primary-hover);
+
+    background-color: var(--admin-surface);
+
+    border: var(--admin-border);
+
+    border-radius: var(--admin-radius);
+
+    box-shadow: var(--admin-shadow-small);
+  }
+
+  .platformHeader__back:hover {
+    color: var(--admin-text-on-color);
+
+    background-color: var(--color-primary-hover);
+
+    border-color: var(--color-primary-hover);
+
+    transform: translateY(-2px);
+  }
+
+  .platformHeader__back:focus-visible {
+    outline: none;
+
+    color: var(--color-primary-hover);
+
+    box-shadow: var(--admin-focus);
+  }
+
+  .platformHeader__backIcon {
+    width: 1.7rem;
+    height: 1.7rem;
+
+    color: currentColor;
+  }
+
+  @media (max-width: 640px) {
+    .platformHeader {
+      margin-top: 1rem;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        2.75rem;
+
+      gap: var(--admin-space);
+    }
+
+    .platformHeader__back {
+      width: 2.75rem;
+      min-width: 2.75rem;
+      height: 2.75rem;
+      min-height: 2.75rem;
+    }
+
+    .platformHeader__backIcon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .platformHeader {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .platformHeader__back {
+      grid-row: 1;
+      justify-self: start;
+    }
+
+    .platformHeader__content {
+      grid-row: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .platformHeader__back {
+      transition: none;
+    }
+
+    .platformHeader__back:hover {
+      transform: none;
+    }
+  }
+</style>

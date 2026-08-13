@@ -3,18 +3,57 @@ import { Image } from 'astro:assets'
 import Banner from '../../../assets/banner_seno.avif'
 ---
 
-<a href="./">
+<a class="footer-banner" href="/" aria-label="Ir al inicio de Fundación SENO">
   <Image
-    class="banner-seno"
+    class="footer-banner__image"
     src={Banner}
-    alt="Banner de la Fundación SENO"
+    alt=""
     loading="lazy"
+    decoding="async"
   />
 </a>
 
 <style>
-  .banner-seno {
-    height: 4rem;
-    width: auto;
+  .footer-banner {
+    width: min(100%, 20rem);
+
+    display: block;
+
+    border-radius: var(--radius-small);
+
+    transition:
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .footer-banner__image {
+    width: 100%;
+    height: auto;
+
+    object-fit: contain;
+  }
+
+  .footer-banner:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
+  }
+
+  @media (hover: hover) {
+    .footer-banner:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .footer-banner {
+      width: min(100%, 18rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-banner {
+      transition: none;
+    }
   }
 </style>

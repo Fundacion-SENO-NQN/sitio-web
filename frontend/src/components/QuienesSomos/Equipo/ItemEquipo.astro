@@ -1,101 +1,278 @@
 ---
-const { integrante } = Astro.props
+interface Integrante {
+  id: number
+  order: number
+  nombre: string
+  apellido: string
+  puesto: string
+  descripcion: string
+  created_at: Date
+}
 
-import type { ImageMetadata } from 'astro'
-import Image from 'astro/components/Image.astro'
+interface Props {
+  integrante: Integrante
+  priority?: boolean
+}
 
-const images: Record<string, ImageMetadata> = import.meta.glob(
-  '../../../assets/img_equipo/*.avif',
-  {
-    eager: true,
-    import: 'default',
-  },
-)
+const { integrante, priority = false } = Astro.props
 
-const image: ImageMetadata =
-  images[`../../../assets/img_equipo/${integrante.img}.avif`]
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
+
+const imageUrl = `${IMG_URL}/img_equipo/${integrante.id}.avif`
+
+const fullName = `${integrante.nombre} ${integrante.apellido}`.trim()
+
+const headingId = `integrante-${integrante.id}-nombre`
 ---
 
-<li class="integrante">
-  <Image
-    src={image}
-    alt={'Foto de ' + integrante.nombre + ' ' + integrante.apellido}
-    priority
-  />
-  <div class="contenido">
-    <h3>{integrante.nombre} {integrante.apellido}</h3>
-    <sub>{integrante.puesto}</sub>
-    <div class="descripcion">
-      <p>{integrante.descripcion}</p>
-    </div>
+<li class="team-member" aria-labelledby={headingId}>
+  <div class="team-member__image-container">
+    <img
+      class="team-member__image"
+      src={imageUrl}
+      alt={`Foto de ${fullName}`}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchpriority={priority ? 'high' : 'auto'}
+      decoding="async"
+      width="800"
+      height="1000"
+    />
+  </div>
+
+  <div class="team-member__content">
+    <header class="team-member__header">
+      <h2 id={headingId}>
+        {fullName}
+      </h2>
+
+      {
+        integrante.puesto && (
+          <p class="team-member__position">{integrante.puesto}</p>
+        )
+      }
+    </header>
+
+    {
+      integrante.descripcion && (
+        <div class="team-member__description">
+          <p>{integrante.descripcion}</p>
+        </div>
+      )
+    }
   </div>
 </li>
 
 <style>
-  .integrante {
-    width: 80dvw;
-    display: flex;
-    padding: 0;
+  .team-member {
+    width: 100%;
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns:
+      clamp(9rem, 18vw, 12rem)
+      minmax(0, 1fr);
+
+    overflow: hidden;
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+
     border: 1px solid var(--color-primary-hover);
-    border-top: none;
+
+    border-radius: var(--radius);
+
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .integrante:first-child {
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
-    border-top: 1px solid var(--color-primary-hover);
+  .team-member__image-container {
+    min-height: 12rem;
+
     overflow: hidden;
-  }
 
-  .integrante:last-child {
-    border-bottom-left-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-    overflow: hidden;
-  }
+    background-color: var(--color-primary-light);
 
-  .integrante * {
-    margin: 0;
-    padding: 0;
-    font-family: var(--text-font-primary);
-  }
-
-  .integrante img {
-    width: 10rem;
-    height: 10rem;
-    background-color: var(--color-primary);
     border-right: 1px solid var(--color-primary-hover);
   }
 
-  .integrante > div {
-    position: relative;
+  .team-member__image {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transition: transform 350ms ease;
+  }
+
+  .team-member__content {
+    min-width: 0;
+
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
   }
 
-  .integrante h3 {
-    background-color: var(--color-primary-hover);
-    height: 2.7rem;
+  .team-member__header {
+    min-width: 0;
+  }
+
+  .team-member__header h2 {
+    min-height: 3.2rem;
+
+    padding: 0.75rem clamp(1rem, 3vw, 1.5rem);
+
     display: flex;
     align-items: center;
-    padding-left: 1rem;
+
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
+
+    font-size: clamp(1.2rem, 3vw, 1.55rem);
+
+    line-height: 1.25;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
   }
 
-  .integrante sub {
-    background-color: var(--color-light-grey);
+  .team-member__position {
+    min-height: 2.25rem;
+
+    padding: 0.45rem clamp(1rem, 3vw, 1.5rem);
+
     display: flex;
     align-items: center;
-    padding-left: 1rem;
-    height: 1.5rem;
+
+    color: var(--color-text);
+    background-color: var(--color-light-grey);
+
+    font-size: clamp(0.9rem, 2vw, 1rem);
+
+    font-weight: 650;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
   }
 
-  .descripcion {
-    overflow: auto;
-    height: 5.8rem;
+  .team-member__description {
+    min-width: 0;
+
+    padding: clamp(1rem, 3vw, 1.5rem);
+
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
   }
 
-  .integrante p {
-    padding-left: 1rem;
+  .team-member__description p {
+    color: var(--color-text);
+
+    line-height: 1.7;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  @media (hover: hover) {
+    .team-member:hover {
+      border-color: var(--color-primary);
+
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.11);
+
+      transform: translateY(-3px);
+    }
+
+    .team-member:hover .team-member__image {
+      transform: scale(1.025);
+    }
+  }
+
+  @media (max-width: 750px) {
+    .team-member {
+      grid-template-columns:
+        8rem
+        minmax(0, 1fr);
+    }
+
+    .team-member__image-container {
+      min-height: 11rem;
+    }
+
+    .team-member__description {
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .team-member {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .team-member__image-container {
+      width: 100%;
+      min-height: 0;
+
+      aspect-ratio: 4 / 3;
+
+      border-right: 0;
+
+      border-bottom: 1px solid var(--color-primary-hover);
+    }
+
+    .team-member__image {
+      object-position: center 25%;
+    }
+
+    .team-member__header h2 {
+      min-height: auto;
+
+      padding: 0.8rem 1rem;
+
+      justify-content: center;
+
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .team-member__position {
+      min-height: auto;
+
+      padding: 0.55rem 1rem;
+
+      justify-content: center;
+
+      text-align: center;
+    }
+
+    .team-member__description {
+      padding: 1rem;
+    }
+
+    .team-member__description p {
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .team-member__image-container {
+      aspect-ratio: 1;
+    }
+
+    .team-member__header h2 {
+      font-size: 1.15rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .team-member,
+    .team-member__image {
+      transition: none;
+    }
   }
 </style>

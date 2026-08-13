@@ -1,26 +1,65 @@
 ---
-import quieroAyudar from '../../data/quieroAyudar/quieroAyudar.json'
 import type QuieroAyudar from '../../data/interfaces/QuieroAyudar'
-import ItemQuieroAyudar from '../../components/QuieroAyudar/ItemQuieroAyudar.astro'
+
+import quieroAyudar from '../../data/quieroAyudar/quieroAyudar.json'
+
+import ItemQuieroAyudar from './ItemQuieroAyudar.astro'
+
+const options = quieroAyudar as QuieroAyudar[]
 ---
 
-<nav>
-  <ul>
-    {quieroAyudar.map((item: QuieroAyudar) => <ItemQuieroAyudar item={item} />)}
+<nav class="help-options" aria-label="Formas de ayudar a Fundación SENO">
+  <ul class="help-options__list">
+    {
+      options.map((item: QuieroAyudar) => (
+        <li>
+          <ItemQuieroAyudar item={item} />
+        </li>
+      ))
+    }
   </ul>
 </nav>
 
 <style>
-  nav,
-  ul {
-    width: 100%;
+  .help-options {
+    width: min(100%, 75rem);
+
+    margin-inline: auto;
+
+    padding-inline: clamp(0.75rem, 3vw, 2rem);
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
+  .help-options__list {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+  }
+
+  .help-options__list > li {
+    min-width: 0;
+
     display: flex;
-    justify-content: center;
-    font-family: var(--text-font-primary);
+  }
+
+  @media (max-width: 42rem) {
+    .help-options__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 27rem) {
+    .help-options {
+      padding-inline: 0.5rem;
+    }
+
+    .help-options__list {
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 0.65rem;
+    }
   }
 </style>

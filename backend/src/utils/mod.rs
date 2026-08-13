@@ -3,7 +3,4 @@ pub mod equipo;
 pub mod image;
 pub mod logro;
 pub mod noticia;
-pub mod password;
-pub mod read_json;
-pub mod token;
-pub mod write_json;
+pub mod r2;

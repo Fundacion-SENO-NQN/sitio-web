@@ -3,33 +3,440 @@ import Layout from '../../layouts/Layout.astro'
 
 import TituloPag from '../../components/Common/TituloPag.astro'
 import Ubicacion from '../../components/Common/Ubicacion.astro'
+
+import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
+import SvgReloj from '../../assets/icon-common/icon-reloj.svg'
+import SvgUbicacion from '../../assets/icon-common/icon-ubicacion.svg'
+import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
 ---
 
-<Layout pag="¿Donde estamos?">
-  <TituloPag titulo="¿Donde estamos?" />
-  <main>
-    <section>
-      <div>
-        <p>Ciudad de Neuquén - San Carlos 1330</p>
-        <p>Desde las 10:00 hasta las 14:00 h</p>
+<Layout
+  pag="¿Dónde estamos?"
+  seoTitle="Fundación SENO en Neuquén | Dirección y horario"
+  description="Visitá la sede de Fundación SENO en San Carlos 1330, Neuquén Capital. Consultá nuestra ubicación y horario de atención."
+>
+  <TituloPag titulo="¿Dónde estamos?" />
+
+  <main class="location-page">
+    <section class="location-section" aria-labelledby="location-heading">
+      <div class="location-section__information">
+        <p class="location-section__label">Fundación SENO</p>
+
+        <h2 id="location-heading">Visitá nuestra sede en Neuquén Capital</h2>
+
+        <p class="location-section__introduction">
+          Podés acercarte para realizar consultas, entregar donaciones o
+          coordinar una visita.
+        </p>
+
+        <address class="location-details">
+          <div class="location-detail">
+            <span class="location-detail__icon" aria-hidden="true">
+              <SvgUbicacion />
+            </span>
+
+            <div class="location-detail__content">
+              <p class="location-detail__title">Dirección</p>
+
+              <p>
+                San Carlos 1330
+                <br />
+                Neuquén Capital, Neuquén
+              </p>
+            </div>
+          </div>
+
+          <div class="location-detail">
+            <span class="location-detail__icon" aria-hidden="true">
+              <SvgReloj />
+            </span>
+
+            <div class="location-detail__content">
+              <p class="location-detail__title">Horario de atención</p>
+
+              <p>De 10:00 a 14:00 h</p>
+            </div>
+          </div>
+        </address>
+
+        <a
+          class="location-section__maps-link"
+          href="https://www.google.com/maps/search/?api=1&query=San+Carlos+1330%2C+Neuqu%C3%A9n%2C+Argentina"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir la ubicación de Fundación SENO en Google Maps en una pestaña nueva"
+        >
+          <span>Abrir en Google Maps</span>
+
+          <SvgFlecha class="location-section__maps-icon" aria-hidden="true" />
+        </a>
       </div>
-      <Ubicacion />
+
+      <div class="location-section__map">
+        <Ubicacion />
+      </div>
     </section>
+
+    <aside
+      class="location-notice"
+      aria-label="Recomendación para visitar la Fundación"
+    >
+      <span class="location-notice__icon" aria-hidden="true">
+        <SvgMensajeVacio />
+      </span>
+
+      <p>
+        Para coordinar una visita o confirmar la atención, te recomendamos
+        comunicarte previamente con la Fundación.
+      </p>
+    </aside>
   </main>
 </Layout>
 
 <style>
-    section {
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
+  .location-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+
+    margin: 2rem auto clamp(3rem, 7vw, 5rem);
+  }
+
+  .location-section {
+    display: grid;
+
+    grid-template-columns:
+      minmax(17rem, 0.75fr)
+      minmax(0, 1.25fr);
+
+    align-items: stretch;
+
+    gap: clamp(1.5rem, 5vw, 4rem);
+  }
+
+  .location-section__information {
+    min-width: 0;
+
+    padding: clamp(1.5rem, 4vw, 3rem);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    background:
+      radial-gradient(
+        circle at 100% 0,
+        rgba(21, 130, 203, 0.14),
+        transparent 35%
+      ),
+      var(--color-background);
+
+    border: 1px solid rgba(18, 18, 18, 0.1);
+
+    border-radius: clamp(1rem, 3vw, 1.5rem);
+
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.07);
+  }
+
+  .location-section__label {
+    margin-bottom: 0.7rem;
+
+    color: var(--color-primary);
+
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .location-section__information h2 {
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+
+    line-height: 1.15;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .location-section__introduction {
+    margin-top: 1rem;
+
+    color: var(--color-text);
+
+    font-size: 1rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .location-details {
+    margin-top: 2rem;
+
+    display: grid;
+    gap: 1rem;
+
+    font-style: normal;
+  }
+
+  .location-detail {
+    min-width: 0;
+
+    padding: 1rem;
+
+    display: grid;
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    align-items: center;
+    gap: 1rem;
+
+    background-color: rgba(21, 130, 203, 0.06);
+
+    border: 1px solid rgba(21, 130, 203, 0.17);
+
+    border-radius: var(--radius);
+  }
+
+  .location-detail__icon {
+    width: 3rem;
+    height: 3rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+
+    border-radius: var(--radius-small);
+  }
+
+  .location-detail__icon :global(svg) {
+    width: 1.6rem;
+    height: 1.6rem;
+
+    color: currentColor;
+  }
+
+  .location-detail__content {
+    min-width: 0;
+  }
+
+  .location-detail__title {
+    margin-bottom: 0.2rem;
+
+    color: var(--color-primary-hover);
+
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .location-detail__content p:last-child {
+    color: var(--color-text);
+
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  .location-section__maps-link {
+    width: fit-content;
+    min-height: 3rem;
+
+    margin-top: 1.5rem;
+
+    padding: 0.75rem 1.15rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+
+    border: 2px solid var(--color-primary-hover);
+
+    border-radius: 999px;
+
+    font-weight: 750;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .location-section__maps-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+
+    color: currentColor;
+
+    transform: rotate(45deg);
+  }
+
+  .location-section__maps-link:hover {
+    color: var(--color-primary-hover);
+
+    background-color: var(--color-background);
+  }
+
+  .location-section__maps-link:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .location-section__map {
+    min-width: 0;
+
+    display: flex;
+    align-items: stretch;
+  }
+
+  .location-section__map :global(.location-map) {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+
+    margin: 0;
+  }
+
+  .location-section__map :global(.location-map__iframe) {
+    height: 100%;
+    min-height: 31rem;
+
+    aspect-ratio: auto;
+  }
+
+  .location-notice {
+    margin-top: 1.5rem;
+
+    padding: 1rem 1.25rem;
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    background-color: rgba(21, 130, 203, 0.08);
+
+    border-left: 4px solid var(--color-primary);
+
+    border-radius: 0.25rem var(--radius) var(--radius) 0.25rem;
+  }
+
+  .location-notice__icon {
+    width: 2.7rem;
+    height: 2.7rem;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    color: var(--color-primary);
+    background-color: var(--color-background);
+
+    border-radius: 50%;
+  }
+
+  .location-notice__icon :global(svg) {
+    width: 1.4rem;
+    height: 1.4rem;
+
+    color: currentColor;
+
+    transform: scaleX(-1);
+  }
+
+  .location-notice p {
+    color: var(--color-primary-hover);
+
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  @media (hover: hover) {
+    .location-section__maps-link:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 850px) {
+    .location-section {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    p {
-        text-align: center;
-        font-size: 1.3rem;
-        font-family: var(--text-font-primary);
-        color: var(--color-primary-hover);
-        font-weight: bold;
+    .location-section__information {
+      text-align: center;
     }
+
+    .location-detail {
+      text-align: left;
+    }
+
+    .location-section__maps-link {
+      width: 100%;
+    }
+
+    .location-section__map :global(.location-map__iframe) {
+      min-height: 25rem;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .location-page {
+      width: calc(100% - 1rem);
+
+      margin-top: 1rem;
+    }
+
+    .location-section__information {
+      padding: 1.4rem;
+
+      border-radius: 1.2rem;
+    }
+
+    .location-section__information h2 {
+      font-size: clamp(1.7rem, 9vw, 2.3rem);
+    }
+
+    .location-detail {
+      padding: 0.9rem;
+
+      align-items: start;
+    }
+
+    .location-detail__icon {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
+
+    .location-section__map :global(.location-map__iframe) {
+      min-height: 22rem;
+    }
+
+    .location-notice {
+      padding: 1rem;
+
+      align-items: flex-start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .location-section__maps-link {
+      transition: none;
+    }
+  }
 </style>

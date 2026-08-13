@@ -1,0 +1,349 @@
+/* ==========================================================
+   MEMBERS ADMINISTRATION
+
+   Estilos específicos de la administración de miembros.
+   Los componentes generales se importan desde common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.miembrosPage {
+  --admin-table-cell-padding: 1rem;
+}
+
+/* ==========================================================
+   TOOLBAR
+========================================================== */
+
+/*
+ * En miembros, el buscador original tenía un ancho máximo
+ * ligeramente menor que en eventos y noticias.
+ */
+.miembrosPage .searchWrapper {
+  width: min(100%, 28rem);
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.miembrosPage .table {
+  min-width: 67.5rem;
+}
+
+/* ==========================================================
+   MEMBER IMAGE
+========================================================== */
+
+.miembrosPage .memberImage {
+  width: 4.5rem;
+
+  height: 4.5rem;
+
+  flex: 0 0 auto;
+
+  object-fit: cover;
+
+  object-position: center;
+
+  background-color: var(--admin-surface-muted);
+
+  border: 2px solid var(--admin-surface);
+
+  border-radius: 0;
+
+  box-shadow:
+    0 0 0 1px var(--admin-border-color),
+    0 5px 14px rgba(0, 0, 0, 0.08);
+}
+
+.miembrosPage .memberImageError {
+  background: linear-gradient(
+    135deg,
+    var(--admin-surface-muted),
+    var(--admin-surface)
+  );
+}
+
+/* ==========================================================
+   MEMBER INFORMATION
+========================================================== */
+
+.miembrosPage .memberInfo {
+  min-width: 10rem;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.25rem;
+}
+
+.miembrosPage .memberInfo strong {
+  color: var(--admin-text);
+
+  font-size: 0.96rem;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   POSITION
+========================================================== */
+
+.miembrosPage .memberPosition {
+  min-width: 9rem;
+
+  max-width: 13rem;
+
+  color: var(--color-secondary-hover);
+
+  font-weight: 650;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
+
+.miembrosPage .memberDescription {
+  width: min(100%, 22rem);
+
+  margin: 0;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: #555555;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 3;
+
+  line-clamp: 3;
+}
+
+/* ==========================================================
+   CREATION DATE
+========================================================== */
+
+.miembrosPage .memberDate {
+  min-width: 8.5rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.86rem;
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+.miembrosPage .memberDate time {
+  color: inherit;
+
+  font: inherit;
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.miembrosPage .actions {
+  min-width: 10.5rem;
+}
+
+/* ==========================================================
+   MEMBER MODAL
+========================================================== */
+
+#memberModal .modalContent,
+.memberModalContent {
+  width: min(100%, 47.5rem);
+}
+
+/* ==========================================================
+   MEMBER FORM
+========================================================== */
+
+#memberForm .formGrid {
+  gap: 1.25rem;
+}
+
+#memberForm textarea {
+  min-height: 10rem;
+}
+
+/* ==========================================================
+   MEMBER IMAGE UPLOAD
+========================================================== */
+
+.miembrosPage .imageUpload {
+  min-height: 15rem;
+}
+
+/*
+ * La fotografía del miembro debe verse completa dentro de
+ * la vista previa, no recortada como las imágenes de eventos.
+ */
+.miembrosPage .imagePreview {
+  width: 100%;
+
+  max-height: 22rem;
+
+  object-fit: contain;
+
+  object-position: center;
+}
+
+/* ==========================================================
+   MEMBER IMAGE PLACEHOLDER
+========================================================== */
+
+.miembrosPage #memberImagePlaceholder {
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.4rem;
+
+  padding: 1rem;
+
+  color: var(--admin-text-muted);
+
+  text-align: center;
+}
+
+.miembrosPage #memberImagePlaceholder strong {
+  color: var(--color-secondary-hover);
+
+  font-size: 1rem;
+
+  font-weight: 750;
+}
+
+.miembrosPage #memberImagePlaceholder p {
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.84rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.miembrosPage .emptyState::before {
+  content: '👥';
+
+  display: block;
+
+  font-size: 3rem;
+
+  line-height: 1;
+}
+
+/*
+ * No genera el emoji cuando el HTML ya incluye un elemento
+ * visual explícito.
+ */
+.miembrosPage .emptyState:has(.emptyStateIcon)::before {
+  content: none;
+}
+
+/* ==========================================================
+   DELETE MODAL
+========================================================== */
+
+#deleteModal .deleteModal,
+#deleteModal .modalContent {
+  width: min(100%, 30rem);
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  .miembrosPage .table {
+    min-width: 62rem;
+  }
+
+  .miembrosPage .memberDescription {
+    width: 19rem;
+  }
+
+  .miembrosPage .memberPosition {
+    max-width: 11rem;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  .miembrosPage {
+    --admin-table-cell-padding: 0.8rem;
+  }
+
+  .miembrosPage .table {
+    min-width: 58rem;
+  }
+
+  .miembrosPage .imageUpload {
+    min-height: 12rem;
+  }
+
+  .miembrosPage .imagePreview {
+    max-height: 18rem;
+  }
+
+  .miembrosPage .memberDescription {
+    width: 17rem;
+  }
+
+  #deleteModal .deleteModal,
+  #deleteModal .modalContent {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  .miembrosPage .imageUpload {
+    min-height: 10rem;
+  }
+
+  .miembrosPage .imagePreview {
+    max-height: 15rem;
+  }
+}

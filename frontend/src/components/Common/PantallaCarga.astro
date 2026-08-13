@@ -1,0 +1,25 @@
+---
+interface Props {
+  id?: string
+  mensaje?: string
+  oculto?: boolean
+}
+
+const { id, mensaje = 'Cargando...', oculto = false } = Astro.props
+
+const elementId = `pantalla-carga${id ? `-${id}` : ''}`
+---
+
+<div
+  id={elementId}
+  class="pageLoading loading-screen"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  aria-hidden={oculto ? 'true' : 'false'}
+  hidden={oculto}
+>
+  <span class="spinner spinnerLarge" aria-hidden="true"></span>
+
+  <p class="loadingText">{mensaje}</p>
+</div>

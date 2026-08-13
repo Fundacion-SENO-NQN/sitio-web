@@ -1,8 +1,17 @@
 ---
-const { pag } = Astro.props
+import type QuieroAyudar from '../../data/interfaces/QuieroAyudar'
 
 import navigationQuieroAyudar from '../../data/quieroAyudar/quieroAyudar.json'
+
 import SubNav from '../Common/SubNav.astro'
+
+interface Props {
+  pag: string | number
+}
+
+const { pag } = Astro.props
+
+const navigation = navigationQuieroAyudar as QuieroAyudar[]
 ---
 
-<SubNav pag={pag} navigation={navigationQuieroAyudar} inicio="quiero-ayudar" />
+<SubNav pag={pag} navigation={navigation} inicio="quiero-ayudar" />

@@ -1,153 +1,167 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
 
-import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import TituloPag from '../../../components/Common/TituloPag.astro'
 import ItemHistoria from '../../../components/QuienesSomos/Historia/ItemHistoria.astro'
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
 
 import { historia } from '../../../data/historia/historia'
 import type Historia from '../../../data/interfaces/Historia'
-import TituloPag from '../../../components/Common/TituloPag.astro'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 ---
 
-<Layout pag="Historia">
+<Layout
+  pag="Historia"
+  seoTitle="Historia de Fundación SENO Neuquén"
+  description="Recorré la historia de Fundación SENO desde sus comienzos y conocé los momentos más importantes de su trabajo en Neuquén."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quienes somos',
+        href: '/quienes-somos'
+      },
+      {
+        name: 'Historia'
+      }
+    ]}
+  />
   <NavegacionQuienesSomos pag="1" />
-  <TituloPag titulo="Historia" />
-  <main>
-    <section class="historia">
-      <div class="historia__titulo">
-        <h2>Fundación S.E.N.O.</h2>
-      </div>
 
-      <div class="timeline">
-        {historia.map((item: Historia) => <ItemHistoria historia={item} />)}
-      </div>
+  <TituloPag titulo="Historia" />
+
+  <main class="history-page">
+    <section class="history-page__section" aria-labelledby="history-page-title">
+      <header class="history-page__introduction">
+        <p class="history-page__label">Nuestra trayectoria</p>
+
+        <h2 id="history-page-title">La historia de Fundación S.E.N.O.</h2>
+
+        <p>
+          Un recorrido por los momentos que marcaron el crecimiento de la
+          Fundación y el desarrollo de sus distintas formas de acompañamiento.
+        </p>
+      </header>
+
+      {
+        historia.length > 0 ? (
+          <div
+            class="history-page__timeline"
+            aria-label="Línea de tiempo de Fundación SENO"
+          >
+            {historia.map((item: Historia) => (
+              <ItemHistoria historia={item} />
+            ))}
+          </div>
+        ) : (
+          <section class="history-page__status" role="status">
+            <h2>La historia todavía no está disponible</h2>
+
+            <p>
+              Próximamente vas a poder recorrer los momentos más importantes de
+              Fundación SENO.
+            </p>
+          </section>
+        )
+      }
     </section>
   </main>
 </Layout>
 
 <style>
-  .historia {
-    --card: #fff;
-    font-family: var(--text-font-primary);
-    max-width: 1100px;
-    margin: auto;
-    padding: 0rem 2rem;
-    padding-bottom: 0;
+  .history-page {
+    width: min(calc(100% - 2rem), 68.75rem);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
   }
 
-  .historia__titulo {
+  .history-page__section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .history-page__introduction {
+    width: min(100%, 46rem);
+    margin: 0 auto clamp(3rem, 8vw, 5rem);
     text-align: center;
-    margin-bottom: 5rem;
   }
 
-  .historia__titulo h2 {
-    font-size: 3rem;
-    margin: 0.5rem 0 1rem;
-  }
+  .history-page__label {
+    margin-bottom: 0.6rem;
 
-  .historia__titulo p {
-    max-width: 700px;
-    margin: auto;
-    color: var(--color-grey);
-    line-height: 1.8;
-  }
+    color: var(--color-primary);
 
-  .timeline {
-    position: relative;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-
-    width: 3px;
-
-    background-color: var(--color-light-grey);
-
-    transform: translateX(-50%);
-  }
-
-  .evento {
-    display: grid;
-
-    grid-template-columns: 1fr 80px 1fr;
-
-    gap: 2rem;
-
-    align-items: center;
-
-    margin-bottom: 5rem;
-  }
-
-  .evento:nth-child(even) .evento__fecha {
-    order: 3;
-    text-align: left;
-  }
-
-  .evento:nth-child(even) .evento__contenido {
-    order: 1;
-    text-align: right;
-  }
-
-  .evento:nth-child(even) .evento__punto {
-    order: 2;
-  }
-
-  .evento__fecha {
-    font-size: 3rem;
+    font-size: 0.76rem;
     font-weight: 800;
-    color: var(--color-grey);
-    text-align: right;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
-  .evento__punto {
-    width: 24px;
-    height: 24px;
-
-    border-radius: 50%;
-
-    background: var(--color-background);
-
-    border: 5px solid var(--color-primary);
-
-    justify-self: center;
-
-    z-index: 2;
+  .history-page__introduction h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    line-height: 1.15;
+    text-wrap: balance;
   }
 
-  .evento__contenido {
-    background: var(--card);
+  .history-page__introduction > p:last-child {
+    margin-top: 1rem;
 
-    border-radius: 18px;
-
-    padding: 2rem;
-
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
-
-    transition: 0.3s;
-  }
-
-  .evento__contenido:hover {
-    transform: translateY(-6px);
-
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
-  }
-
-  .evento__contenido h3 {
-    margin-bottom: 1rem;
-  }
-
-  .evento__contenido p {
     color: var(--color-text);
-    line-height: 1.8;
+
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .history-page__timeline {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .history-page__status {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(1.75rem, 5vw, 3rem);
+
+    color: var(--color-text);
+    background-color: rgba(192, 226, 156, 0.3);
+
+    border: 1px dashed var(--color-primary-light);
+    border-radius: var(--radius);
+
+    text-align: center;
+  }
+
+  .history-page__status h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.25rem, 4vw, 1.7rem);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .history-page__status p {
+    margin-top: 0.75rem;
+    color: var(--color-grey);
+    line-height: 1.6;
+    text-wrap: pretty;
   }
 
   @media (max-width: 800px) {
-    .timeline::before {
-      left: 0.8rem;
+    .history-page__introduction {
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .history-page {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
     }
   }
 </style>

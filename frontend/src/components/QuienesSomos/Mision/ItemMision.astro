@@ -1,109 +1,205 @@
 ---
+import type Mision from '../../../data/interfaces/Mision'
+
+interface Props {
+  mision: Mision
+}
+
 const { mision } = Astro.props
 
-const icons: Record<string, string> = import.meta.glob(
-  '../../../assets/icon-mision/*.svg',
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
-)
+const icons = import.meta.glob<string>('../../../assets/icon-mision/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true
+})
 
-const icono = icons[`../../../assets/icon-mision/${mision.img}.svg`] as string
+const iconPath = `../../../assets/icon-mision/${mision.img}.svg`
+
+const icono = icons[iconPath]
 ---
 
-<li class="item-lista">
-  <div class="inicio-borde"></div>
-  <div class="contenedor-titulo">
-    <h4 class="titulo">{mision.titulo}</h4>
-  </div>
-  <div class="contenedor-contenido">
-    <p>
-      {mision.contenido}
-    </p>
-    <Fragment set:html={icono} />
+<li class="mission-card">
+  <span class="mission-card__connector" aria-hidden="true"></span>
+
+  <header class="mission-card__header">
+    <h3>{mision.titulo}</h3>
+  </header>
+
+  <div class="mission-card__body">
+    <p>{mision.contenido}</p>
+
+    {
+      icono && (
+        <div class="mission-card__icon" aria-hidden="true">
+          <Fragment set:html={icono} />
+        </div>
+      )
+    }
   </div>
 </li>
 
 <style>
-  .item-lista {
-    width: min-content;
-    display: flex;
-    flex-direction: column;
-    font-family: var(--text-font-primary);
-  }
-
-  .inicio-borde {
-    position: relative;
-    height: 2rem;
+  .mission-card {
     width: 100%;
-    z-index: 100;
-    border-left: 1px solid var(--color-primary);
-  }
-
-  .contenedor-titulo {
-    position: relative;
-    height: 2.8rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
-    outline: 1px solid var(--color-primary);
-    border-radius: 11rem;
-    right: 1rem;
-  }
-
-  .contenedor-titulo::before {
-    content: '';
-    height: 120%;
-    width: 100%;
-    top: 50%;
-    transform: translatey(-50%);
-    left: calc(1rem + 1px);
-    position: absolute;
-    background-color: var(--color-background);
-  }
-
-  .contenedor-titulo h4 {
-    align-items: center;
-    display: flex;
-  }
-
-  .titulo {
-    margin: 0;
-    width: 15rem;
-    height: 2.3rem;
-    padding: 0.3rem;
-    padding-inline: 0.7rem;
-    border-radius: 10rem;
-    position: relative;
-    background-color: var(--color-primary);
-    display: flex;
-    align-items: center;
-  }
-
-  .contenedor-contenido {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+    min-width: 0;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    transition: transform var(--transition);
+  }
+
+  .mission-card__connector {
+    width: 1px;
+    height: 1.5rem;
+
+    margin-left: 2rem;
+
+    flex: 0 0 auto;
+
+    background-color: var(--color-primary);
+  }
+
+  .mission-card__header {
     width: 100%;
-    padding: 0.7rem;
+
+    padding: 0.3rem;
+
+    position: relative;
+    z-index: 1;
+
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary);
+
+    border-right: 0;
+
+    border-radius: 999px;
+  }
+
+  .mission-card__header::before {
+    content: '';
+
+    width: calc(100% - 2rem);
+
+    height: 120%;
+
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    z-index: -1;
+
+    background-color: var(--color-background);
+
+    transform: translateY(-50%);
+  }
+
+  .mission-card__header h3 {
+    width: 100%;
+    min-height: 3rem;
+
+    padding: 0.7rem 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-background);
+    background-color: var(--color-primary);
+
+    border-radius: 999px;
+
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+
+    line-height: 1.3;
+    text-align: center;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+
+    transition: background-color var(--transition);
+  }
+
+  .mission-card__body {
+    min-width: 0;
+    height: 100%;
+
+    margin-left: 2rem;
+
+    padding: 1.25rem 1rem 1rem 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     border-left: 1px solid var(--color-primary);
   }
 
-  .contenedor-contenido p {
-    margin: 0;
-    margin-bottom: 1rem;
-    height: min-content;
+  .mission-card__body p {
+    width: 100%;
+
+    margin-bottom: 1.5rem;
+
+    color: var(--color-text);
+
+    line-height: 1.65;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
   }
 
-  .contenedor-contenido :global(svg) {
-    height: 5rem;
-    color: var(--color-primary);
-    stroke-width: 5;
+  .mission-card__icon {
     margin-top: auto;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-primary);
+  }
+
+  .mission-card__icon :global(svg) {
+    width: clamp(3.75rem, 9vw, 5rem);
+
+    height: clamp(3.75rem, 9vw, 5rem);
+
+    color: inherit;
+  }
+
+  .mission-card__icon :global(svg *) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  @media (hover: hover) {
+    .mission-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .mission-card:hover .mission-card__header h3 {
+      background-color: var(--color-primary-hover);
+    }
+  }
+
+  @media (max-width: 650px) {
+    .mission-card__connector {
+      margin-left: 1.5rem;
+    }
+
+    .mission-card__header::before {
+      width: calc(100% - 1.5rem);
+
+      left: 1.5rem;
+    }
+
+    .mission-card__body {
+      margin-left: 1.5rem;
+
+      padding: 1.1rem 0.5rem 1rem 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mission-card,
+    .mission-card__header h3 {
+      transition: none;
+    }
   }
 </style>

@@ -1,5 +1,5 @@
 export default interface Historia {
-  date: number
+  date: string
   contenido: TarjetaHistoria[]
 }
 

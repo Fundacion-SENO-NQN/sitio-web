@@ -1,0 +1,428 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/noticias.css'
+---
+
+<LayoutPlataforma titulo="Noticias">
+  <HeaderPlataforma
+    title="Noticias"
+    content="Administrá las noticias que se muestran en el sitio web."
+  />
+
+  <main class="adminPage noticias-admin">
+    <section
+      class="toolbar herramientas"
+      aria-label="Herramientas de administración de noticias"
+    >
+      <button
+        id="btn-nueva-noticia"
+        class="button buttonPrimary boton boton-principal"
+        type="button"
+      >
+        <span aria-hidden="true">+</span>
+        <span>Nueva noticia</span>
+      </button>
+
+      <label class="searchField buscador" for="buscar-noticias">
+        <span class="srOnly sr-only"> Buscar noticias </span>
+
+        <span class="searchFieldIcon icono-busqueda" aria-hidden="true">
+          ⌕
+        </span>
+
+        <input
+          id="buscar-noticias"
+          type="search"
+          placeholder="Buscar por título, contenido o fecha..."
+          autocomplete="off"
+          aria-describedby="cantidad-noticias"
+        />
+      </label>
+
+      <div class="toolbarSummary resumen" aria-live="polite" aria-atomic="true">
+        <span id="cantidad-noticias"> 0 noticias </span>
+      </div>
+    </section>
+
+    <section
+      class="tableContainer contenedor-tabla"
+      aria-label="Listado de noticias"
+    >
+      <div
+        id="estado-cargando"
+        class="tableState estado-tabla"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="spinner" aria-hidden="true"></div>
+
+        <p>Cargando noticias...</p>
+      </div>
+
+      <div
+        id="estado-error"
+        class="tableState tableStateError estado-tabla oculto"
+        role="alert"
+      >
+        <span class="tableStateIcon estado-icono" aria-hidden="true"> ! </span>
+
+        <h2>No se pudieron cargar las noticias</h2>
+
+        <p>Revisá la conexión con el servidor e intentá nuevamente.</p>
+
+        <button
+          id="btn-reintentar-noticias"
+          class="button buttonSecondary boton boton-secundario"
+          type="button"
+        >
+          Reintentar
+        </button>
+      </div>
+
+      <div
+        id="estado-vacio"
+        class="tableState estado-tabla oculto"
+        role="status"
+      >
+        <span class="tableStateIcon estado-icono" aria-hidden="true"> 📰 </span>
+
+        <h2>No hay noticias publicadas</h2>
+
+        <p>Creá la primera noticia para que aparezca en el sitio web.</p>
+
+        <button
+          id="btn-primera-noticia"
+          class="button buttonPrimary boton boton-principal"
+          type="button"
+        >
+          Crear noticia
+        </button>
+      </div>
+
+      <div id="tabla-wrapper" class="tableWrapper tabla-wrapper oculto">
+        <table class="dataTable tabla-noticias">
+          <caption class="srOnly sr-only">
+            Noticias publicadas en el sitio web
+          </caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Orden</th>
+              <th scope="col">Imagen</th>
+              <th scope="col">Noticia</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Imágenes</th>
+              <th scope="col">Creada</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tabla-noticias-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       MODAL CREAR / EDITAR NOTICIA
+  ====================================================== -->
+
+  <div
+    id="modal-noticia"
+    class="modal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-noticia-titulo"
+    tabindex="-1"
+  >
+    <div
+      class="modalBackdrop modal-fondo"
+      data-cerrar-modal-noticia
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="modalContent modal-contenido modal-noticia-contenido">
+      <header class="modalHeader modal-cabecera">
+        <div>
+          <p class="modalEyebrow modal-seccion">Administración de noticias</p>
+
+          <h2 id="modal-noticia-titulo">Nueva noticia</h2>
+        </div>
+
+        <button
+          id="btn-cerrar-modal-noticia"
+          class="iconButton boton-cerrar"
+          type="button"
+          aria-label="Cerrar ventana de noticia"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <form
+        id="form-noticia"
+        class="adminForm form-noticia"
+        enctype="multipart/form-data"
+      >
+        <div class="formContent form-contenido">
+          <section
+            class="formSection form-seccion"
+            aria-labelledby="informacion-noticia-titulo"
+          >
+            <header class="formSectionHeader form-seccion-cabecera">
+              <div>
+                <h3 id="informacion-noticia-titulo">
+                  Información de la noticia
+                </h3>
+
+                <p>
+                  El título y el contenido aparecerán en la página pública de
+                  noticias.
+                </p>
+              </div>
+            </header>
+
+            <div class="formGrid form-grid">
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
+                  Título
+
+                  <span class="requiredMark" aria-hidden="true"> * </span>
+                </span>
+
+                <input
+                  id="noticia-titulo"
+                  name="titulo"
+                  type="text"
+                  maxlength="220"
+                  placeholder="Ej.: Nueva campaña solidaria de Fundación SENO"
+                  required
+                />
+
+                <span class="formHelp campo-ayuda">
+                  Utilizá un título breve y descriptivo.
+                </span>
+              </label>
+
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
+                  Contenido
+
+                  <span class="requiredMark" aria-hidden="true"> * </span>
+                </span>
+
+                <textarea
+                  id="noticia-contenido"
+                  name="contenido"
+                  maxlength="12000"
+                  rows="10"
+                  placeholder="Escribí el contenido completo de la noticia..."
+                  required></textarea>
+
+                <span class="formHelp campo-ayuda">
+                  Podés utilizar párrafos, saltos de línea y emojis.
+                </span>
+              </label>
+
+              <label class="formField campo campo-completo">
+                <span class="formLabel campo-label">
+                  Fecha
+
+                  <span class="optionalLabel opcional"> Opcional </span>
+                </span>
+
+                <input
+                  id="noticia-fecha"
+                  name="fecha"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Ej.: 2 de agosto de 2026"
+                />
+
+                <span class="formHelp campo-ayuda">
+                  Si dejás este campo vacío al crear una noticia, el servidor
+                  utilizará automáticamente la fecha actual.
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section
+            class="formSection form-seccion"
+            aria-labelledby="imagenes-noticia-titulo"
+          >
+            <header class="formSectionHeader form-seccion-cabecera">
+              <div>
+                <h3 id="imagenes-noticia-titulo">Imágenes</h3>
+
+                <p id="texto-ayuda-imagenes">
+                  Seleccioná entre 1 y 10 imágenes para la noticia.
+                </p>
+              </div>
+            </header>
+
+            <label
+              id="zona-subida-imagenes"
+              class="imagePicker zona-subida"
+              for="noticia-imagenes"
+            >
+              <input
+                id="noticia-imagenes"
+                name="images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                aria-describedby="texto-ayuda-imagenes"
+                multiple
+              />
+
+              <span class="imagePickerIcon subida-icono" aria-hidden="true">
+                +
+              </span>
+
+              <strong> Seleccionar imágenes </strong>
+
+              <span> También podés arrastrarlas hasta esta zona </span>
+
+              <small>
+                JPG, PNG, WebP o AVIF · máximo 10 imágenes · 12 MB por archivo
+              </small>
+            </label>
+
+            <div
+              id="imagenes-seleccionadas"
+              class="imagePreviewGrid galeria-preview oculto"
+              aria-label="Imágenes seleccionadas"
+              aria-live="polite"
+            >
+            </div>
+
+            <div
+              id="imagenes-actuales-contenedor"
+              class="currentImages imagenes-actuales oculto"
+            >
+              <div class="currentImagesHeader imagenes-actuales-cabecera">
+                <h4>Imágenes actuales</h4>
+
+                <p>
+                  Si seleccionás nuevas imágenes, reemplazarán completamente las
+                  imágenes actuales.
+                </p>
+              </div>
+
+              <div
+                id="imagenes-actuales"
+                class="imagePreviewGrid galeria-preview"
+                aria-label="Imágenes actuales de la noticia"
+              >
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="modalFooter modal-footer">
+          <button
+            id="btn-cancelar-noticia"
+            class="button buttonGhost boton boton-cancelar"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button
+            id="btn-guardar-noticia"
+            class="button buttonPrimary boton boton-principal"
+            type="submit"
+          >
+            Guardar noticia
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL ELIMINAR NOTICIA
+  ====================================================== -->
+
+  <div
+    id="modal-eliminar-noticia"
+    class="modal oculto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-eliminar-titulo"
+    aria-describedby="texto-eliminar-noticia"
+    tabindex="-1"
+  >
+    <div
+      class="modalBackdrop modal-fondo"
+      data-cerrar-modal-eliminar
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="modalContent modal-contenido modal-eliminar-contenido">
+      <header class="modalHeader modal-cabecera">
+        <h2 id="modal-eliminar-titulo">Eliminar noticia</h2>
+
+        <button
+          id="btn-cerrar-modal-eliminar"
+          class="iconButton boton-cerrar"
+          type="button"
+          aria-label="Cerrar ventana de eliminación"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <div class="deleteConfirmation eliminar-contenido  deleteBody">
+        <span class="deleteConfirmationIcon eliminar-icono" aria-hidden="true">
+          !
+        </span>
+
+        <h3>¿Seguro que querés eliminar esta noticia?</h3>
+
+        <p id="texto-eliminar-noticia">
+          La noticia y todas sus imágenes serán eliminadas permanentemente.
+        </p>
+
+        <p class="dangerMessage advertencia">
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+
+      <footer class="modalFooter modal-footer">
+        <button
+          id="btn-cancelar-eliminar"
+          class="button buttonGhost boton boton-cancelar"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btn-confirmar-eliminar"
+          class="button buttonDanger boton boton-peligro"
+          type="button"
+        >
+          Eliminar noticia
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <div
+    id="contenedor-toast"
+    class="toastContainer contenedor-toast"
+    aria-live="polite"
+    aria-atomic="true"
+    aria-relevant="additions text"
+  >
+  </div>
+
+  <script>
+    import '../../../js/noticias/noticias.js'
+  </script>
+</LayoutPlataforma>

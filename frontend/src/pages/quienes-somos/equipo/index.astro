@@ -1,31 +1,189 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
 
-import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
-import EquipoItem from '../../../components/QuienesSomos/Equipo/ItemEquipo.astro'
-
-import { equipo } from '../../../data/equipo/equipo'
 import TituloPag from '../../../components/Common/TituloPag.astro'
+import EquipoItem from '../../../components/QuienesSomos/Equipo/ItemEquipo.astro'
+import NavegacionQuienesSomos from '../../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+
+import { getEquipo } from '../../../api/equipo'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
+
+type Equipo = Awaited<ReturnType<typeof getEquipo>>
+
+let equipo: Equipo = []
+let loadingError = false
+
+try {
+  const response = await getEquipo()
+
+  if (!Array.isArray(response)) {
+    throw new TypeError('La respuesta del equipo no es un arreglo')
+  }
+
+  equipo = response
+} catch (error) {
+  loadingError = true
+  Astro.response.status = 503
+  Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
+  Astro.response.headers.set('Cache-Control', 'no-store')
+
+  console.error('No se pudo cargar el equipo:', error)
+}
 ---
 
-<Layout pag="Equipo">
+<Layout
+  pag="Equipo"
+  seoTitle="Equipo de Fundación SENO Neuquén"
+  description="Conocé a las personas que forman parte de Fundación SENO y acompañan diariamente a niños, niñas, adolescentes y sus familias."
+  noindex={loadingError}
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quienes somos',
+        href: '/quienes-somos'
+      },
+      {
+        name: 'Equipo'
+      }
+    ]}
+  />
   <NavegacionQuienesSomos pag="2" />
+
   <TituloPag titulo="Equipo" />
-  <main>
-    <ul class="lista-equipo">
-      {equipo.map((item) => <EquipoItem integrante={item} />)}
-    </ul>
+
+  <main class="team-page">
+    <header class="team-page__introduction">
+      <h2>Las personas detrás de Fundación SENO</h2>
+
+      <p>
+        Nuestro equipo está formado por personas comprometidas que trabajan para
+        acompañar a las familias y sostener cada una de las actividades de la
+        Fundación.
+      </p>
+    </header>
+
+    {
+      loadingError ? (
+        <section
+          class="team-page__status team-page__status--error"
+          role="alert"
+        >
+          <h2>No pudimos cargar el equipo</h2>
+
+          <p>
+            La información no está disponible en este momento. Intentá
+            nuevamente más tarde.
+          </p>
+        </section>
+      ) : equipo.length > 0 ? (
+        <ul class="team-page__list" aria-label="Integrantes de Fundación SENO">
+          {equipo.map((integrante, index) => (
+            <EquipoItem integrante={integrante} priority={index === 0} />
+          ))}
+        </ul>
+      ) : (
+        <section class="team-page__status" role="status">
+          <h2>Todavía no hay miembros publicados</h2>
+
+          <p>
+            Próximamente vas a poder conocer a las personas que forman parte de
+            Fundación SENO.
+          </p>
+        </section>
+      )
+    }
   </main>
 </Layout>
 
 <style>
-  .lista-equipo {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .team-page {
+    width: min(calc(100% - 2rem), 68.75rem);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  .team-page__introduction {
+    width: min(100%, 46rem);
+    margin: 0 auto clamp(2rem, 5vw, 3rem);
+    text-align: center;
+  }
+
+  .team-page__introduction h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .team-page__introduction p {
+    margin-top: 0.75rem;
+    color: var(--color-text);
+    font-size: clamp(0.98rem, 2vw, 1.08rem);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .team-page__list {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  .team-page__status {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(1.75rem, 5vw, 3rem);
+
+    color: var(--color-text);
+    background-color: rgba(192, 226, 156, 0.3);
+
+    border: 1px dashed var(--color-primary-light);
+    border-radius: var(--radius);
+
+    text-align: center;
+  }
+
+  .team-page__status--error {
+    background-color: rgba(211, 47, 47, 0.06);
+    border-color: rgba(211, 47, 47, 0.4);
+  }
+
+  .team-page__status h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.25rem, 4vw, 1.7rem);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .team-page__status--error h2 {
+    color: var(--color-red, #b42318);
+  }
+
+  .team-page__status p {
+    margin-top: 0.75rem;
+    color: var(--color-grey);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 500px) {
+    .team-page {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
+    }
+
+    .team-page__introduction {
+      margin-bottom: 2rem;
+    }
+
+    .team-page__list {
+      gap: 1.25rem;
+    }
   }
 </style>

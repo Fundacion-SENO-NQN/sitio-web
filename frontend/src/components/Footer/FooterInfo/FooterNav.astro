@@ -1,51 +1,147 @@
 ---
 import type Navigation from '../../../data/interfaces/Navigation'
 
-const { items } = Astro.props
+interface Props {
+  items: Navigation[]
+  label: string
+}
+
+const { items, label } = Astro.props
+
+const normalizePath = (path: string): string => {
+  const pathWithoutQuery = path.split(/[?#]/, 1)[0]
+  const normalizedPath = pathWithoutQuery.replace(/\/+$/, '')
+
+  return normalizedPath || '/'
+}
+
+const currentPath = normalizePath(Astro.url.pathname)
 ---
 
-<nav class="footer-nav">
-  <ul class="footer-lista-nav">
-    {items.map((item: Navigation) => <a href={item.href}>{item.name}</a>)}
+<nav class="footer-nav" aria-label={label}>
+  <ul class="footer-nav__list">
+    {
+      items.map((item: Navigation) => {
+        const isInternal = item.href.startsWith('/')
+
+        const isCurrentPage =
+          isInternal && normalizePath(item.href) === currentPath
+
+        return (
+          <li class="footer-nav__item">
+            <a
+              class:list={[
+                'footer-nav__link',
+                {
+                  'footer-nav__link--current': isCurrentPage
+                }
+              ]}
+              href={item.href}
+              aria-current={isCurrentPage ? 'page' : undefined}
+            >
+              {item.name}
+            </a>
+          </li>
+        )
+      })
+    }
   </ul>
 </nav>
 
 <style>
-  .footer-lista-nav {
-    list-style: none;
+  .footer-nav {
+    width: 100%;
+    min-width: 0;
+    text-decoration: none;
+  }
+
+  .footer-nav__list {
     display: flex;
     flex-direction: column;
-    margin: 0;
-    margin-block: 0;
-    padding: 0;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
-  .footer-lista-nav a {
-    width: max-content;
-    text-decoration: none;
-    color: var(--color-text);
-    margin-top: 0.4rem;
+  .footer-nav__item {
+    max-width: 100%;
+  }
+
+  .footer-nav__link {
+    max-width: 100%;
+    padding-block: 0.1rem;
+
     position: relative;
-    transition: color 0.3s ease;
+
+    display: inline-block;
+
+    color: var(--color-text);
+
+    line-height: 1.45;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    transition:
+      color var(--transition),
+      opacity var(--transition);
   }
 
-  .footer-lista-nav a:hover {
+  .footer-nav__link::after {
+    content: '';
+
+    width: 100%;
+    height: 1px;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    background-color: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform var(--transition);
+  }
+
+  .footer-nav__link:hover {
     color: var(--color-secondary-hover);
   }
 
-  .footer-lista-nav a::after {
-    content: '';
-    width: 100%;
-    height: 1px;
-    position: absolute;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-    left: 0;
-    bottom: 0;
-    background-color: var(--color-secondary);
+  .footer-nav__link:hover::after,
+  .footer-nav__link--current::after {
+    transform: scaleX(1);
   }
 
-  .footer-lista-nav a:hover::after {
-    transform: scaleX(1);
+  .footer-nav__link--current {
+    color: var(--color-secondary-hover);
+
+    font-weight: 700;
+  }
+
+  .footer-nav__link:focus-visible {
+    outline: none;
+
+    color: var(--color-secondary-hover);
+
+    border-radius: 0.2rem;
+
+    box-shadow: 0 0 0 3px var(--color-secondary-light);
+  }
+
+  @media (max-width: 600px) {
+    .footer-nav__list {
+      gap: 0.6rem;
+    }
+
+    .footer-nav__link {
+      padding-block: 0.2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-nav__link,
+    .footer-nav__link::after {
+      transition: none;
+    }
   }
 </style>

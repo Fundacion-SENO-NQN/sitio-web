@@ -1,0 +1,26 @@
+---
+interface Props {
+  id?: string
+  mensaje?: string
+  oculto?: boolean
+}
+
+const { id, mensaje = 'Cargando...', oculto = false } = Astro.props
+
+const elementId = `modal-carga${id ? `-${id}` : ''}`
+const elementTxtId = `loading-text${id ? `-${id}` : ''}`
+---
+
+<div
+  id={elementId}
+  class="loadingOverlay"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  aria-hidden={oculto ? 'true' : 'false'}
+  hidden={oculto}
+>
+  <span class="spinner spinnerLarge" aria-hidden="true"></span>
+
+  <p id={elementTxtId} class="loadingText">{mensaje}</p>
+</div>

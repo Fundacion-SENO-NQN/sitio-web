@@ -1,8 +1,16 @@
-import type MetodoPago from "./MetodoPago"
+export interface InformacionCuentaPago {
+  id: number
+  titulo: string
+  valor: string
+  created_at: string
+  updated_at: string
+}
 
 export default interface CuentaPago {
+  id: number
   nombre: string
   descripcion: string
-  logo: string
-  datos: MetodoPago[]
+  created_at: string
+  updated_at: string
+  informacion: InformacionCuentaPago[]
 }

@@ -1,0 +1,485 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import ModalCarga from '../../../components/Common/ModalCarga.astro'
+import PantallaCarga from '../../../components/Common/PantallaCarga.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/users.css'
+---
+
+<LayoutPlataforma titulo="Usuarios y roles">
+  <HeaderPlataforma
+    title="Administración de usuarios"
+    content="Administrá los usuarios, roles y permisos de la plataforma."
+  />
+
+  <nav class="tabs" aria-label="Secciones de administración de usuarios">
+    <button id="tabUsers" class="tab active" type="button"> Usuarios </button>
+
+    <button id="tabRoles" class="tab" type="button"> Roles </button>
+  </nav>
+
+  <main class="adminPage users-page">
+    <!-- ===================================================
+         USUARIOS
+    ==================================================== -->
+
+    <section id="usersView" aria-labelledby="usersViewTitle">
+      <h2 id="usersViewTitle" class="srOnly">Administración de usuarios</h2>
+
+      <div class="toolbar">
+        <label class="searchField" for="searchUsers">
+          <span class="srOnly"> Buscar usuarios </span>
+
+          <span class="searchFieldIcon" aria-hidden="true"> ⌕ </span>
+
+          <input
+            id="searchUsers"
+            type="search"
+            placeholder="Buscar usuarios..."
+            autocomplete="off"
+          />
+        </label>
+
+        <button
+          id="btnNewUser"
+          class="button buttonPrimary primaryButton"
+          type="button"
+        >
+          <span aria-hidden="true">+</span>
+          <span>Nuevo usuario</span>
+        </button>
+      </div>
+
+      <div class="tableContainer">
+        <div class="tableWrapper">
+          <table class="dataTable">
+            <caption class="srOnly">
+              Usuarios registrados en la plataforma
+            </caption>
+
+            <thead>
+              <tr>
+                <th
+                  id="sortName"
+                  class="sortable sort-up"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="ascending"
+                >
+                  Nombre
+                </th>
+
+                <th
+                  id="sortUsername"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Nombre de usuario
+                </th>
+
+                <th
+                  id="sortEmail"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Correo electrónico
+                </th>
+
+                <th
+                  id="sortRole"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Rol
+                </th>
+
+                <th
+                  id="sortStatus"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Estado
+                </th>
+
+                <th scope="col"> Acciones </th>
+              </tr>
+            </thead>
+
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+
+        <PantallaCarga id="users" />
+
+        <div id="usersEmpty" class="emptyState" role="status" hidden>
+          <span class="emptyStateIcon" aria-hidden="true"> 👤 </span>
+
+          <h3>No se encontró ningún usuario</h3>
+
+          <p>Probá con otra búsqueda o creá un nuevo usuario.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         ROLES
+    ==================================================== -->
+
+    <section id="rolesView" aria-labelledby="rolesViewTitle" hidden>
+      <h2 id="rolesViewTitle" class="srOnly">Administración de roles</h2>
+
+      <div class="toolbar">
+        <label class="searchField" for="searchRoles">
+          <span class="srOnly"> Buscar roles </span>
+
+          <span class="searchFieldIcon" aria-hidden="true"> ⌕ </span>
+
+          <input
+            id="searchRoles"
+            type="search"
+            placeholder="Buscar roles..."
+            autocomplete="off"
+          />
+        </label>
+
+        <button
+          id="btnNewRole"
+          class="button buttonPrimary primaryButton"
+          type="button"
+        >
+          <span aria-hidden="true">+</span>
+          <span>Nuevo rol</span>
+        </button>
+      </div>
+
+      <div class="tableContainer">
+        <div class="tableWrapper">
+          <table class="dataTable">
+            <caption class="srOnly">
+              Roles registrados en la plataforma
+            </caption>
+
+            <thead>
+              <tr>
+                <th
+                  id="sortRoleName"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Nombre
+                </th>
+
+                <th
+                  id="sortRoleServices"
+                  class="sortable"
+                  scope="col"
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  Servicios
+                </th>
+
+                <th scope="col"> Acciones </th>
+              </tr>
+            </thead>
+
+            <tbody id="rolesBody"></tbody>
+          </table>
+        </div>
+
+        <PantallaCarga id="roles" />
+
+        <div id="rolesEmpty" class="emptyState" role="status" hidden>
+          <span class="emptyStateIcon" aria-hidden="true"> 🔐 </span>
+
+          <h3>No se encontró ningún rol</h3>
+
+          <p>Probá con otra búsqueda o creá un nuevo rol.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       MODAL USUARIO
+  ====================================================== -->
+
+  <div
+    id="userModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+    tabindex="-1"
+  >
+    <ModalCarga id="user" />
+
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent">
+      <header class="modalHeader">
+        <div>
+          <p class="modalEyebrow">Administración de usuarios</p>
+
+          <h2 id="modalTitle">Crear usuario</h2>
+        </div>
+
+        <button
+          id="btnCloseModal"
+          class="iconButton"
+          type="button"
+          aria-label="Cerrar ventana de usuario"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <form id="userForm" class="adminForm" autocomplete="off">
+        <div class="formContent">
+          <div class="formGrid">
+            <div class="formField field">
+              <label for="username"> Nombre de usuario </label>
+
+              <input
+                id="username"
+                name="username"
+                type="text"
+                minlength="3"
+                maxlength="80"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                required
+              />
+            </div>
+
+            <div class="formField field">
+              <label for="email"> Correo electrónico </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                maxlength="254"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <div class="formField field">
+              <label for="name"> Nombre </label>
+
+              <input
+                id="name"
+                name="name"
+                type="text"
+                maxlength="80"
+                autocomplete="given-name"
+                required
+              />
+            </div>
+
+            <div class="formField field">
+              <label for="lastName"> Apellido </label>
+
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                maxlength="80"
+                autocomplete="family-name"
+                required
+              />
+            </div>
+
+            <div id="roleContainer" class="formField field">
+              <label for="roleSelect"> Rol </label>
+
+              <select id="roleSelect" name="role" required></select>
+            </div>
+
+            <div id="passwordContainer" class="formField field">
+              <label for="password"> Contraseña </label>
+
+              <input
+                id="password"
+                name="password"
+                type="password"
+                minlength="8"
+                maxlength="200"
+                autocomplete="new-password"
+                aria-describedby="passwordHelp"
+              />
+            </div>
+          </div>
+        </div>
+
+        <footer class="modalFooter modalButtons">
+          <button
+            id="btnCancel"
+            class="button buttonGhost secondaryButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button class="button buttonPrimary primaryButton" type="submit">
+            Guardar usuario
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL ROL
+  ====================================================== -->
+
+  <div
+    id="roleModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="roleModalTitle"
+    tabindex="-1"
+  >
+    <ModalCarga id="role" />
+
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent">
+      <header class="modalHeader">
+        <div>
+          <p class="modalEyebrow">Administración de permisos</p>
+
+          <h2 id="roleModalTitle">Crear rol</h2>
+        </div>
+
+        <button
+          id="btnCloseRoleModal"
+          class="iconButton"
+          type="button"
+          aria-label="Cerrar ventana de rol"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <form id="roleForm" class="adminForm">
+        <div class="formContent">
+          <div class="formField field">
+            <label for="roleName"> Nombre </label>
+
+            <input
+              id="roleName"
+              name="name"
+              type="text"
+              maxlength="120"
+              placeholder="Ej.: Administración de contenidos"
+              required
+            />
+          </div>
+
+          <fieldset class="formField field servicesField">
+            <legend> Servicios </legend>
+
+            <p class="formHelp">
+              Seleccioná los servicios a los que podrán acceder los usuarios con
+              este rol.
+            </p>
+
+            <div id="servicesContainer" class="servicesContainer">
+              <!-- Generado dinámicamente -->
+            </div>
+          </fieldset>
+        </div>
+
+        <footer class="modalFooter modalButtons">
+          <button
+            id="btnCancelRole"
+            class="button buttonGhost secondaryButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button class="button buttonPrimary primaryButton" type="submit">
+            Guardar rol
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       CONFIRMACIÓN DE ELIMINACIÓN
+  ====================================================== -->
+
+  <div
+    id="confirmModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirmModalTitle"
+    aria-describedby="confirmText"
+    tabindex="-1"
+  >
+    <ModalCarga id="confirm" />
+
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent confirmBox">
+      <header class="modalHeader">
+        <h2 id="confirmModalTitle">Eliminar</h2>
+      </header>
+
+      <div class="deleteConfirmation deleteBody">
+        <span class="deleteConfirmationIcon" aria-hidden="true"> ! </span>
+
+        <p id="confirmText">¿Estás seguro de realizar esta acción?</p>
+
+        <p class="dangerMessage">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <footer class="modalFooter modalButtons">
+        <button
+          id="btnCancelDelete"
+          class="button buttonGhost secondaryButton"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btnConfirmDelete"
+          class="button buttonDanger dangerButton"
+          type="button"
+        >
+          Eliminar
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    import '../../../js/users/users.js'
+  </script>
+</LayoutPlataforma>

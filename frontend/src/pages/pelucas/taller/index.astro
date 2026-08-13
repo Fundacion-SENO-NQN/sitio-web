@@ -1,574 +1,647 @@
 ---
+import { Image } from 'astro:assets'
+
+import Layout from '../../../layouts/Layout.astro'
+
 import TituloPag from '../../../components/Common/TituloPag.astro'
 import NavegacionPelucas from '../../../components/Pelucas/NavegacionPelucas.astro'
-import Layout from '../../../layouts/Layout.astro'
+
+import ImgTaller from '../../../assets/img_taller/peluca.avif'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 ---
 
-<Layout pag="Taller de pelucas">
+<Layout
+  pag="Taller de pelucas"
+  seoTitle="Taller de pelucas oncológicas en Neuquén | SENO"
+  description="Conocé el taller de pelucas de Fundación SENO y el proceso artesanal mediante el que transformamos cabello donado en pelucas para pacientes oncológicos."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Pelucas',
+        href: '/pelucas'
+      },
+      {
+        name: 'Taller de pelucas'
+      }
+    ]}
+  />
   <NavegacionPelucas pag="2" />
+
   <TituloPag titulo="Taller de pelucas" />
-  <main>
-    <section class="taller">
-      <header class="hero">
-        <img
-          src="/img/pelucas/taller.avif"
-          alt="Voluntarias confeccionando pelucas"
-        />
 
-        <div class="hero__contenido">
-          <span>Taller de Pelucas</span>
+  <main class="wig-workshop-page">
+    <section
+      class="wig-workshop-hero"
+      aria-labelledby="wig-workshop-hero-title"
+    >
+      <Image
+        class="wig-workshop-hero__image"
+        src={ImgTaller}
+        alt="Voluntarias de Fundación SENO confeccionando pelucas"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
 
-          <h1>Transformamos cabello en esperanza.</h1>
+      <div class="wig-workshop-hero__overlay"></div>
 
-          <p>
-            Nuestro taller reúne a voluntarias que, con paciencia, dedicación y
-            mucho cariño, confeccionan pelucas destinadas a pacientes
-            oncológicos.
-          </p>
-        </div>
+      <div class="wig-workshop-hero__content">
+        <p class="wig-workshop-hero__label">Taller de pelucas</p>
+
+        <h2 id="wig-workshop-hero-title">Transformamos cabello en esperanza</h2>
+
+        <p>
+          Nuestro taller reúne a voluntarias que, con paciencia, dedicación y
+          mucho cariño, confeccionan pelucas destinadas a pacientes oncológicos.
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="wig-workshop-introduction"
+      aria-labelledby="wig-workshop-introduction-title"
+    >
+      <h2 id="wig-workshop-introduction-title">Un espacio hecho con amor</h2>
+
+      <p>
+        El taller nació con un objetivo muy claro: acompañar a quienes
+        atraviesan un tratamiento oncológico. Sabemos que la pérdida del cabello
+        representa mucho más que un cambio físico; por eso cada peluca busca
+        devolver confianza, seguridad y una sonrisa.
+      </p>
+
+      <p>
+        Nuestras voluntarias se reúnen para trabajar en la confección de
+        pelucas. Detrás de cada una hay muchas horas de trabajo, dedicación y el
+        compromiso de personas que donan su tiempo para ayudar a los demás.
+      </p>
+    </section>
+
+    <section
+      class="wig-workshop-process"
+      aria-labelledby="wig-workshop-process-title"
+    >
+      <header class="wig-workshop-process__header">
+        <p>Todas las etapas se realizan con cuidado</p>
+
+        <h2 id="wig-workshop-process-title">¿Cómo nace una peluca?</h2>
       </header>
 
-      <section class="intro">
-        <h2>Un espacio hecho con amor</h2>
+      <ol class="wig-workshop-process__steps">
+        <li>
+          <article class="wig-workshop-step">
+            <span class="wig-workshop-step__number" aria-hidden="true">
+              1
+            </span>
 
-        <p>
-          El taller nació con un objetivo muy claro: acompañar a quienes
-          atraviesan un tratamiento oncológico. Sabemos que la pérdida del
-          cabello representa mucho más que un cambio físico; por eso cada peluca
-          busca devolver confianza, seguridad y una sonrisa.
-        </p>
+            <div>
+              <h3>Donación</h3>
 
-        <p>
-          Nuestras voluntarias se reúnen para trabajar en la confección de
-          pelucas. Detrás de cada una hay muchas horas de trabajo, dedicación y
-          el compromiso de personas que donan su tiempo para ayudar a los demás.
-        </p>
-      </section>
-
-      <section class="proceso">
-        <h2>¿Cómo nace una peluca?</h2>
-
-        <div class="pasos">
-          <article>
-            <span>1</span>
-
-            <h3>Donación</h3>
-
-            <p>Todo comienza con una persona que decide donar su cabello.</p>
+              <p>Todo comienza con una persona que decide donar su cabello.</p>
+            </div>
           </article>
+        </li>
 
-          <article>
-            <span>2</span>
+        <li>
+          <article class="wig-workshop-step">
+            <span class="wig-workshop-step__number" aria-hidden="true">
+              2
+            </span>
 
-            <h3>Preparación</h3>
+            <div>
+              <h3>Preparación</h3>
 
-            <p>
-              Clasificamos y acondicionamos el cabello para comenzar el trabajo
-              artesanal.
-            </p>
+              <p>
+                Clasificamos y acondicionamos el cabello para comenzar el
+                trabajo artesanal.
+              </p>
+            </div>
           </article>
+        </li>
 
-          <article>
-            <span>3</span>
+        <li>
+          <article class="wig-workshop-step">
+            <span class="wig-workshop-step__number" aria-hidden="true">
+              3
+            </span>
 
-            <h3>Confección</h3>
+            <div>
+              <h3>Confección</h3>
 
-            <p>Cada peluca se realiza completamente a mano.</p>
+              <p>Cada peluca se realiza completamente a mano.</p>
+            </div>
           </article>
+        </li>
 
-          <article>
-            <span>4</span>
+        <li>
+          <article class="wig-workshop-step">
+            <span class="wig-workshop-step__number" aria-hidden="true">
+              4
+            </span>
 
-            <h3>Entrega</h3>
+            <div>
+              <h3>Entrega</h3>
 
-            <p>Finalmente llega a una persona que la necesita.</p>
+              <p>Finalmente llega a una persona que la necesita.</p>
+            </div>
           </article>
-        </div>
-      </section>
+        </li>
+      </ol>
+    </section>
 
-      <section class="cta">
-        <h2>Siempre hay lugar para una mano más.</h2>
+    <section class="wig-workshop-cta" aria-labelledby="wig-workshop-cta-title">
+      <h2 id="wig-workshop-cta-title">Siempre hay lugar para una mano más</h2>
 
-        <p>
-          Si querés colaborar con nuestro taller, donar materiales o sumarte
-          como voluntario, estaremos felices de recibirte.
-        </p>
+      <p>
+        Si querés colaborar con nuestro taller, donar materiales o sumarte como
+        voluntario, estaremos felices de recibirte.
+      </p>
 
-        <a href="/quiero-ayudar/voluntarios"> Quiero participar </a>
-      </section>
+      <a href="/quiero-ayudar/quiero-ser-voluntario/"> Quiero participar </a>
     </section>
   </main>
 </Layout>
 
 <style>
-  .taller {
-    max-width: 75rem;
-    margin: auto;
-    padding: 0 2rem 8rem;
-    font-family: var(--text-font-primary);
+  .wig-workshop-page {
+    width: min(calc(100% - 2rem), 75rem);
+
+    margin-inline: auto;
+
+    padding-bottom: clamp(4rem, 10vw, 8rem);
   }
 
-  .hero {
+  /* ========================================================
+     HERO
+  ======================================================== */
+
+  .wig-workshop-hero {
+    min-height: clamp(31rem, 70vh, 46rem);
+
+    margin-bottom: clamp(4rem, 9vw, 6rem);
+
     position: relative;
-    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+
     overflow: hidden;
+
     border-radius: 0 0 1.5rem 1.5rem;
-    margin-bottom: 6rem;
+
+    isolation: isolate;
   }
 
-  .hero img {
-    position: absolute;
-    inset: 0;
+  .wig-workshop-hero__image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
-  }
 
-  .hero::before {
-    content: '';
     position: absolute;
     inset: 0;
+    z-index: -2;
+
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .wig-workshop-hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
     background: linear-gradient(
       120deg,
-      color-mix(in srgb, var(--color-primary) 70%, transparent) 0%,
-      color-mix(in srgb, var(--color-primary) 65%, transparent) 50%,
-      color-mix(in srgb, var(--color-primary) 35%, transparent) 100%
+      rgba(73, 107, 36, 0.9) 0%,
+      rgba(73, 107, 36, 0.76) 48%,
+      rgba(73, 107, 36, 0.32) 100%
     );
-    z-index: 1;
   }
 
-  .hero__contenido {
-    position: relative;
-    z-index: 2;
-    height: 70vh;
-    max-width: 43.75rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 4rem;
-    color: var(--color-background);
+  .wig-workshop-hero__content {
+    width: min(100%, 44rem);
+
+    padding: clamp(2rem, 6vw, 4rem);
+
+    color: #ffffff;
   }
 
-  .hero__contenido span {
+  .wig-workshop-hero__label {
     width: fit-content;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    border-radius: 62.4375rem;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+
     margin-bottom: 1.5rem;
+
+    padding: 0.6rem 1rem;
+
+    display: inline-flex;
+
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+
+    border: 1px solid rgba(255, 255, 255, 0.24);
+
+    border-radius: 999px;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    backdrop-filter: blur(0.75rem);
   }
 
-  .hero__contenido h1 {
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    line-height: 1.05;
-    font-weight: 800;
+  .wig-workshop-hero__content h2 {
     margin-bottom: 1.5rem;
+
+    color: #ffffff;
+
+    font-size: clamp(2.5rem, 6vw, 5rem);
+
+    font-weight: 800;
+    line-height: 1.05;
     text-wrap: balance;
   }
 
-  .hero__contenido p {
-    font-size: 1.15rem;
-    line-height: 1.9;
+  .wig-workshop-hero__content > p:last-child {
+    max-width: 40rem;
+
     color: rgba(255, 255, 255, 0.92);
-    max-width: 40.625rem;
+
+    font-size: clamp(1rem, 2vw, 1.15rem);
+
+    line-height: 1.85;
+    text-wrap: pretty;
   }
 
-  .intro {
-    max-width: 53.125rem;
-    margin: auto;
+  /* ========================================================
+     INTRODUCTION
+  ======================================================== */
+
+  .wig-workshop-introduction {
+    width: min(100%, 53rem);
+
+    margin: 0 auto clamp(5rem, 11vw, 7rem);
+
     text-align: center;
-    margin-bottom: 7rem;
   }
 
-  .intro h2 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--color-text);
+  .wig-workshop-introduction h2 {
     margin-bottom: 2rem;
+
     position: relative;
-  }
 
-  .intro h2::after {
-    content: '';
-    display: block;
-    width: 5.625rem;
-    height: 0.25rem;
-    border-radius: 62.5rem;
-    background: var(--color-primary);
-    margin: 1rem auto 0;
-  }
+    color: var(--color-text);
 
-  .intro p {
-    color: var(--color-grey);
-    line-height: 2;
-    font-size: 1.05rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .intro p:last-child {
-    margin-bottom: 0;
-  }
-  .hero__contenido h1,
-  .hero__contenido p,
-  .hero__contenido span {
-    animation: aparecer 1s ease forwards;
-  }
-
-  .hero__contenido p {
-    animation-delay: 0.15s;
-  }
-
-  @keyframes aparecer {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .hero {
-      min-height: 37.5rem;
-    }
-
-    .hero__contenido {
-      height: 37.5rem;
-      padding: 2rem;
-    }
-
-    .hero__contenido h1 {
-      font-size: 2.8rem;
-    }
-
-    .hero__contenido p {
-      font-size: 1rem;
-      line-height: 1.8;
-    }
-
-    .intro {
-      margin-bottom: 5rem;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .taller {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    .hero {
-      min-height: 31.25rem;
-      border-radius: 0 0 1.25rem 1.25rem;
-    }
-
-    .hero__contenido {
-      height: 31.25rem;
-    }
-
-    .hero__contenido h1 {
-      font-size: 2.2rem;
-    }
-
-    .hero__contenido span {
-      font-size: 0.75rem;
-    }
-
-    .intro h2 {
-      font-size: 1.8rem;
-    }
-
-    .intro p {
-      font-size: 0.95rem;
-    }
-  }
-
-  .proceso {
-    margin-bottom: 8rem;
-  }
-
-  .proceso h2 {
-    text-align: center;
     font-size: clamp(2rem, 4vw, 3rem);
-    margin-bottom: 1rem;
+
+    line-height: 1.2;
+    text-wrap: balance;
   }
 
-  .proceso > p {
-    max-width: 47.5rem;
-    margin: auto;
-    text-align: center;
-    color: var(--color-grey);
-    line-height: 1.9;
-    margin-bottom: 5rem;
-  }
-
-  .pasos {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    position: relative;
-  }
-
-  .pasos::before {
+  .wig-workshop-introduction h2::after {
     content: '';
-    position: absolute;
-    left: 10%;
-    right: 10%;
-    top: 38px;
+
+    width: 5.5rem;
     height: 0.25rem;
-    background: #e8e8e8;
-    z-index: 0;
+
+    margin: 1rem auto 0;
+
+    display: block;
+
+    background-color: var(--color-primary);
+
+    border-radius: 999px;
   }
 
-  .pasos article {
-    position: relative;
+  .wig-workshop-introduction p {
+    color: var(--color-grey);
+
+    font-size: 1.05rem;
+    line-height: 1.9;
+    text-wrap: pretty;
+  }
+
+  .wig-workshop-introduction p + p {
+    margin-top: 1.5rem;
+  }
+
+  /* ========================================================
+     PROCESS
+  ======================================================== */
+
+  .wig-workshop-process {
+    margin-bottom: clamp(5rem, 11vw, 8rem);
+  }
+
+  .wig-workshop-process__header {
+    margin-bottom: clamp(3rem, 7vw, 5rem);
+
     text-align: center;
+  }
+
+  .wig-workshop-process__header > p {
+    margin-bottom: 0.55rem;
+
+    color: var(--color-primary);
+
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .wig-workshop-process__header h2 {
+    color: var(--color-text);
+
+    font-size: clamp(2rem, 4vw, 3rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .wig-workshop-process__steps {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 2rem;
+  }
+
+  .wig-workshop-process__steps::before {
+    content: '';
+
+    height: 0.25rem;
+
+    position: absolute;
+    top: 2.3rem;
+    right: 10%;
+    left: 10%;
+
+    background-color: var(--color-light-grey);
+  }
+
+  .wig-workshop-process__steps > li {
+    min-width: 0;
+
+    position: relative;
     z-index: 1;
   }
 
-  .pasos span {
+  .wig-workshop-step {
+    text-align: center;
+  }
+
+  .wig-workshop-step__number {
     width: 4.75rem;
     height: 4.75rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
+
+    margin: 0 auto 1.8rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-background);
+    background-color: var(--color-primary);
+
+    border: 0.4rem solid var(--color-background);
+
     border-radius: 50%;
-    background: var(--color-primary);
-    color: var(--color-background);
+
     font-size: 1.5rem;
-    font-weight: 700;
-    box-shadow: 0 10px 30px rgba(143, 99, 214, 0.35);
-    margin-bottom: 1.8rem;
+    font-weight: 800;
+
+    box-shadow: 0 0.65rem 1.9rem rgba(73, 107, 36, 0.26);
+
+    transition:
+      background-color var(--transition),
+      transform var(--transition);
   }
 
-  .pasos h3 {
+  .wig-workshop-step h3 {
     margin-bottom: 1rem;
+
+    color: var(--color-text);
+
     font-size: 1.3rem;
+    line-height: 1.3;
   }
 
-  .pasos p {
-    color: var(--color-grey);
-    line-height: 1.8;
+  .wig-workshop-step p {
     max-width: 15rem;
-    margin: auto;
-  }
 
-  .pasos article:hover span {
-    transform: scale(1.08);
-    transition: 0.25s;
-  }
+    margin-inline: auto;
 
-  @media (max-width: 950px) {
-    .pasos {
-      grid-template-columns: 1fr;
-      gap: 4rem;
-    }
-
-    .pasos::before {
-      left: 37px;
-      top: 0;
-      bottom: 0;
-      width: 0.25rem;
-      height: auto;
-    }
-
-    .pasos article {
-      display: grid;
-      grid-template-columns: 5.625rem 1fr;
-      gap: 1.5rem;
-      align-items: flex-start;
-      text-align: left;
-    }
-
-    .pasos span {
-      margin: 0;
-    }
-
-    .pasos h3 {
-      margin-top: 0.6rem;
-    }
-
-    .pasos p {
-      max-width: none;
-      margin: 0;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .pasos article {
-      grid-template-columns: 4.375rem 1fr;
-    }
-
-    .pasos span {
-      width: 3.625rem;
-      height: 3.625rem;
-      font-size: 1.2rem;
-    }
-  }
-
-  .frase {
-    margin: 7rem auto;
-    max-width: 56.25rem;
-    text-align: center;
-    padding: 4rem 3rem;
-    border-radius: 1.875rem;
-    background: linear-gradient(
-      135deg,
-      var(--color-primary),
-      var(--color-secondary)
-    );
-    color: var(--color-background);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .frase::before {
-    content: '❝';
-    position: absolute;
-    top: -40px;
-    left: 30px;
-    font-size: 9rem;
-    opacity: 0.08;
-  }
-
-  .frase p {
-    font-size: clamp(1.4rem, 2vw, 2rem);
-    line-height: 1.8;
-    font-style: italic;
-    margin: 0;
-  }
-
-  .cta {
-    text-align: center;
-    padding: 5rem 3rem;
-    border-radius: 1.875rem;
-    background: var(--color-background);
-    box-shadow: var(--shadow);
-  }
-
-  .cta h2 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    margin-bottom: 1rem;
-  }
-
-  .cta p {
-    max-width: 45rem;
-    margin: auto;
     color: var(--color-grey);
+
+    line-height: 1.8;
+    text-wrap: pretty;
+  }
+
+  /* ========================================================
+     CTA
+  ======================================================== */
+
+  .wig-workshop-cta {
+    padding: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 5vw, 3rem);
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary-light);
+
+    border-radius: clamp(1.4rem, 4vw, 1.9rem);
+
+    box-shadow: var(--shadow);
+
+    text-align: center;
+  }
+
+  .wig-workshop-cta h2 {
+    color: var(--color-text);
+
+    font-size: clamp(2rem, 4vw, 3rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .wig-workshop-cta p {
+    width: min(100%, 45rem);
+
+    margin: 1rem auto 2.5rem;
+
+    color: var(--color-grey);
+
     line-height: 1.9;
-    margin-bottom: 2.5rem;
+    text-wrap: pretty;
   }
 
-  .cta__botones {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
+  .wig-workshop-cta a {
+    min-height: 3.2rem;
 
-  .cta a {
+    padding: 0.9rem 1.6rem;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 2rem;
-    border-radius: 0.875rem;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.25s;
-  }
 
-  .cta a:first-child {
-    background: var(--color-primary);
     color: var(--color-background);
+    background-color: var(--color-primary);
+
+    border: 2px solid var(--color-primary);
+
+    border-radius: 999px;
+
+    font-weight: 750;
+    line-height: 1.3;
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .cta a:first-child:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 35px rgba(131, 192, 67, 0.35);
+  .wig-workshop-cta a:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
   }
 
-  .cta a:last-child {
-    border: 2px solid var(--color-background);
-    color: var(--color-text);
-  }
+  @media (hover: hover) {
+    .wig-workshop-step:hover .wig-workshop-step__number {
+      background-color: var(--color-primary-hover);
 
-  .cta a:last-child:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    transform: translateY(-4px);
-  }
-
-  section {
-    scroll-margin-top: 120px;
-  }
-
-  .hero,
-  .intro,
-  .proceso,
-  .frase,
-  .cta {
-    animation: fadeUp 0.7s ease;
-  }
-
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
+      transform: scale(1.08);
     }
 
-    to {
-      opacity: 1;
-      transform: none;
+    .wig-workshop-cta a:hover {
+      background-color: var(--color-primary-hover);
+
+      border-color: var(--color-primary-hover);
+
+      box-shadow: 0 0.9rem 2.2rem rgba(73, 107, 36, 0.25);
+
+      transform: translateY(-3px);
     }
   }
 
-  @media (max-width: 900px) {
-    .frase {
-      padding: 3rem 2rem;
+  @media (max-width: 950px) {
+    .wig-workshop-process__steps {
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 3rem;
     }
 
-    .cta {
-      padding: 4rem 2rem;
+    .wig-workshop-process__steps::before {
+      width: 0.25rem;
+      height: auto;
+
+      top: 0;
+      right: auto;
+      bottom: 0;
+      left: 2.25rem;
+    }
+
+    .wig-workshop-step {
+      display: grid;
+
+      grid-template-columns:
+        5.5rem
+        minmax(0, 1fr);
+
+      align-items: start;
+
+      gap: 0.25rem 1.5rem;
+
+      text-align: left;
+    }
+
+    .wig-workshop-step__number {
+      margin: 0;
+
+      grid-row: 1 / 3;
+    }
+
+    .wig-workshop-step h3 {
+      margin-top: 0.55rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .wig-workshop-step p {
+      max-width: none;
+
+      margin: 0;
     }
   }
 
   @media (max-width: 600px) {
-    .frase {
-      padding: 2.5rem 1.5rem;
-      border-radius: 1.375rem;
+    .wig-workshop-page {
+      width: calc(100% - 1rem);
     }
 
-    .frase::before {
-      font-size: 6rem;
-      top: -20px;
-      left: 15px;
+    .wig-workshop-hero {
+      min-height: 31rem;
+
+      border-radius: 0 0 1.25rem 1.25rem;
     }
 
-    .frase p {
+    .wig-workshop-hero__content {
+      padding: 2rem 1.25rem;
+    }
+
+    .wig-workshop-hero__content h2 {
+      font-size: clamp(2.2rem, 12vw, 3rem);
+    }
+
+    .wig-workshop-hero__label {
+      font-size: 0.75rem;
+    }
+
+    .wig-workshop-introduction p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+
+    .wig-workshop-process__steps::before {
+      left: 1.7rem;
+    }
+
+    .wig-workshop-step {
+      grid-template-columns:
+        4.25rem
+        minmax(0, 1fr);
+
+      gap: 0.2rem 1rem;
+    }
+
+    .wig-workshop-step__number {
+      width: 3.6rem;
+      height: 3.6rem;
+
+      border-width: 0.3rem;
+
       font-size: 1.2rem;
     }
 
-    .cta {
-      border-radius: 1.375rem;
-    }
-
-    .cta__botones {
-      flex-direction: column;
-    }
-
-    .cta a {
+    .wig-workshop-cta a {
       width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wig-workshop-step__number,
+    .wig-workshop-cta a {
+      transition: none;
     }
   }
 </style>

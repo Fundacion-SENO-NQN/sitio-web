@@ -1,15 +1,51 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
 
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
 import TituloPag from '../../../components/Common/TituloPag.astro'
 import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
 import Donaciones from '../../../components/QuieroAyudar/Donaciones.astro'
 ---
 
-<Layout pag="Donar">
+<Layout
+  pag="Donar"
+  seoTitle="Donar a Fundación SENO | Alias, CVU y CBU"
+  description="Conocé los métodos de pago disponibles para realizar una donación a Fundación SENO mediante transferencia bancaria o billeteras virtuales."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Donar'
+      }
+    ]}
+  />
+
   <NavegacionQuieroAyudar pag="1" />
+
   <TituloPag titulo="Donar" />
-  <main>
+
+  <main class="donation-page">
     <Donaciones />
   </main>
 </Layout>
+
+<style>
+  .donation-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+    margin: 1rem auto clamp(3rem, 8vw, 6rem);
+  }
+
+  @media (max-width: 500px) {
+    .donation-page {
+      width: calc(100% - 1rem);
+    }
+  }
+</style>

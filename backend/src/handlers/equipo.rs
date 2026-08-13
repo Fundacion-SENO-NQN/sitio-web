@@ -1,273 +1,428 @@
 use crate::{
     AppState,
-    models::equipo::{ChangeOrderEquipo, Equipo},
-    repositories::equipo::replace_all,
-    utils::{self, equipo::path_team_img},
+    auth::{auth_user::AuthUser, services::ADMIN_MIEMBROS},
+    error::api_error::{ApiError, ApiResult},
+    models::equipo::{ChangeOrderEquipo, Equipo, UpdateEquipo},
+    repositories, utils,
 };
 use axum::{
     Json,
     extract::{Multipart, Path, State},
     http::StatusCode,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::{collections::HashSet, sync::Arc};
 
-pub async fn get_all_team(
-    State(state): State<Arc<AppState>>,
-) -> Result<Json<Vec<Equipo>>, StatusCode> {
-    Ok(Json(
-        crate::repositories::equipo::get_all(state.as_ref())
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-    ))
+/* ==========================================================
+   GET ALL
+========================================================== */
+
+pub async fn get_all_equipo(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Equipo>>> {
+    let members = repositories::equipo::get_all(&state.db).await?;
+
+    Ok(Json(members))
 }
 
-pub async fn get_member_by_id(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Equipo>, StatusCode> {
-    let team: Vec<Equipo> = crate::repositories::equipo::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+/* ==========================================================
+   GET BY ID
+========================================================== */
 
-    if let Some(member) = team.iter().find(|n| n.id == id) {
-        Ok(Json(member.clone()))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
+pub async fn get_equipo_by_id(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
+) -> ApiResult<Json<Equipo>> {
+    let member = repositories::equipo::get_by_id(&state.db, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+    Ok(Json(member))
 }
 
-pub async fn post_create_team(
+/* ==========================================================
+   CREATE
+========================================================== */
+
+pub async fn create_equipo(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
     mut multipart: Multipart,
-) -> Result<(StatusCode, Json<Equipo>), StatusCode> {
-    let team: Vec<Equipo> = crate::repositories::equipo::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let member_id = team.iter().map(|n| n.id).max().unwrap_or(0) + 1;
+) -> ApiResult<(StatusCode, Json<Equipo>)> {
+    user.require(ADMIN_MIEMBROS)?;
 
     let mut nombre = String::new();
     let mut apellido = String::new();
     let mut puesto = String::new();
     let mut descripcion = String::new();
+
     let mut image: Option<Vec<u8>> = None;
-    let mut order = 0;
 
-    while let Some(field) = multipart
-        .next_field()
-        .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
-    {
-        let title = field.name().unwrap_or("").to_string();
+    while let Some(field) = multipart.next_field().await.map_err(|error| {
+        eprintln!("Invalid member multipart body: {error}",);
 
-        match title.as_str() {
-            "nombre" => {
-                nombre = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "apellido" => {
-                apellido = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "puesto" => {
-                puesto = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "descripcion" => {
-                descripcion = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "order" => {
-                order = field
+        ApiError::BadRequest("Cuerpo multiparte no válido".into())
+    })? {
+        match field.name() {
+            Some("nombre") => {
+                nombre = field
                     .text()
                     .await
-                    .map_err(|_| StatusCode::BAD_REQUEST)?
-                    .parse::<u32>()
-                    .map_err(|_| StatusCode::BAD_REQUEST)?;
+                    .map_err(|_| ApiError::BadRequest("Nombre inválido".into()))?;
             }
-            "image" => {
-                image = Some(
-                    field
-                        .bytes()
-                        .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .to_vec(),
-                );
+
+            Some("apellido") => {
+                apellido = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Apellido inválido".into()))?;
             }
+
+            Some("puesto") => {
+                puesto = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Puesto inválido".into()))?;
+            }
+
+            Some("descripcion") => {
+                descripcion = field
+                    .text()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Descripción inválida".into()))?;
+            }
+
+            Some("image") => {
+                let bytes = field
+                    .bytes()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Imagen inválida".into()))?;
+
+                if bytes.is_empty() {
+                    return Err(ApiError::BadRequest("La imagen está vacía".into()));
+                }
+
+                image = Some(bytes.to_vec());
+            }
+
+            /*
+             * The order is calculated automatically by
+             * the repository. Unexpected fields are ignored.
+             */
             _ => {}
         }
     }
-    let image = image.ok_or(StatusCode::BAD_REQUEST)?;
-    utils::image::save_image(
-        path_team_img(member_id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-        &image,
-    )
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let member = Equipo {
-        id: member_id,
-        nombre,
-        apellido,
-        puesto,
-        descripcion,
-        order,
-    };
+    let nombre = nombre.trim();
+    let apellido = apellido.trim();
+    let puesto = puesto.trim();
+    let descripcion = descripcion.trim();
 
-    crate::repositories::equipo::push(state.as_ref(), member.clone())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    validate_required_text(nombre, "El nombre es requerido")?;
+
+    validate_required_text(apellido, "El apellido es requerido")?;
+
+    validate_required_text(puesto, "El puesto es requerido")?;
+
+    validate_required_text(descripcion, "La descripción es requerida")?;
+
+    let image = image.ok_or_else(|| ApiError::BadRequest("La imagen es requerida".into()))?;
+
+    /*
+     * Convert the image before inserting the database row.
+     * This prevents creating a member when the uploaded
+     * image cannot be decoded.
+     */
+    let avif_image = utils::image::convert_to_avif(&image).map_err(|error| {
+        eprintln!(
+            "Could not convert member image to AVIF: \
+                     {error}",
+        );
+
+        ApiError::BadRequest("No se pudo procesar la imagen".into())
+    })?;
+
+    let member =
+        repositories::equipo::create(&state.db, nombre, apellido, puesto, descripcion).await?;
+
+    let image_key = member_image_key(member.id);
+
+    /*
+     * Convert the R2 error into a String before the rollback
+     * await. This also avoids non-Send error values remaining
+     * alive across an await point.
+     */
+    let upload_result = state
+        .r2
+        .upload_avif(&image_key, avif_image)
+        .await
+        .map_err(|error| error.to_string());
+
+    if let Err(error_message) = upload_result {
+        eprintln!(
+            "Could not upload image for member {} to R2: {}",
+            member.id, error_message,
+        );
+
+        /*
+         * Do not leave a member in the database without its
+         * required image.
+         */
+        if let Err(rollback_error) = repositories::equipo::delete(&state.db, member.id).await {
+            eprintln!(
+                "Could not roll back member {} after R2 \
+                 upload failure: {}",
+                member.id, rollback_error,
+            );
+        }
+
+        return Err(ApiError::InternalServerError);
+    }
 
     Ok((StatusCode::CREATED, Json(member)))
 }
 
-pub async fn change_order_team(
+/* ==========================================================
+   PATCH
+========================================================== */
+
+pub async fn patch_equipo(
+    AuthUser(user): AuthUser,
     State(state): State<Arc<AppState>>,
-    Json(request): Json<Vec<ChangeOrderEquipo>>,
-) -> Result<StatusCode, StatusCode> {
-    let mut team: Vec<Equipo> = crate::repositories::equipo::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if request.len() != team.len() {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    let valid_ids: HashSet<u32> = team.iter().map(|n| n.id).collect();
-
-    let mut received_ids = HashSet::new();
-
-    let mut member_orders = HashMap::new();
-
-    for item in &request {
-        if !received_ids.insert(item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if !valid_ids.contains(&item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if member_orders.insert(item.id, item.order).is_some() {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-    }
-
-    if received_ids != valid_ids {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    for member in &mut team {
-        member.order = *member_orders.get(&member.id).unwrap();
-    }
-
-    team.sort_by_key(|n| n.order);
-
-    crate::repositories::equipo::replace_all(&state, team)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(StatusCode::OK)
-}
-
-pub async fn delete_member(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Equipo>, StatusCode> {
-    let res = crate::repositories::equipo::delete(state.as_ref(), id);
-    if res.is_ok() {
-        Ok(res.unwrap())
-    } else {
-        Err(res.unwrap_err())
-    }
-}
-
-pub async fn patch_team(
-    Path(id): Path<u32>,
-    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
     mut multipart: Multipart,
-) -> Result<Json<Equipo>, StatusCode> {
-    let mut team: Vec<Equipo> = crate::repositories::equipo::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> ApiResult<Json<Equipo>> {
+    user.require(ADMIN_MIEMBROS)?;
 
-    let mut nombre = None;
-    let mut apellido = None;
-    let mut puesto = None;
-    let mut descripcion = None;
+    let mut nombre: Option<String> = None;
+    let mut apellido: Option<String> = None;
+    let mut puesto: Option<String> = None;
+    let mut descripcion: Option<String> = None;
+
     let mut image: Option<Vec<u8>> = None;
-    let mut order = None;
 
-    while let Some(field) = multipart
-        .next_field()
-        .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
-    {
-        let name = field.name().unwrap_or("");
+    while let Some(field) = multipart.next_field().await.map_err(|error| {
+        eprintln!("Invalid member multipart body: {error}",);
 
-        match name {
-            "nombre" => {
-                nombre = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "apellido" => {
-                apellido = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "puesto" => {
-                puesto = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "descripcion" => {
-                descripcion = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-            "order" => {
-                order = Some(
+        ApiError::BadRequest("Cuerpo multiparte no válido".into())
+    })? {
+        match field.name() {
+            Some("nombre") => {
+                nombre = Some(
                     field
                         .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .parse::<u32>()
-                        .map_err(|_| StatusCode::BAD_REQUEST)?,
+                        .map_err(|_| ApiError::BadRequest("Nombre inválido".into()))?,
                 );
             }
-            "image" => {
-                image = Some(
+
+            Some("apellido") => {
+                apellido = Some(
                     field
-                        .bytes()
+                        .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .to_vec(),
+                        .map_err(|_| ApiError::BadRequest("Apellido inválido".into()))?,
                 );
             }
+
+            Some("puesto") => {
+                puesto = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Puesto inválido".into()))?,
+                );
+            }
+
+            Some("descripcion") => {
+                descripcion = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::BadRequest("Descripción inválida".into()))?,
+                );
+            }
+
+            Some("image") => {
+                let bytes = field
+                    .bytes()
+                    .await
+                    .map_err(|_| ApiError::BadRequest("Imagen inválida".into()))?;
+
+                if bytes.is_empty() {
+                    return Err(ApiError::BadRequest("La imagen está vacía".into()));
+                }
+
+                image = Some(bytes.to_vec());
+            }
+
+            /*
+             * Order changes must use PUT /equipo/order.
+             * A PATCH must not modify the member order.
+             */
             _ => {}
         }
     }
 
-    let member = team
-        .iter_mut()
-        .find(|n| n.id == id)
-        .ok_or(StatusCode::NOT_FOUND)?;
+    let nombre = clean_optional_text(nombre, "El nombre no puede estar vacío")?;
 
-    if let Some(n) = nombre {
-        member.nombre = n;
+    let apellido = clean_optional_text(apellido, "El apellido no puede estar vacío")?;
+
+    let puesto = clean_optional_text(puesto, "El puesto no puede estar vacío")?;
+
+    let descripcion = clean_optional_text(descripcion, "La descripción no puede estar vacía")?;
+
+    if nombre.is_none()
+        && apellido.is_none()
+        && puesto.is_none()
+        && descripcion.is_none()
+        && image.is_none()
+    {
+        return Err(ApiError::BadRequest("No se enviaron cambios".into()));
     }
 
-    if let Some(a) = apellido {
-        member.apellido = a;
+    /*
+     * Convert before changing the database, so a malformed
+     * image does not apply the textual changes.
+     */
+    let avif_image = match image {
+        Some(image) => Some(utils::image::convert_to_avif(&image).map_err(|error| {
+            eprintln!(
+                "Could not convert member image to \
+                         AVIF: {error}",
+            );
+
+            ApiError::BadRequest("No se pudo procesar la imagen".into())
+        })?),
+
+        None => None,
+    };
+
+    let update = UpdateEquipo {
+        orden: None,
+        nombre,
+        apellido,
+        puesto,
+        descripcion,
+    };
+
+    let member = repositories::equipo::update(&state.db, id, update).await?;
+
+    if let Some(avif_image) = avif_image {
+        let image_key = member_image_key(member.id);
+
+        state
+            .r2
+            .upload_avif(&image_key, avif_image)
+            .await
+            .map_err(|error| {
+                eprintln!(
+                    "Could not replace image for member {} \
+                     in R2: {}",
+                    member.id, error,
+                );
+
+                ApiError::InternalServerError
+            })?;
     }
 
-    if let Some(p) = puesto {
-        member.puesto = p;
+    Ok(Json(member))
+}
+
+/* ==========================================================
+   CHANGE ORDER
+========================================================== */
+
+pub async fn change_order_equipo(
+    AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<Vec<ChangeOrderEquipo>>,
+) -> ApiResult<StatusCode> {
+    user.require(ADMIN_MIEMBROS)?;
+
+    if request.is_empty() {
+        return Err(ApiError::BadRequest(
+            "Debe proporcionar al menos un miembro.".into(),
+        ));
     }
 
-    if let Some(d) = descripcion {
-        member.descripcion = d;
+    let mut ids = HashSet::new();
+    let mut orders = HashSet::new();
+
+    for item in &request {
+        if item.orden < 0 {
+            return Err(ApiError::BadRequest(
+                "El orden no puede ser negativo.".into(),
+            ));
+        }
+
+        if !ids.insert(item.id) {
+            println!("ENTRE AL PRIMER ERROR");
+            return Err(ApiError::BadRequest("Id de miembro duplicado.".into()));
+        }
+
+        if !orders.insert(item.orden) {
+            return Err(ApiError::BadRequest("Orden duplicado.".into()));
+        }
+    }
+    repositories::equipo::change_order(&state.db, request).await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/* ==========================================================
+   DELETE
+========================================================== */
+
+pub async fn delete_equipo(
+    AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
+) -> ApiResult<Json<Equipo>> {
+    user.require(ADMIN_MIEMBROS)?;
+
+    let member = repositories::equipo::delete(&state.db, id).await?;
+
+    let image_key = member_image_key(member.id);
+
+    /*
+     * The database deletion already succeeded. An R2 failure
+     * should be logged, but it should not falsely report that
+     * the member still exists.
+     */
+    if let Err(error) = state.r2.delete_object(&image_key).await {
+        eprintln!(
+            "Could not delete R2 image for member {}: {}",
+            member.id, error,
+        );
     }
 
-    if let Some(o) = order {
-        member.order = o;
+    Ok(Json(member))
+}
+
+/* ==========================================================
+   PRIVATE HELPERS
+========================================================== */
+
+fn member_image_key(member_id: i64) -> String {
+    format!("img_equipo/{member_id}.avif",)
+}
+
+fn validate_required_text(value: &str, message: &str) -> ApiResult<()> {
+    if value.is_empty() {
+        return Err(ApiError::BadRequest(message.to_string()));
     }
 
-    if let Some(img) = image {
-        utils::image::save_image(
-            path_team_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &img,
-        )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    }
+    Ok(())
+}
 
-    let resp = member.clone();
+fn clean_optional_text(value: Option<String>, empty_message: &str) -> ApiResult<Option<String>> {
+    value
+        .map(|value| {
+            let value = value.trim().to_string();
 
-    replace_all(&state, team).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            if value.is_empty() {
+                return Err(ApiError::BadRequest(empty_message.to_string()));
+            }
 
-    Ok(Json(resp))
+            Ok(value)
+        })
+        .transpose()
 }

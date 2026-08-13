@@ -1,30 +1,348 @@
-*,
-*::after,
-*::before {
-  box-sizing: border-box;
-  scroll-behavior: smooth;
+@font-face {
+  font-family: 'olivier';
+  src: url('/fonts/olivier_opt.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
+
+/* ==========================================================
+   GLOBAL DESIGN TOKENS
+
+   Variables disponibles para todo el sitio público y la
+   plataforma administrativa.
+========================================================== */
 
 :root {
   --text-font-primary:
     system-ui, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
   --text-font-logo: 'olivier', var(--text-font-primary);
 
+  /* ========================================================
+     BRAND COLORS
+  ======================================================== */
+
   --color-primary: #83c043;
+
   --color-secondary: #1582cb;
+
   --color-primary-hover: #496b24;
+
   --color-secondary-hover: #004e89;
+
   --color-primary-light: #c0e29c;
+
   --color-secondary-light: #90b8d6;
+
+  /* ========================================================
+     NEUTRAL COLORS
+  ======================================================== */
+
   --color-text: #121212;
+
   --color-background: #fafafa;
+
+  /*
+   * Se conserva el valor anterior por compatibilidad.
+   * A pesar del nombre, no representa blanco puro.
+   */
+  --color-white: #d9d9d9;
+
   --color-light-grey: #cdcdcd;
+
   --color-grey: #9a9a9a;
 
+  /* ========================================================
+     STATUS COLORS
+  ======================================================== */
+
+  --color-red: #d32f2f;
+
+  --color-blue: #2222ee;
+
+  --color-yellow: #dddd22;
+
+  --success: var(--color-primary);
+
+  --warning: var(--color-yellow);
+
+  --danger: var(--color-red);
+
+  /* ========================================================
+     GENERIC UI TOKENS
+
+     Se mantienen para componentes públicos que todavía los
+     utilizan. La plataforma administrativa usa sus propios
+     tokens definidos en plataforma/common/tokens.css.
+  ======================================================== */
+
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+
+  --radius: 14px;
+
+  --radius-small: 8px;
+
+  --transition: 0.2s ease;
+
+  --border: 1px solid var(--color-light-grey);
+
+  --table-row-hover: #efefef;
+
+  --modal-background: rgba(0, 0, 0, 0.45);
 }
 
-main {
-  flex: 1;
+/* ==========================================================
+   DOCUMENT
+========================================================== */
+
+html {
+  min-width: 100%;
+
+  min-height: 100%;
+
+  color-scheme: light;
+
+  scroll-behavior: smooth;
+
+  text-size-adjust: 100%;
+
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ==========================================================
+   BOX SIZING
+========================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   BASIC RESET
+========================================================== */
+
+* {
+  margin: 0;
+
+  padding: 0;
+}
+
+body {
   width: 100%;
+
+  min-width: 0;
+
+  min-height: 100vh;
+
+  min-height: 100dvh;
+
+  color: var(--color-text);
+
+  background-color: var(--color-background);
+
+  font-family: var(--text-font-primary);
+
+  line-height: 1.5;
+
+  overflow-wrap: break-word;
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================
+   MAIN CONTENT
+========================================================== */
+
+main {
+  width: 100%;
+
+  min-width: 0;
+
+  flex: 1;
+}
+
+/* ==========================================================
+   TYPOGRAPHY
+========================================================== */
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--text-font-primary);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+
+  color: inherit;
+}
+
+textarea {
+  field-sizing: content;
+}
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+button {
+  border: 0;
+
+  background: none;
+}
+
+button,
+[type='button'],
+[type='submit'],
+[type='reset'],
+label[for],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   LINKS
+========================================================== */
+
+a {
+  color: inherit;
+
+  text-decoration-thickness: from-font;
+
+  text-underline-offset: 0.15em;
+}
+
+/* ==========================================================
+   LISTS
+========================================================== */
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* ==========================================================
+   MEDIA
+========================================================== */
+
+img,
+picture,
+svg,
+video,
+canvas {
+  max-width: 100%;
+
+  display: block;
+}
+
+img,
+video {
+  height: auto;
+}
+
+img {
+  font-style: italic;
+
+  shape-margin: 1rem;
+}
+
+svg {
+  overflow: visible;
+}
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+table {
+  border-collapse: collapse;
+
+  border-spacing: 0;
+}
+
+/* ==========================================================
+   FORM ELEMENTS
+========================================================== */
+
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type='search'] {
+  appearance: none;
+}
+
+input[type='search']::-webkit-search-decoration {
+  appearance: none;
+}
+
+/* ==========================================================
+   HIDDEN CONTENT
+========================================================== */
+
+[hidden],
+.hidden,
+.oculto {
+  display: none !important;
+}
+
+/* ==========================================================
+   ACCESSIBILITY
+========================================================== */
+
+:focus-visible {
+  outline: 3px solid rgba(21, 130, 203, 0.35);
+
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--color-text);
+
+  background-color: var(--color-primary-light);
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    scroll-behavior: auto !important;
+
+    transition-duration: 0.01ms !important;
+  }
 }

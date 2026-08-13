@@ -1,40 +1,286 @@
 ---
-import donacion from '../../data/donacion/donacion.json'
 import type CuentaPago from '../../data/interfaces/CuentaPago'
+
+import { getCuentasPago } from '../../api/metodo_donar'
+
 import TarjetaDonacion from './Donar/TarjetaDonacion.astro'
+
+let donaciones: CuentaPago[] = []
+let loadingError = false
+
+try {
+  const response = await getCuentasPago()
+
+  donaciones = response
+    .filter((donacion) => {
+      return (
+        Number.isInteger(Number(donacion?.id)) &&
+        Number(donacion.id) > 0 &&
+        typeof donacion.nombre === 'string' &&
+        typeof donacion.descripcion === 'string'
+      )
+    })
+    .map((donacion) => ({
+      ...donacion,
+
+      informacion: Array.isArray(donacion.informacion)
+        ? donacion.informacion
+        : []
+    }))
+} catch (error) {
+  loadingError = true
+
+  console.error('No se pudieron cargar los métodos de donación:', error)
+}
 ---
 
-<section class="donaciones">
-  <p class="descripcion">
-    Cada aporte nos ayuda a seguir acompañando a personas con cáncer y a sus
-    familias. Elegí el método que prefieras para realizar tu donación.
-  </p>
+<section class="donation-methods" aria-labelledby="donation-methods-title">
+  <header class="donation-methods__introduction">
+    <p class="donation-methods__eyebrow">Tu aporte hace la diferencia</p>
 
-  <div class="contenedor">
-    {donacion.map((item: CuentaPago) => <TarjetaDonacion donacion={item} />)}
-  </div>
+    <h2 id="donation-methods-title">Elegí cómo realizar tu aporte</h2>
+
+    <p>
+      Cada donación nos ayuda a seguir acompañando a niños y adolescentes con
+      cáncer, junto a sus familias. Elegí el método que prefieras y utilizá los
+      datos indicados para realizar tu aporte.
+    </p>
+  </header>
+
+  {
+    loadingError ? (
+      <section
+        class="donation-methods__status donation-methods__status--error"
+        role="alert"
+      >
+        <span class="donation-methods__status-icon" aria-hidden="true">
+          !
+        </span>
+
+        <h3>No pudimos cargar los métodos de donación</h3>
+
+        <p>
+          Intentá nuevamente más tarde o comunicate directamente con la
+          Fundación para solicitar los datos de donación.
+        </p>
+
+        <a href="#contacto">Contactar a la Fundación</a>
+      </section>
+    ) : donaciones.length > 0 ? (
+      <ul
+        class="donation-methods__grid"
+        aria-label="Métodos de donación disponibles"
+      >
+        {donaciones.map((donacion) => (
+          <li>
+            <TarjetaDonacion donacion={donacion} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <section class="donation-methods__status" role="status">
+        <span class="donation-methods__status-icon" aria-hidden="true">
+          $
+        </span>
+
+        <h3>No hay métodos disponibles</h3>
+
+        <p>
+          En este momento no hay métodos de donación publicados. Podés
+          comunicarte directamente con la Fundación para recibir más
+          información.
+        </p>
+
+        <a href="#contacto">Contactar a la Fundación</a>
+      </section>
+    )
+  }
+
+  {
+    !loadingError && donaciones.length > 0 && (
+      <aside class="donation-methods__notice">
+        <strong>Antes de transferir</strong>
+
+        <p>
+          Verificá que los datos coincidan con los publicados en esta página.
+          Ante cualquier duda, comunicate directamente con Fundación SENO.
+        </p>
+      </aside>
+    )
+  }
 </section>
 
 <style>
-  .donaciones {
-    width: min(1200px, 90%);
-    margin: 1rem auto;
-    font-family: var(--text-font-primary);
+  .donation-methods {
+    width: 100%;
+    min-width: 0;
   }
 
-  .descripcion {
-    max-width: 700px;
-    margin: 0 auto 3rem;
+  .donation-methods__introduction {
+    width: min(100%, 47.5rem);
+    margin: 0 auto clamp(2rem, 5vw, 3rem);
 
     text-align: center;
-    line-height: 1.8;
-    color: var(--color-text);
-    font-size: 1.2rem;
   }
 
-  .contenedor {
+  .donation-methods__eyebrow {
+    margin-bottom: 0.55rem;
+
+    color: var(--color-primary);
+
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .donation-methods__introduction h2 {
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.6rem, 4vw, 2.35rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .donation-methods__introduction > p:last-child {
+    margin-top: 1rem;
+
+    color: var(--color-text);
+
+    font-size: clamp(1rem, 2.5vw, 1.12rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .donation-methods__grid {
+    width: 100%;
+
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+
+    align-items: stretch;
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .donation-methods__grid > li {
+    min-width: 0;
+
+    display: flex;
+  }
+
+  .donation-methods__status {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+
+    color: var(--color-text);
+    background-color: rgba(192, 226, 156, 0.25);
+
+    border: 1px dashed var(--color-primary-light);
+    border-radius: var(--radius);
+
+    text-align: center;
+  }
+
+  .donation-methods__status--error {
+    background-color: rgba(211, 47, 47, 0.07);
+    border-color: rgba(211, 47, 47, 0.35);
+  }
+
+  .donation-methods__status-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-primary-hover);
+    background-color: var(--color-background);
+
+    border-radius: 50%;
+
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .donation-methods__status--error .donation-methods__status-icon {
+    color: #b42318;
+  }
+
+  .donation-methods__status h3 {
+    color: var(--color-primary-hover);
+
+    font-size: 1.2rem;
+    line-height: 1.35;
+  }
+
+  .donation-methods__status--error h3 {
+    color: #b42318;
+  }
+
+  .donation-methods__status p {
+    max-width: 34rem;
+
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .donation-methods__status a {
+    margin-top: 0.4rem;
+    padding: 0.7rem 1rem;
+
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+
+    border-radius: var(--radius-small);
+
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .donation-methods__status a:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  .donation-methods__notice {
+    width: min(100%, 48rem);
+    margin: clamp(2rem, 5vw, 3rem) auto 0;
+    padding: 1rem 1.25rem;
+
+    display: grid;
+    gap: 0.25rem;
+
+    color: var(--color-text);
+    background-color: rgba(21, 130, 203, 0.07);
+
+    border-left: 4px solid var(--color-secondary);
+    border-radius: 0.25rem var(--radius) var(--radius) 0.25rem;
+  }
+
+  .donation-methods__notice strong {
+    color: var(--color-secondary-hover);
+  }
+
+  .donation-methods__notice p {
+    line-height: 1.6;
+  }
+
+  @media (hover: hover) {
+    .donation-methods__status a:hover {
+      background-color: var(--color-primary);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .donation-methods__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
   }
 </style>

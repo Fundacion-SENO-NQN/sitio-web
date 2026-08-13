@@ -2,13 +2,14 @@
 import Mision from './Mision/Mision.astro'
 ---
 
-<ul class="lista-descripcion">
+<div class="about-sections">
   <Mision />
-</ul>
+</div>
 
 <style>
-  .lista-descripcion {
-    list-style: none;
-    padding: 0;
+  .about-sections {
+    width: 100%;
+
+    margin-top: clamp(3rem, 7vw, 5rem);
   }
 </style>

@@ -1,0 +1,37 @@
+---
+interface Props {
+  mensaje?: string
+}
+
+const { mensaje = 'Cargando...' } = Astro.props
+---
+
+<div
+  id="aviso-carga"
+  class="toast info aviso-carga"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  <span class="spinner spinnerSmall spinnerLight" aria-hidden="true"></span>
+
+  <p class="toastMessage">{mensaje}</p>
+</div>
+
+<style>
+  /*
+   * Compatibilidad con el JavaScript anterior:
+   *
+   * avisoCarga.classList.add('aparecer')
+   */
+  .aviso-carga.aparecer {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aviso-carga {
+      transition: none;
+    }
+  }
+</style>

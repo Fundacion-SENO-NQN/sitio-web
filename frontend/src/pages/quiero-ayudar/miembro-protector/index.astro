@@ -1,0 +1,1323 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+
+import SvgMonedas from '../../../assets/icon-miembro-protector/icon-monedas.svg'
+import SvgCalendario from '../../../assets/icon-noticias/icon-calendario.svg'
+import SvgCasa from '../../../assets/icon-voluntariado/icon-casa.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
+import SvgCorazon from '../../../assets/icon-common/icon-corazon.svg'
+import SvgUsuario from '../../../assets/icon-common/icon-user.svg'
+import SvgUsuarios from '../../../assets/icon-donar-cosas/icon-personas.svg'
+import SvgCheck from '../../../assets/icon-donar-cosas/icon-check.svg'
+import SvgDinero from '../../../assets/icon-quiero-ayudar/icon-dinero.svg'
+import SvgEstrella from '../../../assets/icon-common/icon-estrella.svg'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
+---
+
+<Layout
+  pag="Miembro protector"
+  seoTitle="Miembro Protector | Fundación SENO"
+  description="Sumate a la campaña Miembro Protector y acompañá mensualmente el trabajo de Fundación SENO con un aporte elegido según tus posibilidades."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Miembro protector'
+      }
+    ]}
+  />
+  <NavegacionQuieroAyudar pag="2" />
+
+  <TituloPag titulo="Miembro protector" />
+
+  <main class="protector-page">
+    <section class="protector-hero" aria-labelledby="protector-hero-title">
+      <div class="protector-hero__content">
+        <p class="protector-kicker">Campaña Miembro Protector</p>
+
+        <h2 id="protector-hero-title">
+          Acompañá nuestra misión todos los meses
+        </h2>
+
+        <p class="protector-hero__highlight">
+          Ser miembro protector es una manera de colaborar de forma continua con
+          Fundación SENO y ayudarnos a construir un espacio cada vez más digno
+          para las familias.
+        </p>
+
+        <p>
+          Cada persona puede elegir el valor de su aporte mensual. No importa el
+          monto: la continuidad de esa ayuda nos permite seguir avanzando,
+          sostener nuestras actividades y acompañar a quienes necesitan de la
+          Fundación.
+        </p>
+
+        <div class="protector-hero__actions">
+          <a
+            class="protector-button protector-button--primary"
+            href="#contacto"
+          >
+            <span>Quiero conocer más</span>
+
+            <SvgFlecha
+              class="protector-button__icon protector-button__icon--down"
+              aria-hidden="true"
+            />
+          </a>
+
+          <a
+            class="protector-button protector-button--secondary"
+            href="#como-funciona"
+          >
+            Cómo funciona
+          </a>
+        </div>
+      </div>
+
+      <div class="protector-hero__visual" aria-hidden="true">
+        <div class="protector-illustration">
+          <span class="protector-illustration__heart">
+            <SvgCorazon />
+          </span>
+
+          <span class="protector-illustration__house">
+            <SvgCasa />
+          </span>
+
+          <div class="protector-illustration__people">
+            <span>
+              <SvgUsuario />
+            </span>
+
+            <span>
+              <SvgUsuario />
+            </span>
+
+            <span>
+              <SvgUsuario />
+            </span>
+          </div>
+
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--first"
+          ></span>
+
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--second"
+          ></span>
+
+          <span
+            class="protector-illustration__decoration protector-illustration__decoration--third"
+          ></span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="protector-message"
+      aria-labelledby="protector-message-title"
+    >
+      <span class="protector-message__icon" aria-hidden="true">
+        <SvgCorazon />
+      </span>
+
+      <div>
+        <p class="protector-kicker">Una colaboración que nos acompaña</p>
+
+        <h2 id="protector-message-title">
+          Los aportes mensuales nos permiten seguir adelante
+        </h2>
+
+        <p>
+          La Fundación se sostiene gracias al compromiso y la solidaridad de la
+          comunidad. Contar con aportes regulares nos ayuda a planificar,
+          mantener nuestro espacio y continuar desarrollando acciones para las
+          familias.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="como-funciona"
+      class="protector-section protector-process"
+      aria-labelledby="protector-process-title"
+    >
+      <header class="protector-section__header">
+        <p class="protector-kicker">Una forma sencilla de colaborar</p>
+
+        <h2 id="protector-process-title">¿Cómo funciona la campaña?</h2>
+
+        <p>
+          Cada miembro protector elige libremente el valor de su aporte y
+          acompaña mensualmente el trabajo de Fundación SENO.
+        </p>
+      </header>
+
+      <ol class="protector-process__list">
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 1 </span>
+
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgMonedas />
+            </span>
+
+            <h3>Elegís tu aporte</h3>
+
+            <p>
+              Podés seleccionar el valor mensual con el que deseás colaborar,
+              según tus posibilidades.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 2 </span>
+
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgCalendario />
+            </span>
+
+            <h3>Colaborás mensualmente</h3>
+
+            <p>
+              El aporte periódico nos brinda una base constante para sostener
+              nuestros proyectos y necesidades.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 3 </span>
+
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
+
+            <h3>Ayudás a la Fundación</h3>
+
+            <p>
+              Tu colaboración puede convertirse en mejoras para la casa, nuevas
+              actividades o acciones para recaudar fondos.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-step">
+            <span class="protector-step__number" aria-hidden="true"> 4 </span>
+
+            <span class="protector-step__icon" aria-hidden="true">
+              <SvgUsuarios />
+            </span>
+
+            <h3>Formás parte de la misión</h3>
+
+            <p>
+              Los miembros protectores son parte del crecimiento de Fundación
+              SENO y del acompañamiento que brindamos a las familias.
+            </p>
+          </article>
+        </li>
+      </ol>
+    </section>
+
+    <section
+      class="protector-contribution"
+      aria-labelledby="protector-contribution-title"
+    >
+      <div class="protector-contribution__content">
+        <p class="protector-kicker">Vos elegís cómo colaborar</p>
+
+        <h2 id="protector-contribution-title">
+          No existe un único valor para ser miembro protector
+        </h2>
+
+        <p>
+          La campaña contempla diferentes valores de aportes mensuales. Cada
+          persona puede elegir la opción que mejor se adapte a sus
+          posibilidades.
+        </p>
+
+        <p>
+          Lo más importante no es el tamaño de la cuota, sino el compromiso de
+          acompañar el trabajo de la Fundación y ayudarnos a continuar.
+        </p>
+
+        <aside class="protector-contribution__highlight">
+          <SvgCheck aria-hidden="true" />
+
+          <p>
+            Cada aporte, sin importar su valor, se suma a muchos otros y se
+            transforma en una ayuda concreta.
+          </p>
+        </aside>
+      </div>
+
+      <div class="protector-contribution__visual" aria-hidden="true">
+        <span
+          class="protector-contribution__item protector-contribution__item--first"
+        >
+          <SvgMonedas />
+        </span>
+
+        <span class="protector-contribution__heart">
+          <SvgCorazon />
+        </span>
+
+        <span
+          class="protector-contribution__item protector-contribution__item--second"
+        >
+          <SvgDinero />
+        </span>
+      </div>
+    </section>
+
+    <section
+      class="protector-section protector-destinations"
+      aria-labelledby="protector-destinations-title"
+    >
+      <header class="protector-section__header">
+        <p class="protector-kicker">Un fondo para seguir creciendo</p>
+
+        <h2 id="protector-destinations-title">
+          ¿En qué se utilizan los aportes?
+        </h2>
+
+        <p>
+          Los fondos de la campaña no tienen un único destino fijo. Se
+          administran según las necesidades y los proyectos de la Fundación.
+        </p>
+      </header>
+
+      <ul class="protector-destinations__list">
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
+
+            <h3>Mejorar la vivienda</h3>
+
+            <p>
+              Realizar arreglos, mantenimiento y mejoras que permitan ofrecer un
+              espacio más cómodo y digno para las familias.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgEstrella />
+            </span>
+
+            <h3>Continuar la obra</h3>
+
+            <p>
+              Avanzar en las diferentes etapas de construcción y adecuación de
+              los espacios de la Fundación.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgCalendario />
+            </span>
+
+            <h3>Organizar actividades</h3>
+
+            <p>
+              Acompañar eventos, encuentros y acciones que beneficien a las
+              familias y a la comunidad.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="protector-destination">
+            <span class="protector-destination__icon" aria-hidden="true">
+              <SvgDinero />
+            </span>
+
+            <h3>Generar nuevos fondos</h3>
+
+            <p>
+              Impulsar iniciativas que permitan recaudar más recursos y sostener
+              futuros proyectos.
+            </p>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <section class="protector-impact" aria-labelledby="protector-impact-title">
+      <span class="protector-impact__quote" aria-hidden="true"> “ </span>
+
+      <div>
+        <p class="protector-kicker">El valor de acompañar</p>
+
+        <h2 id="protector-impact-title" class="visually-hidden">
+          El impacto de los miembros protectores
+        </h2>
+
+        <blockquote>
+          <p>
+            Cada miembro protector nos ayuda a seguir construyendo una Fundación
+            más fuerte y un espacio más digno para las familias.
+          </p>
+        </blockquote>
+
+        <p>
+          La continuidad de cada aporte nos permite mirar hacia adelante,
+          planificar nuevas acciones y sostener todo lo que construimos junto a
+          la comunidad.
+        </p>
+      </div>
+    </section>
+
+    <aside class="protector-cta" aria-labelledby="protector-cta-title">
+      <div class="protector-cta__content">
+        <p class="protector-kicker">Campaña Miembro Protector</p>
+
+        <h2 id="protector-cta-title">
+          Tu acompañamiento puede ayudarnos todos los meses
+        </h2>
+
+        <p>
+          Comunicate con nosotros para conocer los valores disponibles y cómo
+          sumarte a la campaña.
+        </p>
+      </div>
+
+      <a class="protector-button protector-cta__button" href="#contacto">
+        <span>Comunicarme con la Fundación</span>
+
+        <SvgFlecha
+          class="protector-button__icon protector-button__icon--down"
+          aria-hidden="true"
+        />
+      </a>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .protector-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+    color: var(--color-text);
+  }
+
+  .visually-hidden {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .protector-kicker {
+    margin-bottom: 0.65rem;
+    color: var(--color-primary-hover);
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .protector-section {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .protector-section__header {
+    width: min(100%, 45.5rem);
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .protector-section__header h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .protector-section__header > p:last-child {
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.04rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* Hero */
+
+  .protector-hero {
+    min-height: 30.5rem;
+    padding: clamp(2rem, 6vw, 5rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(17.5rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 88% 18%,
+        color-mix(in srgb, var(--color-secondary) 16%, transparent),
+        transparent 29%
+      ),
+      radial-gradient(
+        circle at 8% 92%,
+        color-mix(in srgb, var(--color-primary) 12%, transparent),
+        transparent 26%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 18%,
+        var(--color-background)
+      );
+  }
+
+  .protector-hero::before {
+    content: '';
+    width: 22.8rem;
+    aspect-ratio: 1;
+    position: absolute;
+    right: -7.8rem;
+    bottom: -9rem;
+    border: 3.25rem solid
+      color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .protector-hero__content,
+  .protector-hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .protector-hero h2 {
+    max-width: 47.5rem;
+    margin-bottom: 1.3rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(2.2rem, 5.2vw, 4.25rem);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .protector-hero__content > p:not(.protector-kicker) {
+    max-width: 45rem;
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.03rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .protector-hero__content .protector-hero__highlight {
+    color: var(--color-text);
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
+    font-weight: 600;
+  }
+
+  .protector-hero__actions {
+    margin-top: 1.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  /* Buttons */
+
+  .protector-button {
+    width: fit-content;
+    min-height: 3.1rem;
+    padding: 0.85rem 1.3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .protector-button--primary {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 22%, transparent);
+  }
+
+  .protector-button--secondary {
+    color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 65%,
+      transparent
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-hover) 24%,
+      transparent
+    );
+  }
+
+  .protector-button__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    color: currentColor;
+  }
+
+  .protector-button__icon--down {
+    transform: rotate(90deg);
+  }
+
+  .protector-button:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  /* Illustration */
+
+  .protector-hero__visual {
+    min-height: 20.5rem;
+    display: grid;
+    place-items: center;
+  }
+
+  .protector-illustration {
+    width: min(100%, 20.5rem);
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 68%,
+      transparent
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+    border-radius: 50%;
+    box-shadow: 0 1.75rem 4rem
+      color-mix(in srgb, var(--color-primary-hover) 15%, transparent);
+  }
+
+  .protector-illustration__house {
+    width: 7.5rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border-radius: 1.8rem;
+    box-shadow: 0 1.1rem 2.5rem
+      color-mix(in srgb, var(--color-primary) 27%, transparent);
+    transform: translateY(-1.75rem);
+  }
+
+  .protector-illustration__house :global(svg) {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .protector-illustration__heart {
+    width: 4.4rem;
+    aspect-ratio: 1;
+    position: absolute;
+    top: 1.55rem;
+    right: 2.4rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+    border: 0.4rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-secondary) 23%, transparent);
+  }
+
+  .protector-illustration__heart :global(svg) {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .protector-illustration__people {
+    position: absolute;
+    right: 0;
+    bottom: 2.3rem;
+    left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .protector-illustration__people span {
+    width: 4rem;
+    aspect-ratio: 1;
+    margin-left: -0.65rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
+    border: 0.3rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.55rem 1.4rem
+      color-mix(in srgb, var(--color-primary-hover) 12%, transparent);
+  }
+
+  .protector-illustration__people span:first-child {
+    margin-left: 0;
+  }
+
+  .protector-illustration__people span:nth-child(2) {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    transform: translateY(-0.5rem);
+  }
+
+  .protector-illustration__people :global(svg) {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .protector-illustration__decoration {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+  }
+
+  .protector-illustration__decoration--first {
+    width: 1.55rem;
+    aspect-ratio: 1;
+    top: 3.4rem;
+    left: 2rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary) 35%,
+      transparent
+    );
+  }
+
+  .protector-illustration__decoration--second {
+    width: 0.95rem;
+    aspect-ratio: 1;
+    right: 1.55rem;
+    bottom: 5rem;
+    background-color: color-mix(in srgb, var(--color-primary) 37%, transparent);
+  }
+
+  .protector-illustration__decoration--third {
+    width: 2.4rem;
+    aspect-ratio: 1;
+    bottom: 3.1rem;
+    left: 1.55rem;
+    border: 0.5rem solid
+      color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  /* Intro message */
+
+  .protector-message {
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 30%,
+      var(--color-background)
+    );
+    border-left: 0.4rem solid var(--color-secondary);
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+  }
+
+  .protector-message__icon {
+    width: 3.7rem;
+    height: 3.7rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-secondary);
+    background-color: var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.65rem 1.6rem
+      color-mix(in srgb, var(--color-secondary) 13%, transparent);
+  }
+
+  .protector-message__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .protector-message h2,
+  .protector-contribution h2,
+  .protector-cta h2 {
+    margin-bottom: 0.8rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .protector-message > div > p:last-child {
+    max-width: 57.5rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  /* Process and destinations */
+
+  .protector-process {
+    scroll-margin-top: 2rem;
+  }
+
+  .protector-process__list,
+  .protector-destinations__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 1.2rem;
+  }
+
+  .protector-process__list > li,
+  .protector-destinations__list > li {
+    min-width: 0;
+    display: flex;
+  }
+
+  .protector-step,
+  .protector-destination {
+    width: 100%;
+    height: 100%;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.9rem 2.5rem rgba(38, 63, 80, 0.06);
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .protector-step__number {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    color: color-mix(in srgb, var(--color-primary-hover) 16%, transparent);
+    font-size: 2.2rem;
+    font-weight: 700;
+  }
+
+  .protector-step__icon,
+  .protector-destination__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+    margin-bottom: 1.25rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 32%,
+      var(--color-background)
+    );
+    border-radius: 1.1rem;
+  }
+
+  .protector-process__list > li:nth-child(even) .protector-step__icon,
+  .protector-destinations__list
+    > li:nth-child(even)
+    .protector-destination__icon {
+    color: var(--color-secondary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 40%,
+      var(--color-background)
+    );
+  }
+
+  .protector-step__icon :global(svg),
+  .protector-destination__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .protector-step h3,
+  .protector-destination h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-primary-hover);
+    font-size: 1.27rem;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .protector-step p,
+  .protector-destination p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  /* Contribution */
+
+  .protector-contribution {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(14.4rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 90% 20%,
+        color-mix(in srgb, var(--color-secondary) 13%, transparent),
+        transparent 30%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 15%,
+        var(--color-background)
+      );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.8rem;
+  }
+
+  .protector-contribution h2 {
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .protector-contribution__content > p:not(.protector-kicker) {
+    max-width: 47.5rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .protector-contribution__highlight {
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 34%,
+      var(--color-background)
+    );
+    border-left: 0.25rem solid var(--color-primary);
+    border-radius: 0.2rem 1rem 1rem 0.2rem;
+  }
+
+  .protector-contribution__highlight :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    color: var(--color-primary);
+  }
+
+  .protector-contribution__highlight p {
+    color: color-mix(in srgb, var(--color-text) 78%, transparent);
+    font-weight: 600;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .protector-contribution__visual {
+    min-height: 16.25rem;
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .protector-contribution__heart {
+    width: 7.8rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+    border-radius: 50%;
+    box-shadow: 0 1.25rem 2.8rem
+      color-mix(in srgb, var(--color-secondary) 26%, transparent);
+  }
+
+  .protector-contribution__heart :global(svg) {
+    width: 4.25rem;
+    height: 4.25rem;
+  }
+
+  .protector-contribution__item {
+    width: 4.4rem;
+    aspect-ratio: 1;
+    position: absolute;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border: 0.4rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 18%, transparent);
+  }
+
+  .protector-contribution__item :global(svg) {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+
+  .protector-contribution__item--first {
+    top: 8%;
+    left: 5%;
+    transform: rotate(-8deg);
+  }
+
+  .protector-contribution__item--second {
+    right: 2%;
+    bottom: 5%;
+    background-color: var(--color-primary-hover);
+    transform: rotate(8deg);
+  }
+
+  /* Impact */
+
+  .protector-impact {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1rem, 4vw, 2.5rem);
+    overflow: hidden;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 30%,
+      var(--color-background)
+    );
+    border: 1px solid
+      color-mix(in srgb, var(--color-secondary) 22%, transparent);
+    border-radius: 1.7rem;
+  }
+
+  .protector-impact__quote {
+    height: fit-content;
+    color: var(--color-secondary);
+    font-family: Georgia, serif;
+    font-size: clamp(4rem, 10vw, 7rem);
+    line-height: 0.8;
+  }
+
+  .protector-impact blockquote {
+    max-width: 56rem;
+    margin: 0;
+  }
+
+  .protector-impact blockquote p {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+
+  .protector-impact div > p:last-child {
+    max-width: 53rem;
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  /* CTA */
+
+  .protector-cta {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    background:
+      radial-gradient(
+        circle at 90% 20%,
+        color-mix(in srgb, var(--color-secondary) 12%, transparent),
+        transparent 28%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 15%,
+        var(--color-background)
+      );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.8rem;
+  }
+
+  .protector-cta__content {
+    max-width: 47.5rem;
+  }
+
+  .protector-cta h2 {
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+  }
+
+  .protector-cta__content > p:last-child {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .protector-cta__button {
+    flex: 0 0 auto;
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 20%, transparent);
+  }
+
+  @media (hover: hover) {
+    .protector-button--primary:hover,
+    .protector-cta__button:hover {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 1rem 2.2rem
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
+      transform: translateY(-3px);
+    }
+
+    .protector-button--secondary:hover {
+      background-color: var(--color-background);
+      transform: translateY(-3px);
+    }
+
+    .protector-step:hover,
+    .protector-destination:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+      box-shadow: 0 1.25rem 2.8rem rgba(38, 63, 80, 0.11);
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .protector-process__list,
+    .protector-destinations__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 850px) {
+    .protector-hero {
+      grid-template-columns: minmax(0, 1fr);
+      text-align: center;
+    }
+
+    .protector-hero__content {
+      order: 2;
+    }
+
+    .protector-hero__visual {
+      min-height: 17.5rem;
+      order: 1;
+    }
+
+    .protector-hero__content > p:not(.protector-kicker) {
+      margin-inline: auto;
+    }
+
+    .protector-hero__actions {
+      justify-content: center;
+    }
+
+    .protector-illustration {
+      width: min(65vw, 18rem);
+    }
+
+    .protector-contribution {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .protector-contribution__visual {
+      min-height: 14.5rem;
+    }
+
+    .protector-cta {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .protector-page {
+      width: calc(100% - 1rem);
+      margin-top: 1rem;
+    }
+
+    .protector-hero {
+      min-height: auto;
+      padding: 1.7rem 1.2rem;
+      gap: 1.4rem;
+      border-radius: 1.4rem;
+    }
+
+    .protector-hero h2 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .protector-hero__content > p:not(.protector-kicker) {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .protector-hero__visual {
+      min-height: 14rem;
+    }
+
+    .protector-illustration {
+      width: min(76vw, 15rem);
+    }
+
+    .protector-illustration__house {
+      width: 5.6rem;
+      border-radius: 1.3rem;
+    }
+
+    .protector-illustration__house :global(svg) {
+      width: 3.1rem;
+      height: 3.1rem;
+    }
+
+    .protector-illustration__heart {
+      width: 3.45rem;
+      top: 0.95rem;
+      right: 1.25rem;
+      border-width: 0.25rem;
+    }
+
+    .protector-illustration__heart :global(svg) {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+
+    .protector-illustration__people {
+      bottom: 1.55rem;
+    }
+
+    .protector-illustration__people span {
+      width: 3.1rem;
+      border-width: 0.25rem;
+    }
+
+    .protector-illustration__people :global(svg) {
+      width: 1.65rem;
+      height: 1.65rem;
+    }
+
+    .protector-hero__actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .protector-button {
+      width: 100%;
+    }
+
+    .protector-message {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+      border-left-width: 0.25rem;
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .protector-message__icon {
+      width: 3.2rem;
+      height: 3.2rem;
+    }
+
+    .protector-process__list,
+    .protector-destinations__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .protector-step,
+    .protector-destination {
+      padding: 1.4rem;
+      border-radius: 1.2rem;
+    }
+
+    .protector-contribution {
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .protector-contribution__visual {
+      min-height: 12.5rem;
+      transform: scale(0.9);
+    }
+
+    .protector-impact {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 1.5rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .protector-impact__quote {
+      height: 2.5rem;
+    }
+
+    .protector-cta {
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .protector-button,
+    .protector-step,
+    .protector-destination {
+      transition: none;
+    }
+  }
+</style>

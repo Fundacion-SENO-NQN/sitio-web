@@ -1,0 +1,955 @@
+/* ==========================================================
+   ADMIN IMAGE PICKER
+
+   Clases recomendadas:
+   - .imageUpload
+   - .imageUploadIcon
+   - .imageUploadPlaceholder
+   - .imagePreviewGrid
+   - .imagePreviewItem
+   - .imagePreview
+   - .imagePreviewRemove
+   - .currentImages
+
+   Se mantienen los nombres actuales de cada módulo.
+========================================================== */
+
+/* ==========================================================
+   DROP ZONE
+========================================================== */
+
+:where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone) {
+  width: 100%;
+  min-width: 0;
+  min-height: 13rem;
+  padding: clamp(1rem, 3vw, 2rem);
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-small);
+
+  overflow: hidden;
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-soft);
+
+  border: 2px dashed var(--admin-border-color);
+
+  border-radius: var(--admin-radius);
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+/* ==========================================================
+   DROP ZONE HOVER
+========================================================== */
+
+:where(
+    .imageUpload,
+    .zona-subida,
+    .dropZone,
+    .adminImageUpload,
+    #dropZone
+  ):hover:not([aria-disabled='true']):not(.disabled) {
+  color: var(--color-secondary-hover);
+
+  background-color: var(--admin-secondary-hover-soft);
+
+  border-color: var(--color-secondary);
+
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   DROP ZONE FOCUS
+========================================================== */
+
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+):focus,
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+):focus-within {
+  outline: none;
+
+  border-color: var(--color-secondary);
+
+  box-shadow: var(--admin-focus);
+}
+
+/* ==========================================================
+   DRAGGING STATE
+
+   Los scripts existentes utilizan tres nombres diferentes:
+   - .drag
+   - .dragover
+   - .arrastrando
+========================================================== */
+
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+):where(.drag, .dragover, .arrastrando) {
+  color: var(--color-primary-hover);
+
+  background-color: var(--admin-primary-soft);
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 4px var(--admin-primary-ring);
+
+  transform: translateY(-1px) scale(1.005);
+}
+
+/* ==========================================================
+   DISABLED STATE
+========================================================== */
+
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+):where(.disabled, [aria-disabled='true']) {
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-muted);
+
+  border-color: var(--admin-border-color);
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   BUSY STATE
+========================================================== */
+
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+)[aria-busy='true'] {
+  cursor: progress;
+
+  opacity: 0.72;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   FILE INPUT
+
+   El input sigue siendo accesible mediante su label, aunque
+   no se muestre visualmente.
+========================================================== */
+
+:where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone)
+  input[type='file'] {
+  width: 1px;
+
+  height: 1px;
+
+  margin: -1px;
+
+  padding: 0;
+
+  position: absolute;
+
+  overflow: hidden;
+
+  opacity: 0;
+
+  border: 0;
+
+  clip-path: inset(50%);
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   PLACEHOLDER
+========================================================== */
+
+:where(
+  .imageUploadPlaceholder,
+  .imagePlaceholder,
+  .subida-contenido,
+  .adminImageUploadPlaceholder,
+  #memberImagePlaceholder
+) {
+  width: min(100%, 32rem);
+
+  min-width: 0;
+
+  padding: var(--admin-space-medium);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.4rem;
+
+  color: var(--admin-text-muted);
+
+  text-align: center;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   UPLOAD ICON
+========================================================== */
+
+:where(.imageUploadIcon, .subida-icono, .adminImageUploadIcon) {
+  width: 3.25rem;
+
+  height: 3.25rem;
+
+  margin-bottom: 0.35rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-radius: 50%;
+
+  font-size: 1.9rem;
+
+  font-weight: 400;
+
+  line-height: 1;
+
+  box-shadow: 0 5px 14px rgba(21, 130, 203, 0.22);
+}
+
+/*
+ * Compatibilidad con el marcador generado mediante
+ * pseudoelemento en el módulo de miembros.
+ */
+#memberImagePlaceholder::before {
+  content: '+';
+
+  width: 3.25rem;
+
+  height: 3.25rem;
+
+  margin-bottom: 0.35rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  color: var(--admin-text-on-color);
+
+  background-color: var(--color-secondary);
+
+  border-radius: 50%;
+
+  font-size: 2rem;
+
+  font-weight: 300;
+
+  line-height: 1;
+}
+
+/* ==========================================================
+   PLACEHOLDER TEXT
+========================================================== */
+
+:where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone)
+  strong,
+:where(
+    .imageUploadPlaceholder,
+    .imagePlaceholder,
+    .subida-contenido,
+    .adminImageUploadPlaceholder,
+    #memberImagePlaceholder
+  )
+  strong {
+  color: var(--color-secondary-hover);
+
+  font-size: 1rem;
+
+  font-weight: 750;
+
+  line-height: 1.4;
+}
+
+:where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone) p,
+:where(
+    .imageUploadPlaceholder,
+    .imagePlaceholder,
+    .subida-contenido,
+    .adminImageUploadPlaceholder,
+    #memberImagePlaceholder
+  )
+  p {
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.86rem;
+
+  line-height: 1.5;
+}
+
+:where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone)
+  small {
+  color: var(--admin-text-muted);
+
+  font-size: 0.76rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   SINGLE IMAGE PREVIEW
+========================================================== */
+
+.imagePreview,
+.adminImagePreview {
+  width: 100%;
+
+  max-width: 100%;
+
+  max-height: 22rem;
+
+  display: block;
+
+  object-fit: contain;
+
+  object-position: center;
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-small);
+}
+
+/*
+ * Cuando la vista previa ocupa la zona de subida completa.
+ */
+:where(.imageUpload, .zona-subida, .adminImageUpload)
+  > :where(.imagePreview, .adminImagePreview) {
+  max-height: 24rem;
+
+  border: 0;
+}
+
+/* ==========================================================
+   PREVIEW GRID
+========================================================== */
+
+:where(
+  .imagePreviewGrid,
+  .previewContainer,
+  .galeria-preview,
+  .selectedImagesGallery,
+  .currentImagesGallery,
+  .adminImagePreviewGrid,
+  #previewContainer
+) {
+  width: 100%;
+
+  margin-top: var(--admin-space-medium);
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+
+  gap: var(--admin-space);
+
+  align-items: start;
+}
+
+/* ==========================================================
+   PREVIEW ITEM
+========================================================== */
+
+:where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  )
+  > :where(
+    .imagePreviewItem,
+    .preview-imagen,
+    .preview,
+    .adminImagePreviewItem
+  ) {
+  min-width: 0;
+
+  margin: 0;
+
+  position: relative;
+
+  overflow: hidden;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: 0.7rem;
+
+  box-shadow: var(--admin-shadow-small);
+
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  )
+  > :where(
+    .imagePreviewItem,
+    .preview-imagen,
+    .preview,
+    .adminImagePreviewItem
+  ):hover {
+  border-color: var(--color-secondary-light);
+
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.1);
+
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   PREVIEW IMAGE
+========================================================== */
+
+:where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  )
+  > :where(.imagePreviewItem, .preview-imagen, .preview, .adminImagePreviewItem)
+  img {
+  width: 100%;
+
+  height: 7rem;
+
+  display: block;
+
+  object-fit: cover;
+
+  object-position: center;
+
+  color: var(--admin-text-muted);
+
+  background: linear-gradient(
+    135deg,
+    var(--admin-surface-muted),
+    var(--admin-surface)
+  );
+}
+
+/* ==========================================================
+   BROKEN PREVIEW IMAGE
+========================================================== */
+
+:where(
+    .imagePreviewItem,
+    .preview-imagen,
+    .preview,
+    .adminImagePreviewItem
+  ).error
+  img,
+:where(.imagePreviewItem, .preview-imagen, .preview, .adminImagePreviewItem)
+  img:not([src]) {
+  object-fit: contain;
+
+  opacity: 0.6;
+}
+
+/* ==========================================================
+   PREVIEW CAPTION
+========================================================== */
+
+:where(.imagePreviewItem, .preview-imagen, .preview, .adminImagePreviewItem)
+  :where(figcaption, .imagePreviewCaption, .previewCaption) {
+  width: 100%;
+
+  padding: 0.55rem;
+
+  overflow: hidden;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.75rem;
+
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   PREVIEW NUMBER
+========================================================== */
+
+:where(
+  .imagePreviewNumber,
+  .preview-numero,
+  .previewNumber,
+  .adminImagePreviewNumber
+) {
+  min-width: 1.65rem;
+
+  height: 1.65rem;
+
+  padding-inline: 0.35rem;
+
+  position: absolute;
+
+  top: 0.4rem;
+
+  left: 0.4rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  color: var(--admin-text-on-color);
+
+  background-color: rgba(0, 0, 0, 0.72);
+
+  border-radius: var(--admin-radius-pill);
+
+  font-size: 0.73rem;
+
+  font-weight: 800;
+
+  font-variant-numeric: tabular-nums;
+
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   REMOVE PREVIEW BUTTON
+========================================================== */
+
+:where(
+  .imagePreviewRemove,
+  .previewRemove,
+  .adminImagePreviewRemove,
+  .preview .remove,
+  .preview-imagen .remove
+) {
+  appearance: none;
+
+  width: 1.9rem;
+
+  height: 1.9rem;
+
+  padding: 0;
+
+  position: absolute;
+
+  top: 0.35rem;
+
+  right: 0.35rem;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  color: var(--admin-text-on-color);
+
+  background-color: rgba(211, 47, 47, 0.9);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  border-radius: 50%;
+
+  font: inherit;
+
+  font-size: 1rem;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    opacity var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+:where(
+    .imagePreviewRemove,
+    .previewRemove,
+    .adminImagePreviewRemove,
+    .preview .remove,
+    .preview-imagen .remove
+  ):hover:not(:disabled) {
+  background-color: var(--color-red);
+
+  transform: scale(1.08);
+}
+
+:where(
+  .imagePreviewRemove,
+  .previewRemove,
+  .adminImagePreviewRemove,
+  .preview .remove,
+  .preview-imagen .remove
+):focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25);
+}
+
+:where(
+  .imagePreviewRemove,
+  .previewRemove,
+  .adminImagePreviewRemove,
+  .preview .remove,
+  .preview-imagen .remove
+):disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   CURRENT IMAGES
+========================================================== */
+
+:where(.currentImages, .imagenes-actuales, .adminCurrentImages) {
+  width: 100%;
+
+  margin-top: var(--admin-space-large);
+
+  padding-top: var(--admin-space-medium);
+
+  border-top: var(--admin-border);
+}
+
+/* ==========================================================
+   CURRENT IMAGES HEADER
+========================================================== */
+
+:where(
+  .currentImagesHeader,
+  .imagenes-actuales-cabecera,
+  .adminCurrentImagesHeader
+) {
+  margin-bottom: var(--admin-space);
+}
+
+:where(
+    .currentImagesHeader,
+    .imagenes-actuales-cabecera,
+    .adminCurrentImagesHeader
+  )
+  :is(h3, h4, p) {
+  margin: 0;
+}
+
+:where(
+    .currentImagesHeader,
+    .imagenes-actuales-cabecera,
+    .adminCurrentImagesHeader
+  )
+  :is(h3, h4) {
+  color: var(--admin-text);
+
+  font-size: 0.95rem;
+
+  font-weight: 750;
+
+  line-height: 1.4;
+}
+
+:where(
+    .currentImagesHeader,
+    .imagenes-actuales-cabecera,
+    .adminCurrentImagesHeader
+  )
+  p {
+  margin-top: 0.3rem;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   IMAGE SELECTION SUMMARY
+========================================================== */
+
+:where(.imageSelectionSummary, .resumen-imagenes, .adminImageSelectionSummary) {
+  margin-top: var(--admin-space);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: var(--admin-space);
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.82rem;
+
+  line-height: 1.4;
+}
+
+:where(.imageSelectionSummary, .resumen-imagenes, .adminImageSelectionSummary)
+  strong {
+  color: var(--admin-text);
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   IMAGE ERROR MESSAGE
+========================================================== */
+
+:where(.imagePickerError, .error-imagen, .adminImagePickerError) {
+  margin: var(--admin-space-small) 0 0;
+
+  color: var(--color-red);
+
+  font-size: 0.8rem;
+
+  font-weight: 650;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   INVALID DROP ZONE
+========================================================== */
+
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+)[aria-invalid='true'],
+:where(
+  .imageUpload,
+  .zona-subida,
+  .dropZone,
+  .adminImageUpload,
+  #dropZone
+).invalid {
+  background-color: var(--admin-danger-soft);
+
+  border-color: var(--color-red);
+
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.14);
+}
+
+/* ==========================================================
+   EMPTY PREVIEW STATE
+========================================================== */
+
+:where(.imagePreviewEmpty, .preview-vacio, .adminImagePreviewEmpty) {
+  grid-column: 1 / -1;
+
+  margin: 0;
+
+  padding: 1.5rem;
+
+  color: var(--admin-text-muted);
+
+  background-color: var(--admin-surface-soft);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius);
+
+  text-align: center;
+
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  :where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  ) {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  :where(.imageUpload, .zona-subida, .dropZone, .adminImageUpload, #dropZone) {
+    min-height: 11rem;
+
+    padding: 1rem;
+  }
+
+  :where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: var(--admin-space-small);
+  }
+
+  :where(.imagePreviewItem, .preview-imagen, .preview, .adminImagePreviewItem)
+    img {
+    height: 6rem;
+  }
+
+  :where(
+    .imageSelectionSummary,
+    .resumen-imagenes,
+    .adminImageSelectionSummary
+  ) {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+}
+
+/* ==========================================================
+   VERY SMALL SCREENS
+========================================================== */
+
+@media (max-width: 380px) {
+  :where(
+    .imagePreviewGrid,
+    .previewContainer,
+    .galeria-preview,
+    .selectedImagesGallery,
+    .currentImagesGallery,
+    .adminImagePreviewGrid,
+    #previewContainer
+  ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :where(.imagePreviewItem, .preview-imagen, .preview, .adminImagePreviewItem)
+    img {
+    height: 9rem;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .imageUpload,
+    .zona-subida,
+    .dropZone,
+    .adminImageUpload,
+    #dropZone,
+    .imagePreviewItem,
+    .preview-imagen,
+    .preview,
+    .adminImagePreviewItem,
+    .imagePreviewRemove,
+    .previewRemove,
+    .adminImagePreviewRemove,
+    .preview .remove,
+    .preview-imagen .remove
+  ) {
+    transition: none;
+  }
+}

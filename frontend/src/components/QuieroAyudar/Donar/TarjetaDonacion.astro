@@ -1,155 +1,461 @@
 ---
-import type { SvgComponent } from 'astro/types'
-import type MetodoPago from '../../../data/interfaces/MetodoPago'
+import type CuentaPago from '../../../data/interfaces/CuentaPago'
+
+interface Props {
+  donacion: CuentaPago
+}
 
 const { donacion } = Astro.props
 
-const images: Record<string, SvgComponent> = import.meta.glob(
-  '../../../assets/icon-donar/*.svg',
-  {
-    eager: true,
-    import: 'default',
-  },
+const IMG_URL = (
+  import.meta.env.PUBLIC_IMG_URL ??
+  'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+).replace(/\/+$/, '')
+
+const version = encodeURIComponent(
+  donacion.updated_at ?? donacion.created_at ?? ''
 )
 
-const SvgLogo: SvgComponent =
-  images[`../../../assets/icon-donar/icon-${donacion.logo}.svg`]
+const iconUrl =
+  `${IMG_URL}/img_metodos_donacion/${donacion.id}.svg` +
+  (version ? `?v=${version}` : '')
+
+const information = Array.isArray(donacion.informacion)
+  ? donacion.informacion
+  : []
+
+const initial = donacion.nombre.trim().charAt(0).toLocaleUpperCase('es-AR')
 ---
 
-<article class="tarjeta">
-  <SvgLogo class="logo" />
+<donation-method-card class="donation-card">
+  <header class="donation-card__header">
+    <div class="donation-card__icon" aria-hidden="true">
+      <span class="donation-card__icon-fallback" data-icon-fallback hidden>
+        {initial}
+      </span>
 
-  <h3>{donacion.nombre}</h3>
+      <img
+        src={iconUrl}
+        alt=""
+        width="96"
+        height="96"
+        loading="lazy"
+        decoding="async"
+        data-method-icon
+      />
+    </div>
 
-  <p class="descripcion">
+    <div class="donation-card__heading">
+      <p>Método de donación</p>
+
+      <h3>{donacion.nombre}</h3>
+    </div>
+  </header>
+
+  <p class="donation-card__description">
     {donacion.descripcion}
   </p>
 
-  <div class="datos">
-    {
-      donacion.datos.map((dato: MetodoPago) => (
-        <div class="dato">
-          <span class="titulo">{dato.titulo}</span>
+  {
+    information.length > 0 ? (
+      <dl class="donation-card__information">
+        {information.map((item) => (
+          <div class="donation-card__information-row">
+            <dt>{item.titulo}</dt>
 
-          <div class="valor">
-            <code>{dato.valor}</code>
+            <dd>
+              <span>{item.valor}</span>
 
-            <button class="copiar" data-value={dato.valor}>
-              Copiar
-            </button>
+              <button
+                type="button"
+                data-copy-value={item.valor}
+                aria-label={`Copiar ${item.titulo}: ${item.valor}`}
+              >
+                Copiar
+              </button>
+            </dd>
           </div>
-        </div>
-      ))
-    }
-  </div>
-</article>
+        ))}
+      </dl>
+    ) : (
+      <p class="donation-card__empty">
+        Este método no tiene información adicional publicada.
+      </p>
+    )
+  }
+
+  <p
+    class="donation-card__copy-status"
+    aria-live="polite"
+    aria-atomic="true"
+    data-copy-status
+  >
+  </p>
+</donation-method-card>
 
 <script>
-  ;(
-    Array(...document.getElementsByClassName('copiar')) as HTMLButtonElement[]
-  ).forEach((boton: HTMLButtonElement): void => {
-    boton.addEventListener('click', async () => {
-      const texto: string | undefined = boton.dataset.value
+  class DonationMethodCard extends HTMLElement {
+    private abortController: AbortController | null = null
 
-      if (!texto) return
+    connectedCallback(): void {
+      if (this.abortController) return
 
-      await navigator.clipboard.writeText(texto)
+      this.abortController = new AbortController()
 
-      const anterior: string = boton.textContent
+      const { signal } = this.abortController
 
-      boton.textContent = '¡Copiado!'
+      this.querySelectorAll<HTMLButtonElement>('[data-copy-value]').forEach(
+        (button) => {
+          button.addEventListener('click', () => this.copyValue(button), {
+            signal
+          })
+        }
+      )
 
-      setTimeout(() => {
-        boton.textContent = anterior
-      }, 1500)
-    })
-  })
+      const image = this.querySelector<HTMLImageElement>('[data-method-icon]')
+
+      const handleImageError = (): void => {
+        if (image) {
+          image.hidden = true
+        }
+
+        const fallback = this.querySelector<HTMLElement>('[data-icon-fallback]')
+
+        if (fallback) {
+          fallback.hidden = false
+        }
+      }
+
+      image?.addEventListener('error', handleImageError, {
+        signal,
+        once: true
+      })
+
+      if (image?.complete && image.naturalWidth === 0) {
+        handleImageError()
+      }
+    }
+
+    disconnectedCallback(): void {
+      this.abortController?.abort()
+      this.abortController = null
+    }
+
+    private async copyValue(button: HTMLButtonElement): Promise<void> {
+      const value = button.dataset.copyValue ?? ''
+
+      if (!value) return
+
+      const originalText = button.textContent
+
+      try {
+        await copyText(value)
+
+        button.textContent = 'Copiado'
+        button.classList.add('donation-card__copy-button--success')
+
+        this.setStatus(`Se copió “${value}” al portapapeles.`)
+      } catch (error) {
+        console.error('No se pudo copiar el dato:', error)
+
+        this.setStatus('No pudimos copiar el dato. Seleccionalo manualmente.')
+      }
+
+      window.setTimeout(() => {
+        button.textContent = originalText
+
+        button.classList.remove('donation-card__copy-button--success')
+      }, 1800)
+    }
+
+    private setStatus(message: string): void {
+      const status = this.querySelector<HTMLElement>('[data-copy-status]')
+
+      if (status) {
+        status.textContent = message
+      }
+    }
+  }
+
+  async function copyText(value: string): Promise<void> {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value)
+      return
+    }
+
+    const textarea = document.createElement('textarea')
+
+    textarea.value = value
+    textarea.readOnly = true
+
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    textarea.style.pointerEvents = 'none'
+
+    document.body.appendChild(textarea)
+
+    textarea.select()
+
+    const copied = document.execCommand('copy')
+
+    textarea.remove()
+
+    if (!copied) {
+      throw new Error('El navegador no permitió copiar el texto.')
+    }
+  }
+
+  if (!customElements.get('donation-method-card')) {
+    customElements.define('donation-method-card', DonationMethodCard)
+  }
 </script>
 
 <style>
-  .tarjeta {
-    background: white;
-    border: 1px solid var(--color-primary-light);
-    border-radius: 1.5rem;
-    padding: 2rem;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  .donation-card {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: clamp(1.25rem, 4vw, 1.75rem);
+
+    display: flex;
+    flex-direction: column;
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-light-grey);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
     transition:
-      transform 0.25s,
-      box-shadow 0.25s;
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  .tarjeta:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  .donation-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .logo {
-    height: 3.75rem;
-    margin-bottom: 1.5rem;
+  .donation-card__icon {
+    width: 4.5rem;
+    height: 4.5rem;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    overflow: hidden;
+
+    background-color: rgba(21, 130, 203, 0.07);
+
+    border: 1px solid rgba(21, 130, 203, 0.15);
+    border-radius: 1rem;
+  }
+
+  .donation-card__icon img {
+    width: 75%;
+    height: 75%;
+
+    display: block;
+
     object-fit: contain;
   }
 
-  h3 {
-    margin: 0;
+  .donation-card__icon-fallback {
     color: var(--color-primary-hover);
-    font-size: 1.5rem;
+
+    font-size: 1.8rem;
+    font-weight: 700;
   }
 
-  .descripcion {
-    margin: 1rem 0 2rem;
-    line-height: 1.6;
+  .donation-card__heading {
+    min-width: 0;
   }
 
-  .datos {
+  .donation-card__heading p {
+    margin-bottom: 0.25rem;
+
+    color: var(--color-secondary-hover);
+
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .donation-card__heading h3 {
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.25rem, 3vw, 1.55rem);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .donation-card__description {
+    margin-top: 1.2rem;
+
+    color: #667580;
+
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .donation-card__information {
+    margin-top: 1.35rem;
+
+    display: grid;
+    gap: 0.75rem;
+
+    flex: 1 1 auto;
+  }
+
+  .donation-card__information-row {
+    min-width: 0;
+    padding: 0.85rem;
+
+    display: grid;
+    gap: 0.35rem;
+
+    background-color: rgba(21, 130, 203, 0.05);
+
+    border: 1px solid rgba(21, 130, 203, 0.12);
+    border-radius: var(--radius-small);
+  }
+
+  .donation-card__information dt {
+    color: var(--color-primary-hover);
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .donation-card__information dd {
+    min-width: 0;
+    margin: 0;
+
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .titulo {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-  }
-
-  .valor {
-    display: flex;
-    gap: 1rem;
     align-items: center;
     justify-content: space-between;
-    background: var(--color-background);
-    border-radius: 0.8rem;
-    padding: 0.9rem 1rem;
+    gap: 0.75rem;
   }
 
-  code {
+  .donation-card__information dd > span {
+    min-width: 0;
+
     font-size: 1rem;
-    word-break: break-word;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
   }
 
-  .copiar {
-    border: none;
-    border-radius: 0.6rem;
-    background: var(--color-primary);
-    color: var(--color-background);
+  .donation-card__information button {
+    min-height: 2.25rem;
+    padding: 0.45rem 0.7rem;
+
+    flex: 0 0 auto;
+
+    color: var(--color-primary-hover);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary-light);
+    border-radius: 0.4rem;
+
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+
     cursor: pointer;
-    padding: 0.6rem 0.9rem;
-    transition: 0.2s;
-    flex-shrink: 0;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition);
   }
 
-  .copiar:hover {
-    background: var(--color-primary-hover);
+  .donation-card__information .donation-card__copy-button--success {
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
   }
 
-  @media (max-width: 500px) {
-    .valor {
-      flex-direction: column;
-      align-items: flex-start;
+  .donation-card__information button:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 2px;
+  }
+
+  .donation-card__empty {
+    margin-top: 1.25rem;
+    padding: 0.9rem;
+
+    color: #667580;
+
+    border: 1px dashed var(--color-light-grey);
+    border-radius: var(--radius-small);
+
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .donation-card__copy-status {
+    min-height: 1.3rem;
+    margin-top: 0.65rem;
+
+    color: var(--color-primary-hover);
+
+    font-size: 0.78rem;
+    line-height: 1.4;
+    text-align: right;
+  }
+
+  @media (hover: hover) {
+    .donation-card:hover {
+      border-color: var(--color-primary-light);
+
+      box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.1);
+
+      transform: translateY(-2px);
     }
 
-    .copiar {
+    .donation-card__information button:hover {
+      color: var(--color-background);
+      background-color: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .donation-card {
+      padding: 1.1rem;
+    }
+
+    .donation-card__icon {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .donation-card__information dd {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .donation-card__information button {
       width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .donation-card,
+    .donation-card__information button {
+      transition: none;
     }
   }
 </style>

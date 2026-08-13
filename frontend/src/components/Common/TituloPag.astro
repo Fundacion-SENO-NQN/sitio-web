@@ -1,58 +1,88 @@
 ---
-const { titulo } = Astro.props
-
 import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+
+interface Props {
+  titulo: string
+}
+
+const { titulo } = Astro.props
 ---
 
-<div class="titulo-seccion">
-  <h1>{titulo}</h1>
-  <div class="decoracion">
-    <span class="linea"></span>
+<header class="page-title">
+  <h1 class="page-title__heading">{titulo}</h1>
 
-    <SvgCorazon class="icono" />
+  <div class="page-title__decoration" aria-hidden="true">
+    <span class="page-title__line"></span>
 
-    <span class="linea"></span>
+    <SvgCorazon class="page-title__icon" />
+
+    <span class="page-title__line"></span>
   </div>
-</div>
+</header>
 
 <style>
-  .titulo-seccion {
-    width: min(900px, 90%);
-    margin: 2rem auto;
+  .page-title {
+    width: min(calc(100% - 2rem), 56.25rem);
+
+    margin: clamp(1.5rem, 5vw, 3rem) auto;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+
+    gap: clamp(0.7rem, 2vw, 1rem);
   }
 
-  .decoracion {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .linea {
-    flex: 1;
-    height: 2px;
-    background: var(--color-primary-light);
-  }
-
-  .icono {
-    width: 1.8rem;
-    height: 1.8rem;
-    color: var(--color-primary-hover);
-    flex-shrink: 0;
-  }
-
-  h1 {
+  .page-title__heading {
     margin: 0;
 
-    font-family: var(--text-font-primary);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700;
+    color: var(--color-primary-hover);
+
+    font-size: clamp(2rem, 7vw, 3rem);
+
+    font-weight: 750;
+    line-height: 1.15;
     text-align: center;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .page-title__decoration {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: clamp(0.6rem, 2vw, 1rem);
+  }
+
+  .page-title__line {
+    height: 2px;
+
+    flex: 1 1 auto;
+
+    background-color: var(--color-primary-light);
+
+    border-radius: 999px;
+  }
+
+  .page-title__icon {
+    width: clamp(1.4rem, 5vw, 1.8rem);
+
+    height: clamp(1.4rem, 5vw, 1.8rem);
+
+    flex: 0 0 auto;
 
     color: var(--color-primary-hover);
+  }
+
+  @media (max-width: 400px) {
+    .page-title {
+      width: calc(100% - 1.25rem);
+    }
+
+    .page-title__heading {
+      font-size: clamp(1.75rem, 10vw, 2.25rem);
+    }
   }
 </style>

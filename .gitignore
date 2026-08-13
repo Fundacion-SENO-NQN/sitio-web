@@ -25,5 +25,14 @@ pnpm-debug.log*
 
 backend/Cargo.lock
 backend/target/
+backend/idk.http
+backend/test.png
+backend/Dockerfile
 
 test/
+
+.vscode/
+.wrangler/
+
+.tmp
+~*

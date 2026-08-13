@@ -1,0 +1,1005 @@
+:root {
+  --payment-muted: #667580;
+  --payment-border: #d9e2e8;
+  --payment-surface: #f5f8fa;
+  --payment-danger: #b42318;
+  --payment-danger-light: #fff2f0;
+}
+
+.paymentMethodsPage {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+
+  color: var(--color-text);
+}
+
+.paymentMethodsPage .oculto,
+.paymentMethodModal.oculto {
+  display: none !important;
+}
+
+/* Toolbar */
+
+.paymentMethodsToolbar {
+  margin-bottom: 1.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.paymentMethodsSearch {
+  width: min(100%, 30rem);
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.paymentMethodsSearch > span:not(.srOnly) {
+  position: absolute;
+  left: 0.9rem;
+
+  color: var(--payment-muted);
+
+  pointer-events: none;
+}
+
+.paymentMethodsSearch input {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.7rem 0.9rem 0.7rem 2.5rem;
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+
+  font: inherit;
+}
+
+.paymentMethodsSearch input:focus {
+  outline: none;
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.paymentMethodsToolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.paymentMethodsCount {
+  min-width: max-content;
+
+  color: var(--payment-muted);
+
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.paymentMethodsSort {
+  display: flex;
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+
+  overflow: hidden;
+}
+
+.paymentMethodsSort button {
+  min-height: 2.65rem;
+  padding: 0.55rem 0.8rem;
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  border: 0;
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.paymentMethodsSort button + button {
+  border-left: 1px solid var(--payment-border);
+}
+
+.paymentMethodsSort button.activo {
+  color: var(--color-background);
+  background-color: var(--color-primary-hover);
+}
+
+.paymentMethodsSort button.activo::after {
+  content: ' ↑';
+}
+
+.paymentMethodsSort button.activo[data-direction='desc']::after {
+  content: ' ↓';
+}
+
+/* Buttons */
+
+.paymentMethodsButton {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+
+  cursor: pointer;
+}
+
+.paymentMethodsButton--primary {
+  color: var(--color-background);
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.paymentMethodsButton--secondary {
+  color: var(--color-primary-hover);
+  background-color: var(--color-background);
+  border-color: var(--color-primary-light);
+}
+
+.paymentMethodsButton--ghost {
+  color: var(--color-text);
+  background-color: transparent;
+  border-color: var(--payment-border);
+}
+
+.paymentMethodsButton--danger {
+  color: #ffffff;
+  background-color: var(--payment-danger);
+  border-color: var(--payment-danger);
+}
+
+.paymentMethodsButton:focus-visible,
+.paymentMethodIconButton:focus-visible,
+.informationRemoveButton:focus-visible,
+.tableActionButton:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.paymentMethodsButton:disabled,
+.paymentMethodIconButton:disabled,
+.informationRemoveButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+/* States */
+
+.paymentMethodsState {
+  width: min(100%, 42rem);
+  margin: clamp(2rem, 7vw, 5rem) auto;
+  padding: clamp(2rem, 6vw, 3.5rem);
+
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+
+  background-color: var(--payment-surface);
+
+  border: 1px dashed var(--payment-border);
+  border-radius: var(--radius);
+
+  text-align: center;
+}
+
+.paymentMethodsState--error {
+  background-color: var(--payment-danger-light);
+  border-color: #e8b5b0;
+}
+
+.paymentMethodsState__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--color-primary-hover);
+  background-color: var(--color-background);
+
+  border-radius: 50%;
+
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.paymentMethodsState--error .paymentMethodsState__icon,
+.paymentMethodsState--error h2 {
+  color: var(--payment-danger);
+}
+
+.paymentMethodsState h2 {
+  color: var(--color-primary-hover);
+
+  font-size: clamp(1.3rem, 4vw, 1.75rem);
+}
+
+.paymentMethodsState p {
+  color: var(--payment-muted);
+
+  line-height: 1.6;
+}
+
+.paymentMethodsSpinner {
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border: 0.25rem solid var(--color-primary-light);
+  border-top-color: var(--color-primary-hover);
+  border-radius: 50%;
+
+  animation: payment-method-spin 800ms linear infinite;
+}
+
+@keyframes payment-method-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table */
+
+.paymentMethodsTableContainer {
+  width: 100%;
+  min-width: 0;
+}
+
+.paymentMethodsTableScroll {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow);
+}
+
+.paymentMethodsTable {
+  width: 100%;
+  min-width: 56rem;
+
+  border-collapse: collapse;
+
+  background-color: var(--color-background);
+}
+
+.paymentMethodsTable th,
+.paymentMethodsTable td {
+  padding: 1rem;
+
+  vertical-align: middle;
+
+  border-bottom: 1px solid var(--payment-border);
+
+  text-align: left;
+}
+
+.paymentMethodsTable th {
+  color: var(--color-primary-hover);
+  background-color: var(--payment-surface);
+
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.paymentMethodsTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.methodMain {
+  min-width: 15rem;
+}
+
+.methodName {
+  display: block;
+
+  color: var(--color-primary-hover);
+
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.methodDescription {
+  max-width: 28rem;
+  margin-top: 0.35rem;
+
+  color: var(--payment-muted);
+
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.methodInformation {
+  min-width: 15rem;
+
+  display: grid;
+  gap: 0.5rem;
+}
+
+.methodInformationList {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.methodInformationList > div {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.methodInformationList dt {
+  color: var(--color-primary-hover);
+
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.methodInformationList dd {
+  min-width: 0;
+  margin: 0;
+
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+
+.methodInformationCount {
+  color: var(--payment-muted);
+
+  font-size: 0.75rem;
+}
+
+.methodInformationEmpty {
+  color: var(--payment-muted);
+
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.methodDateCell {
+  min-width: 8rem;
+
+  color: var(--payment-muted);
+
+  font-size: 0.84rem;
+}
+
+.methodActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.tableActionButton {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.7rem;
+
+  border-radius: var(--radius-small);
+
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.tableActionButton--edit {
+  color: var(--color-primary-hover);
+  background-color: var(--color-background);
+
+  border: 1px solid var(--color-primary-light);
+}
+
+.tableActionButton--delete {
+  color: var(--payment-danger);
+  background-color: var(--color-background);
+
+  border: 1px solid #e8b5b0;
+}
+
+/* Modal */
+
+.paymentMethodModal {
+  padding: 1rem;
+
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+
+  display: grid;
+  place-items: center;
+}
+
+.paymentMethodModal__backdrop {
+  position: absolute;
+  inset: 0;
+
+  background-color: rgba(15, 23, 32, 0.65);
+}
+
+.paymentMethodModal__content {
+  width: min(100%, 50rem);
+  max-height: 90dvh;
+
+  position: relative;
+  z-index: 1;
+
+  overflow-y: auto;
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  border-radius: var(--radius);
+
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.25);
+}
+
+.paymentMethodModal__content--small {
+  width: min(100%, 32rem);
+}
+
+.paymentMethodModal__header {
+  padding: 1.25rem 1.5rem;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  border-bottom: 1px solid var(--payment-border);
+}
+
+.paymentMethodModal__label {
+  margin-bottom: 0.3rem;
+
+  color: var(--color-primary);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.paymentMethodModal__label--danger {
+  color: var(--payment-danger);
+}
+
+.paymentMethodModal__header h2 {
+  color: var(--color-primary-hover);
+
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+}
+
+.paymentMethodModal__header p:last-child {
+  max-width: 38rem;
+  margin-top: 0.35rem;
+
+  color: var(--payment-muted);
+
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.paymentMethodIconButton {
+  width: 2.5rem;
+  height: 2.5rem;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  color: var(--color-text);
+  background-color: transparent;
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+
+  font-size: 1.5rem;
+
+  cursor: pointer;
+}
+
+.paymentMethodForm > .paymentMethodField {
+  margin: 1.25rem 1.5rem 0;
+}
+
+.paymentMethodField,
+.informationField {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.paymentMethodField label,
+.informationField label {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.paymentMethodField input,
+.paymentMethodField textarea,
+.informationField input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+
+  font: inherit;
+}
+
+.paymentMethodField textarea {
+  min-height: 7rem;
+
+  resize: vertical;
+}
+
+.paymentMethodField input:focus,
+.paymentMethodField textarea:focus,
+.informationField input:focus {
+  outline: none;
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.paymentMethodField > p {
+  color: var(--payment-muted);
+
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.informationEditor {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+
+  background-color: var(--payment-surface);
+
+  border-block: 1px solid var(--payment-border);
+}
+
+.informationEditor__header {
+  margin-bottom: 1rem;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.informationEditor__header h3 {
+  color: var(--color-primary-hover);
+
+  font-size: 1.05rem;
+}
+
+.informationEditor__header p {
+  margin-top: 0.25rem;
+
+  color: var(--payment-muted);
+
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.informationRows {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.informationRow {
+  padding: 0.85rem;
+
+  display: grid;
+  grid-template-columns:
+    minmax(8rem, 0.7fr)
+    minmax(12rem, 1.3fr)
+    auto;
+  align-items: end;
+  gap: 0.75rem;
+
+  background-color: var(--color-background);
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+}
+
+.informationRemoveButton {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+
+  color: var(--payment-danger);
+  background-color: var(--color-background);
+
+  border: 1px solid #e8b5b0;
+  border-radius: var(--radius-small);
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.informationEmpty {
+  padding: 1rem;
+
+  color: var(--payment-muted);
+
+  border: 1px dashed var(--payment-border);
+  border-radius: var(--radius-small);
+
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.paymentMethodModal__footer {
+  padding: 1.25rem 1.5rem;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+
+  border-top: 1px solid var(--payment-border);
+}
+
+.paymentMethodDelete {
+  padding: 2rem 1.5rem;
+
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+
+  text-align: center;
+}
+
+.paymentMethodDelete__icon {
+  width: 4rem;
+  height: 4rem;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--payment-danger);
+  background-color: var(--payment-danger-light);
+
+  border-radius: 50%;
+
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.paymentMethodDelete p {
+  max-width: 26rem;
+
+  color: var(--payment-muted);
+
+  line-height: 1.6;
+}
+
+.paymentMethodDelete strong {
+  color: var(--payment-danger);
+
+  font-size: 0.86rem;
+}
+
+/* Responsive */
+
+@media (max-width: 850px) {
+  .paymentMethodsToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .paymentMethodsSearch {
+    width: 100%;
+  }
+
+  .paymentMethodsToolbar__right {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 650px) {
+  .paymentMethodsToolbar__right {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .paymentMethodsSort {
+    width: 100%;
+  }
+
+  .paymentMethodsSort button {
+    flex: 1;
+  }
+
+  .paymentMethodsButton--primary {
+    width: 100%;
+  }
+
+  .informationEditor__header {
+    flex-direction: column;
+  }
+
+  .informationEditor__header .paymentMethodsButton {
+    width: 100%;
+  }
+
+  .informationRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .informationRemoveButton {
+    width: 100%;
+  }
+
+  .paymentMethodModal {
+    padding: 0.5rem;
+  }
+
+  .paymentMethodModal__content {
+    max-height: 96dvh;
+  }
+
+  .paymentMethodModal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .paymentMethodModal__footer .paymentMethodsButton {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paymentMethodsSpinner {
+    animation-duration: 1600ms;
+  }
+}
+
+/* ==========================================================
+   METHOD ICON — TABLE
+========================================================== */
+
+.methodIconCell {
+  width: 6rem;
+
+  text-align: center;
+}
+
+.methodIconImage {
+  width: 4rem;
+  height: 4rem;
+
+  display: block;
+
+  object-fit: contain;
+
+  margin-inline: auto;
+  padding: 0.4rem;
+
+  background-color: rgba(21, 130, 203, 0.06);
+
+  border: 1px solid rgba(21, 130, 203, 0.14);
+  border-radius: var(--radius-small);
+}
+
+.methodIconImage--error {
+  color: #667580;
+  background-color: var(--payment-surface);
+
+  font-size: 0.75rem;
+}
+
+/* ==========================================================
+   METHOD ICON — FORM
+========================================================== */
+
+.paymentMethodIconEditor {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+
+  background-color: rgba(21, 130, 203, 0.04);
+
+  border-block: 1px solid var(--payment-border);
+}
+
+.paymentMethodIconEditor__header {
+  margin-bottom: 1rem;
+}
+
+.paymentMethodIconEditor__header h3 {
+  color: var(--color-primary-hover);
+
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.paymentMethodIconEditor__header p {
+  margin-top: 0.25rem;
+
+  color: var(--payment-muted);
+
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.paymentMethodIconPicker {
+  min-height: 9rem;
+  padding: 1.25rem;
+
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.35rem;
+
+  color: var(--color-primary-hover);
+  background-color: var(--color-background);
+
+  border: 2px dashed var(--color-primary-light);
+  border-radius: var(--radius);
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition),
+    background-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.paymentMethodIconPicker__symbol {
+  width: 3rem;
+  height: 3rem;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--color-background);
+  background-color: var(--color-primary-hover);
+
+  border-radius: 50%;
+
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.paymentMethodIconPicker > span:not(.paymentMethodIconPicker__symbol) {
+  color: var(--payment-muted);
+
+  font-size: 0.84rem;
+}
+
+.paymentMethodIconPicker small {
+  color: var(--payment-muted);
+
+  font-size: 0.75rem;
+}
+
+.paymentMethodIconPicker.arrastrando {
+  background-color: rgba(21, 130, 203, 0.1);
+  border-color: var(--color-primary);
+}
+
+.paymentMethodIconPicker.deshabilitado {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.paymentMethodIconPicker:focus-within {
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.paymentMethodIconPreviewSection {
+  margin-top: 1rem;
+}
+
+.paymentMethodIconPreviewSection h4 {
+  margin-bottom: 0.6rem;
+
+  color: var(--color-primary-hover);
+
+  font-size: 0.86rem;
+}
+
+.paymentMethodIconGallery {
+  margin-top: 1rem;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 10rem));
+
+  gap: 0.75rem;
+}
+
+.paymentMethodIconPreview {
+  min-width: 0;
+  padding: 0.75rem;
+
+  position: relative;
+
+  display: grid;
+  gap: 0.5rem;
+
+  background-color: var(--color-background);
+
+  border: 1px solid var(--payment-border);
+  border-radius: var(--radius-small);
+
+  text-align: center;
+}
+
+.paymentMethodIconPreview img {
+  width: 100%;
+  height: 6rem;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.paymentMethodIconPreview figcaption {
+  overflow: hidden;
+
+  color: var(--payment-muted);
+
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paymentMethodIconPreview.preview-imagen-error {
+  color: #b42318;
+  background-color: #fff2f0;
+}
+
+@media (hover: hover) {
+  .paymentMethodIconPicker:hover {
+    background-color: rgba(21, 130, 203, 0.06);
+    border-color: var(--color-primary);
+  }
+}
+
+@media (max-width: 650px) {
+  .paymentMethodIconEditor {
+    padding-inline: 1rem;
+  }
+
+  .paymentMethodIconGallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

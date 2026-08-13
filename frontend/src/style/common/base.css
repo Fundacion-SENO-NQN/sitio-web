@@ -1,0 +1,681 @@
+/* ==========================================================
+   ADMIN BASE
+
+   Estilos estructurales compartidos por todas las páginas
+   de administración.
+
+   Debe cargarse después de:
+   1. general.css
+   2. common/tokens.css
+========================================================== */
+
+/* ==========================================================
+   PAGE SELECTOR
+
+   .adminPage es la clase recomendada para páginas nuevas.
+
+   Las demás clases se conservan temporalmente para que los
+   módulos actuales funcionen sin modificar todo el HTML.
+========================================================== */
+
+:where(
+  .adminPage,
+  .eventos-admin,
+  .noticias-admin,
+  .miembrosPage,
+  .logrosPage,
+  .users-page,
+  .uploadImagesPage,
+  .upload-images-page
+) {
+  box-sizing: border-box;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-large);
+
+  color: var(--admin-text);
+  background-color: var(--admin-background);
+
+  font-family: var(--text-font-primary);
+}
+
+/* ==========================================================
+   LOCAL BOX SIZING
+========================================================== */
+
+:where(
+  .adminPage,
+  .eventos-admin,
+  .noticias-admin,
+  .miembrosPage,
+  .logrosPage,
+  .users-page,
+  .uploadImagesPage,
+  .upload-images-page
+),
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  *,
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  *::before,
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   ELEMENTOS BASE
+========================================================== */
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  button,
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  input,
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  textarea,
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  select {
+  font-family: inherit;
+}
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  button {
+  margin: 0;
+}
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  img {
+  max-width: 100%;
+}
+
+/*
+ * Evita que la regla antigua de logros:
+ *
+ * img {
+ *   height: 4rem;
+ * }
+ *
+ * modifique todas las imágenes de la página.
+ */
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  img:not(
+    .memberImage,
+    .logroImage,
+    .achievementImage,
+    .imagen-evento-tabla,
+    .imagen-noticia-tabla,
+    .imagePreview
+  ) {
+  height: auto;
+}
+
+/* ==========================================================
+   LINKS
+========================================================== */
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  a {
+  color: var(--color-secondary-hover);
+
+  text-underline-offset: 0.15em;
+}
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  a:hover {
+  color: var(--color-secondary);
+}
+
+/* ==========================================================
+   HEADINGS
+========================================================== */
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  :is(h1, h2, h3, h4) {
+  color: var(--admin-text);
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   PAGE HEADER
+========================================================== */
+
+.adminPageHeader,
+.pageHeader,
+.cabecera-pagina {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--admin-space-large);
+}
+
+.adminPageHeaderContent,
+.pageHeaderContent,
+.cabecera-pagina-contenido {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-small);
+}
+
+.adminPageHeader h1,
+.pageHeader h1,
+.cabecera-pagina h1 {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: clamp(1.5rem, 4vw, 2rem);
+
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.adminPageHeader p,
+.pageHeader p,
+.cabecera-pagina p {
+  max-width: 48rem;
+  margin: 0;
+
+  color: var(--admin-text-muted);
+
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* ==========================================================
+   GENERIC LAYOUTS
+========================================================== */
+
+.adminStack {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-medium);
+}
+
+.adminStackSmall {
+  gap: var(--admin-space-small);
+}
+
+.adminStackLarge {
+  gap: var(--admin-space-large);
+}
+
+.adminRow {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-medium);
+}
+
+.adminRowBetween {
+  justify-content: space-between;
+}
+
+.adminRowWrap {
+  flex-wrap: wrap;
+}
+
+.adminGrid {
+  width: 100%;
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+
+  gap: var(--admin-space-medium);
+}
+
+/* ==========================================================
+   SURFACES
+========================================================== */
+
+.adminSurface,
+.adminCard {
+  min-width: 0;
+
+  color: var(--admin-text);
+
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+
+  border-radius: var(--admin-radius-large);
+
+  box-shadow: var(--admin-shadow);
+}
+
+.adminCard {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.adminSurfaceSoft {
+  background-color: var(--admin-surface-soft);
+}
+
+.adminDivider {
+  width: 100%;
+  height: 1px;
+
+  border: 0;
+
+  background-color: var(--admin-border-color);
+}
+
+/* ==========================================================
+   TEXT UTILITIES
+========================================================== */
+
+.adminMuted,
+.muted,
+.sin-dato {
+  color: var(--admin-text-muted);
+}
+
+.sin-dato {
+  font-style: italic;
+}
+
+.adminTextDanger {
+  color: var(--color-red);
+}
+
+.adminTextSuccess {
+  color: var(--color-primary-hover);
+}
+
+.adminNoWrap {
+  white-space: nowrap;
+}
+
+.adminBreakText {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ==========================================================
+   VISIBILITY UTILITIES
+========================================================== */
+
+.hidden,
+.oculto,
+*[hidden] {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+/* ==========================================================
+   SCREEN READER ONLY
+
+   Se conservan los dos nombres que ya aparecen en los CSS:
+   - .srOnly
+   - .sr-only
+
+   Para código nuevo se recomienda .srOnly.
+========================================================== */
+
+.srOnly,
+.sr-only,
+.adminVisuallyHidden {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+
+  position: absolute;
+
+  overflow: hidden;
+
+  border: 0;
+
+  white-space: nowrap;
+
+  clip: rect(0, 0, 0, 0);
+
+  clip-path: inset(50%);
+}
+
+/*
+ * Permite que un enlace visualmente oculto aparezca al
+ * recibir foco, por ejemplo para "Saltar al contenido".
+ */
+.srOnlyFocusable:not(:focus):not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+
+  position: absolute;
+
+  overflow: hidden;
+
+  border: 0;
+
+  white-space: nowrap;
+
+  clip-path: inset(50%);
+}
+
+/* ==========================================================
+   INTERACTION STATES
+========================================================== */
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  :focus-visible {
+  outline: none;
+}
+
+:where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  )
+  :disabled {
+  cursor: not-allowed;
+}
+
+[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* ==========================================================
+   SCROLLBARS
+========================================================== */
+
+.adminScrollable {
+  scrollbar-color: var(--admin-border-color) transparent;
+
+  scrollbar-width: thin;
+}
+
+.adminScrollable::-webkit-scrollbar {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.adminScrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.adminScrollable::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border-color);
+
+  border: 2px solid var(--admin-surface);
+
+  border-radius: var(--admin-radius-pill);
+}
+
+.adminScrollable::-webkit-scrollbar-thumb:hover {
+  background-color: var(--admin-text-muted);
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 900px) {
+  .adminPageHeader,
+  .pageHeader,
+  .cabecera-pagina {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .adminPageHeaderActions,
+  .pageHeaderActions,
+  .cabecera-pagina-acciones {
+    width: 100%;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--admin-space);
+  }
+}
+
+@media (max-width: 640px) {
+  :where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  ) {
+    gap: var(--admin-space-medium);
+
+    padding: 0.75rem;
+  }
+
+  .adminPageHeader,
+  .pageHeader,
+  .cabecera-pagina {
+    gap: var(--admin-space-medium);
+  }
+
+  .adminPageHeaderActions,
+  .pageHeaderActions,
+  .cabecera-pagina-acciones {
+    flex-direction: column;
+  }
+
+  .adminPageHeaderActions > *,
+  .pageHeaderActions > *,
+  .cabecera-pagina-acciones > * {
+    width: 100%;
+  }
+
+  .adminRowResponsive {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .adminPage,
+    .eventos-admin,
+    .noticias-admin,
+    .miembrosPage,
+    .logrosPage,
+    .users-page,
+    .uploadImagesPage,
+    .upload-images-page
+  ),
+  :where(
+      .adminPage,
+      .eventos-admin,
+      .noticias-admin,
+      .miembrosPage,
+      .logrosPage,
+      .users-page,
+      .uploadImagesPage,
+      .upload-images-page
+    )
+    *,
+  :where(
+      .adminPage,
+      .eventos-admin,
+      .noticias-admin,
+      .miembrosPage,
+      .logrosPage,
+      .users-page,
+      .uploadImagesPage,
+      .upload-images-page
+    )
+    *::before,
+  :where(
+      .adminPage,
+      .eventos-admin,
+      .noticias-admin,
+      .miembrosPage,
+      .logrosPage,
+      .users-page,
+      .uploadImagesPage,
+      .upload-images-page
+    )
+    *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
+}

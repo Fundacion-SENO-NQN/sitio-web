@@ -1,0 +1,2034 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+
+import SvgCorazon from '../../../assets/icon-common/icon-corazon.svg'
+import SvgUsuario from '../../../assets/icon-common/icon-user.svg'
+import SvgCheck from '../../../assets/icon-donar-cosas/icon-check.svg'
+import SvgMensaje from '../../../assets/icon-common/icon-mensaje.svg'
+import SvgContrato from '../../../assets/icon-voluntariado/icon-contrato.svg'
+import SvgCasa from '../../../assets/icon-voluntariado/icon-casa.svg'
+import SvgContratoCuadrado from '../../../assets/icon-voluntariado/icon-contrato-cuadrado.svg'
+import SvgUniversitario from '../../../assets/icon-voluntariado/icon-universitario.svg'
+import SvgContratoFundacion from '../../../assets/icon-voluntariado/icon-contrato-fundacion.svg'
+import SvgContratoFundacionBaja from '../../../assets/icon-voluntariado/icon-contrato-fundacion-baja.svg'
+import SvgMensajeVacio from '../../../assets/icon-common/icon-mensaje-vacio.svg'
+import SvgEmail from '../../../assets/icon-contacto/icon-email.svg'
+import SvgEnviar from '../../../assets/icon-common/icon-enviar.svg'
+import SvgInfo from '../../../assets/icon-common/icon-info.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
+---
+
+<Layout
+  pag="Quiero ser voluntario"
+  seoTitle="Voluntariado en Neuquén | Fundación SENO"
+  description="Conocé cómo sumarte al voluntariado de Fundación SENO, la documentación necesaria y el proceso para comenzar a colaborar."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Quiero ser voluntario'
+      }
+    ]}
+  />
+  <NavegacionQuieroAyudar pag="6" />
+
+  <TituloPag titulo="Quiero ser voluntario" />
+
+  <main class="volunteer-page">
+    <section class="volunteer-hero" aria-labelledby="volunteer-hero-title">
+      <div class="volunteer-hero__content">
+        <p class="volunteer-kicker">Sumate a Fundación SENO</p>
+
+        <h2 id="volunteer-hero-title">
+          Tu tiempo y tu buena voluntad pueden ayudar
+        </h2>
+
+        <p class="volunteer-hero__highlight">
+          Para formar parte del voluntariado no necesitás experiencia previa. Lo
+          más importante es tener disposición, responsabilidad y ganas de
+          colaborar.
+        </p>
+
+        <p>
+          Antes de comenzar cualquier actividad es necesario comunicarse con la
+          Fundación para conversar, conocer las posibilidades de participación y
+          coordinar una visita.
+        </p>
+
+        <div class="volunteer-hero__actions">
+          <a
+            class="volunteer-button volunteer-button--primary"
+            href="#formulario-voluntariado"
+          >
+            <span>Quiero comunicarme</span>
+
+            <SvgFlecha
+              class="volunteer-button__icon volunteer-button__icon--down"
+              aria-hidden="true"
+            />
+          </a>
+
+          <a
+            class="volunteer-button volunteer-button--secondary"
+            href="#documentacion"
+          >
+            Ver documentación
+          </a>
+        </div>
+      </div>
+
+      <div class="volunteer-hero__visual" aria-hidden="true">
+        <div class="volunteer-illustration">
+          <span class="volunteer-illustration__heart">
+            <SvgCorazon />
+          </span>
+
+          <div class="volunteer-illustration__people">
+            <span>
+              <SvgUsuario />
+            </span>
+
+            <span class="volunteer-illustration__person--main">
+              <SvgUsuario />
+            </span>
+
+            <span>
+              <SvgUsuario />
+            </span>
+          </div>
+
+          <span
+            class="volunteer-illustration__decoration volunteer-illustration__decoration--first"
+          ></span>
+
+          <span
+            class="volunteer-illustration__decoration volunteer-illustration__decoration--second"
+          ></span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="volunteer-requirement"
+      aria-labelledby="volunteer-requirement-title"
+    >
+      <span class="volunteer-requirement__icon" aria-hidden="true">
+        <SvgCheck />
+      </span>
+
+      <div>
+        <p class="volunteer-kicker">Requisito principal</p>
+
+        <h2 id="volunteer-requirement-title">
+          Disposición, compromiso y buena voluntad
+        </h2>
+
+        <p>
+          Buscamos personas dispuestas a colaborar responsablemente, respetar el
+          trabajo de la Fundación y acompañar sus actividades con empatía y
+          compromiso.
+        </p>
+
+        <p>
+          La forma de participación y los horarios se conversan previamente con
+          la Fundación, de acuerdo con las actividades disponibles.
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="volunteer-section volunteer-information"
+      aria-labelledby="volunteer-information-title"
+    >
+      <header class="volunteer-section__header">
+        <p class="volunteer-kicker">Antes de comenzar</p>
+
+        <h2 id="volunteer-information-title">¿Qué debés tener en cuenta?</h2>
+
+        <p>
+          El voluntariado se coordina previamente y requiere completar la
+          documentación correspondiente.
+        </p>
+      </header>
+
+      <ul class="volunteer-information__list">
+        <li>
+          <article class="volunteer-information-card">
+            <span class="volunteer-information-card__icon" aria-hidden="true">
+              <SvgMensaje />
+            </span>
+
+            <h3>Comunicate primero</h3>
+
+            <p>
+              Antes de presentarte en la Fundación, completá el formulario o
+              comunicate por alguno de nuestros medios de contacto.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-information-card">
+            <span class="volunteer-information-card__icon" aria-hidden="true">
+              <SvgContrato />
+            </span>
+
+            <h3>Completá el contrato de alta</h3>
+
+            <p>
+              Para ingresar al voluntariado deberás imprimir, completar y firmar
+              el contrato de alta.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-information-card">
+            <span class="volunteer-information-card__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
+
+            <h3>Acercalo a la Fundación</h3>
+
+            <p>
+              El contrato de alta debe entregarse impreso y firmado cuando se
+              coordine la visita.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-information-card">
+            <span class="volunteer-information-card__icon" aria-hidden="true">
+              <SvgContratoCuadrado />
+            </span>
+
+            <h3>Voluntariado universitario</h3>
+
+            <p>
+              Cuando la participación forme parte de una materia, práctica o
+              proyecto, deberás presentar también la documentación solicitada
+              por tu universidad.
+            </p>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <section
+      class="university-volunteering"
+      aria-labelledby="university-volunteering-title"
+    >
+      <span class="university-volunteering__icon" aria-hidden="true">
+        <SvgUniversitario />
+      </span>
+
+      <div>
+        <p class="volunteer-kicker">Estudiantes universitarios</p>
+
+        <h2 id="university-volunteering-title">
+          ¿El voluntariado forma parte de una materia?
+        </h2>
+
+        <p>
+          Algunas universidades utilizan contratos, convenios o formularios
+          propios para sus prácticas y actividades de extensión. Esa
+          documentación puede ser diferente del contrato general de alta de
+          voluntariado.
+        </p>
+
+        <p>
+          Comunicate previamente con Fundación SENO e indicanos el nombre de la
+          universidad, la carrera o materia y el tipo de actividad requerida. De
+          esta manera podremos revisar la documentación y coordinar los
+          detalles.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="documentacion"
+      class="volunteer-section volunteer-documents"
+      aria-labelledby="volunteer-documents-title"
+    >
+      <header class="volunteer-section__header">
+        <p class="volunteer-kicker">Documentación</p>
+
+        <h2 id="volunteer-documents-title">Contratos de voluntariado</h2>
+
+        <p>
+          Descargá el documento que corresponda. Los contratos deben ser
+          impresos, completados y firmados.
+        </p>
+      </header>
+
+      <div class="volunteer-documents__grid">
+        <article class="volunteer-document volunteer-document--entry">
+          <header class="volunteer-document__header">
+            <span class="volunteer-document__icon" aria-hidden="true">
+              <SvgContratoFundacion />
+            </span>
+
+            <div>
+              <p class="volunteer-document__type">Ingreso</p>
+
+              <h3>Contrato de alta</h3>
+            </div>
+          </header>
+
+          <p>
+            Debe presentarse impreso y firmado para formalizar el ingreso como
+            voluntario o voluntaria de la Fundación.
+          </p>
+
+          <ul>
+            <li>Incluye los derechos y deberes del voluntariado.</li>
+            <li>Establece las actividades y el tiempo de dedicación.</li>
+            <li>Debe ser firmado por el voluntario y la organización.</li>
+          </ul>
+
+          <a
+            href="/documentos/alta-voluntariado.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver el contrato de alta en una pestaña nueva"
+          >
+            <span>Ver e imprimir contrato</span>
+
+            <SvgFlecha aria-hidden="true" />
+          </a>
+        </article>
+
+        <article class="volunteer-document volunteer-document--exit">
+          <header class="volunteer-document__header">
+            <span class="volunteer-document__icon" aria-hidden="true">
+              <SvgContratoFundacionBaja />
+            </span>
+
+            <div>
+              <p class="volunteer-document__type">Desvinculación</p>
+
+              <h3>Contrato de baja</h3>
+            </div>
+          </header>
+
+          <p>
+            Si una persona decide dejar el voluntariado, debe completar y firmar
+            el documento de baja correspondiente.
+          </p>
+
+          <ul>
+            <li>Registra la fecha de finalización.</li>
+            <li>Permite informar el motivo de la desvinculación.</li>
+            <li>Registra la devolución de la credencial.</li>
+          </ul>
+
+          <a
+            href="/documentos/baja-voluntariado.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver el contrato de baja en una pestaña nueva"
+          >
+            <span>Ver e imprimir contrato</span>
+
+            <SvgFlecha aria-hidden="true" />
+          </a>
+        </article>
+      </div>
+
+      <aside class="volunteer-documents__notice">
+        <SvgInfo aria-hidden="true" />
+
+        <p>
+          Completar el formulario de esta página no reemplaza la entrega del
+          contrato impreso y firmado.
+        </p>
+      </aside>
+    </section>
+
+    <section
+      class="volunteer-section volunteer-process"
+      aria-labelledby="volunteer-process-title"
+    >
+      <div class="volunteer-process__introduction">
+        <p class="volunteer-kicker">Cómo participar</p>
+
+        <h2 id="volunteer-process-title">El proceso para comenzar</h2>
+
+        <p>
+          Primero queremos conocerte y conversar sobre las actividades en las
+          que podrías participar.
+        </p>
+      </div>
+
+      <ol class="volunteer-process__steps">
+        <li>
+          <article class="volunteer-step">
+            <span class="volunteer-step__number" aria-hidden="true"> 1 </span>
+
+            <div>
+              <h3>Completá el formulario</h3>
+
+              <p>
+                Contanos quién sos, dónde vivís y por qué te gustaría colaborar.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-step">
+            <span class="volunteer-step__number" aria-hidden="true"> 2 </span>
+
+            <div>
+              <h3>Nos comunicamos con vos</h3>
+
+              <p>
+                La Fundación responderá al correo electrónico que hayas
+                ingresado.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-step">
+            <span class="volunteer-step__number" aria-hidden="true"> 3 </span>
+
+            <div>
+              <h3>Coordinamos una visita</h3>
+
+              <p>
+                Acordaremos el día, el horario y las posibilidades de
+                participación.
+              </p>
+            </div>
+          </article>
+        </li>
+
+        <li>
+          <article class="volunteer-step">
+            <span class="volunteer-step__number" aria-hidden="true"> 4 </span>
+
+            <div>
+              <h3>Presentá la documentación</h3>
+
+              <p>
+                Llevá el contrato correspondiente impreso, completo y firmado.
+              </p>
+            </div>
+          </article>
+        </li>
+      </ol>
+    </section>
+
+    <section
+      id="formulario-voluntariado"
+      class="volunteer-section volunteer-request"
+      aria-labelledby="volunteer-form-title"
+    >
+      <div class="volunteer-request__information">
+        <p class="volunteer-kicker">Primer contacto</p>
+
+        <h2 id="volunteer-form-title">Contanos sobre vos</h2>
+
+        <p>
+          Completá el formulario para que podamos comunicarnos por correo
+          electrónico y coordinar los detalles.
+        </p>
+
+        <div class="volunteer-request__detail">
+          <span class="volunteer-request__detail-icon" aria-hidden="true">
+            <SvgMensajeVacio />
+          </span>
+
+          <div>
+            <strong>No es una inscripción automática</strong>
+
+            <p>
+              El formulario inicia el contacto. La participación se confirma
+              luego de conversar con la Fundación.
+            </p>
+          </div>
+        </div>
+
+        <div class="volunteer-request__detail">
+          <span class="volunteer-request__detail-icon" aria-hidden="true">
+            <SvgEmail />
+          </span>
+
+          <div>
+            <strong>Revisá tu correo electrónico</strong>
+
+            <p>
+              Allí recibirás la respuesta para continuar coordinando la visita.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <form
+        id="form-voluntariado"
+        class="volunteer-form"
+        autocomplete="on"
+        novalidate
+      >
+        <div class="volunteer-form__row">
+          <div class="volunteer-field">
+            <label for="nombre">
+              Nombre
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              autocomplete="given-name"
+              maxlength="80"
+              aria-describedby="nombre-ayuda"
+              required
+            />
+
+            <small id="nombre-ayuda"> Ingresá tu nombre. </small>
+          </div>
+
+          <div class="volunteer-field">
+            <label for="apellido">
+              Apellido
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              id="apellido"
+              name="apellido"
+              type="text"
+              autocomplete="family-name"
+              maxlength="80"
+              aria-describedby="apellido-ayuda"
+              required
+            />
+
+            <small id="apellido-ayuda"> Ingresá tu apellido. </small>
+          </div>
+        </div>
+
+        <div class="volunteer-form__row">
+          <div class="volunteer-field">
+            <label for="localidad">
+              Localidad
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              id="localidad"
+              name="localidad"
+              type="text"
+              autocomplete="address-level2"
+              maxlength="100"
+              placeholder="Ej.: Neuquén Capital"
+              aria-describedby="localidad-ayuda"
+              required
+            />
+
+            <small id="localidad-ayuda">
+              Indicá la localidad donde vivís.
+            </small>
+          </div>
+
+          <div class="volunteer-field">
+            <label for="email">
+              Correo electrónico
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              maxlength="150"
+              placeholder="nombre@correo.com"
+              aria-describedby="email-ayuda"
+              required
+            />
+
+            <small id="email-ayuda">
+              Utilizaremos este correo para responderte.
+            </small>
+          </div>
+        </div>
+
+        <div class="volunteer-field">
+          <label for="tipo">
+            Tipo de voluntariado
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <select id="tipo" name="tipo" aria-describedby="tipo-ayuda" required>
+            <option value="" selected disabled> Seleccioná una opción </option>
+
+            <option value="voluntariado-general">
+              Quiero colaborar de manera voluntaria
+            </option>
+
+            <option value="voluntariado-universitario">
+              Es parte de una materia o actividad universitaria
+            </option>
+          </select>
+
+          <small id="tipo-ayuda">
+            Esto nos permite identificar qué documentación necesitaremos.
+          </small>
+        </div>
+
+        <div class="volunteer-field">
+          <label for="descripcion">
+            Contanos sobre vos
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            rows="7"
+            minlength="30"
+            maxlength="1500"
+            placeholder="Podés contarnos por qué querés colaborar, qué disponibilidad tenés, si venís por una universidad o en qué actividades te gustaría participar."
+            aria-describedby="descripcion-ayuda"
+            required></textarea>
+
+          <small id="descripcion-ayuda">
+            No incluyas información médica, contraseñas ni otros datos
+            sensibles.
+          </small>
+        </div>
+
+        <div class="volunteer-honeypot" aria-hidden="true">
+          <label for="sitio_web"> No completar este campo </label>
+
+          <input
+            id="sitio_web"
+            name="sitio_web"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
+        <label class="volunteer-consent">
+          <input
+            id="autorizacion"
+            name="acepta_contacto"
+            type="checkbox"
+            value="true"
+            required
+          />
+
+          <span>
+            Autorizo a Fundación SENO a utilizar los datos ingresados para
+            responder esta consulta y comunicarse conmigo por correo
+            electrónico.
+          </span>
+        </label>
+
+        <div
+          id="estado-formulario"
+          class="volunteer-form__status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+        </div>
+
+        <button
+          id="boton-enviar"
+          class="volunteer-form__submit"
+          type="submit"
+          disabled
+        >
+          <span id="boton-enviar-texto"> Enviar solicitud </span>
+
+          <span
+            id="boton-enviar-icono"
+            class="volunteer-form__submit-icon"
+            aria-hidden="true"
+          >
+            <SvgEnviar />
+          </span>
+
+          <span
+            id="boton-enviar-cargador"
+            class="volunteer-form__spinner"
+            aria-hidden="true"
+            hidden></span>
+        </button>
+
+        <p class="volunteer-form__required">
+          Los campos marcados con <span>*</span> son obligatorios.
+        </p>
+      </form>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const API_URL = (
+    import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
+  ).replace(/\/+$/, '')
+
+  const form = document.querySelector<HTMLFormElement>('#form-voluntariado')
+
+  const status = document.querySelector<HTMLElement>('#estado-formulario')
+
+  const submitButton =
+    document.querySelector<HTMLButtonElement>('#boton-enviar')
+
+  const submitText = document.querySelector<HTMLElement>('#boton-enviar-texto')
+
+  const submitIcon = document.querySelector<HTMLElement>('#boton-enviar-icono')
+
+  const submitSpinner = document.querySelector<HTMLElement>(
+    '#boton-enviar-cargador'
+  )
+
+  if (
+    form &&
+    status &&
+    submitButton &&
+    submitText &&
+    submitIcon &&
+    submitSpinner
+  ) {
+    const requiredControls = Array.from(
+      form.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >('[required]')
+    )
+
+    const setStatus = (message: string, type?: 'success' | 'error'): void => {
+      status.textContent = message
+      status.className = 'volunteer-form__status'
+
+      if (type) {
+        status.classList.add(`volunteer-form__status--${type}`)
+      }
+    }
+
+    const setSubmitting = (submitting: boolean): void => {
+      form.setAttribute('aria-busy', String(submitting))
+
+      submitButton.disabled = submitting || !form.checkValidity()
+      submitText.textContent = submitting ? 'Enviando...' : 'Enviar solicitud'
+
+      submitIcon.hidden = submitting
+      submitSpinner.hidden = !submitting
+    }
+
+    const updateSubmitState = (): void => {
+      submitButton.disabled = !form.checkValidity()
+    }
+
+    requiredControls.forEach((control) => {
+      control.addEventListener('input', updateSubmitState)
+      control.addEventListener('change', updateSubmitState)
+    })
+
+    form.addEventListener('submit', async (event): Promise<void> => {
+      event.preventDefault()
+
+      if (!form.reportValidity()) {
+        updateSubmitState()
+        return
+      }
+
+      const formData = new FormData(form)
+      const honeypot = String(formData.get('sitio_web') ?? '').trim()
+
+      if (honeypot) {
+        form.reset()
+        updateSubmitState()
+
+        setStatus(
+          'Tu solicitud fue enviada. Nos comunicaremos con vos por correo electrónico.',
+          'success'
+        )
+
+        return
+      }
+
+      setStatus('')
+      setSubmitting(true)
+
+      try {
+        const response = await fetch(`${API_URL}/voluntariado/solicitud`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombre: String(formData.get('nombre') ?? '').trim(),
+            apellido: String(formData.get('apellido') ?? '').trim(),
+            localidad: String(formData.get('localidad') ?? '').trim(),
+            email: String(formData.get('email') ?? '').trim(),
+            tipo: String(formData.get('tipo') ?? ''),
+            descripcion: String(formData.get('descripcion') ?? '').trim(),
+            acepta_contacto: formData.get('acepta_contacto') === 'true'
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(
+            `El servidor respondió con el estado ${response.status}`
+          )
+        }
+
+        form.reset()
+
+        setStatus(
+          'Tu solicitud fue enviada correctamente. Fundación SENO se comunicará con vos por correo electrónico.',
+          'success'
+        )
+      } catch (error) {
+        console.error('No se pudo enviar la solicitud de voluntariado:', error)
+
+        setStatus(
+          'No pudimos enviar la solicitud. Intentá nuevamente o comunicate directamente con la Fundación.',
+          'error'
+        )
+      } finally {
+        form.setAttribute('aria-busy', 'false')
+        submitText.textContent = 'Enviar solicitud'
+        submitIcon.hidden = false
+        submitSpinner.hidden = true
+
+        updateSubmitState()
+      }
+    })
+
+    updateSubmitState()
+  }
+</script>
+
+<style>
+  .volunteer-page {
+    width: min(calc(100% - 2rem), 73.75rem);
+    margin: 2rem auto clamp(3rem, 8vw, 5rem);
+    color: var(--color-text);
+  }
+
+  .volunteer-kicker {
+    margin-bottom: 0.65rem;
+    color: var(--color-primary-hover);
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .volunteer-section {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .volunteer-section__header {
+    width: min(100%, 45.5rem);
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .volunteer-section__header h2 {
+    color: var(--color-primary-hover);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .volunteer-section__header > p:last-child {
+    margin-top: 1rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.04rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* Hero */
+
+  .volunteer-hero {
+    min-height: 30rem;
+    padding: clamp(2rem, 6vw, 5rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(17.5rem, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 88% 18%,
+        color-mix(in srgb, var(--color-secondary) 16%, transparent),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 8% 92%,
+        color-mix(in srgb, var(--color-primary) 12%, transparent),
+        transparent 25%
+      ),
+      color-mix(
+        in srgb,
+        var(--color-primary-light) 18%,
+        var(--color-background)
+      );
+  }
+
+  .volunteer-hero::before {
+    content: '';
+    width: 22.5rem;
+    aspect-ratio: 1;
+    position: absolute;
+    right: -7.5rem;
+    bottom: -9rem;
+    border: 3.1rem solid
+      color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .volunteer-hero__content,
+  .volunteer-hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .volunteer-hero h2 {
+    max-width: 47.5rem;
+    margin-bottom: 1.3rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .volunteer-hero__content > p:not(.volunteer-kicker) {
+    max-width: 45rem;
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 1.03rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .volunteer-hero__content .volunteer-hero__highlight {
+    color: var(--color-text);
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
+    font-weight: 600;
+  }
+
+  .volunteer-hero__actions {
+    margin-top: 1.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  /* Buttons */
+
+  .volunteer-button {
+    width: fit-content;
+    min-height: 3.1rem;
+    padding: 0.85rem 1.3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .volunteer-button--primary {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 22%, transparent);
+  }
+
+  .volunteer-button--secondary {
+    color: var(--color-primary-hover);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 65%,
+      transparent
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-hover) 24%,
+      transparent
+    );
+  }
+
+  .volunteer-button__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    color: currentColor;
+  }
+
+  .volunteer-button__icon--down {
+    transform: rotate(90deg);
+  }
+
+  .volunteer-button:focus-visible,
+  .volunteer-document a:focus-visible,
+  .volunteer-form__submit:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  /* Hero illustration */
+
+  .volunteer-hero__visual {
+    min-height: 20.5rem;
+    display: grid;
+    place-items: center;
+  }
+
+  .volunteer-illustration {
+    width: min(100%, 20.5rem);
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 68%,
+      transparent
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+    border-radius: 50%;
+    box-shadow: 0 1.75rem 4rem
+      color-mix(in srgb, var(--color-primary-hover) 15%, transparent);
+  }
+
+  .volunteer-illustration__heart {
+    width: 6.6rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-secondary);
+    border-radius: 50%;
+    box-shadow: 0 1.1rem 2.5rem
+      color-mix(in srgb, var(--color-secondary) 28%, transparent);
+    transform: translateY(-1.9rem);
+  }
+
+  .volunteer-illustration__heart :global(svg) {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+
+  .volunteer-illustration__people {
+    position: absolute;
+    right: 0;
+    bottom: 2.75rem;
+    left: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .volunteer-illustration__people span {
+    width: 4.25rem;
+    aspect-ratio: 1;
+    margin-left: -0.75rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 25%,
+      var(--color-background)
+    );
+    border: 0.35rem solid var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.7rem 1.55rem
+      color-mix(in srgb, var(--color-primary-hover) 13%, transparent);
+  }
+
+  .volunteer-illustration__people span:first-child {
+    margin-left: 0;
+  }
+
+  .volunteer-illustration__people .volunteer-illustration__person--main {
+    width: 5.1rem;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    transform: translateY(-0.5rem);
+  }
+
+  .volunteer-illustration__people :global(svg) {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .volunteer-illustration__decoration {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+  }
+
+  .volunteer-illustration__decoration--first {
+    width: 1.6rem;
+    aspect-ratio: 1;
+    top: 2.6rem;
+    left: 1.9rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary) 35%,
+      transparent
+    );
+  }
+
+  .volunteer-illustration__decoration--second {
+    width: 2.4rem;
+    aspect-ratio: 1;
+    top: 4rem;
+    right: 1.5rem;
+    border: 0.5rem solid
+      color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+
+  /* Main requirement */
+
+  .volunteer-requirement {
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    background-color: #eff8f3;
+    border-left: 0.4rem solid #31795c;
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+  }
+
+  .volunteer-requirement__icon {
+    width: 3.7rem;
+    height: 3.7rem;
+    display: grid;
+    place-items: center;
+    color: #31795c;
+    background-color: var(--color-background);
+    border-radius: 50%;
+    box-shadow: 0 0.65rem 1.6rem rgb(49 121 92 / 13%);
+  }
+
+  .volunteer-requirement__icon :global(svg) {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .volunteer-requirement h2,
+  .university-volunteering h2,
+  .volunteer-process h2,
+  .volunteer-request h2 {
+    margin-bottom: 0.8rem;
+    color: var(--color-primary-hover);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .volunteer-requirement > div > p:not(.volunteer-kicker) {
+    max-width: 57.5rem;
+    margin-top: 0.4rem;
+    color: #50675e;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* Information cards */
+
+  .volunteer-information__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 1.2rem;
+  }
+
+  .volunteer-information__list > li {
+    min-width: 0;
+    display: flex;
+  }
+
+  .volunteer-information-card {
+    width: 100%;
+    height: 100%;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.9rem 2.5rem rgb(38 63 80 / 6%);
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .volunteer-information-card__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+    margin-bottom: 1.25rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 32%,
+      var(--color-background)
+    );
+    border-radius: 1.1rem;
+  }
+
+  .volunteer-information__list
+    > li:nth-child(even)
+    .volunteer-information-card__icon {
+    color: var(--color-secondary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 40%,
+      var(--color-background)
+    );
+  }
+
+  .volunteer-information-card__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .volunteer-information-card h3 {
+    margin-bottom: 0.75rem;
+    color: var(--color-primary-hover);
+    font-size: 1.25rem;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .volunteer-information-card p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  /* University */
+
+  .university-volunteering {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.6rem, 5vw, 3rem);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.7rem;
+    background:
+      radial-gradient(circle at 95% 0, rgb(89 87 161 / 10%), transparent 30%),
+      #f6f5fc;
+    border: 1px solid #d9d7ef;
+    border-radius: 1.8rem;
+  }
+
+  .university-volunteering__icon {
+    width: 4.25rem;
+    height: 4.25rem;
+    display: grid;
+    place-items: center;
+    color: #5957a1;
+    background-color: var(--color-background);
+    border-radius: 1.2rem;
+    box-shadow: 0 0.65rem 1.75rem rgb(89 87 161 / 13%);
+  }
+
+  .university-volunteering__icon :global(svg) {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .university-volunteering > div > p:not(.volunteer-kicker) {
+    max-width: 57.5rem;
+    margin-top: 0.55rem;
+    color: #625f7b;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  /* Documents */
+
+  .volunteer-documents {
+    scroll-margin-top: 2rem;
+  }
+
+  .volunteer-documents__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .volunteer-document {
+    min-width: 0;
+    padding: clamp(1.5rem, 4vw, 2.3rem);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.9rem 2.5rem rgb(38 63 80 / 6%);
+  }
+
+  .volunteer-document--entry {
+    border-top: 0.3rem solid #31795c;
+  }
+
+  .volunteer-document--exit {
+    border-top: 0.3rem solid var(--color-secondary);
+  }
+
+  .volunteer-document__header {
+    margin-bottom: 1.3rem;
+    padding-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-light-grey);
+  }
+
+  .volunteer-document__icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 1rem;
+  }
+
+  .volunteer-document--entry .volunteer-document__icon {
+    color: #31795c;
+    background-color: #eff8f3;
+  }
+
+  .volunteer-document--exit .volunteer-document__icon {
+    color: var(--color-secondary);
+    background-color: color-mix(
+      in srgb,
+      var(--color-secondary-light) 40%,
+      var(--color-background)
+    );
+  }
+
+  .volunteer-document__icon :global(svg) {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .volunteer-document__type {
+    margin-bottom: 0.15rem;
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .volunteer-document h3 {
+    color: var(--color-primary-hover);
+    font-size: 1.4rem;
+    line-height: 1.3;
+  }
+
+  .volunteer-document > p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .volunteer-document ul {
+    margin: 1.3rem 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .volunteer-document li {
+    padding-left: 1.7rem;
+    position: relative;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.55;
+  }
+
+  .volunteer-document li::before {
+    content: '✓';
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #31795c;
+    font-weight: 700;
+  }
+
+  .volunteer-document--exit li::before {
+    color: var(--color-secondary);
+  }
+
+  .volunteer-document a {
+    min-height: 3rem;
+    margin-top: auto;
+    padding: 0.8rem 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    color: var(--color-primary-hover);
+    background-color: transparent;
+    border: 2px solid var(--color-primary-hover);
+    border-radius: 999px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      transform var(--transition);
+  }
+
+  .volunteer-document a :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    transform: rotate(45deg);
+  }
+
+  .volunteer-documents__notice {
+    margin-top: 1.3rem;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 20%,
+      var(--color-background)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1rem;
+  }
+
+  .volunteer-documents__notice :global(svg) {
+    width: 1.55rem;
+    height: 1.55rem;
+    flex: 0 0 auto;
+    color: var(--color-primary);
+  }
+
+  .volunteer-documents__notice p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  /* Process */
+
+  .volunteer-process {
+    display: grid;
+    grid-template-columns: minmax(15.6rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: clamp(2rem, 7vw, 6rem);
+  }
+
+  .volunteer-process__introduction {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .volunteer-process__introduction > p:last-child {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .volunteer-process__steps {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .volunteer-step {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.2rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-light) 16%,
+      var(--color-background)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.3rem;
+  }
+
+  .volunteer-step__number {
+    width: 3.25rem;
+    height: 3.25rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: var(--color-primary);
+    border-radius: 1rem;
+    box-shadow: 0 0.55rem 1.45rem
+      color-mix(in srgb, var(--color-primary) 22%, transparent);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .volunteer-step h3 {
+    margin-bottom: 0.45rem;
+    color: var(--color-primary-hover);
+    font-size: 1.23rem;
+    line-height: 1.3;
+  }
+
+  .volunteer-step p {
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  /* Form section */
+
+  .volunteer-request {
+    display: grid;
+    grid-template-columns: minmax(16.25rem, 0.75fr) minmax(0, 1.25fr);
+    align-items: start;
+    gap: clamp(2rem, 7vw, 5rem);
+    scroll-margin-top: 2rem;
+  }
+
+  .volunteer-request__information {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border-radius: 1.6rem;
+  }
+
+  .volunteer-request__information .volunteer-kicker {
+    color: color-mix(in srgb, var(--color-background) 68%, transparent);
+  }
+
+  .volunteer-request__information h2 {
+    color: var(--color-background);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+  }
+
+  .volunteer-request__information > p:not(.volunteer-kicker) {
+    margin-bottom: 1.8rem;
+    color: color-mix(in srgb, var(--color-background) 78%, transparent);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .volunteer-request__detail {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-background) 15%, transparent);
+  }
+
+  .volunteer-request__detail-icon {
+    width: 2.8rem;
+    height: 2.8rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-background);
+    background-color: color-mix(
+      in srgb,
+      var(--color-background) 12%,
+      transparent
+    );
+    border-radius: 50%;
+  }
+
+  .volunteer-request__detail-icon :global(svg) {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .volunteer-request__detail:first-of-type
+    .volunteer-request__detail-icon
+    :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  .volunteer-request__detail strong {
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .volunteer-request__detail p {
+    color: color-mix(in srgb, var(--color-background) 72%, transparent);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .volunteer-form {
+    min-width: 0;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    gap: 1.3rem;
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-radius: 1.6rem;
+    box-shadow: 0 1.1rem 3.1rem rgb(38 63 80 / 8%);
+  }
+
+  .volunteer-form__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .volunteer-field {
+    min-width: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .volunteer-field label {
+    color: var(--color-primary-hover);
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .volunteer-field label span,
+  .volunteer-form__required span {
+    color: var(--color-secondary);
+  }
+
+  .volunteer-field input,
+  .volunteer-field select,
+  .volunteer-field textarea {
+    width: 100%;
+    min-width: 0;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: 1px solid color-mix(in srgb, var(--color-text) 25%, transparent);
+    border-radius: var(--radius-small);
+    font: inherit;
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition);
+  }
+
+  .volunteer-field input,
+  .volunteer-field select {
+    min-height: 3.1rem;
+    padding: 0 0.95rem;
+  }
+
+  .volunteer-field textarea {
+    min-height: 9.7rem;
+    padding: 0.9rem 0.95rem;
+    line-height: 1.55;
+    resize: vertical;
+  }
+
+  .volunteer-field input::placeholder,
+  .volunteer-field textarea::placeholder {
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+
+  .volunteer-field input:focus-visible,
+  .volunteer-field select:focus-visible,
+  .volunteer-field textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px
+      color-mix(in srgb, var(--color-primary) 14%, transparent);
+  }
+
+  .volunteer-field input:user-invalid,
+  .volunteer-field select:user-invalid,
+  .volunteer-field textarea:user-invalid {
+    border-color: #a43b3b;
+  }
+
+  .volunteer-field small {
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .volunteer-honeypot {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    left: -10000px;
+    overflow: hidden;
+  }
+
+  .volunteer-consent {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 72%, transparent);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    cursor: pointer;
+  }
+
+  .volunteer-consent input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.12rem;
+    accent-color: var(--color-primary);
+  }
+
+  .volunteer-consent input:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+  }
+
+  .volunteer-form__status:empty {
+    display: none;
+  }
+
+  .volunteer-form__status {
+    padding: 0.95rem 1rem;
+    border: 1px solid;
+    border-radius: var(--radius-small);
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .volunteer-form__status--success {
+    color: #286b50;
+    background-color: #eff8f3;
+    border-color: #b9dfce;
+  }
+
+  .volunteer-form__status--error {
+    color: #963838;
+    background-color: #fff1f1;
+    border-color: #edc2c2;
+  }
+
+  .volunteer-form__submit {
+    width: fit-content;
+    min-height: 3.1rem;
+    padding: 0.85rem 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: 0 0.75rem 1.75rem
+      color-mix(in srgb, var(--color-primary-hover) 20%, transparent);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      box-shadow var(--transition),
+      opacity var(--transition),
+      transform var(--transition);
+  }
+
+  .volunteer-form__submit-icon {
+    display: grid;
+    place-items: center;
+  }
+
+  .volunteer-form__submit-icon :global(svg) {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .volunteer-form__submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .volunteer-form[aria-busy='true'] .volunteer-form__submit {
+    cursor: wait;
+  }
+
+  .volunteer-form__spinner {
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid
+      color-mix(in srgb, var(--color-background) 40%, transparent);
+    border-top-color: var(--color-background);
+    border-radius: 50%;
+    animation: volunteer-spinner 700ms linear infinite;
+  }
+
+  .volunteer-form__required {
+    margin-top: -0.4rem;
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
+    font-size: 0.8rem;
+  }
+
+  @keyframes volunteer-spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (hover: hover) {
+    .volunteer-button--primary:hover,
+    .volunteer-form__submit:hover:not(:disabled) {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 1rem 2.2rem
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
+      transform: translateY(-3px);
+    }
+
+    .volunteer-button--secondary:hover {
+      background-color: var(--color-background);
+      transform: translateY(-3px);
+    }
+
+    .volunteer-information-card:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+      box-shadow: 0 1.25rem 2.8rem rgb(38 63 80 / 11%);
+      transform: translateY(-6px);
+    }
+
+    .volunteer-document a:hover {
+      color: var(--color-background);
+      background-color: var(--color-primary-hover);
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .volunteer-information__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .volunteer-request {
+      grid-template-columns: minmax(15rem, 0.65fr) minmax(0, 1.35fr);
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 850px) {
+    .volunteer-hero {
+      grid-template-columns: minmax(0, 1fr);
+      text-align: center;
+    }
+
+    .volunteer-hero__content {
+      order: 2;
+    }
+
+    .volunteer-hero__visual {
+      min-height: 17rem;
+      order: 1;
+    }
+
+    .volunteer-hero__content > p:not(.volunteer-kicker) {
+      margin-inline: auto;
+    }
+
+    .volunteer-hero__actions {
+      justify-content: center;
+    }
+
+    .volunteer-illustration {
+      width: min(65vw, 18rem);
+    }
+
+    .volunteer-process,
+    .volunteer-request {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+
+    .volunteer-process__introduction {
+      position: static;
+      width: min(100%, 45rem);
+      margin-inline: auto;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .volunteer-page {
+      width: calc(100% - 1rem);
+      margin-top: 1rem;
+    }
+
+    .volunteer-hero {
+      min-height: auto;
+      padding: 1.7rem 1.2rem;
+      gap: 1.4rem;
+      border-radius: 1.4rem;
+    }
+
+    .volunteer-hero h2 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .volunteer-hero__content > p:not(.volunteer-kicker) {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .volunteer-hero__visual {
+      min-height: 14rem;
+    }
+
+    .volunteer-illustration {
+      width: min(76vw, 15rem);
+    }
+
+    .volunteer-illustration__heart {
+      width: 4.9rem;
+    }
+
+    .volunteer-illustration__heart :global(svg) {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .volunteer-illustration__people {
+      bottom: 1.9rem;
+    }
+
+    .volunteer-illustration__people span {
+      width: 3.25rem;
+      border-width: 0.25rem;
+    }
+
+    .volunteer-illustration__people .volunteer-illustration__person--main {
+      width: 4rem;
+    }
+
+    .volunteer-illustration__people :global(svg) {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    .volunteer-hero__actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .volunteer-button {
+      width: 100%;
+    }
+
+    .volunteer-requirement,
+    .university-volunteering {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .volunteer-requirement {
+      border-left-width: 0.25rem;
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .volunteer-requirement__icon {
+      width: 3.2rem;
+      height: 3.2rem;
+    }
+
+    .volunteer-information__list,
+    .volunteer-documents__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .volunteer-information-card,
+    .volunteer-document {
+      padding: 1.35rem;
+      border-radius: 1.2rem;
+    }
+
+    .university-volunteering {
+      padding: 1.4rem;
+      border-radius: 1.3rem;
+    }
+
+    .university-volunteering__icon {
+      width: 3.65rem;
+      height: 3.65rem;
+    }
+
+    .volunteer-step {
+      padding: 1.25rem;
+      gap: 1rem;
+    }
+
+    .volunteer-step__number {
+      width: 2.85rem;
+      height: 2.85rem;
+      border-radius: 0.85rem;
+      font-size: 1.05rem;
+    }
+
+    .volunteer-request__information,
+    .volunteer-form {
+      padding: 1.4rem;
+      border-radius: 1.3rem;
+    }
+
+    .volunteer-form__row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .volunteer-form__submit {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .volunteer-button,
+    .volunteer-information-card,
+    .volunteer-document a,
+    .volunteer-form__submit {
+      transition: none;
+    }
+
+    .volunteer-form__spinner {
+      animation: none;
+    }
+  }
+</style>

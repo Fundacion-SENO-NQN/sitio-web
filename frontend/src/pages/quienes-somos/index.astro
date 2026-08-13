@@ -1,17 +1,39 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 
-import NavegacionQuienesSomos from '../../components/QuienesSomos/NavegacionQuienesSomos.astro'
+import TituloPag from '../../components/Common/TituloPag.astro'
 import Descripcion from '../../components/QuienesSomos/Descripcion.astro'
 import ListaDescripcion from '../../components/QuienesSomos/ListaDescripcion.astro'
-import TituloPag from '../../components/Common/TituloPag.astro'
+import NavegacionQuienesSomos from '../../components/QuienesSomos/NavegacionQuienesSomos.astro'
 ---
 
-<Layout pag="¿Quienes somos?">
+<Layout
+  pag="¿Quiénes somos?"
+  seoTitle="Fundación SENO Neuquén | Quiénes somos"
+  description="Conocé Fundación SENO, una organización sin fines de lucro de Neuquén que acompaña a niños, niñas y adolescentes con cáncer o tumores."
+>
   <NavegacionQuienesSomos pag="0" />
-  <TituloPag titulo="¿Quienes somos?" />
-  <main>
+
+  <TituloPag titulo="¿Quiénes somos?" />
+
+  <main class="about-page">
     <Descripcion />
+
     <ListaDescripcion />
   </main>
 </Layout>
+
+<style>
+  .about-page {
+    width: min(calc(100% - 2rem), 75rem);
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  @media (max-width: 500px) {
+    .about-page {
+      width: calc(100% - 1.25rem);
+      padding-bottom: 3rem;
+    }
+  }
+</style>

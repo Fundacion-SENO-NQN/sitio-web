@@ -1,0 +1,96 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import ModalCarga from '../../../components/Common/ModalCarga.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/uploadImages.css'
+---
+
+<LayoutPlataforma titulo="Imágenes de donación">
+  <ModalCarga />
+
+  <HeaderPlataforma
+    title="Imágenes de donación"
+    content="Actualizá las fotografías de donaciones que se muestran en el sitio web."
+  />
+
+  <main class="adminPage upload-page">
+    <section class="uploadCard" aria-labelledby="upload-title">
+      <header class="uploadCardHeader">
+        <h2 id="upload-title">Subir nuevas imágenes</h2>
+
+        <p id="upload-description">
+          Podés seleccionar hasta 10 fotografías. Cada imagen reemplazará,
+          individualmente, la fotografía de donación más antigua.
+        </p>
+      </header>
+
+      <form id="uploadForm" class="uploadForm" enctype="multipart/form-data">
+        <label id="dropZone" class="imagePicker drop-zone" for="images">
+          <input
+            id="images"
+            class="srOnly"
+            name="images"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            aria-describedby="upload-description upload-formats"
+            multiple
+            required
+          />
+
+          <span class="imagePickerIcon icon" aria-hidden="true"> 🖼️ </span>
+
+          <strong> Soltá las imágenes acá </strong>
+
+          <span> O hacé clic para seleccionarlas </span>
+
+          <small id="upload-formats">
+            Hasta 10 imágenes JPG, PNG, WebP o AVIF. Máximo 12 MB por archivo.
+          </small>
+        </label>
+
+        <div
+          id="previewContainer"
+          class="imagePreviewContainer previewContainer hidden"
+          aria-label="Vista previa de las imágenes seleccionadas"
+          aria-live="polite"
+        >
+        </div>
+
+        <div class="uploadActions">
+          <button
+            id="btnClearImages"
+            class="button buttonGhost"
+            type="button"
+            disabled
+          >
+            Limpiar selección
+          </button>
+
+          <button
+            id="btnUpload"
+            class="button buttonPrimary primaryButton"
+            type="submit"
+            disabled
+          >
+            Subir imágenes
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="infoMessage uploadNotice">
+      <strong>Tené en cuenta</strong>
+
+      <p>
+        Las imágenes se convertirán automáticamente al formato utilizado por el
+        sitio web. Las cargas se procesan una por una para evitar que dos
+        fotografías intenten reemplazar la misma posición.
+      </p>
+    </aside>
+  </main>
+
+  <script>
+    import '../../../js/uploadImages/uploadImages.js'
+  </script>
+</LayoutPlataforma>

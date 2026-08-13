@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "fundacion-seno-frontend",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -9,9 +9,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate-types": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.1.7",
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.0.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.118.0"
   }
 }

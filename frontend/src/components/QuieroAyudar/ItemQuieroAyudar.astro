@@ -1,70 +1,239 @@
 ---
+import type QuieroAyudar from '../../data/interfaces/QuieroAyudar'
+
+interface Props {
+  item: QuieroAyudar
+}
+
 const { item } = Astro.props
 
-const icons: Record<string, string> = import.meta.glob(
+const icons = import.meta.glob<string>(
   '../../assets/icon-quiero-ayudar/*.svg',
   {
     query: '?raw',
     import: 'default',
-    eager: true,
-  },
+    eager: true
+  }
 )
 
-const icono = icons[`../../assets/icon-quiero-ayudar/${item.img}.svg`] as string
+const iconPath = `../../assets/icon-quiero-ayudar/${item.img}.svg`
+
+const icono = icons[iconPath]
+
+const normalizePath = (path: string): string => {
+  const cleanPath = path.split(/[?#]/, 1)[0]
+
+  return cleanPath.replace(/\/+$/, '') || '/'
+}
+
+const currentPath = normalizePath(Astro.url.pathname)
+
+const itemPath = normalizePath(item.href)
+
+const isCurrent =
+  item.href.startsWith('/') &&
+  (currentPath === itemPath ||
+    (itemPath !== '/' && currentPath.startsWith(`${itemPath}/`)))
 ---
 
-<a href={item.url}>
-  <li>
-    <p>{item.titulo}</p>
-    <Fragment set:html={icono} />
-  </li>
+<a
+  class:list={[
+    'help-option',
+    {
+      'help-option--current': isCurrent
+    }
+  ]}
+  href={item.href}
+  aria-current={isCurrent ? 'page' : undefined}
+>
+  <span class="help-option__title">
+    {item.name}
+  </span>
+
+  <span class="help-option__icon" aria-hidden="true">
+    {
+      icono ? (
+        <Fragment set:html={icono} />
+      ) : (
+        <span class="help-option__fallback">?</span>
+      )
+    }
+  </span>
 </a>
 
 <style>
-  a {
-    text-decoration: none;
-  }
+  .help-option {
+    width: 100%;
+    min-width: 0;
+    min-height: 8rem;
 
-  li {
-    width: 10rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding-bottom: 1rem;
+    align-items: stretch;
+
+    overflow: hidden;
+
+    color: var(--color-primary);
+    background-color: var(--color-background);
+
     border: 1px solid var(--color-primary-hover);
+
+    border-radius: var(--radius-small);
+
+    box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.06);
+
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
   }
 
-  a:not(:first-child) li {
-    border-left: none;
-  }
+  .help-option__title {
+    min-height: 3rem;
 
-  li p {
-    margin: 0;
-    background-color: var(--color-primary-hover);
-    width: 100%;
-    height: 2rem;
+    padding: 0.55rem 0.75rem;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     color: var(--color-background);
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-  }
-
-  li :global(svg) {
-    height: 3rem;
-    color: var(--color-primary);
-    transition: color 0.3s ease;
-  }
-
-  li:hover {
     background-color: var(--color-primary-hover);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+
+    font-weight: 750;
+    line-height: 1.3;
+    text-align: center;
+    text-wrap: balance;
   }
 
-  li:hover :global(svg) {
+  .help-option__icon {
+    min-height: 5rem;
+
+    padding: 1rem;
+
+    display: grid;
+    place-items: center;
+
+    flex: 1 1 auto;
+
+    color: var(--color-primary);
+    background-color: var(--color-background);
+
+    transition:
+      color var(--transition),
+      background-color var(--transition);
+  }
+
+  .help-option__icon :global(svg) {
+    width: clamp(2.8rem, 6vw, 4rem);
+
+    height: clamp(2.8rem, 6vw, 4rem);
+
+    color: currentColor;
+
+    transition: transform var(--transition);
+  }
+
+  .help-option__icon :global(svg *) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .help-option__fallback {
+    width: 3rem;
+    height: 3rem;
+
+    display: grid;
+    place-items: center;
+
+    border: 2px solid currentColor;
+
+    border-radius: 50%;
+
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  .help-option:hover,
+  .help-option--current {
     color: var(--color-background);
-    stroke-width: 5;
+    background-color: var(--color-primary-hover);
+
+    border-color: var(--color-primary-hover);
+
+    box-shadow: 0 0.8rem 1.5rem rgba(0, 0, 0, 0.13);
+  }
+
+  .help-option:hover .help-option__icon,
+  .help-option--current .help-option__icon {
+    color: var(--color-background);
+    background-color: var(--color-primary-hover);
+  }
+
+  .help-option:focus-visible {
+    outline: none;
+
+    box-shadow:
+      0 0 0 3px var(--color-primary-light),
+      0 0.8rem 1.5rem rgba(0, 0, 0, 0.13);
+  }
+
+  @media (hover: hover) {
+    .help-option:hover {
+      transform: translateY(-0.25rem);
+    }
+
+    .help-option:hover .help-option__icon :global(svg) {
+      transform: scale(1.08);
+    }
+  }
+
+  @media (max-width: 27rem) {
+    .help-option {
+      min-height: 4.5rem;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        4.5rem;
+
+      border-radius: 0.7rem;
+    }
+
+    .help-option__title {
+      min-height: 4.5rem;
+
+      padding: 0.75rem 1rem;
+
+      justify-content: flex-start;
+
+      font-size: 0.95rem;
+      text-align: left;
+    }
+
+    .help-option__icon {
+      min-height: 4.5rem;
+
+      padding: 0.65rem;
+    }
+
+    .help-option__icon :global(svg) {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .help-option,
+    .help-option__icon,
+    .help-option__icon :global(svg) {
+      transition: none;
+    }
   }
 </style>

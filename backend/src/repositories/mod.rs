@@ -1,5 +1,11 @@
 pub mod equipo;
+pub mod evento;
 pub mod img_donation;
 pub mod logro;
+pub mod logro_fav;
+pub mod metodo_donacion;
 pub mod noticia;
+pub mod role;
+pub mod service;
 pub mod user;
+pub mod voluntariado;

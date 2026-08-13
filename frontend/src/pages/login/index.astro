@@ -1,91 +1,662 @@
 ---
-import LayoutLogin from '../../layouts/LayoutLogin.astro'
-import ImgLogo from '../../assets/logo_seno.avif'
 import { Image } from 'astro:assets'
+
+import LayoutLogin from '../../layouts/LayoutLogin.astro'
+import ModalCarga from '../../components/Common/ModalCarga.astro'
+
+import ImgLogo from '../../assets/logo_seno.avif'
 ---
 
-<LayoutLogin>
-  <form action="">
-    <h1>Inicio de sesión</h1>
-    <div class="container-logo">
-      <Image src={ImgLogo} alt="Logo de la Fundación SENO" priority />
-    </div>
-    <label>
-      <p>Usuario</p>
-      <input type="text" min="3" required />
-    </label>
-    <label>
-      <p>Contraseña</p>
-      <input type="password" min="4" required />
-    </label>
-    <input type="submit" />
-  </form>
+<LayoutLogin titulo="Iniciar sesión">
+  <login-page class="login-page">
+    <ModalCarga id="login" mensaje="Iniciando sesión..." oculto={true} />
+
+    <main class="login-page__main">
+      <section class="login-card" aria-labelledby="login-title">
+        <a
+          class="login-card__logo-link"
+          href="/"
+          aria-label="Volver al sitio web de Fundación SENO"
+        >
+          <Image
+            class="login-card__logo"
+            src={ImgLogo}
+            alt=""
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </a>
+
+        <header class="login-card__header">
+          <p class="login-card__label">Plataforma administrativa</p>
+
+          <h1 id="login-title">Inicio de sesión</h1>
+
+          <p>
+            Ingresá con tu usuario y contraseña para administrar el contenido de
+            Fundación SENO.
+          </p>
+        </header>
+
+        <form
+          class="login-form"
+          id="login-form"
+          method="post"
+          autocomplete="on"
+          data-login-form
+        >
+          <div class="login-form__field">
+            <label for="username"> Usuario </label>
+
+            <input
+              type="text"
+              name="username"
+              id="username"
+              minlength="3"
+              maxlength="80"
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              required
+            />
+          </div>
+
+          <div class="login-form__field">
+            <label for="password"> Contraseña </label>
+
+            <div class="login-form__password">
+              <input
+                type="password"
+                name="password"
+                id="password"
+                minlength="3"
+                maxlength="200"
+                autocomplete="current-password"
+                required
+                data-password-input
+              />
+
+              <button
+                class="login-form__password-toggle"
+                type="button"
+                aria-label="Mostrar contraseña"
+                aria-pressed="false"
+                data-password-toggle
+              >
+                Mostrar
+              </button>
+            </div>
+          </div>
+
+          <p
+            class="login-form__error"
+            role="alert"
+            aria-live="assertive"
+            tabindex="-1"
+            hidden
+            data-login-error
+          >
+          </p>
+
+          <button class="login-form__submit" type="submit" data-submit-button>
+            Iniciar sesión
+          </button>
+        </form>
+
+        <noscript>
+          <p class="login-card__noscript">
+            Necesitás habilitar JavaScript para iniciar sesión.
+          </p>
+        </noscript>
+
+        <a class="login-card__back" href="/">
+          <span aria-hidden="true">←</span>
+          <span>Volver al sitio web</span>
+        </a>
+      </section>
+    </main>
+  </login-page>
 </LayoutLogin>
 
+<script>
+  import { api } from '../../api/login'
+
+  interface LoginResponse {
+    token: string
+    username: string
+    name: string
+    last_name: string
+    role_name: string
+  }
+
+  class LoginPage extends HTMLElement {
+    private form: HTMLFormElement | null = null
+    private modal: HTMLElement | null = null
+    private errorMessage: HTMLElement | null = null
+    private submitButton: HTMLButtonElement | null = null
+    private passwordInput: HTMLInputElement | null = null
+    private passwordToggle: HTMLButtonElement | null = null
+
+    private abortController: AbortController | null = null
+
+    connectedCallback(): void {
+      if (this.abortController) return
+
+      const savedToken = window.localStorage.getItem('token')
+
+      if (savedToken) {
+        window.location.replace('/plataforma/')
+        return
+      }
+
+      this.form = this.querySelector<HTMLFormElement>('[data-login-form]')
+
+      this.modal = this.querySelector<HTMLElement>('#modal-carga-login')
+
+      this.errorMessage = this.querySelector<HTMLElement>('[data-login-error]')
+
+      this.submitButton = this.querySelector<HTMLButtonElement>(
+        '[data-submit-button]'
+      )
+
+      this.passwordInput = this.querySelector<HTMLInputElement>(
+        '[data-password-input]'
+      )
+
+      this.passwordToggle = this.querySelector<HTMLButtonElement>(
+        '[data-password-toggle]'
+      )
+
+      if (!this.form) return
+
+      this.abortController = new AbortController()
+
+      const { signal } = this.abortController
+
+      this.form.addEventListener('submit', this.handleSubmit, { signal })
+
+      this.form.addEventListener('input', this.handleInput, { signal })
+
+      this.passwordToggle?.addEventListener(
+        'click',
+        this.handlePasswordToggle,
+        { signal }
+      )
+
+      this.setLoading(false)
+    }
+
+    disconnectedCallback(): void {
+      this.abortController?.abort()
+      this.abortController = null
+    }
+
+    private setLoading(loading: boolean): void {
+      if (this.modal) {
+        this.modal.toggleAttribute('hidden', !loading)
+
+        this.modal.setAttribute('aria-hidden', String(!loading))
+      }
+
+      if (this.submitButton) {
+        this.submitButton.disabled = loading
+
+        this.submitButton.textContent = loading
+          ? 'Ingresando...'
+          : 'Iniciar sesión'
+      }
+
+      this.form?.setAttribute('aria-busy', String(loading))
+    }
+
+    private clearError(): void {
+      if (!this.errorMessage) return
+
+      this.errorMessage.textContent = ''
+      this.errorMessage.hidden = true
+    }
+
+    private showError(message: string): void {
+      if (!this.errorMessage) return
+
+      this.errorMessage.textContent = message
+
+      this.errorMessage.hidden = false
+      this.errorMessage.focus()
+    }
+
+    private handleInput = (): void => {
+      this.clearError()
+    }
+
+    private handlePasswordToggle = (): void => {
+      if (!this.passwordInput || !this.passwordToggle) {
+        return
+      }
+
+      const isVisible = this.passwordInput.type === 'text'
+
+      this.passwordInput.type = isVisible ? 'password' : 'text'
+
+      this.passwordToggle.textContent = isVisible ? 'Mostrar' : 'Ocultar'
+
+      this.passwordToggle.setAttribute(
+        'aria-label',
+        isVisible ? 'Mostrar contraseña' : 'Ocultar contraseña'
+      )
+
+      this.passwordToggle.setAttribute('aria-pressed', String(!isVisible))
+    }
+
+    private handleSubmit = async (event: SubmitEvent): Promise<void> => {
+      event.preventDefault()
+
+      if (!this.form) return
+
+      this.clearError()
+      this.setLoading(true)
+
+      const formData = new FormData(this.form)
+
+      const username = String(formData.get('username') ?? '').trim()
+
+      const password = String(formData.get('password') ?? '')
+
+      try {
+        const response = await api<LoginResponse>('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username,
+            password
+          })
+        })
+
+        window.localStorage.setItem('token', response.token)
+
+        window.localStorage.setItem('username', response.username)
+
+        window.localStorage.setItem('name', response.name)
+
+        window.localStorage.setItem('lastname', response.last_name)
+
+        window.localStorage.setItem('role', response.role_name)
+
+        window.location.replace('/plataforma/')
+      } catch (error) {
+        console.error('No se pudo iniciar sesión:', error)
+
+        this.setLoading(false)
+
+        this.showError(
+          'No pudimos iniciar sesión. Verificá el usuario y la contraseña.'
+        )
+
+        if (this.passwordInput) {
+          this.passwordInput.value = ''
+          this.passwordInput.focus()
+        }
+      }
+    }
+  }
+
+  if (!customElements.get('login-page')) {
+    customElements.define('login-page', LoginPage)
+  }
+</script>
+
 <style>
-  form {
-    width: 20rem;
-    border-radius: 1rem;
-    border: 1px solid var(--color-primary-hover);
-    margin: auto;
+  .login-page {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: block;
+
+    background:
+      radial-gradient(
+        circle at 15% 15%,
+        rgba(131, 192, 67, 0.18),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 85% 85%,
+        rgba(21, 130, 203, 0.14),
+        transparent 30%
+      ),
+      var(--color-background);
+  }
+
+  .login-page__main {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    padding: clamp(1rem, 5vw, 3rem);
+
+    display: grid;
+    place-items: center;
+  }
+
+  .login-card {
+    width: min(100%, 27rem);
+
+    padding: clamp(1.4rem, 5vw, 2.25rem);
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-primary-light);
+
+    border-radius: clamp(1rem, 3vw, 1.5rem);
+
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.12);
+  }
+
+  .login-card__logo-link {
+    width: min(100%, 13rem);
+    height: 6rem;
+
+    margin-inline: auto;
+
+    display: block;
+
+    border-radius: var(--radius-small);
+  }
+
+  .login-card__logo {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+  }
+
+  .login-card__logo-link:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .login-card__header {
+    margin-top: 1.25rem;
+
+    text-align: center;
+  }
+
+  .login-card__label {
+    margin-bottom: 0.4rem;
+
+    color: var(--color-primary);
+
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .login-card__header h1 {
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.6rem, 6vw, 2rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .login-card__header > p:last-child {
+    margin-top: 0.65rem;
+
+    color: var(--color-grey);
+
+    font-size: 0.94rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .login-form {
+    margin-top: 1.75rem;
+
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    align-items: center;
+    gap: 1.15rem;
+  }
+
+  .login-form__field {
+    min-width: 0;
+  }
+
+  .login-form__field > label {
+    margin-bottom: 0.45rem;
+
+    display: block;
+
     color: var(--color-text);
-    font-family: var(--text-font-primary);
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.4;
   }
 
-  h1 {
-    color: var(--color-primary-hover);
-  }
-
-  form > div {
-    height: 7rem;
-    position: relative;
-    display: flex;
-  }
-
-  img {
-    height: 100%;
-    width: auto;
-  }
-
-  label {
-    margin-top: 1.3rem;
-  }
-
-  label > input {
-    border: 1px solid var(--color-primary-hover);
-    border-radius: 0.3rem;
-    height: 1.4rem;
-  }
-
-  label > input:focus {
-    outline: 5px solid var(--color-primary-hover);
-    border-color: transparent;
-  }
-
-  p {
-    margin: 0;
-    margin-bottom: 0.3rem;
-  }
-
-  input[type='submit'] {
-    padding: 0.5rem;
+  .login-form input {
     width: 100%;
-    background-color: transparent;
-    border: none;
-    margin-top: 1.4rem;
-    border-top: 1px solid var(--color-primary-hover);
+    min-width: 0;
+    min-height: 3rem;
+
+    padding: 0.7rem 0.85rem;
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-light-grey);
+
+    border-radius: var(--radius-small);
+
+    font: inherit;
+
     transition:
-      color 0.3s ease,
-      background-color 0.3s ease;
+      border-color var(--transition),
+      box-shadow var(--transition);
   }
 
-  input[type='submit']:hover {
+  .login-form input:hover {
+    border-color: var(--color-primary-light);
+  }
+
+  .login-form input:focus {
+    outline: none;
+
+    border-color: var(--color-primary);
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .login-form__password {
+    position: relative;
+  }
+
+  .login-form__password input {
+    padding-right: 5.5rem;
+  }
+
+  .login-form__password-toggle {
+    min-width: 4.5rem;
+    height: 2.25rem;
+
+    padding: 0.35rem 0.65rem;
+
+    position: absolute;
+    top: 50%;
+    right: 0.4rem;
+
+    color: var(--color-primary-hover);
+
+    background-color: var(--color-primary-light);
+
+    border: 0;
+    border-radius: 0.45rem;
+
+    font-size: 0.78rem;
+    font-weight: 750;
+
     cursor: pointer;
-    background-color: var(--color-primary-hover);
+
+    transform: translateY(-50%);
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition);
+  }
+
+  .login-form__password-toggle:hover {
     color: var(--color-background);
+    background-color: var(--color-primary-hover);
+  }
+
+  .login-form__password-toggle:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .login-form__error {
+    padding: 0.75rem 0.9rem;
+
+    color: var(--color-red, #b42318);
+
+    background-color: rgba(211, 47, 47, 0.08);
+
+    border: 1px solid rgba(211, 47, 47, 0.28);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.9rem;
+    font-weight: 650;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .login-form__error:focus {
+    outline: none;
+  }
+
+  .login-form__submit {
+    width: 100%;
+    min-height: 3.1rem;
+
+    padding: 0.75rem 1rem;
+
+    color: var(--color-background);
+    background-color: var(--color-primary);
+
+    border: 1px solid var(--color-primary);
+
+    border-radius: var(--radius-small);
+
+    font: inherit;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    box-shadow: 0 0.5rem 1.2rem rgba(73, 107, 36, 0.18);
+
+    transition:
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      opacity var(--transition),
+      transform var(--transition);
+  }
+
+  .login-form__submit:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+
+    border-color: var(--color-primary-hover);
+  }
+
+  .login-form__submit:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .login-form__submit:disabled {
+    cursor: wait;
+    opacity: 0.7;
+  }
+
+  .login-card__back {
+    width: fit-content;
+
+    margin: 1.25rem auto 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+
+    color: var(--color-grey);
+
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .login-card__back:hover {
+    color: var(--color-primary-hover);
+
+    text-decoration: underline;
+  }
+
+  .login-card__back:focus-visible {
+    outline: none;
+
+    border-radius: 0.2rem;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .login-card__noscript {
+    margin-top: 1rem;
+
+    color: var(--color-red, #b42318);
+
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @media (hover: hover) {
+    .login-form__submit:hover:not(:disabled) {
+      box-shadow: 0 0.75rem 1.6rem rgba(73, 107, 36, 0.24);
+
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .login-page__main {
+      padding: 0.75rem;
+    }
+
+    .login-card {
+      padding: 1.35rem 1rem;
+    }
+
+    .login-card__logo-link {
+      height: 5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .login-form input,
+    .login-form__password-toggle,
+    .login-form__submit {
+      transition: none;
+    }
   }
 </style>

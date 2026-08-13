@@ -1,12 +1,11 @@
-use chrono::{Datelike, Local};
+use chrono::{Datelike, Utc};
 
-pub fn current_date_spanish() -> String {
-    let today = Local::now();
+use chrono_tz::America::Argentina::Buenos_Aires;
 
-    let day = today.day();
-    let year = today.year();
+pub fn fecha_actual_espanol() -> String {
+    let fecha = Utc::now().with_timezone(&Buenos_Aires);
 
-    let month = match today.month() {
+    let mes = match fecha.month() {
         1 => "enero",
         2 => "febrero",
         3 => "marzo",
@@ -22,5 +21,5 @@ pub fn current_date_spanish() -> String {
         _ => unreachable!(),
     };
 
-    format!("{day} de {month} del {year}")
+    format!("{} de {} de {}", fecha.day(), mes, fecha.year(),)
 }

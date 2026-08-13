@@ -1,0 +1,223 @@
+/* ==========================================================
+   EVENTS ADMINISTRATION
+
+   Estilos específicos de la administración de eventos.
+   Los componentes compartidos se importan desde common/.
+========================================================== */
+
+@import url('./common/index.css');
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.eventos-admin {
+  /*
+   * La tabla de eventos tiene más columnas que las demás:
+   * orden, imagen, información, fecha, lugar, enlace,
+   * cantidad de imágenes y acciones.
+   */
+  --admin-table-cell-padding: 0.9rem;
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.tabla-eventos {
+  min-width: 78rem;
+}
+
+/* ==========================================================
+   EVENT IMAGE
+========================================================== */
+
+.imagen-evento-tabla {
+  width: 5.5rem;
+  height: 3.75rem;
+}
+
+/* ==========================================================
+   EVENT INFORMATION
+========================================================== */
+
+.info-evento {
+  min-width: 16rem;
+  max-width: 24rem;
+}
+
+.info-evento p {
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* ==========================================================
+   DATE AND TIME
+========================================================== */
+
+.fecha-horario-evento {
+  min-width: 10rem;
+}
+
+.fecha-horario-evento span {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   LOCATION
+========================================================== */
+
+.lugar-evento {
+  min-width: 10rem;
+  max-width: 15rem;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================
+   LINK
+========================================================== */
+
+.tabla-eventos .enlace-tabla {
+  max-width: 13rem;
+
+  display: inline-block;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   IMAGE COUNT
+========================================================== */
+
+.cantidad-imagenes {
+  min-width: 5rem;
+
+  text-align: center;
+
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.acciones-evento {
+  min-width: 10.5rem;
+}
+
+/* ==========================================================
+   EVENT MODAL
+========================================================== */
+
+.modal-evento-contenido {
+  width: min(100%, 56rem);
+}
+
+/* ==========================================================
+   EVENT FORM
+========================================================== */
+
+.form-evento textarea {
+  min-height: 13rem;
+}
+
+/*
+ * Los campos de fecha y hora utilizan números tabulares para
+ * que su contenido no cambie visualmente de ancho.
+ */
+.form-evento
+  :is(input[type='date'], input[type='time'], input[type='datetime-local']) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   CURRENT EVENT IMAGES
+========================================================== */
+
+.eventos-admin .imagenes-actuales {
+  margin-top: 1.25rem;
+}
+
+/*
+ * Las imágenes de los eventos tienen una proporción más
+ * horizontal que las fotografías de miembros.
+ */
+.eventos-admin
+  :where(.galeria-preview, .currentImagesGallery)
+  :where(.preview-imagen, .imagePreviewItem, .preview)
+  img {
+  aspect-ratio: 16 / 10;
+  height: auto;
+
+  object-fit: cover;
+}
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.eventos-admin
+  :where(.estado-tabla, .emptyState)
+  :where(.estado-icono, .emptyStateIcon)::before {
+  content: '📅';
+}
+
+/*
+ * No se genera un segundo icono cuando el HTML ya contiene
+ * texto o un SVG dentro del elemento.
+ */
+.eventos-admin :where(.estado-icono, .emptyStateIcon):not(:empty)::before {
+  content: none;
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+  .tabla-eventos {
+    min-width: 70rem;
+  }
+
+  .info-evento {
+    min-width: 14rem;
+  }
+
+  .fecha-horario-evento {
+    min-width: 9rem;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+========================================================== */
+
+@media (max-width: 640px) {
+  .eventos-admin {
+    --admin-table-cell-padding: 0.8rem;
+  }
+
+  .tabla-eventos {
+    min-width: 66rem;
+  }
+
+  .form-evento textarea {
+    min-height: 11rem;
+  }
+
+  .eventos-admin
+    :where(.galeria-preview, .currentImagesGallery)
+    :where(.preview-imagen, .imagePreviewItem, .preview)
+    img {
+    aspect-ratio: 4 / 3;
+  }
+}

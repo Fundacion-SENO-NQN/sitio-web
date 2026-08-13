@@ -1,0 +1,1575 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+import TituloPag from '../../components/Common/TituloPag.astro'
+
+import contacto from '../../data/contacto/contacto.json'
+
+import SvgUser from '../../assets/icon-common/icon-user.svg'
+import SvgCorazon from '../../assets/icon-common/icon-corazon.svg'
+import SvgMensaje from '../../assets/icon-common/icon-mensaje.svg'
+import SvgMensajeCheck from '../../assets/icon-common/icon-mensaje-check.svg'
+import SvgMensajeVacio from '../../assets/icon-common/icon-mensaje-vacio.svg'
+import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
+import SvgInformacion from '../../assets/icon-common/icon-info.svg'
+
+import SvgCasa from '../../assets/icon-voluntariado/icon-casa.svg'
+
+import SvgWhatsApp from '../../assets/icon-contacto/icon-whatsapp.svg'
+import SvgEmail from '../../assets/icon-contacto/icon-email.svg'
+import SvgTelefono from '../../assets/icon-contacto/icon-telefono.svg'
+import SvgFacebook from '../../assets/icon-contacto/icon-facebook.svg'
+import SvgInstagram from '../../assets/icon-contacto/icon-instagram.svg'
+
+const whatsappNumber = String(contacto.whatsapp).replace(/\D/g, '')
+
+const phoneNumber = String(contacto.telefono).replace(/[^\d+]/g, '')
+
+const whatsappMessage = encodeURIComponent(
+  'Hola Fundación SENO. Necesito realizar una consulta.'
+)
+
+const whatsappHref = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
+
+const phoneHref = `tel:${phoneNumber}`
+
+const emailHref = `mailto:${contacto.email}`
+---
+
+<Layout
+  pag="Necesito ayuda"
+  seoTitle="Ayuda para familias de pacientes oncológicos | SENO"
+  description="Comunicate con Fundación SENO para realizar consultas, coordinar una visita o conversar sobre la ayuda que necesitás."
+>
+  <TituloPag titulo="Necesito ayuda" />
+
+  <main class="help-page">
+    <section class="help-hero" aria-labelledby="help-hero-title">
+      <div class="help-hero__content">
+        <p class="help-kicker">Estamos para acompañarte</p>
+
+        <h2 id="help-hero-title">
+          Podés comunicarte directamente con nosotros
+        </h2>
+
+        <p class="help-hero__highlight">
+          Contactanos por cualquiera de nuestros medios de comunicación o redes
+          sociales.
+        </p>
+
+        <p>
+          Podés escribirnos para realizar una consulta, contarnos tu situación,
+          coordinar una visita o conversar sobre la ayuda que necesitás.
+        </p>
+
+        <div class="help-hero__actions">
+          <a
+            class="help-button
+              help-button--primary"
+            href="#contacto"
+          >
+            <span> Ver medios de contacto </span>
+
+            <SvgFlecha
+              class="help-button__icon
+                help-button__icon--down"
+              aria-hidden="true"
+            />
+          </a>
+
+          <a
+            class="help-button
+              help-button--secondary"
+            href="#como-contactarnos"
+          >
+            Cómo podemos ayudarte
+          </a>
+        </div>
+      </div>
+
+      <div class="help-hero__visual" aria-hidden="true">
+        <div class="help-illustration">
+          <span
+            class="help-illustration__message
+              help-illustration__message--first"
+          >
+            <SvgMensaje />
+          </span>
+
+          <span class="help-illustration__heart">
+            <SvgCorazon />
+          </span>
+
+          <span
+            class="help-illustration__message
+              help-illustration__message--second"
+          >
+            <SvgMensajeCheck />
+          </span>
+
+          <div class="help-illustration__people">
+            <span>
+              <SvgUser />
+            </span>
+
+            <span>
+              <SvgUser />
+            </span>
+
+            <span>
+              <SvgUser />
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direct-contact" aria-labelledby="direct-contact-title">
+      <span class="direct-contact__icon" aria-hidden="true">
+        <SvgMensajeVacio />
+      </span>
+
+      <div class="direct-contact__content">
+        <p class="help-kicker">Contacto directo</p>
+
+        <h2 id="direct-contact-title">Escribinos por el medio que prefieras</h2>
+
+        <p>
+          Podés comunicarte mediante teléfono, WhatsApp, correo electrónico o
+          cualquiera de las redes sociales de Fundación SENO.
+        </p>
+
+        <p>
+          Utilizá el canal que te resulte más cómodo para contarnos el motivo de
+          tu consulta y comenzar a coordinar la ayuda.
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="help-section help-reasons"
+      id="como-contactarnos"
+      aria-labelledby="help-reasons-title"
+    >
+      <header class="help-section__header">
+        <p class="help-kicker">Podés contactarnos para</p>
+
+        <h2 id="help-reasons-title">
+          Estamos disponibles para acompañar a las familias
+        </h2>
+
+        <p>
+          La comunicación puede iniciarse directamente, según la necesidad o
+          consulta de cada familia.
+        </p>
+      </header>
+
+      <ul class="help-reasons__list">
+        <li>
+          <article class="help-reason-card">
+            <span class="help-reason-card__icon" aria-hidden="true">
+              <SvgCorazon />
+            </span>
+
+            <h3>Solicitar ayuda</h3>
+
+            <p>
+              Podés comunicarte para conversar sobre la situación de tu familia
+              y coordinar la ayuda con la Fundación.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="help-reason-card">
+            <span class="help-reason-card__icon" aria-hidden="true">
+              <SvgMensaje />
+            </span>
+
+            <h3>Realizar una consulta</h3>
+
+            <p>
+              Escribinos para aclarar dudas, pedir información o consultar sobre
+              las actividades y formas de acompañamiento.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="help-reason-card">
+            <span class="help-reason-card__icon" aria-hidden="true">
+              <SvgCasa />
+            </span>
+
+            <h3>Coordinar una visita</h3>
+
+            <p>
+              También podés comunicarte con nosotros para consultar y acordar
+              previamente una visita.
+            </p>
+          </article>
+        </li>
+
+        <li>
+          <article class="help-reason-card">
+            <span class="help-reason-card__icon" aria-hidden="true">
+              <SvgInformacion />
+            </span>
+
+            <h3>Conocer la Fundación</h3>
+
+            <p>
+              Escribinos para conocer mejor nuestro trabajo, recibir información
+              y resolver tus inquietudes.
+            </p>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <section
+      class="help-section help-process"
+      aria-labelledby="help-process-title"
+    >
+      <div class="help-process__introduction">
+        <p class="help-kicker">Un contacto sencillo</p>
+
+        <h2 id="help-process-title">¿Cómo comienza el acompañamiento?</h2>
+
+        <p>
+          El primer paso es comunicarse con la Fundación. A partir de esa
+          conversación podremos conocer la consulta y coordinar cómo continuar.
+        </p>
+      </div>
+
+      <ol class="help-process__steps">
+        <li class="help-step">
+          <span class="help-step__number" aria-hidden="true"> 1 </span>
+
+          <div>
+            <h3>Comunicate</h3>
+
+            <p>
+              Escribinos mediante cualquiera de nuestros canales de contacto o
+              redes sociales.
+            </p>
+          </div>
+        </li>
+
+        <li class="help-step">
+          <span class="help-step__number" aria-hidden="true"> 2 </span>
+
+          <div>
+            <h3>Contanos el motivo</h3>
+
+            <p>
+              Indicanos si necesitás realizar una consulta, coordinar una visita
+              o conversar sobre una posible ayuda.
+            </p>
+          </div>
+        </li>
+
+        <li class="help-step">
+          <span class="help-step__number" aria-hidden="true"> 3 </span>
+
+          <div>
+            <h3>Coordinamos con vos</h3>
+
+            <p>
+              La Fundación continuará la comunicación para acordar cómo avanzar
+              según cada situación.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section
+      class="help-section help-channels"
+      aria-labelledby="help-channels-title"
+    >
+      <header class="help-section__header">
+        <p class="help-kicker">Elegí el medio más cómodo</p>
+
+        <h2 id="help-channels-title">
+          Podés encontrarnos en distintos canales
+        </h2>
+
+        <p>
+          Todos nuestros medios de comunicación permiten iniciar una consulta
+          con la Fundación.
+        </p>
+      </header>
+
+      <ul class="help-channels__list">
+        <li>
+          <a
+            class="help-channel-card"
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contactar a Fundación SENO por WhatsApp en una pestaña nueva"
+          >
+            <span class="help-channel-card__icon" aria-hidden="true">
+              <SvgWhatsApp />
+            </span>
+
+            <strong>WhatsApp</strong>
+
+            <span>{contacto.whatsapp}</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            class="help-channel-card"
+            href="https://www.instagram.com/fundacionseno"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visitar Instagram de Fundación SENO en una pestaña nueva"
+          >
+            <span class="help-channel-card__icon" aria-hidden="true">
+              <SvgInstagram />
+            </span>
+
+            <strong>Instagram</strong>
+
+            <span>@fundacionseno</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            class="help-channel-card"
+            href="https://www.facebook.com/fundacionseno2017"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visitar Facebook de Fundación SENO en una pestaña nueva"
+          >
+            <span class="help-channel-card__icon" aria-hidden="true">
+              <SvgFacebook />
+            </span>
+
+            <strong>Facebook</strong>
+
+            <span>@fundacionseno2017</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            class="help-channel-card"
+            href={emailHref}
+            aria-label={`Enviar un correo electrónico a ${contacto.email}`}
+          >
+            <span class="help-channel-card__icon" aria-hidden="true">
+              <SvgEmail />
+            </span>
+
+            <strong>Correo electrónico</strong>
+
+            <span>{contacto.email}</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            class="help-channel-card"
+            href={phoneHref}
+            aria-label={`Llamar a Fundación SENO al ${contacto.telefono}`}
+          >
+            <span class="help-channel-card__icon" aria-hidden="true">
+              <SvgTelefono />
+            </span>
+
+            <strong>Teléfono</strong>
+
+            <span>{contacto.telefono}</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <aside class="help-cta" aria-labelledby="help-cta-title">
+      <span class="help-cta__icon" aria-hidden="true">
+        <SvgCorazon />
+      </span>
+
+      <div class="help-cta__content">
+        <p class="help-kicker">Fundación SENO</p>
+
+        <h2 id="help-cta-title">Estamos disponibles para recibir tu mensaje</h2>
+
+        <p>
+          Comunicate con nosotros mediante el canal que prefieras para realizar
+          tu consulta o comenzar a coordinar la ayuda.
+        </p>
+      </div>
+
+      <a class="help-button
+          help-cta__button" href="#contacto">
+        <span> Contactar a la Fundación </span>
+
+        <SvgFlecha
+          class="help-button__icon
+            help-button__icon--down"
+          aria-hidden="true"
+        />
+      </a>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .help-page {
+    --help-primary: var(--color-primary);
+
+    --help-primary-dark: var(--color-primary-hover);
+
+    --help-secondary: var(--color-secondary);
+
+    --help-text: var(--color-text);
+
+    --help-muted: #667580;
+    --help-border: #dce6ed;
+    --help-surface: #f5f9fb;
+
+    width: min(calc(100% - 2rem), 73.75rem);
+
+    margin: 1rem auto clamp(3rem, 8vw, 5rem);
+
+    color: var(--help-text);
+  }
+
+  .help-kicker {
+    margin-bottom: 0.65rem;
+
+    color: var(--help-primary-dark);
+
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ========================================================
+     HERO
+  ======================================================== */
+
+  .help-hero {
+    min-height: 30rem;
+
+    padding: clamp(2rem, 6vw, 5rem);
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1.25fr)
+      minmax(17.5rem, 0.75fr);
+
+    align-items: center;
+
+    gap: clamp(2rem, 7vw, 6rem);
+
+    overflow: hidden;
+
+    background:
+      radial-gradient(
+        circle at 88% 16%,
+        rgba(212, 93, 140, 0.16),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 10% 90%,
+        rgba(65, 120, 170, 0.12),
+        transparent 25%
+      ),
+      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
+
+    border: 1px solid var(--help-border);
+
+    border-radius: 2rem;
+  }
+
+  .help-hero::before,
+  .help-hero::after {
+    content: '';
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+  }
+
+  .help-hero::before {
+    width: 22.5rem;
+    height: 22.5rem;
+
+    right: -7.5rem;
+    bottom: -9.5rem;
+
+    border: 3.1rem solid rgba(65, 120, 170, 0.06);
+  }
+
+  .help-hero::after {
+    width: 11rem;
+    height: 11rem;
+
+    top: -5rem;
+    left: 38%;
+
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .help-hero__content,
+  .help-hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .help-hero__content h2 {
+    max-width: 47.5rem;
+
+    margin-bottom: 1.3rem;
+
+    color: var(--help-primary-dark);
+
+    font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+
+    line-height: 1.04;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .help-hero__content > p:not(.help-kicker) {
+    max-width: 45rem;
+
+    margin-top: 0.75rem;
+
+    color: var(--help-muted);
+
+    font-size: 1.03rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .help-hero__content .help-hero__highlight {
+    color: var(--help-text);
+
+    font-size: clamp(1.08rem, 2vw, 1.24rem);
+
+    font-weight: 650;
+  }
+
+  .help-hero__actions {
+    margin-top: 1.7rem;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  /* ========================================================
+     BUTTONS
+  ======================================================== */
+
+  .help-button {
+    min-height: 3.1rem;
+
+    padding: 0.85rem 1.3rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+
+    border: 2px solid transparent;
+
+    border-radius: 999px;
+
+    font-weight: 800;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .help-button__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+
+    flex: 0 0 auto;
+
+    color: currentColor;
+  }
+
+  .help-button__icon--down {
+    transform: rotate(90deg);
+  }
+
+  .help-button--primary {
+    color: #ffffff;
+    background-color: var(--help-primary-dark);
+
+    box-shadow: 0 0.75rem 1.75rem rgba(37, 89, 127, 0.22);
+  }
+
+  .help-button--secondary {
+    color: var(--help-primary-dark);
+
+    background-color: rgba(255, 255, 255, 0.6);
+
+    border-color: rgba(37, 89, 127, 0.23);
+  }
+
+  .help-button:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  /* ========================================================
+     HERO ILLUSTRATION
+  ======================================================== */
+
+  .help-hero__visual {
+    min-height: 20.5rem;
+
+    display: grid;
+    place-items: center;
+  }
+
+  .help-illustration {
+    width: min(100%, 20.5rem);
+
+    aspect-ratio: 1;
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    background-color: rgba(255, 255, 255, 0.65);
+
+    border: 1px solid rgba(65, 120, 170, 0.14);
+
+    border-radius: 50%;
+
+    box-shadow: 0 1.75rem 4rem rgba(37, 89, 127, 0.15);
+  }
+
+  .help-illustration__heart {
+    width: 7.5rem;
+
+    aspect-ratio: 1;
+
+    display: grid;
+    place-items: center;
+
+    color: #ffffff;
+    background-color: var(--help-primary);
+
+    border-radius: 50%;
+
+    box-shadow: 0 1.25rem 2.5rem rgba(65, 120, 170, 0.28);
+  }
+
+  .help-illustration__heart :global(svg) {
+    width: 4.1rem;
+    height: 4.1rem;
+  }
+
+  .help-illustration__message {
+    width: 4.5rem;
+
+    aspect-ratio: 1;
+
+    position: absolute;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-secondary);
+
+    background-color: #fbeaf1;
+
+    border: 6px solid #ffffff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0.9rem 1.9rem rgba(37, 89, 127, 0.14);
+  }
+
+  .help-illustration__message :global(svg) {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .help-illustration__message--first {
+    top: 1rem;
+    left: 1.6rem;
+
+    transform: rotate(-7deg) scaleX(-1);
+  }
+
+  .help-illustration__message--second {
+    top: 2.75rem;
+    right: 0.3rem;
+
+    color: var(--help-primary);
+
+    background-color: #ecf5fa;
+
+    transform: rotate(7deg);
+  }
+
+  .help-illustration__people {
+    position: absolute;
+    right: 0;
+    bottom: 1.4rem;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+  }
+
+  .help-illustration__people span {
+    width: 3.65rem;
+
+    aspect-ratio: 1;
+
+    margin-left: -0.65rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-primary);
+
+    background-color: var(--help-surface);
+
+    border: 5px solid #ffffff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0.55rem 1.4rem rgba(37, 89, 127, 0.1);
+  }
+
+  .help-illustration__people span:first-child {
+    margin-left: 0;
+  }
+
+  .help-illustration__people :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  /* ========================================================
+     DIRECT CONTACT
+  ======================================================== */
+
+  .direct-contact {
+    margin-top: 2rem;
+
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+
+    display: grid;
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    gap: 1.5rem;
+
+    background-color: #edf6fb;
+
+    border-left: 6px solid var(--help-primary);
+
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+  }
+
+  .direct-contact__icon {
+    width: 3.75rem;
+    height: 3.75rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-primary);
+
+    background-color: #ffffff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0.65rem 1.6rem rgba(65, 120, 170, 0.13);
+  }
+
+  .direct-contact__icon :global(svg) {
+    width: 1.9rem;
+    height: 1.9rem;
+
+    transform: scaleX(-1);
+  }
+
+  .direct-contact__content {
+    min-width: 0;
+  }
+
+  .direct-contact h2,
+  .help-process h2,
+  .help-cta h2 {
+    margin-bottom: 0.8rem;
+
+    color: var(--help-primary-dark);
+
+    font-size: clamp(1.45rem, 3vw, 2rem);
+
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .direct-contact__content > p:not(.help-kicker) {
+    max-width: 57.5rem;
+
+    margin-top: 0.4rem;
+
+    color: var(--help-muted);
+
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* ========================================================
+     SHARED SECTIONS
+  ======================================================== */
+
+  .help-section {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .help-reasons {
+    scroll-margin-top: 2rem;
+  }
+
+  .help-section__header {
+    width: min(100%, 45.6rem);
+
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+
+    text-align: center;
+  }
+
+  .help-section__header h2 {
+    color: var(--help-primary-dark);
+
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .help-section__header > p:last-child {
+    margin-top: 1rem;
+
+    color: var(--help-muted);
+
+    font-size: 1.04rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* ========================================================
+     REASONS
+  ======================================================== */
+
+  .help-reasons__list {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    align-items: stretch;
+    gap: 1.2rem;
+  }
+
+  .help-reasons__list > li {
+    min-width: 0;
+
+    display: flex;
+  }
+
+  .help-reason-card {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
+    padding: clamp(1.4rem, 3vw, 2rem);
+
+    position: relative;
+
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid var(--help-border);
+
+    border-radius: 1.5rem;
+
+    box-shadow: 0 0.9rem 2.5rem rgba(38, 63, 80, 0.06);
+
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .help-reason-card::after {
+    content: '';
+
+    width: 7.8rem;
+
+    aspect-ratio: 1;
+
+    position: absolute;
+    right: -2.5rem;
+    bottom: -3.1rem;
+
+    background-color: var(--help-primary);
+
+    border-radius: 50%;
+
+    opacity: 0.05;
+  }
+
+  .help-reason-card__icon {
+    width: 3.65rem;
+    height: 3.65rem;
+
+    margin-bottom: 1.25rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-primary);
+
+    background-color: #edf5fa;
+
+    border-radius: 1.1rem;
+  }
+
+  .help-reasons__list > li:nth-child(even) .help-reason-card__icon {
+    color: var(--help-secondary);
+
+    background-color: #fbeaf1;
+  }
+
+  .help-reason-card__icon :global(svg) {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .help-reason-card h3 {
+    margin-bottom: 0.75rem;
+
+    color: var(--help-primary-dark);
+
+    font-size: 1.3rem;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .help-reason-card p {
+    color: var(--help-muted);
+
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  /* ========================================================
+     PROCESS
+  ======================================================== */
+
+  .help-process {
+    display: grid;
+
+    grid-template-columns:
+      minmax(15.5rem, 0.7fr)
+      minmax(0, 1.3fr);
+
+    align-items: start;
+
+    gap: clamp(2rem, 7vw, 6rem);
+  }
+
+  .help-process__introduction {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .help-process__introduction > p:last-child {
+    color: var(--help-muted);
+
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .help-process__steps {
+    display: grid;
+    gap: 1rem;
+
+    counter-reset: none;
+  }
+
+  .help-step {
+    padding: 1.5rem;
+
+    display: grid;
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    gap: 1.3rem;
+
+    background-color: var(--help-surface);
+
+    border: 1px solid var(--help-border);
+
+    border-radius: 1.3rem;
+  }
+
+  .help-step__number {
+    width: 3.25rem;
+    height: 3.25rem;
+
+    display: grid;
+    place-items: center;
+
+    color: #ffffff;
+    background-color: var(--help-primary);
+
+    border-radius: 1rem;
+
+    font-size: 1.25rem;
+    font-weight: 900;
+
+    box-shadow: 0 0.55rem 1.45rem rgba(65, 120, 170, 0.22);
+  }
+
+  .help-step h3 {
+    margin-bottom: 0.45rem;
+
+    color: var(--help-primary-dark);
+
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .help-step p {
+    color: var(--help-muted);
+
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  /* ========================================================
+     CHANNELS
+  ======================================================== */
+
+  .help-channels__list {
+    display: grid;
+
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .help-channels__list > li {
+    min-width: 0;
+
+    display: flex;
+  }
+
+  .help-channel-card {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
+    padding: 1.5rem 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+
+    color: var(--help-primary-dark);
+
+    background-color: #ffffff;
+
+    border: 1px solid var(--help-border);
+
+    border-radius: 1.3rem;
+
+    text-align: center;
+    text-decoration: none;
+
+    transition:
+      color var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition),
+      transform var(--transition);
+  }
+
+  .help-channel-card__icon {
+    width: 3.45rem;
+
+    aspect-ratio: 1;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-primary);
+
+    background-color: var(--help-surface);
+
+    border-radius: 50%;
+  }
+
+  .help-channels__list > li:nth-child(even) .help-channel-card__icon {
+    color: var(--help-secondary);
+
+    background-color: #fbeaf1;
+  }
+
+  .help-channel-card__icon :global(svg) {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .help-channel-card strong {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  .help-channel-card > span:last-child {
+    color: var(--help-muted);
+
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .help-channel-card:hover {
+    color: var(--help-primary);
+
+    border-color: rgba(65, 120, 170, 0.35);
+
+    box-shadow: 0 1rem 2.5rem rgba(38, 63, 80, 0.1);
+  }
+
+  .help-channel-card:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  /* ========================================================
+     FINAL CTA
+  ======================================================== */
+
+  .help-cta {
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+
+    padding: clamp(1.7rem, 5vw, 3rem);
+
+    display: grid;
+
+    grid-template-columns:
+      auto
+      minmax(0, 1fr)
+      auto;
+
+    align-items: center;
+    gap: 1.5rem;
+
+    color: #ffffff;
+    background-color: var(--help-primary-dark);
+
+    border-radius: 1.8rem;
+  }
+
+  .help-cta__icon {
+    width: 4.5rem;
+
+    aspect-ratio: 1;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--help-secondary);
+
+    background-color: #ffffff;
+
+    border-radius: 50%;
+  }
+
+  .help-cta__icon :global(svg) {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .help-cta .help-kicker {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .help-cta h2 {
+    color: #ffffff;
+  }
+
+  .help-cta__content > p:last-child {
+    max-width: 45.5rem;
+
+    color: rgba(255, 255, 255, 0.78);
+
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .help-cta__button {
+    flex: 0 0 auto;
+
+    color: var(--help-primary-dark);
+
+    background-color: #ffffff;
+
+    border-color: #ffffff;
+  }
+
+  /* ========================================================
+     HOVER STATES
+  ======================================================== */
+
+  @media (hover: hover) {
+    .help-button--primary:hover {
+      box-shadow: 0 1rem 2.2rem rgba(37, 89, 127, 0.29);
+
+      transform: translateY(-3px);
+    }
+
+    .help-button--secondary:hover {
+      background-color: #ffffff;
+
+      transform: translateY(-3px);
+    }
+
+    .help-reason-card:hover {
+      border-color: rgba(65, 120, 170, 0.32);
+
+      box-shadow: 0 1.25rem 2.8rem rgba(38, 63, 80, 0.11);
+
+      transform: translateY(-6px);
+    }
+
+    .help-channel-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .help-cta__button:hover {
+      color: #ffffff;
+      background-color: transparent;
+
+      transform: translateY(-3px);
+    }
+  }
+
+  /* ========================================================
+     TABLET
+  ======================================================== */
+
+  @media (max-width: 1000px) {
+    .help-reasons__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .help-channels__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .help-cta {
+      grid-template-columns:
+        auto
+        minmax(0, 1fr);
+    }
+
+    .help-cta__button {
+      width: fit-content;
+
+      grid-column: 1 / -1;
+
+      margin-left: calc(4.5rem + 1.5rem);
+    }
+  }
+
+  @media (max-width: 850px) {
+    .help-hero {
+      grid-template-columns: minmax(0, 1fr);
+
+      text-align: center;
+    }
+
+    .help-hero__content {
+      order: 2;
+    }
+
+    .help-hero__visual {
+      min-height: 17.5rem;
+
+      order: 1;
+    }
+
+    .help-hero__content > p:not(.help-kicker) {
+      margin-inline: auto;
+    }
+
+    .help-hero__actions {
+      justify-content: center;
+    }
+
+    .help-illustration {
+      width: min(65vw, 18rem);
+    }
+
+    .help-process {
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 2rem;
+    }
+
+    .help-process__introduction {
+      width: min(100%, 45.5rem);
+
+      margin-inline: auto;
+
+      position: static;
+
+      text-align: center;
+    }
+
+    .help-channels__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ========================================================
+     MOBILE
+  ======================================================== */
+
+  @media (max-width: 600px) {
+    .help-page {
+      width: calc(100% - 1rem);
+
+      margin-top: 0;
+    }
+
+    .help-hero {
+      min-height: auto;
+
+      padding: 1.7rem 1.2rem;
+
+      gap: 1.5rem;
+
+      border-radius: 1.4rem;
+    }
+
+    .help-hero__content h2 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .help-hero__content > p:not(.help-kicker) {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .help-hero__visual {
+      min-height: 14.5rem;
+    }
+
+    .help-illustration {
+      width: min(75vw, 15.3rem);
+    }
+
+    .help-illustration__heart {
+      width: 5.6rem;
+    }
+
+    .help-illustration__heart :global(svg) {
+      width: 3.1rem;
+      height: 3.1rem;
+    }
+
+    .help-illustration__message {
+      width: 3.65rem;
+
+      border-width: 4px;
+    }
+
+    .help-illustration__message :global(svg) {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    .help-illustration__people span {
+      width: 2.95rem;
+
+      border-width: 4px;
+    }
+
+    .help-illustration__people :global(svg) {
+      width: 1.55rem;
+      height: 1.55rem;
+    }
+
+    .help-hero__actions {
+      display: grid;
+
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .help-button {
+      width: 100%;
+    }
+
+    .direct-contact {
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 1rem;
+
+      border-left-width: 4px;
+
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .direct-contact__icon {
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+
+    .help-reasons__list,
+    .help-channels__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .help-reason-card {
+      padding: 1.4rem;
+    }
+
+    .help-step {
+      padding: 1.3rem;
+
+      gap: 1rem;
+    }
+
+    .help-step__number {
+      width: 2.8rem;
+      height: 2.8rem;
+
+      border-radius: 0.85rem;
+
+      font-size: 1.05rem;
+    }
+
+    .help-channel-card {
+      padding: 1rem 1.2rem;
+
+      flex-direction: row;
+      justify-content: flex-start;
+
+      text-align: left;
+    }
+
+    .help-channel-card__icon {
+      width: 3rem;
+
+      flex: 0 0 auto;
+    }
+
+    .help-channel-card strong {
+      min-width: 5.5rem;
+    }
+
+    .help-channel-card > span:last-child {
+      margin-left: auto;
+
+      text-align: right;
+    }
+
+    .help-cta {
+      padding: 1.6rem 1.3rem;
+
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 1rem;
+
+      border-radius: 1.3rem;
+    }
+
+    .help-cta__icon {
+      width: 3.75rem;
+    }
+
+    .help-cta__icon :global(svg) {
+      width: 2.15rem;
+      height: 2.15rem;
+    }
+
+    .help-cta__button {
+      width: 100%;
+
+      grid-column: auto;
+
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 390px) {
+    .help-channel-card {
+      display: grid;
+
+      grid-template-columns:
+        auto
+        minmax(0, 1fr);
+
+      align-items: center;
+    }
+
+    .help-channel-card__icon {
+      grid-row: 1 / 3;
+    }
+
+    .help-channel-card strong,
+    .help-channel-card > span:last-child {
+      min-width: 0;
+      margin-left: 0;
+
+      text-align: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .help-button,
+    .help-reason-card,
+    .help-channel-card {
+      transition: none;
+    }
+  }
+</style>

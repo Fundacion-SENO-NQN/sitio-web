@@ -1,72 +1,180 @@
 ---
-const { pag, navigation, inicio } = Astro.props
-const numPag = parseInt(pag)
-
 import type Navigation from '../../data/interfaces/Navigation'
+
+interface Props {
+  pag: string | number
+  navigation: Navigation[]
+  inicio: string
+}
+
+const { pag, navigation, inicio } = Astro.props
+
+const pageNumber = Number.parseInt(String(pag), 10)
+
+const normalizedStart = inicio.replace(/^\/+/, '').replace(/\/+$/, '')
+
+const sectionHref = `/${normalizedStart}/`
 ---
 
-<nav class="nav">
-  <ul class="lista-nav">
+<nav class="subnav" aria-label="Navegación de esta sección">
+  <ul class="subnav-list">
     {
       navigation.map((item: Navigation, index: number) => {
-        if (numPag === index + 1) {
-          return (
-            <a href={'/' + inicio + '/'}>
-              <li>Atrás</li>
+        const isCurrentPage = pageNumber === index + 1
+
+        return (
+          <li class="subnav-item">
+            <a
+              class:list={[
+                'subnav-link',
+                {
+                  'subnav-link--back': isCurrentPage
+                }
+              ]}
+              href={isCurrentPage ? sectionHref : item.href}
+              aria-label={
+                isCurrentPage ? 'Volver al inicio de esta sección' : undefined
+              }
+            >
+              {isCurrentPage && (
+                <span class="subnav-back-icon" aria-hidden="true">
+                  ←
+                </span>
+              )}
+
+              <span>{isCurrentPage ? 'Atrás' : item.name}</span>
             </a>
-          )
-        } else {
-          return (
-            <a href={item.href}>
-              <li>{item.name}</li>
-            </a>
-          )
-        }
+          </li>
+        )
       })
     }
   </ul>
 </nav>
 
 <style>
-  .nav {
+  .subnav {
+    width: min(calc(100% - 2rem), 59.375rem);
+
+    margin: clamp(1rem, 3vw, 2rem) auto 0;
+  }
+
+  .subnav-list {
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    padding: 0.3rem;
 
-  .lista-nav {
-    background-color: var(--color-primary-light);
-    height: 4rem;
-    width: max-content;
-    font-size: 1.1rem;
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    border-radius: 1.3rem;
-    padding: 0;
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+
+    gap: 0.3rem;
+
     overflow: hidden;
+
+    background-color: var(--color-primary-light);
+
+    border-radius: 1.3rem;
   }
 
-  .lista-nav a {
-    color: var(--color-text);
-    text-decoration: none;
-    font-family: var(--text-font-primary);
-    width: 7rem;
-    text-align: center;
-    height: 100%;
-    width: 9rem;
+  .subnav-item {
+    min-width: 0;
+
     display: flex;
-    justify-content: center;
-    align-items: center;
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
   }
 
-  .lista-nav a:hover {
-    background-color: var(--color-primary-hover);
+  .subnav-link {
+    width: 100%;
+    min-width: 0;
+    min-height: 3.4rem;
+
+    padding: 0.75rem 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+
+    color: var(--color-text);
+
+    background-color: transparent;
+
+    border-radius: 1rem;
+
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    transition:
+      color 200ms ease,
+      background-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease;
+  }
+
+  .subnav-link:hover {
     color: var(--color-background);
+
+    background-color: var(--color-primary-hover);
+  }
+
+  .subnav-link:focus-visible {
+    outline: none;
+
+    box-shadow: inset 0 0 0 3px var(--color-primary-hover);
+  }
+
+  .subnav-link--back {
+    color: var(--color-primary-hover);
+
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .subnav-back-icon {
+    flex: 0 0 auto;
+
+    font-size: 1.15em;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  @media (hover: hover) {
+    .subnav-link:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .subnav {
+      width: calc(100% - 1.25rem);
+    }
+
+    .subnav-list {
+      grid-template-columns: minmax(0, 1fr);
+
+      border-radius: 1rem;
+    }
+
+    .subnav-link {
+      min-height: 3.2rem;
+
+      padding: 0.65rem 0.75rem;
+
+      border-radius: 0.75rem;
+
+      font-size: 0.92rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .subnav-link {
+      transition: none;
+    }
+
+    .subnav-link:hover {
+      transform: none;
+    }
   }
 </style>

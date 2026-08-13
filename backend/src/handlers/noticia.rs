@@ -1,261 +1,477 @@
 use crate::{
     AppState,
-    models::noticia::{ChangeOrderNoticia, Noticia},
-    repositories::noticia::replace_all,
-    utils,
+    auth::{auth_user::AuthUser, services::ADMIN_NOTICIAS},
+    error::api_error::{ApiError, ApiResult},
+    models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
+    repositories::noticia::{self, ChangeOrderError},
+    utils::{date_spanish::fecha_actual_espanol, image::convert_to_avif},
 };
 use axum::{
     Json,
     extract::{Multipart, Path, State},
     http::StatusCode,
+    response::IntoResponse,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    env,
-    path::PathBuf,
-    sync::Arc,
-};
+use bytes::Bytes;
+use std::sync::Arc;
 
-fn path_news_img(id: u32) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut route = PathBuf::from(env::var("ROUTE_TO_IMG")?);
-    route.push("img_noticias");
-    route.push(format!("{id}"));
-    Ok(route)
+const MAX_IMAGES: usize = 10;
+
+const MAX_IMAGE_SIZE: usize = 12 * 1024 * 1024;
+
+const VALID_IMAGE_TYPES: [&str; 4] = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+
+/* ==========================================================
+   GET /noticias
+========================================================== */
+
+pub async fn get_all(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Noticia>>, ApiError> {
+    let noticias = noticia::get_all(&state.db).await.map_err(ApiError::from)?;
+
+    Ok(Json(noticias))
 }
 
-pub async fn get_all_news(
+/* ==========================================================
+   GET /noticias/:id
+========================================================== */
+
+pub async fn get_by_id(
     State(state): State<Arc<AppState>>,
-) -> Result<Json<Vec<Noticia>>, StatusCode> {
-    Ok(Json(
-        crate::repositories::noticia::get_all(state.as_ref())
-            .expect("ERR: handlers/noticia.rs -> get_all_news get_all"),
-    ))
-}
+    Path(id): Path<i64>,
+) -> Result<Json<Noticia>, ApiError> {
+    validate_id(id)?;
 
-pub async fn get_new_by_id(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Noticia>, StatusCode> {
-    let news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if let Some(noticia) = news.iter().find(|n| n.id == id) {
-        Ok(Json(noticia.clone()))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-pub async fn post_create_news(
-    State(state): State<Arc<AppState>>,
-    mut multipart: Multipart,
-) -> Result<(StatusCode, Json<Noticia>), StatusCode> {
-    let news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let new_id = news.iter().map(|n| n.id).max().unwrap_or(0) + 1;
-
-    let mut titulo = String::new();
-    let mut content = String::new();
-    let mut order = 0;
-    let mut image: Option<Vec<u8>> = None;
-
-    while let Some(field) = multipart
-        .next_field()
+    let noticia = noticia::get_by_id(&state.db, id)
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
-    {
-        let name = field.name().unwrap_or("").to_string();
+        .map_err(ApiError::from)?;
 
-        match name.as_str() {
-            "titulo" => {
-                titulo = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "content" => {
-                content = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "order" => {
-                order = field
-                    .text()
-                    .await
-                    .map_err(|_| StatusCode::BAD_REQUEST)?
-                    .parse::<u32>()
-                    .map_err(|_| StatusCode::BAD_REQUEST)?;
-            }
-            "image" => {
-                image = Some(
-                    field
-                        .bytes()
-                        .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .to_vec(),
-                );
-            }
-            _ => {}
-        }
+    noticia
+        .map(Json)
+        .ok_or_else(|| ApiError::BadRequest(String::from("La noticia no existe.")))
+}
+
+/* ==========================================================
+   POST /noticias
+========================================================== */
+
+pub async fn create(
+    AuthUser(admin): AuthUser,
+    State(state): State<Arc<AppState>>,
+    multipart: Multipart,
+) -> Result<impl IntoResponse, ApiError> {
+    admin.require(ADMIN_NOTICIAS)?;
+
+    let payload = parse_multipart(multipart).await?;
+
+    let titulo = required_text(payload.titulo, "El título es requerido.")?;
+
+    let contenido = required_text(payload.contenido, "El contenido es requerido.")?;
+
+    if payload.images.is_empty() {
+        return Err(ApiError::BadRequest(String::from(
+            "Debe enviarse al menos una imagen.",
+        )));
     }
-    let image = image.ok_or(StatusCode::BAD_REQUEST)?;
-    utils::image::save_image(
-        path_news_img(new_id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-        &image,
-    )
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let noticia = Noticia {
-        id: new_id,
-        titulo,
-        content,
-        fecha: utils::date_spanish::current_date_spanish(),
-        order,
+    let fecha = match payload.fecha {
+        Some(value) if !value.trim().is_empty() => value.trim().to_string(),
+
+        _ => fecha_actual_espanol(),
     };
 
-    crate::repositories::noticia::push(state.as_ref(), noticia.clone())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let converted_images = convert_images(payload.images).await?;
+
+    let noticia = noticia::create(
+        &state.db,
+        fecha,
+        titulo,
+        contenido,
+        converted_images.len() as i64,
+    )
+    .await
+    .map_err(ApiError::from)?;
+
+    let upload_result = upload_images(&state, noticia.id, &converted_images).await;
+
+    if let Err(error) = upload_result {
+        eprintln!("Error uploading news images: {error}");
+
+        /*
+         * Intentamos eliminar la noticia para no dejar
+         * un registro que no tiene imágenes.
+         */
+        let _ = noticia::delete(&state.db, noticia.id).await;
+
+        let _ = delete_images(&state, noticia.id, converted_images.len()).await;
+
+        return Err(ApiError::BadRequest(String::from(
+            "No se pudieron guardar las imágenes.",
+        )));
+    }
 
     Ok((StatusCode::CREATED, Json(noticia)))
 }
 
-pub async fn change_order_news(
+/* ==========================================================
+   PATCH /noticias/{id}
+========================================================== */
+
+pub async fn update(
+    AuthUser(admin): AuthUser,
     State(state): State<Arc<AppState>>,
-    Json(request): Json<Vec<ChangeOrderNoticia>>,
-) -> Result<StatusCode, StatusCode> {
-    let mut news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Path(id): Path<i64>,
+    multipart: Multipart,
+) -> Result<Json<Noticia>, ApiError> {
+    admin.require(ADMIN_NOTICIAS)?;
 
-    if request.len() != news.len() {
-        return Err(StatusCode::BAD_REQUEST);
-    }
+    validate_id(id)?;
 
-    let valid_ids: HashSet<u32> = news.iter().map(|n| n.id).collect();
+    let current = noticia::get_by_id(&state.db, id)
+        .await
+        .map_err(ApiError::from)?
+        .ok_or_else(|| ApiError::BadRequest(String::from("La noticia no existe.")))?;
 
-    let mut received_ids = HashSet::new();
+    let payload = parse_multipart(multipart).await?;
 
-    let mut new_orders = HashMap::new();
+    let titulo = optional_required_text(payload.titulo, "El título no puede estar vacío.")?;
 
-    for item in &request {
-        if !received_ids.insert(item.id) {
-            return Err(StatusCode::BAD_REQUEST);
+    let contenido =
+        optional_required_text(payload.contenido, "El contenido no puede estar vacío.")?;
+
+    let fecha = optional_required_text(payload.fecha, "La fecha no puede estar vacía.")?;
+
+    let has_new_images = !payload.images.is_empty();
+
+    let mut new_image_count = None;
+    if has_new_images {
+        let converted_images = convert_images(payload.images).await?;
+
+        upload_images(&state, id, &converted_images)
+            .await
+            .map_err(|error| {
+                eprintln!("Error replacing news images: {error}");
+
+                ApiError::BadRequest(String::from("No se pudieron reemplazar las imágenes."))
+            })?;
+
+        /*
+         * Si antes había más imágenes, eliminamos las
+         * posiciones sobrantes.
+         */
+        if converted_images.len() < current.cant_img as usize {
+            let keys = (converted_images.len()..current.cant_img as usize)
+                .map(|index| noticia_image_key(id, index))
+                .collect::<Vec<_>>();
+
+            state.r2.delete_objects(&keys).await.map_err(|error| {
+                eprintln!("Error deleting old news images: {error}");
+
+                ApiError::BadRequest(String::from(
+                    "No se pudieron eliminar las imágenes anteriores.",
+                ))
+            })?;
         }
 
-        if !valid_ids.contains(&item.id) {
-            return Err(StatusCode::BAD_REQUEST);
-        }
-
-        if new_orders.insert(item.id, item.order).is_some() {
-            return Err(StatusCode::BAD_REQUEST);
-        }
+        new_image_count = Some(converted_images.len() as i64);
     }
-
-    if received_ids != valid_ids {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    for noticia in &mut news {
-        noticia.order = *new_orders.get(&noticia.id).unwrap();
-    }
-
-    news.sort_by_key(|n| n.order);
-
-    crate::repositories::noticia::replace_all(&state, news)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(StatusCode::OK)
+    let updated = noticia::update(
+        &state.db,
+        id,
+        UpdateNoticia {
+            titulo,
+            contenido,
+            fecha,
+            cant_img: new_image_count,
+        },
+    )
+    .await
+    .map_err(ApiError::from)?
+    .ok_or_else(|| ApiError::BadRequest(String::from("La noticia no existe.")))?;
+    Ok(Json(updated))
 }
 
-pub async fn delete_new(
+/* ==========================================================
+   DELETE /noticias/:id
+========================================================== */
+
+pub async fn delete_by_id(
+    AuthUser(admin): AuthUser,
     State(state): State<Arc<AppState>>,
-    Path(id): Path<u32>,
-) -> Result<Json<Noticia>, StatusCode> {
-    let res = crate::repositories::noticia::delete(state.as_ref(), id);
-    if res.is_ok() {
-        Ok(res.unwrap())
-    } else {
-        Err(res.unwrap_err())
+    Path(id): Path<i64>,
+) -> Result<StatusCode, ApiError> {
+    admin.require(ADMIN_NOTICIAS)?;
+
+    validate_id(id)?;
+
+    let deleted = noticia::delete(&state.db, id)
+        .await
+        .map_err(ApiError::from)?
+        .ok_or_else(|| ApiError::BadRequest(String::from("La noticia no existe.")))?;
+
+    /*
+     * La noticia ya fue eliminada de PostgreSQL.
+     * Si R2 falla, registramos el error, pero no
+     * revertimos la eliminación.
+     */
+    if let Err(error) = delete_images(&state, id, deleted.cant_img as usize).await {
+        eprintln!("Could not delete news images from R2: {error}");
     }
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
-pub async fn patch_news(
-    Path(id): Path<u32>,
-    State(state): State<Arc<AppState>>,
-    mut multipart: Multipart,
-) -> Result<Json<Noticia>, StatusCode> {
-    let mut news: Vec<Noticia> = crate::repositories::noticia::get_all(state.as_ref())
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+/* ==========================================================
+   PATCH /noticias/order
+========================================================== */
 
-    let mut titulo = None;
-    let mut content = None;
-    let mut order = None;
-    let mut image = None;
+pub async fn change_order(
+    AuthUser(admin): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Json(changes): Json<Vec<ChangeOrderNoticia>>,
+) -> Result<StatusCode, ApiError> {
+    admin.require(ADMIN_NOTICIAS)?;
+
+    noticia::change_order(&state.db, &changes)
+        .await
+        .map_err(|error| match error {
+            ChangeOrderError::Invalid(message) => ApiError::BadRequest(message),
+
+            ChangeOrderError::NotFound => {
+                ApiError::BadRequest(String::from("Una de las noticias no existe."))
+            }
+
+            ChangeOrderError::Database(error) => ApiError::from(error),
+        })?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/* ==========================================================
+   MULTIPART
+========================================================== */
+
+#[derive(Default)]
+struct NoticiaMultipart {
+    titulo: Option<String>,
+    contenido: Option<String>,
+    fecha: Option<String>,
+    images: Vec<RawImage>,
+}
+
+struct RawImage {
+    bytes: Bytes,
+}
+
+async fn parse_multipart(mut multipart: Multipart) -> Result<NoticiaMultipart, ApiError> {
+    let mut payload = NoticiaMultipart::default();
 
     while let Some(field) = multipart
         .next_field()
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
+        .map_err(|_| ApiError::BadRequest(String::from("El formulario multipart no es válido.")))?
     {
-        let name = field.name().unwrap_or("");
+        let field_name = field.name().unwrap_or_default().to_string();
 
-        match name {
+        match field_name.as_str() {
             "titulo" => {
-                titulo = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-
-            "content" => {
-                content = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
-            }
-
-            "order" => {
-                order = Some(
+                payload.titulo = Some(
                     field
                         .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .parse::<u32>()
-                        .map_err(|_| StatusCode::BAD_REQUEST)?,
+                        .map_err(|_| invalid_form_field("titulo"))?,
                 );
             }
 
-            "image" => {
-                image = Some(
+            "contenido" => {
+                payload.contenido = Some(
                     field
-                        .bytes()
+                        .text()
                         .await
-                        .map_err(|_| StatusCode::BAD_REQUEST)?
-                        .to_vec(),
+                        .map_err(|_| invalid_form_field("contenido"))?,
                 );
             }
 
-            _ => {}
+            "fecha" => {
+                payload.fecha = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| invalid_form_field("fecha"))?,
+                );
+            }
+
+            "images" | "imagenes" | "image" => {
+                if payload.images.len() >= MAX_IMAGES {
+                    return Err(ApiError::BadRequest(String::from(format!(
+                        "Se permiten como máximo {MAX_IMAGES} imágenes.",
+                    ))));
+                }
+
+                let content_type = field.content_type().map(str::to_string);
+
+                if let Some(content_type) = content_type {
+                    if !VALID_IMAGE_TYPES.contains(&content_type.as_str()) {
+                        return Err(ApiError::BadRequest(String::from(
+                            "Una de las imágenes tiene un formato no permitido.",
+                        )));
+                    }
+                }
+
+                let bytes = field.bytes().await.map_err(|_| {
+                    ApiError::BadRequest(String::from("No se pudo leer una de las imágenes."))
+                })?;
+
+                if bytes.is_empty() {
+                    return Err(ApiError::BadRequest(String::from(
+                        "Una de las imágenes está vacía.",
+                    )));
+                }
+
+                if bytes.len() > MAX_IMAGE_SIZE {
+                    return Err(ApiError::BadRequest(String::from(
+                        "Una de las imágenes supera el límite de 12 MB.",
+                    )));
+                }
+
+                payload.images.push(RawImage { bytes });
+            }
+
+            _ => {
+                /*
+                 * Los campos desconocidos se ignoran para
+                 * permitir futuras extensiones.
+                 */
+            }
         }
     }
 
-    let noticia = news
-        .iter_mut()
-        .find(|n| n.id == id)
-        .ok_or(StatusCode::NOT_FOUND)?;
+    Ok(payload)
+}
 
-    if let Some(t) = titulo {
-        noticia.titulo = t;
+/* ==========================================================
+   CONVERSIÓN
+========================================================== */
+
+async fn convert_images(images: Vec<RawImage>) -> Result<Vec<Vec<u8>>, ApiError> {
+    let mut converted = Vec::with_capacity(images.len());
+
+    for image in images {
+        let bytes = image.bytes.to_vec();
+
+        let result = tokio::task::spawn_blocking(move || convert_to_avif(&bytes))
+            .await
+            .map_err(|error| {
+                eprintln!("Image task error: {error}");
+
+                ApiError::BadRequest(String::from("No se pudo procesar una imagen."))
+            })?
+            .map_err(|error| {
+                eprintln!("Invalid image: {error}");
+
+                ApiError::BadRequest(String::from("Una de las imágenes no es válida."))
+            })?;
+
+        converted.push(result);
     }
 
-    if let Some(c) = content {
-        noticia.content = c;
+    Ok(converted)
+}
+
+/* ==========================================================
+   R2
+========================================================== */
+
+async fn upload_images(
+    state: &Arc<AppState>,
+    noticia_id: i64,
+    images: &[Vec<u8>],
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    for (index, image) in images.iter().enumerate() {
+        let key = noticia_image_key(noticia_id, index);
+
+        state.r2.upload_avif(&key, image.clone()).await?;
     }
 
-    if let Some(o) = order {
-        noticia.order = o;
+    Ok(())
+}
+
+async fn delete_images(
+    state: &Arc<AppState>,
+    noticia_id: i64,
+    amount: usize,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    if amount == 0 {
+        return Ok(());
     }
 
-    if let Some(img) = image {
-        utils::image::save_image(
-            path_news_img(id).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
-            &img,
+    let keys = (0..amount)
+        .map(|index| noticia_image_key(noticia_id, index))
+        .collect::<Vec<_>>();
+
+    state.r2.delete_objects(&keys).await?;
+
+    Ok(())
+}
+
+fn noticia_image_key(noticia_id: i64, index: usize) -> String {
+    format!("img_noticias/{noticia_id}/{index}.avif")
+}
+
+/* ==========================================================
+   VALIDACIONES
+========================================================== */
+
+fn validate_id(id: i64) -> Result<(), ApiError> {
+    if id <= 0 {
+        return Err(ApiError::BadRequest(String::from("El id no es válido.")));
+    }
+
+    Ok(())
+}
+
+fn required_text(value: Option<String>, error_message: &str) -> Result<String, ApiError> {
+    let value = value.unwrap_or_default().trim().to_string();
+
+    if value.is_empty() {
+        return Err(ApiError::BadRequest(String::from(error_message)));
+    }
+
+    Ok(value)
+}
+
+fn optional_required_text(
+    value: Option<String>,
+    error_message: &str,
+) -> Result<Option<String>, ApiError> {
+    let Some(value) = value else {
+        return Ok(None);
+    };
+
+    let value = value.trim().to_string();
+
+    if value.is_empty() {
+        return Err(ApiError::BadRequest(String::from(error_message)));
+    }
+
+    Ok(Some(value))
+}
+
+fn invalid_form_field(field: &str) -> ApiError {
+    ApiError::BadRequest(String::from(format!("El campo {field} no es válido.")))
+}
+
+/* ==========================================================
+   OBTENER ÚLTIMAS NOTICIAS
+========================================================== */
+
+pub async fn get_latest_news(
+    State(state): State<Arc<AppState>>,
+) -> ApiResult<Json<Vec<Noticia>>> {
+    let noticias =
+        noticia::get_latest(
+            &state.db,
         )
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    }
+        .await?;
 
-    let resp = noticia.clone();
-
-    replace_all(&state, news).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(Json(resp))
+    Ok(Json(noticias))
 }

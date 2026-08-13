@@ -1,0 +1,289 @@
+---
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import ModalCarga from '../../../components/Common/ModalCarga.astro'
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+
+import '../../../style/logros.css'
+---
+
+<LayoutPlataforma titulo="Logros">
+  <ModalCarga />
+
+  <HeaderPlataforma
+    title="Logros"
+    content="Administrá los logros que se muestran en el sitio web."
+  />
+
+  <main class="adminPage achievements-page">
+    <section
+      class="toolbar achievementsToolbar"
+      aria-label="Herramientas de administración de logros"
+    >
+      <button
+        id="btnNewAchievement"
+        class="button buttonPrimary primary"
+        type="button"
+      >
+        <span aria-hidden="true">+</span>
+        <span>Nuevo logro</span>
+      </button>
+
+      <label class="searchField buscador" for="buscar-logros">
+        <span class="srOnly sr-only"> Buscar logros </span>
+
+        <span class="searchFieldIcon icono-busqueda" aria-hidden="true">
+          ⌕
+        </span>
+
+        <input
+          id="buscar-logros"
+          type="search"
+          placeholder="Buscar por título o contenido..."
+          autocomplete="off"
+          aria-describedby="cantidad-eventos"
+        />
+      </label>
+
+      <button
+        id="btnFeatured"
+        class="button buttonSecondary secondary"
+        type="button"
+      >
+        Logros destacados
+      </button>
+    </section>
+
+    <section
+      class="tableContainer achievementsTableContainer"
+      aria-label="Listado de logros"
+    >
+      <div class="tableWrapper">
+        <table class="dataTable table">
+          <caption class="srOnly"> Logros publicados en el sitio web </caption>
+
+          <thead>
+            <tr>
+              <th scope="col">
+                <span class="srOnly"> Orden </span>
+              </th>
+
+              <th scope="col"> Imagen </th>
+
+              <th scope="col"> Título </th>
+
+              <th scope="col"> Destacado </th>
+
+              <th scope="col"> Acciones </th>
+            </tr>
+          </thead>
+
+          <tbody id="achievementsBody"></tbody>
+        </table>
+      </div>
+
+      <div id="achievementsEmpty" class="emptyState empty" role="status" hidden>
+        <span class="emptyStateIcon" aria-hidden="true"> 🏆 </span>
+
+        <h2>No hay logros publicados</h2>
+
+        <p>Creá el primer logro para mostrarlo en el sitio web.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       MODAL CREAR / EDITAR LOGRO
+  ====================================================== -->
+
+  <div
+    id="achievementModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+    tabindex="-1"
+  >
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent achievementModalContent">
+      <header class="modalHeader">
+        <div>
+          <p class="modalEyebrow">Administración de logros</p>
+
+          <h2 id="modalTitle">Nuevo logro</h2>
+        </div>
+
+        <button
+          id="btnCancel"
+          class="iconButton achievementModalClose"
+          type="button"
+          aria-label="Cerrar ventana de logro"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <form
+        id="achievementForm"
+        class="adminForm"
+        enctype="multipart/form-data"
+      >
+        <div class="formContent">
+          <label class="formField">
+            <span class="formLabel">
+              Título
+
+              <span class="requiredMark" aria-hidden="true"> * </span>
+            </span>
+
+            <input
+              id="title"
+              name="titulo"
+              type="text"
+              maxlength="180"
+              placeholder="Escribí el título del logro"
+              required
+            />
+          </label>
+
+          <label class="formField">
+            <span class="formLabel">
+              Descripción
+
+              <span class="requiredMark" aria-hidden="true"> * </span>
+            </span>
+
+            <textarea
+              id="description"
+              name="descripcion"
+              rows="8"
+              maxlength="6000"
+              placeholder="Describí el logro obtenido por la Fundación..."
+              required></textarea>
+          </label>
+
+          <label class="formField">
+            <span class="formLabel">
+              Imagen
+
+              <span class="optionalLabel"> Opcional al editar </span>
+            </span>
+
+            <input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+            />
+
+            <span class="formHelp">
+              Seleccioná una imagen al crear el logro. Al editar, dejá este
+              campo vacío para conservar la imagen actual.
+            </span>
+          </label>
+        </div>
+
+        <footer class="modalFooter modalButtons">
+          <button
+            id="btnCancelForm"
+            class="button buttonGhost achievementCancelButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button class="button buttonPrimary" type="submit">
+            Guardar logro
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL LOGROS DESTACADOS
+  ====================================================== -->
+
+  <div
+    id="featuredModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="featuredModalTitle"
+    aria-describedby="featuredModalDescription"
+    tabindex="-1"
+  >
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent featuredModalContent">
+      <header class="modalHeader">
+        <div>
+          <p class="modalEyebrow">Página principal</p>
+
+          <h2 id="featuredModalTitle">Logros destacados</h2>
+
+          <p id="featuredModalDescription">
+            Seleccioná hasta 3 logros y organizalos en el orden en que deben
+            aparecer.
+          </p>
+        </div>
+      </header>
+
+      <div id="featuredContainer" class="featuredContainer"></div>
+
+      <footer class="modalFooter modalButtons">
+        <button id="btnCancelFeatured" class="button buttonGhost" type="button">
+          Cancelar
+        </button>
+
+        <button id="btnSaveFeatured" class="button buttonPrimary" type="button">
+          Guardar destacados
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL ELIMINAR LOGRO
+  ====================================================== -->
+
+  <div
+    id="deleteModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="deleteModalTitle"
+    aria-describedby="deleteText"
+    tabindex="-1"
+  >
+    <div class="modalBackdrop" aria-hidden="true"></div>
+
+    <div class="modalContent small">
+      <header class="modalHeader">
+        <h2 id="deleteModalTitle">Eliminar logro</h2>
+      </header>
+
+      <div class="deleteConfirmation deleteBody">
+        <span class="deleteConfirmationIcon" aria-hidden="true"> ! </span>
+
+        <p id="deleteText"></p>
+
+        <p class="dangerMessage">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <footer class="modalFooter modalButtons">
+        <button id="btnCancelDelete" class="button buttonGhost" type="button">
+          Cancelar
+        </button>
+
+        <button id="btnDelete" class="button buttonDanger danger" type="button">
+          Eliminar logro
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    import '../../../js/logros/logros.js'
+  </script>
+</LayoutPlataforma>

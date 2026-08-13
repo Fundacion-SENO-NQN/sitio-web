@@ -5,38 +5,41 @@ import { misiones } from '../../../data/mision/mision'
 import type Mision from '../../../data/interfaces/Mision'
 ---
 
-<li>
-  <h3 class="titulo-mision">¿Cual es nuestra misión?</h3>
-  <ul class="lista-mision">
+<section class="mission-section" aria-labelledby="mission-section-title">
+  <h2 id="mission-section-title">¿Cuál es nuestra misión?</h2>
+
+  <ul class="mission-section__list">
     {misiones.map((item: Mision) => <ItemMision mision={item} />)}
   </ul>
-</li>
+</section>
 
 <style>
-  .titulo-mision {
-    text-align: center;
-    font-family: var(--text-font-primary);
+  .mission-section {
+    width: 100%;
+    min-width: 0;
   }
 
-  .lista-mision {
+  .mission-section > h2 {
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+
+    color: var(--color-primary-hover);
+
+    font-size: clamp(1.5rem, 4vw, 2rem);
+
+    line-height: 1.2;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .mission-section__list {
+    width: 100%;
+
     display: grid;
 
-    justify-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
 
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: stretch;
 
-    column-gap: 2rem;
-  }
-
-  @media screen and (min-width: 1200px) {
-    .lista-mision {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media screen and (min-width: 1700px) {
-    .lista-mision {
-      grid-template-columns: repeat(6, 1fr);
-    }
+    column-gap: clamp(1.25rem, 3vw, 2rem);
   }
 </style>

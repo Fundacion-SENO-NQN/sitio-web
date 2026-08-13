@@ -1,0 +1,43 @@
+/* ==========================================================
+   ADMIN COMMON STYLES
+
+   Punto de entrada para los estilos compartidos de la
+   plataforma de administración.
+
+   general.css debe cargarse antes que este archivo, ya que
+   contiene las variables globales de colores y tipografías.
+========================================================== */
+
+/* ==========================================================
+   1. DESIGN TOKENS
+
+   Variables específicas de la interfaz administrativa.
+========================================================== */
+
+@import url('./tokens.css');
+
+/* ==========================================================
+   2. BASE
+
+   Estructura de página, utilidades, accesibilidad y layouts.
+========================================================== */
+
+@import url('./base.css');
+
+/* ==========================================================
+   3. COMPONENTS
+========================================================== */
+
+@import url('./buttons.css');
+
+@import url('./toolbar.css');
+
+@import url('./table.css');
+
+@import url('./modal.css');
+
+@import url('./form.css');
+
+@import url('./imagePicker.css');
+
+@import url('./feedback.css');

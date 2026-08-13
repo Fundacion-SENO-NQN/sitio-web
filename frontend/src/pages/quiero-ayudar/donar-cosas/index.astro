@@ -1,0 +1,1591 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+
+import TituloPag from '../../../components/Common/TituloPag.astro'
+import Breadcrumbs from '../../../components/Common/Breadcrumbs.astro'
+import NavegacionQuieroAyudar from '../../../components/QuieroAyudar/NavegacionQuieroAyudar.astro'
+
+import SvgJuguete from '../../../assets/icon-donar-cosas/icon-juguete.svg'
+import SvgRopa from '../../../assets/icon-donar-cosas/icon-ropa.svg'
+import SvgComida from '../../../assets/icon-donar-cosas/icon-comida.svg'
+import SvgCorazon from '../../../assets/icon-common/icon-corazon.svg'
+import SvgCheck from '../../../assets/icon-donar-cosas/icon-check.svg'
+import SvgMueble from '../../../assets/icon-donar-cosas/icon-mueble.svg'
+import SvgComputadora from '../../../assets/icon-donar-cosas/icon-computadora.svg'
+import SvgCaja from '../../../assets/icon-quiero-ayudar/icon-caja.svg'
+import SvgCruz from '../../../assets/icon-donar-cosas/icon-cruz.svg'
+import SvgCuidado from '../../../assets/icon-donar-cosas/icon-cuidado.svg'
+import SvgRecibir from '../../../assets/icon-donar-cosas/icon-recibir.svg'
+import SvgOrdenar from '../../../assets/icon-donar-cosas/icon-ordenar.svg'
+import SvgPersonas from '../../../assets/icon-donar-cosas/icon-personas.svg'
+import SvgUser from '../../../assets/icon-common/icon-user.svg'
+import SvgFlecha from '../../../assets/icon-common/icon-flecha.svg'
+---
+
+<Layout
+  pag="Donar cosas"
+  seoTitle="Donar ropa, alimentos y objetos en Neuquén"
+  description="Conocé qué donaciones materiales recibe Fundación SENO, en qué condiciones deben estar y cómo coordinar su entrega en Neuquén."
+>
+  <Breadcrumbs
+    items={[
+      {
+        name: 'Inicio',
+        href: '/'
+      },
+      {
+        name: 'Quiero ayudar',
+        href: '/quiero-ayudar'
+      },
+      {
+        name: 'Donar cosas'
+      }
+    ]}
+  />
+  <NavegacionQuieroAyudar pag="3" />
+  <TituloPag titulo="Donar cosas" />
+
+  <main class="donaciones-materiales">
+    <section class="hero">
+      <div class="hero__contenido">
+        <span class="etiqueta">Donaciones materiales</span>
+
+        <h2>Todo puede tener una segunda oportunidad</h2>
+
+        <p class="hero__introduccion">
+          En Fundación SENO recibimos una gran variedad de objetos. Siempre
+          intentamos encontrarles una utilidad: entregarlos a una familia,
+          utilizarlos en la Fundación, acercarlos a un merendero o destinarlos a
+          actividades solidarias.
+        </p>
+
+        <p>
+          La Fundación se sostiene gracias a la colaboración de la comunidad.
+          Muchos de los elementos que utilizamos diariamente, incluyendo
+          nuestras computadoras, fueron donados por distintas personas.
+        </p>
+
+        <a class="boton-principal" href="#que-puedo-donar">
+          Ver qué puedo donar
+
+          <SvgFlecha />
+        </a>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <div class="caja-donacion">
+          <div class="caja-donacion__objetos">
+            <span class="objeto objeto--ropa">
+              <SvgRopa />
+            </span>
+
+            <span class="objeto objeto--juguete">
+              <SvgJuguete />
+            </span>
+
+            <span class="objeto objeto--alimento">
+              <SvgComida />
+            </span>
+          </div>
+
+          <div class="caja-donacion__frente">
+            <SvgCorazon />
+
+            <strong>Tu ayuda se transforma</strong>
+          </div>
+        </div>
+
+        <span class="decoracion decoracion--uno"></span>
+        <span class="decoracion decoracion--dos"></span>
+        <span class="decoracion decoracion--tres"></span>
+      </div>
+    </section>
+
+    <section class="condicion-principal" aria-labelledby="antes-de-donar">
+      <div class="condicion-principal__icono" aria-hidden="true">
+        <SvgCheck />
+      </div>
+
+      <div>
+        <span class="etiqueta">Antes de acercar tu donación</span>
+
+        <h2 id="antes-de-donar">Los objetos deben estar en un estado digno</h2>
+
+        <p>
+          No es necesario que sean nuevos, pero sí deben encontrarse en
+          condiciones decentes, limpios y suficientemente conservados como para
+          que otra persona pueda utilizarlos.
+        </p>
+
+        <p>
+          Por ejemplo, la ropa no debe estar agujereada y los objetos no deben
+          encontrarse destruidos o representar un riesgo para quien los reciba.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="que-puedo-donar"
+      class="categorias"
+      aria-labelledby="titulo-categorias"
+    >
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Hay muchas formas de colaborar</span>
+        <h2 id="titulo-categorias">¿Qué cosas puedes donar?</h2>
+
+        <p>
+          Recibimos distintos tipos de elementos y evaluamos cuál es la mejor
+          manera de aprovechar cada donación.
+        </p>
+      </header>
+
+      <div class="categorias__grid">
+        <article class="categoria categoria--juguetes">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgJuguete />
+          </div>
+
+          <h3>Juguetes</h3>
+
+          <p>
+            Juguetes, juegos, muñecos, libros infantiles y otros elementos que
+            puedan disfrutar niños y adolescentes.
+          </p>
+
+          <span class="categoria__detalle">
+            Deben estar completos y ser seguros para su uso.
+          </span>
+        </article>
+
+        <article class="categoria categoria--ropa">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgRopa />
+          </div>
+
+          <h3>Ropa y calzado</h3>
+
+          <p>
+            Prendas para todas las edades, abrigos, calzado y accesorios que
+            puedan ser utilizados nuevamente.
+          </p>
+
+          <span class="categoria__detalle">
+            La ropa debe estar limpia y sin agujeros.
+          </span>
+        </article>
+
+        <article class="categoria categoria--hogar">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgMueble />
+          </div>
+
+          <h3>Muebles y hogar</h3>
+
+          <p>
+            Muebles, colchones, sábanas, frazadas, utensilios y otros objetos
+            útiles para una vivienda.
+          </p>
+
+          <span class="categoria__detalle">
+            Deben estar en condiciones de uso y no estar destruidos.
+          </span>
+        </article>
+
+        <article class="categoria categoria--alimentos">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgComida />
+          </div>
+
+          <h3>Alimentos</h3>
+
+          <p>
+            Alimentos que podamos utilizar en la Fundación o acercar a los
+            distintos merenderos con los que colaboramos.
+          </p>
+
+          <span class="categoria__detalle">
+            Pueden estar próximos a vencer, pero deben ser seguros.
+          </span>
+        </article>
+
+        <article class="categoria categoria--tecnologia">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgComputadora />
+          </div>
+
+          <h3>Tecnología</h3>
+
+          <p>
+            Computadoras, monitores, periféricos y otros equipos que puedan
+            utilizarse para las actividades de la Fundación.
+          </p>
+
+          <span class="categoria__detalle">
+            Nuestras computadoras actuales también fueron donadas.
+          </span>
+        </article>
+
+        <article class="categoria categoria--otros">
+          <div class="categoria__icono" aria-hidden="true">
+            <SvgCaja />
+          </div>
+
+          <h3>Otros objetos</h3>
+
+          <p>
+            También puedes acercarnos otros elementos que no aparezcan en esta
+            lista. Siempre intentamos encontrarles una utilidad.
+          </p>
+
+          <span class="categoria__detalle">
+            Puedes consultarnos antes de trasladar objetos grandes.
+          </span>
+        </article>
+      </div>
+    </section>
+
+    <section class="estado" aria-labelledby="titulo-estado">
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Una ayuda segura y responsable</span>
+        <h2 id="titulo-estado">¿En qué condiciones deben estar?</h2>
+
+        <p>
+          Antes de donar, pensá si el objeto podría ser utilizado con dignidad y
+          seguridad por otra persona.
+        </p>
+      </header>
+
+      <div class="estado__columnas">
+        <article class="lista-estado lista-estado--aceptado">
+          <div class="lista-estado__encabezado">
+            <span class="lista-estado__icono" aria-hidden="true">
+              <SvgCheck />
+            </span>
+
+            <h3>Podemos recibir</h3>
+          </div>
+
+          <ul>
+            <li>
+              Objetos usados que todavía se encuentren en buenas condiciones.
+            </li>
+            <li>Ropa limpia, sin agujeros y que pueda volver a utilizarse.</li>
+            <li>Juguetes completos y sin partes peligrosas.</li>
+            <li>Muebles, colchones y elementos del hogar utilizables.</li>
+            <li>
+              Alimentos próximos a vencer que todavía sean seguros para el
+              consumo.
+            </li>
+          </ul>
+        </article>
+
+        <article class="lista-estado lista-estado--rechazado">
+          <div class="lista-estado__encabezado">
+            <span class="lista-estado__icono" aria-hidden="true">
+              <SvgCruz />
+            </span>
+
+            <h3>No podemos recibir</h3>
+          </div>
+
+          <ul>
+            <li>Objetos destruidos o que ya no puedan utilizarse.</li>
+            <li>Ropa agujereada, muy deteriorada o en malas condiciones.</li>
+            <li>
+              Elementos que puedan provocar cortes, golpes u otros riesgos.
+            </li>
+            <li>
+              Alimentos en mal estado, contaminados o que puedan resultar
+              tóxicos.
+            </li>
+            <li>
+              Cualquier producto que pueda ocasionar una intoxicación o poner en
+              peligro a otra persona.
+            </li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="alimentos" aria-labelledby="titulo-alimentos">
+      <div class="alimentos__icono" aria-hidden="true">
+        <SvgComida />
+      </div>
+
+      <div class="alimentos__contenido">
+        <span class="etiqueta">Donación de alimentos</span>
+        <h2 id="titulo-alimentos">También colaboramos con merenderos</h2>
+
+        <p>
+          Trabajamos junto a distintos merenderos donde los alimentos donados
+          pueden ser de mucha utilidad. Por eso, también podemos recibir
+          productos que estén próximos a su fecha de vencimiento, siempre que
+          todavía sean aptos y seguros para el consumo.
+        </p>
+
+        <div class="alimentos__advertencia">
+          <SvgCuidado />
+
+          <p>
+            No traigas alimentos en mal estado, contaminados, tóxicos o que
+            puedan causar una intoxicación.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="destinos" aria-labelledby="titulo-destinos">
+      <header class="encabezado-seccion">
+        <span class="etiqueta">Cada donación encuentra un destino</span>
+        <h2 id="titulo-destinos">¿Qué hacemos con las cosas donadas?</h2>
+
+        <p>
+          Buscamos la manera más útil y responsable de aprovechar cada elemento
+          que llega a la Fundación.
+        </p>
+      </header>
+
+      <div class="destinos__recorrido">
+        <article class="destino">
+          <span class="destino__numero">1</span>
+
+          <div class="destino__icono" aria-hidden="true">
+            <SvgRecibir />
+          </div>
+
+          <h3>Recibimos</h3>
+
+          <p>
+            Revisamos el tipo de objeto y las condiciones en las que se
+            encuentra.
+          </p>
+        </article>
+
+        <article class="destino">
+          <span class="destino__numero">2</span>
+
+          <div class="destino__icono" aria-hidden="true">
+            <SvgOrdenar />
+          </div>
+
+          <h3>Clasificamos</h3>
+
+          <p>
+            Determinamos dónde puede ser más útil según las necesidades del
+            momento.
+          </p>
+        </article>
+
+        <article class="destino">
+          <span class="destino__numero">3</span>
+
+          <div class="destino__icono" aria-hidden="true">
+            <SvgCorazon />
+          </div>
+
+          <h3>Asignamos un destino</h3>
+
+          <p>
+            Puede utilizarse en la Fundación, entregarse o destinarse a una
+            actividad solidaria.
+          </p>
+        </article>
+
+        <article class="destino">
+          <span class="destino__numero">4</span>
+
+          <div class="destino__icono" aria-hidden="true">
+            <SvgPersonas />
+          </div>
+
+          <h3>Ayudamos</h3>
+
+          <p>
+            La donación se transforma en una ayuda concreta para otras personas.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="usos-especiales">
+      <article class="uso uso--ropa">
+        <div class="uso__icono" aria-hidden="true">
+          <SvgRopa />
+        </div>
+
+        <div>
+          <span class="etiqueta">Ropa donada</span>
+          <h2>Una prenda puede ayudar de distintas maneras</h2>
+
+          <p>
+            Algunas prendas se entregan directamente a familias que las
+            necesitan. Otras pueden destinarse a ferias solidarias para recaudar
+            fondos que permitan sostener las actividades de la Fundación.
+          </p>
+        </div>
+      </article>
+
+      <article class="uso uso--juguetes">
+        <div class="uso__icono" aria-hidden="true">
+          <SvgJuguete />
+        </div>
+
+        <div>
+          <span class="etiqueta">Juguetes donados</span>
+          <h2>Un juguete también puede crear un momento especial</h2>
+
+          <p>
+            Los juguetes pueden entregarse a familias de bajos recursos o
+            distribuirse gratuitamente durante eventos y celebraciones, como las
+            actividades por el Día del Niño.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <section class="impacto">
+      <div class="impacto__contenido">
+        <span class="etiqueta">El valor de cada aporte</span>
+
+        <h2>Las donaciones también sostienen a la Fundación</h2>
+
+        <p>
+          No todas las cosas donadas se entregan directamente. Algunos elementos
+          son necesarios para que la Fundación pueda seguir trabajando y
+          acompañando a más familias.
+        </p>
+
+        <blockquote>
+          “Las computadoras que utilizamos en la Fundación fueron donadas por
+          distintas personas.”
+        </blockquote>
+
+        <p>
+          Cada mueble, equipo, alimento, prenda o juguete puede convertirse en
+          una herramienta para ayudar.
+        </p>
+      </div>
+
+      <div class="impacto__ilustracion" aria-hidden="true">
+        <span class="impacto__corazon">
+          <SvgCorazon />
+        </span>
+
+        <span class="impacto__linea"></span>
+
+        <div class="impacto__personas">
+          <span>
+            <SvgUser />
+          </span>
+
+          <span>
+            <SvgUser />
+          </span>
+
+          <span>
+            <SvgUser />
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="contacto">
+      <div class="contacto__contenido">
+        <span class="etiqueta">Antes de acercarte</span>
+        <h2>¿Querés donar algo y no sabes si podemos recibirlo?</h2>
+
+        <p>
+          Hablanos para consultar por el objeto, coordinar la entrega o
+          informarnos si se trata de algo grande que requiere traslado.
+        </p>
+      </div>
+
+      <a class="contacto__boton" href="#contacto">
+        Consultar
+
+        <SvgFlecha />
+      </a>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .donaciones-materiales {
+    --donar-primary: var(--color-primary, #3c74a8);
+    --donar-primary-dark: var(--color-primary-hover, #245779);
+    --donar-secondary: var(--color-secondary, #d65f8d);
+    --donar-text: var(--color-text, #27333d);
+    --donar-muted: #687680;
+    --donar-border: #dce6ec;
+    --donar-background: #f6f9fb;
+    --donar-success: #2f8061;
+    --donar-success-background: #eff9f4;
+    --donar-danger: #ae4747;
+    --donar-danger-background: #fff3f2;
+    --donar-warning: #9a6826;
+    --donar-warning-background: #fff8e8;
+
+    width: min(1180px, calc(100% - 2rem));
+    margin: 2rem auto 5rem;
+    color: var(--donar-text);
+    font-family: var(--text-font-primary, system-ui, sans-serif);
+  }
+
+  .etiqueta {
+    display: block;
+    margin-bottom: 0.65rem;
+    color: var(--donar-primary-dark);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    min-height: 470px;
+    padding: clamp(2rem, 6vw, 5rem);
+    overflow: hidden;
+    border: 1px solid var(--donar-border);
+    border-radius: 2rem;
+    background:
+      radial-gradient(
+        circle at 87% 17%,
+        rgb(214 95 141 / 17%),
+        transparent 27%
+      ),
+      radial-gradient(
+        circle at 12% 90%,
+        rgb(60 116 168 / 11%),
+        transparent 27%
+      ),
+      linear-gradient(135deg, #fbfdfe 0%, #edf5fa 100%);
+  }
+
+  .hero::before {
+    position: absolute;
+    right: -120px;
+    bottom: -130px;
+    width: 350px;
+    aspect-ratio: 1;
+    border: 50px solid rgb(60 116 168 / 6%);
+    border-radius: 50%;
+    content: '';
+  }
+
+  .hero__contenido,
+  .hero__visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h2 {
+    max-width: 750px;
+    margin: 0 0 1.3rem;
+    color: var(--donar-primary-dark);
+    font-size: clamp(2.2rem, 5.2vw, 4.35rem);
+    line-height: 1.03;
+    text-wrap: balance;
+  }
+
+  .hero p {
+    max-width: 720px;
+    margin: 0.8rem 0;
+    color: var(--donar-muted);
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  .hero .hero__introduccion {
+    color: var(--donar-text);
+    font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  }
+
+  .boton-principal,
+  .contacto__boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    min-height: 49px;
+    padding: 0.85rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      transform 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .boton-principal {
+    margin-top: 1.4rem;
+    background: var(--donar-primary-dark);
+    color: #fff;
+    box-shadow: 0 12px 28px rgb(36 87 121 / 20%);
+  }
+
+  .boton-principal svg,
+  .contacto__boton svg {
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .boton-principal svg {
+    transform: rotate(180deg);
+  }
+
+  .contacto__boton svg {
+    transform: rotate(90deg);
+  }
+
+  .hero__visual {
+    display: grid;
+    place-items: center;
+    min-height: 300px;
+  }
+
+  .caja-donacion {
+    position: relative;
+    width: min(100%, 310px);
+    padding-top: 95px;
+  }
+
+  .caja-donacion__objetos {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.7rem;
+    width: 90%;
+    transform: translateX(-50%);
+  }
+
+  .objeto {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    aspect-ratio: 1;
+    border: 7px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 12px 25px rgb(36 87 121 / 14%);
+  }
+
+  .objeto svg {
+    width: 36px;
+  }
+
+  .objeto--ropa {
+    background: #fceaf1;
+    color: #b64872;
+    transform: rotate(-8deg);
+  }
+
+  .objeto--juguete {
+    width: 82px;
+    background: #e9f3fa;
+    color: var(--donar-primary);
+    transform: translateY(-17px);
+  }
+
+  .objeto--alimento {
+    background: #fff4d8;
+    color: #a16b1e;
+    transform: rotate(8deg);
+  }
+
+  .caja-donacion__frente {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 190px;
+    padding: 2rem;
+    border-radius: 1.2rem 1.2rem 1.7rem 1.7rem;
+    background: var(--donar-primary);
+    color: #fff;
+    box-shadow: 0 30px 60px rgb(36 87 121 / 24%);
+    clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+  }
+
+  .caja-donacion__frente::before {
+    position: absolute;
+    top: 0;
+    left: 5%;
+    width: 90%;
+    height: 17px;
+    border-radius: 0 0 50% 50%;
+    background: rgb(0 0 0 / 10%);
+    content: '';
+  }
+
+  .caja-donacion__frente svg {
+    width: 66px;
+  }
+
+  .caja-donacion__frente strong {
+    font-size: 1.05rem;
+    text-align: center;
+  }
+
+  .decoracion {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+  }
+
+  .decoracion--uno {
+    top: 5%;
+    right: 5%;
+    width: 23px;
+    aspect-ratio: 1;
+    background: rgb(214 95 141 / 38%);
+  }
+
+  .decoracion--dos {
+    bottom: 12%;
+    left: 0;
+    width: 15px;
+    aspect-ratio: 1;
+    background: rgb(60 116 168 / 38%);
+  }
+
+  .decoracion--tres {
+    top: 35%;
+    left: -4%;
+    width: 37px;
+    aspect-ratio: 1;
+    border: 8px solid rgb(60 116 168 / 18%);
+  }
+
+  .condicion-principal {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-left: 6px solid var(--donar-success);
+    border-radius: 0.35rem 1.5rem 1.5rem 0.35rem;
+    background: var(--donar-success-background);
+  }
+
+  .condicion-principal__icono {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--donar-success);
+    box-shadow: 0 10px 25px rgb(47 128 97 / 12%);
+  }
+
+  .condicion-principal__icono svg {
+    width: 29px;
+  }
+
+  .condicion-principal h2,
+  .alimentos h2,
+  .uso h2,
+  .impacto h2,
+  .contacto h2 {
+    margin: 0 0 0.8rem;
+    color: var(--donar-primary-dark);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .condicion-principal p {
+    max-width: 920px;
+    margin: 0.45rem 0;
+    color: #50675e;
+    line-height: 1.7;
+  }
+
+  .categorias,
+  .estado,
+  .destinos {
+    padding-top: clamp(4.5rem, 10vw, 7.5rem);
+    scroll-margin-top: 2rem;
+  }
+
+  .encabezado-seccion {
+    max-width: 720px;
+    margin: 0 auto clamp(2.2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  .encabezado-seccion h2 {
+    margin: 0;
+    color: var(--donar-primary-dark);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .encabezado-seccion p {
+    margin: 1rem 0 0;
+    color: var(--donar-muted);
+    font-size: 1.04rem;
+    line-height: 1.7;
+  }
+
+  .categorias__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .categoria {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 310px;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    overflow: hidden;
+    border: 1px solid var(--donar-border);
+    border-radius: 1.5rem;
+    background: #fff;
+    box-shadow: 0 14px 40px rgb(41 64 80 / 6%);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .categoria::after {
+    position: absolute;
+    right: -35px;
+    bottom: -45px;
+    width: 120px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: currentColor;
+    content: '';
+    opacity: 0.05;
+  }
+
+  .categoria__icono,
+  .uso__icono {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 1.25rem;
+    border-radius: 1.1rem;
+  }
+
+  .categoria__icono svg,
+  .uso__icono svg {
+    width: 31px;
+  }
+
+  .categoria--juguetes {
+    color: #a84670;
+  }
+
+  .categoria--juguetes .categoria__icono {
+    background: #fcecf3;
+  }
+
+  .categoria--ropa {
+    color: #496ba3;
+  }
+
+  .categoria--ropa .categoria__icono {
+    background: #edf2fb;
+  }
+
+  .categoria--hogar {
+    color: #8b6332;
+  }
+
+  .categoria--hogar .categoria__icono {
+    background: #f9f1e7;
+  }
+
+  .categoria--alimentos {
+    color: #4c8062;
+  }
+
+  .categoria--alimentos .categoria__icono {
+    background: #ecf7f1;
+  }
+
+  .categoria--tecnologia {
+    color: #5960a3;
+  }
+
+  .categoria--tecnologia .categoria__icono {
+    background: #efeffb;
+  }
+
+  .categoria--otros {
+    color: #60737f;
+  }
+
+  .categoria--otros .categoria__icono {
+    background: #eff3f5;
+  }
+
+  .categoria h3 {
+    margin: 0 0 0.75rem;
+    color: var(--donar-text);
+    font-size: 1.35rem;
+  }
+
+  .categoria p {
+    margin: 0;
+    color: var(--donar-muted);
+    line-height: 1.65;
+  }
+
+  .categoria__detalle {
+    display: block;
+    margin-top: auto;
+    padding-top: 1.3rem;
+    color: currentColor;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .estado__columnas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .lista-estado {
+    padding: clamp(1.5rem, 4vw, 2.4rem);
+    border: 1px solid;
+    border-radius: 1.5rem;
+  }
+
+  .lista-estado--aceptado {
+    border-color: #bee1d1;
+    background: var(--donar-success-background);
+  }
+
+  .lista-estado--rechazado {
+    border-color: #efcac7;
+    background: var(--donar-danger-background);
+  }
+
+  .lista-estado__encabezado {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgb(0 0 0 / 8%);
+  }
+
+  .lista-estado__icono {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 47px;
+    height: 47px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .lista-estado--aceptado .lista-estado__icono,
+  .lista-estado--aceptado h3 {
+    color: var(--donar-success);
+  }
+
+  .lista-estado--rechazado .lista-estado__icono,
+  .lista-estado--rechazado h3 {
+    color: var(--donar-danger);
+  }
+
+  .lista-estado__icono svg {
+    width: 24px;
+  }
+
+  .lista-estado h3 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .lista-estado ul {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lista-estado li {
+    position: relative;
+    padding-left: 1.9rem;
+    color: var(--donar-muted);
+    line-height: 1.65;
+  }
+
+  .lista-estado li::before {
+    position: absolute;
+    top: 0.15rem;
+    left: 0;
+    font-weight: 900;
+  }
+
+  .lista-estado--aceptado li::before {
+    color: var(--donar-success);
+    content: '✓';
+  }
+
+  .lista-estado--rechazado li::before {
+    color: var(--donar-danger);
+    content: '×';
+    font-size: 1.2rem;
+  }
+
+  .alimentos {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.7rem;
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.6rem, 5vw, 3rem);
+    border: 1px solid #efdcae;
+    border-radius: 1.8rem;
+    background:
+      radial-gradient(circle at 95% 0, rgb(248 207 105 / 18%), transparent 28%),
+      var(--donar-warning-background);
+  }
+
+  .alimentos__icono {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 1.2rem;
+    background: #fff;
+    color: var(--donar-warning);
+    box-shadow: 0 10px 28px rgb(154 104 38 / 13%);
+  }
+
+  .alimentos__icono > svg {
+    width: 36px;
+  }
+
+  .alimentos p {
+    max-width: 920px;
+    margin: 0;
+    color: #705f46;
+    line-height: 1.75;
+  }
+
+  .alimentos__advertencia {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-top: 1.4rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid #efc9c4;
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 65%);
+  }
+
+  .alimentos__advertencia svg {
+    width: 25px;
+    flex-shrink: 0;
+    color: var(--donar-danger);
+  }
+
+  .alimentos__advertencia p {
+    color: var(--donar-danger);
+    font-weight: 700;
+  }
+
+  .destinos__recorrido {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+
+  .destinos__recorrido::before {
+    position: absolute;
+    top: 43px;
+    right: 10%;
+    left: 10%;
+    height: 2px;
+    background: var(--donar-border);
+    content: '';
+  }
+
+  .destino {
+    position: relative;
+    min-width: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--donar-border);
+    border-radius: 1.3rem;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 12px 35px rgb(41 64 80 / 5%);
+  }
+
+  .destino__numero {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
+    color: rgb(36 87 121 / 20%);
+    font-size: 2.2rem;
+    font-weight: 900;
+  }
+
+  .destino__icono {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 1.3rem;
+    border: 7px solid #fff;
+    border-radius: 50%;
+    background: var(--donar-primary);
+    color: #fff;
+    box-shadow: 0 8px 22px rgb(36 87 121 / 18%);
+  }
+
+  .destino__icono svg {
+    width: 29px;
+  }
+
+  .destino h3 {
+    margin: 0 0 0.65rem;
+    color: var(--donar-primary-dark);
+    font-size: 1.15rem;
+  }
+
+  .destino p {
+    margin: 0;
+    color: var(--donar-muted);
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
+  .usos-especiales {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+  }
+
+  .uso {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 1.3rem;
+    padding: clamp(1.5rem, 4vw, 2.4rem);
+    border: 1px solid var(--donar-border);
+    border-radius: 1.6rem;
+  }
+
+  .uso--ropa {
+    background: #f6f8fd;
+  }
+
+  .uso--ropa .uso__icono {
+    background: #e7edfa;
+    color: #496ba3;
+  }
+
+  .uso--juguetes {
+    background: #fff5f8;
+  }
+
+  .uso--juguetes .uso__icono {
+    background: #fbe4ed;
+    color: #a84670;
+  }
+
+  .uso h2 {
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  }
+
+  .uso p {
+    margin: 0;
+    color: var(--donar-muted);
+    line-height: 1.7;
+  }
+
+  .impacto {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(230px, 0.6fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 5rem);
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    overflow: hidden;
+    border-radius: 1.8rem;
+    background: var(--donar-primary-dark);
+    color: #fff;
+  }
+
+  .impacto .etiqueta {
+    color: rgb(255 255 255 / 65%);
+  }
+
+  .impacto h2 {
+    color: #fff;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .impacto p {
+    max-width: 760px;
+    margin: 0.75rem 0;
+    color: rgb(255 255 255 / 77%);
+    line-height: 1.75;
+  }
+
+  .impacto blockquote {
+    position: relative;
+    margin: 1.6rem 0;
+    padding: 1.3rem 1.5rem;
+    border-left: 4px solid var(--donar-secondary);
+    border-radius: 0 1rem 1rem 0;
+    background: rgb(255 255 255 / 8%);
+    color: #fff;
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .impacto__ilustracion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .impacto__corazon {
+    display: grid;
+    place-items: center;
+    width: 105px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--donar-secondary);
+    box-shadow: 0 20px 45px rgb(0 0 0 / 20%);
+  }
+
+  .impacto__corazon svg {
+    width: 58px;
+  }
+
+  .impacto__linea {
+    width: 2px;
+    height: 55px;
+    background: rgb(255 255 255 / 30%);
+  }
+
+  .impacto__personas {
+    display: flex;
+    justify-content: center;
+  }
+
+  .impacto__personas span {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    aspect-ratio: 1;
+    margin-left: -10px;
+    border: 4px solid var(--donar-primary-dark);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--donar-primary);
+  }
+
+  .impacto__personas span:first-child {
+    margin-left: 0;
+  }
+
+  .impacto__personas svg {
+    width: 31px;
+  }
+
+  .contacto {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: clamp(4.5rem, 10vw, 7.5rem);
+    padding: clamp(1.7rem, 5vw, 3rem);
+    border: 1px solid var(--donar-border);
+    border-radius: 1.8rem;
+    background:
+      radial-gradient(
+        circle at 90% 20%,
+        rgb(214 95 141 / 12%),
+        transparent 28%
+      ),
+      var(--donar-background);
+  }
+
+  .contacto__contenido {
+    max-width: 760px;
+  }
+
+  .contacto p {
+    margin: 0;
+    color: var(--donar-muted);
+    line-height: 1.7;
+  }
+
+  .contacto__boton {
+    flex-shrink: 0;
+    background: var(--donar-primary-dark);
+    color: #fff;
+    box-shadow: 0 12px 28px rgb(36 87 121 / 18%);
+  }
+
+  @media (hover: hover) {
+    .boton-principal:hover,
+    .contacto__boton:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 35px rgb(36 87 121 / 28%);
+    }
+
+    .categoria:hover {
+      border-color: rgb(60 116 168 / 33%);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 45px rgb(41 64 80 / 11%);
+    }
+  }
+
+  @media (max-width: 950px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__contenido {
+      order: 2;
+    }
+
+    .hero__visual {
+      order: 1;
+      min-height: 270px;
+    }
+
+    .hero p {
+      margin-inline: auto;
+    }
+
+    .categorias__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .destinos__recorrido {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .destinos__recorrido::before {
+      display: none;
+    }
+
+    .usos-especiales {
+      grid-template-columns: 1fr;
+    }
+
+    .impacto {
+      grid-template-columns: 1fr;
+    }
+
+    .impacto__ilustracion {
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .impacto__linea {
+      width: 60px;
+      height: 2px;
+    }
+
+    .contacto {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .donaciones-materiales {
+      width: min(100% - 1rem, 1180px);
+      margin-top: 1rem;
+    }
+
+    .hero {
+      gap: 1.5rem;
+      min-height: auto;
+      padding: 1.7rem 1.2rem;
+      border-radius: 1.4rem;
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .hero p {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
+
+    .hero__visual {
+      min-height: 240px;
+    }
+
+    .caja-donacion {
+      width: min(85%, 260px);
+      padding-top: 75px;
+    }
+
+    .objeto {
+      width: 58px;
+      border-width: 5px;
+    }
+
+    .objeto--juguete {
+      width: 66px;
+    }
+
+    .objeto svg {
+      width: 29px;
+    }
+
+    .caja-donacion__frente {
+      min-height: 150px;
+    }
+
+    .caja-donacion__frente svg {
+      width: 52px;
+    }
+
+    .condicion-principal,
+    .alimentos {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .condicion-principal {
+      border-left-width: 4px;
+      border-radius: 0.25rem 1.2rem 1.2rem 0.25rem;
+    }
+
+    .condicion-principal__icono {
+      width: 50px;
+      height: 50px;
+    }
+
+    .categorias__grid,
+    .estado__columnas,
+    .destinos__recorrido {
+      grid-template-columns: 1fr;
+    }
+
+    .categoria {
+      min-height: auto;
+      padding: 1.4rem;
+    }
+
+    .categoria__detalle {
+      margin-top: 1rem;
+    }
+
+    .lista-estado {
+      padding: 1.35rem;
+      border-radius: 1.2rem;
+    }
+
+    .alimentos {
+      padding: 1.4rem;
+      border-radius: 1.3rem;
+    }
+
+    .alimentos__icono {
+      width: 58px;
+      height: 58px;
+    }
+
+    .destino {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 1rem;
+      text-align: left;
+    }
+
+    .destino__icono {
+      grid-row: span 3;
+      width: 56px;
+      height: 56px;
+      margin: 0;
+    }
+
+    .destino h3 {
+      align-self: end;
+      padding-right: 1.5rem;
+    }
+
+    .destino__numero {
+      font-size: 1.8rem;
+    }
+
+    .uso {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 1.4rem;
+    }
+
+    .uso__icono {
+      width: 52px;
+      height: 52px;
+    }
+
+    .impacto {
+      padding: 1.8rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .impacto__ilustracion {
+      transform: scale(0.85);
+    }
+
+    .contacto {
+      padding: 1.6rem 1.3rem;
+      border-radius: 1.3rem;
+    }
+
+    .contacto__boton,
+    .boton-principal {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boton-principal,
+    .contacto__boton,
+    .categoria {
+      transition: none;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>

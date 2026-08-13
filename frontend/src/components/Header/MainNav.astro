@@ -1,55 +1,213 @@
 ---
 import type Navigation from '../../data/interfaces/Navigation'
 import { navigationMain } from '../../data/navigation/navigationMain'
+
+const normalizePath = (path: string): string => {
+  const pathWithoutParameters = path.split(/[?#]/, 1)[0]
+
+  const normalizedPath = pathWithoutParameters.replace(/\/+$/, '')
+
+  return normalizedPath || '/'
+}
+
+const currentPath = normalizePath(Astro.url.pathname)
+
+const isCurrentNavigationItem = (href: string): boolean => {
+  if (!href.startsWith('/')) {
+    return false
+  }
+
+  const itemPath = normalizePath(href)
+
+  if (itemPath === '/') {
+    return currentPath === '/'
+  }
+
+  return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`)
+}
 ---
 
-<nav>
-  <ul class="lista-nav">
+<nav class="main-navigation" aria-label="Navegación principal">
+  <ul class="main-navigation__list">
     {
-      navigationMain.map((item: Navigation) => (
-        <a href={item.href}>
-          <li>{item.name}</li>
-        </a>
-      ))
+      navigationMain.map((item: Navigation) => {
+        const isCurrentPage = isCurrentNavigationItem(item.href)
+
+        return (
+          <li class="main-navigation__item">
+            <a
+              class:list={[
+                'main-navigation__link',
+                {
+                  'main-navigation__link--current': isCurrentPage
+                }
+              ]}
+              href={item.href}
+              aria-current={isCurrentPage ? 'page' : undefined}
+            >
+              {item.name}
+            </a>
+          </li>
+        )
+      })
     }
   </ul>
 </nav>
 
 <style>
-  .lista-nav {
+  .main-navigation {
+    min-width: 0;
     display: flex;
-    align-items: end;
-    list-style: none;
+    flex: 1 1 auto;
   }
 
-  .lista-nav a {
+  .main-navigation__list {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 0.1rem;
+  }
+
+  .main-navigation__item {
+    min-width: 0;
+  }
+
+  .main-navigation__link {
+    padding: 0.75rem clamp(0.45rem, 1vw, 1rem);
+
+    position: relative;
+
+    display: block;
+
     color: var(--color-text);
-    font-size: 1.1rem;
-    font-family: var(--text-font-primary);
+
+    border-radius: 0.45rem;
+
+    font-size: clamp(0.9rem, 1.1vw, 1.08rem);
+
+    font-weight: 600;
+    line-height: 1.35;
     text-align: center;
     text-decoration: none;
-    position: relative;
-    padding-top: 1rem;
-    padding-inline: 1rem;
-    transition: color 0.3s ease;
+    white-space: nowrap;
+
+    transition:
+      color var(--transition),
+      background-color var(--transition),
+      box-shadow var(--transition);
   }
 
-  .lista-nav a:hover {
+  .main-navigation__link::after {
+    content: '';
+
+    height: 2px;
+
+    position: absolute;
+    right: clamp(0.45rem, 1vw, 1rem);
+
+    bottom: 0.35rem;
+
+    left: clamp(0.45rem, 1vw, 1rem);
+
+    background-color: var(--color-primary);
+
+    border-radius: 999px;
+
+    transform: scaleX(0);
+    transform-origin: center;
+
+    transition: transform var(--transition);
+  }
+
+  .main-navigation__link:hover {
     color: var(--color-primary-hover);
   }
 
-  .lista-nav a::after {
-    content: '';
-    width: 100%;
-    height: 1px;
-    position: absolute;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-    left: 0;
-    background-color: var(--color-primary);
+  .main-navigation__link:hover::after,
+  .main-navigation__link--current::after {
+    transform: scaleX(1);
   }
 
-  .lista-nav a:hover::after {
-    transform: scaleX(1);
+  .main-navigation__link--current {
+    color: var(--color-primary-hover);
+
+    font-weight: 750;
+  }
+
+  .main-navigation__link:focus-visible {
+    outline: none;
+
+    color: var(--color-primary-hover);
+
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  @media (max-width: 1100px) {
+    .main-navigation {
+      width: 100%;
+    }
+
+    .main-navigation__list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.2rem;
+    }
+
+    .main-navigation__item {
+      width: 100%;
+    }
+
+    .main-navigation__link {
+      width: 100%;
+
+      padding: 0.85rem 1rem;
+
+      color: var(--color-text);
+
+      border-radius: var(--radius-small);
+
+      font-size: 1.05rem;
+      text-align: left;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .main-navigation__link::after {
+      display: none;
+    }
+
+    .main-navigation__link:hover {
+      color: var(--color-primary-hover);
+      background-color: rgba(131, 192, 67, 0.12);
+    }
+
+    .main-navigation__link--current {
+      color: var(--color-primary-hover);
+      background-color: rgba(131, 192, 67, 0.18);
+    }
+
+    .main-navigation__link--current::before {
+      content: '';
+
+      width: 0.25rem;
+
+      position: absolute;
+      top: 0.65rem;
+      bottom: 0.65rem;
+      left: 0.35rem;
+
+      background-color: var(--color-primary);
+
+      border-radius: 999px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .main-navigation__link,
+    .main-navigation__link::after {
+      transition: none;
+    }
   }
 </style>
