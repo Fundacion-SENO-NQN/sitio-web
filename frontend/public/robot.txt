@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-Disallow: /plataforma/
-Disallow: /login/
-
-Sitemap: https://fundacionseno.org/sitemap-index.xml
