@@ -13,6 +13,10 @@ export default defineConfig({
     imageService: 'compile'
   }),
 
+  build: {
+    inlineStylesheets: 'always'
+  },
+
   integrations: [
     sitemap({
       filter: (page) =>
