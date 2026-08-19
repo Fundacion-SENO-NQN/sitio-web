@@ -12,7 +12,7 @@ The project is organized as a monorepo with two main applications:
 - **Authentication:** JWT with role- and permission-based authorization.
 - **Email:** SMTP, currently used for volunteer applications.
 
-> Production website (not publicated yet): [fundacionseno.org](https://fundacionseno.org)
+> Production website: [fundacionseno.org](https://fundacionseno.org)
 
 ---
 
