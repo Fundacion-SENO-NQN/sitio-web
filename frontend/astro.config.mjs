@@ -19,6 +19,10 @@ export default defineConfig({
 
   security: {
     csp: {
+      scriptDirective: {
+        resources: ["'self'", 'https://static.cloudflareinsights.com']
+      },
+
       directives: [
         "default-src 'self'",
 
