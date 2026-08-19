@@ -35,8 +35,16 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      filter: (page) =>
-        !page.includes('/plataforma') && !page.includes('/login')
+      filter: (page) => {
+        const pathname = new URL(page).pathname
+
+        return (
+          !pathname.startsWith('/plataforma') &&
+          !pathname.startsWith('/login') &&
+          pathname !== '/404' &&
+          pathname !== '/404/'
+        )
+      }
     })
   ]
 })
