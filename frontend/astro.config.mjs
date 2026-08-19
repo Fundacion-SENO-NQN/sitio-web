@@ -30,7 +30,7 @@ export default defineConfig({
 
         "font-src 'self' data:",
 
-        "connect-src 'self' https://sitio-web-fundacion-seno.fly.dev https://api.fundacionseno.org",
+        "connect-src 'self' https://cloudflareinsights.com https://sitio-web-fundacion-seno.fly.dev https://api.fundacionseno.org",
 
         "frame-src 'self' https://www.google.com https://maps.google.com"
       ]
