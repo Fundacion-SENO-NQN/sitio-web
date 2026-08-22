@@ -9,3 +9,4 @@ pub mod noticia;
 pub mod service;
 pub mod user;
 pub mod voluntariado;
+pub mod bingo;

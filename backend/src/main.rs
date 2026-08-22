@@ -1,8 +1,8 @@
 use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
-        equipo, evento, health, img_donation, logro, logro_fav, metodo_donacion, noticia, roles,
-        service, user, voluntariado,
+        bingo, equipo, evento, health, img_donation, logro, logro_fav, metodo_donacion, noticia,
+        roles, service, user, voluntariado,
     },
     services::{email::EmailService, frontend_rebuild::FrontendRebuildService},
 };
@@ -137,6 +137,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(evento::routes())
         .merge(health::routes())
         .merge(noticia::routes())
+        .merge(bingo::routes())
         // Shared state and middleware
         .with_state(state)
         .layer(DefaultBodyLimit::max(130 * 1024 * 1024))

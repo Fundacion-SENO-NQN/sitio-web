@@ -1,3 +1,4 @@
+pub mod bingo;
 pub mod equipo;
 pub mod evento;
 pub mod img_donation;
