@@ -28,6 +28,9 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
   index,
   src: `${IMG_URL}/img_donaciones/${index}.avif?v=${buildVersion}`
 }))
+
+console.log(`IMG_URL: ${IMG_URL}`)
+console.log(`images: ${images}`)
 ---
 
 <donation-carousel
