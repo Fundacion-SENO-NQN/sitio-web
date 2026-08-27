@@ -22,7 +22,7 @@ export default defineConfig({
       directives: [
         "default-src 'self'",
 
-        "img-src 'self' data: blob: https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev https://img.fundacionseno.org",
+        "img-src 'self' data: blob: https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev https://media.fundacionseno.org",
 
         "font-src 'self' data:",
 
