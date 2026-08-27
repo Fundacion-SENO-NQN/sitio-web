@@ -31,7 +31,7 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
 
 console.log(`IMG_URL: ${IMG_URL}`)
 console.log(`images:`)
-images.forEach(img => console.log(img))
+images.forEach((img) => console.log(img))
 ---
 
 <donation-carousel
@@ -40,11 +40,7 @@ images.forEach(img => console.log(img))
   aria-roledescription="carrusel"
   aria-label="Imágenes de donaciones recibidas por la Fundación SENO"
 >
-  <div
-    class="donation-carousel__track"
-    data-carousel-track
-    aria-live="off"
-  >
+  <div class="donation-carousel__track" data-carousel-track aria-live="off">
     {
       images.map(({ index, src }) => (
         <img
@@ -63,12 +59,7 @@ images.forEach(img => console.log(img))
     }
   </div>
 
-  <p
-    class="donation-carousel__empty"
-    data-carousel-empty
-    role="status"
-    hidden
-  >
+  <p class="donation-carousel__empty" data-carousel-empty role="status" hidden>
     Las imágenes de donaciones no están disponibles en este momento.
   </p>
 
@@ -100,8 +91,7 @@ images.forEach(img => console.log(img))
         return
       }
 
-      this.track =
-        this.querySelector<HTMLElement>('[data-carousel-track]')
+      this.track = this.querySelector<HTMLElement>('[data-carousel-track]')
 
       if (!this.track) {
         this.showEmptyState()
@@ -116,15 +106,11 @@ images.forEach(img => console.log(img))
 
       this.registerImageErrors(signal)
 
-      this.track.addEventListener(
-        'transitionend',
-        this.handleTransitionEnd,
-        { signal }
-      )
+      this.track.addEventListener('transitionend', this.handleTransitionEnd, {
+        signal
+      })
 
-      this.resizeObserver = new ResizeObserver(
-        this.handleResize
-      )
+      this.resizeObserver = new ResizeObserver(this.handleResize)
 
       this.resizeObserver.observe(this)
 
@@ -161,18 +147,18 @@ images.forEach(img => console.log(img))
        IMAGES
     ====================================================== */
 
-    private registerImageErrors(
-      signal: AbortSignal
-    ): void {
-      const images =
-        this.querySelectorAll<HTMLImageElement>(
-          '[data-carousel-image]'
-        )
+    private registerImageErrors(signal: AbortSignal): void {
+      const images = this.querySelectorAll<HTMLImageElement>(
+        '[data-carousel-image]'
+      )
 
       images.forEach((image) => {
+        console.log(image)
         image.addEventListener(
           'error',
           () => {
+            console.log('ERROR')
+            console.log(image)
             image.remove()
 
             this.refreshSlides()
@@ -187,10 +173,7 @@ images.forEach(img => console.log(img))
          * La imagen puede haber fallado antes de que
          * se inicialice el custom element.
          */
-        if (
-          image.complete &&
-          image.naturalWidth === 0
-        ) {
+        if (image.complete && image.naturalWidth === 0) {
           image.remove()
         }
       })
@@ -211,9 +194,7 @@ images.forEach(img => console.log(img))
         .forEach((clone) => clone.remove())
 
       this.realSlides = Array.from(
-        this.track.querySelectorAll<HTMLImageElement>(
-          '[data-carousel-image]'
-        )
+        this.track.querySelectorAll<HTMLImageElement>('[data-carousel-image]')
       )
 
       this.realImages = this.realSlides.length
@@ -254,40 +235,26 @@ images.forEach(img => console.log(img))
        * de la última real.
        */
       const clones = this.realSlides.map((slide) => {
-        const clone =
-          slide.cloneNode(true) as HTMLImageElement
+        const clone = slide.cloneNode(true) as HTMLImageElement
 
         clone.alt = ''
         clone.loading = 'eager'
         clone.fetchPriority = 'auto'
 
-        clone.removeAttribute(
-          'data-carousel-image'
-        )
+        clone.removeAttribute('data-carousel-image')
 
-        clone.setAttribute(
-          'data-carousel-clone',
-          ''
-        )
+        clone.setAttribute('data-carousel-clone', '')
 
-        clone.setAttribute(
-          'aria-hidden',
-          'true'
-        )
+        clone.setAttribute('aria-hidden', 'true')
 
-        clone.classList.add(
-          'donation-carousel__slide--clone'
-        )
+        clone.classList.add('donation-carousel__slide--clone')
 
         return clone
       })
 
       this.track.append(...clones)
 
-      this.slides = [
-        ...this.realSlides,
-        ...clones
-      ]
+      this.slides = [...this.realSlides, ...clones]
 
       window.requestAnimationFrame(() => {
         if (!this.isConnected) {
@@ -305,17 +272,11 @@ images.forEach(img => console.log(img))
     ====================================================== */
 
     private startCarousel(): void {
-      if (
-        this.realImages <= 1 ||
-        this.intervalId !== undefined
-      ) {
+      if (this.realImages <= 1 || this.intervalId !== undefined) {
         return
       }
 
-      this.intervalId = window.setInterval(
-        this.moveToNextSlide,
-        SLIDE_INTERVAL
-      )
+      this.intervalId = window.setInterval(this.moveToNextSlide, SLIDE_INTERVAL)
     }
 
     private stopCarousel(): void {
@@ -323,18 +284,13 @@ images.forEach(img => console.log(img))
         return
       }
 
-      window.clearInterval(
-        this.intervalId
-      )
+      window.clearInterval(this.intervalId)
 
       this.intervalId = undefined
     }
 
     private moveToNextSlide = (): void => {
-      if (
-        !this.track ||
-        this.realImages <= 1
-      ) {
+      if (!this.track || this.realImages <= 1) {
         return
       }
 
@@ -348,15 +304,13 @@ images.forEach(img => console.log(img))
         return
       }
 
-      const currentSlide =
-        this.slides[this.currentIndex]
+      const currentSlide = this.slides[this.currentIndex]
 
       if (!currentSlide) {
         return
       }
 
-      this.track.style.transform =
-        `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
+      this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
     }
 
     /*
@@ -374,23 +328,16 @@ images.forEach(img => console.log(img))
      * Ambas posiciones muestran exactamente las mismas
      * imágenes, por lo que visualmente el salto no existe.
      */
-    private handleTransitionEnd = (
-      event: TransitionEvent
-    ): void => {
-      if (
-        event.propertyName !== 'transform'
-      ) {
+    private handleTransitionEnd = (event: TransitionEvent): void => {
+      if (event.propertyName !== 'transform') {
         return
       }
 
-      if (
-        this.currentIndex < this.realImages
-      ) {
+      if (this.currentIndex < this.realImages) {
         return
       }
 
-      this.currentIndex -=
-        this.realImages
+      this.currentIndex -= this.realImages
 
       this.repositionWithoutAnimation()
     }
@@ -410,9 +357,7 @@ images.forEach(img => console.log(img))
        */
       this.track.getBoundingClientRect()
 
-      this.track.style.removeProperty(
-        'transition'
-      )
+      this.track.style.removeProperty('transition')
     }
 
     /* ======================================================
@@ -420,20 +365,15 @@ images.forEach(img => console.log(img))
     ====================================================== */
 
     private handleResize = (): void => {
-      if (
-        this.resizeFrameId !== undefined
-      ) {
-        window.cancelAnimationFrame(
-          this.resizeFrameId
-        )
+      if (this.resizeFrameId !== undefined) {
+        window.cancelAnimationFrame(this.resizeFrameId)
       }
 
-      this.resizeFrameId =
-        window.requestAnimationFrame(() => {
-          this.resizeFrameId = undefined
+      this.resizeFrameId = window.requestAnimationFrame(() => {
+        this.resizeFrameId = undefined
 
-          this.repositionWithoutAnimation()
-        })
+        this.repositionWithoutAnimation()
+      })
     }
 
     /* ======================================================
@@ -443,54 +383,32 @@ images.forEach(img => console.log(img))
     private showEmptyState(): void {
       this.stopCarousel()
 
-      this.track?.setAttribute(
-        'hidden',
-        ''
+      this.track?.setAttribute('hidden', '')
+
+      const emptyElement = this.querySelector<HTMLElement>(
+        '[data-carousel-empty]'
       )
 
-      const emptyElement =
-        this.querySelector<HTMLElement>(
-          '[data-carousel-empty]'
-        )
+      if (emptyElement) emptyElement.hidden = false
 
-      if (emptyElement) {
-        emptyElement.hidden = false
-      }
-
-      this.classList.add(
-        'donation-carousel--empty'
-      )
+      this.classList.add('donation-carousel--empty')
     }
 
     private hideEmptyState(): void {
-      this.track?.removeAttribute(
-        'hidden'
+      this.track?.removeAttribute('hidden')
+
+      const emptyElement = this.querySelector<HTMLElement>(
+        '[data-carousel-empty]'
       )
 
-      const emptyElement =
-        this.querySelector<HTMLElement>(
-          '[data-carousel-empty]'
-        )
+      if (emptyElement) emptyElement.hidden = true
 
-      if (emptyElement) {
-        emptyElement.hidden = true
-      }
-
-      this.classList.remove(
-        'donation-carousel--empty'
-      )
+      this.classList.remove('donation-carousel--empty')
     }
   }
 
-  if (
-    !customElements.get(
-      'donation-carousel'
-    )
-  ) {
-    customElements.define(
-      'donation-carousel',
-      DonationCarousel
-    )
+  if (!customElements.get('donation-carousel')) {
+    customElements.define('donation-carousel', DonationCarousel)
   }
 </script>
 
@@ -546,10 +464,7 @@ images.forEach(img => console.log(img))
   }
 
   .donation-carousel__empty {
-    width: min(
-      calc(100% - 2rem),
-      38rem
-    );
+    width: min(calc(100% - 2rem), 38rem);
 
     margin: 0;
     padding: 1.25rem;
@@ -562,17 +477,14 @@ images.forEach(img => console.log(img))
 
     color: var(--color-text);
 
-    background-color:
-      rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.9);
 
-    border-radius:
-      var(--radius-small);
+    border-radius: var(--radius-small);
 
     line-height: 1.6;
     text-align: center;
 
-    transform:
-      translate(-50%, -50%);
+    transform: translate(-50%, -50%);
   }
 
   .donation-carousel__overlay {
@@ -582,14 +494,12 @@ images.forEach(img => console.log(img))
     display: flex;
     align-items: flex-end;
 
-    background:
-      rgba(18, 18, 18, 0.25);
+    background: rgba(18, 18, 18, 0.25);
 
     pointer-events: none;
   }
 
-  .donation-carousel--empty
-    .donation-carousel__overlay {
+  .donation-carousel--empty .donation-carousel__overlay {
     display: none;
   }
 
@@ -598,27 +508,15 @@ images.forEach(img => console.log(img))
 
     margin: 0;
 
-    padding:
-      clamp(
-        0.75rem,
-        2vw,
-        1.25rem
-      );
+    padding: clamp(0.75rem, 2vw, 1.25rem);
 
     color: var(--color-text);
 
-    background:
-      rgba(144, 184, 214, 0.86);
+    background: rgba(144, 184, 214, 0.86);
 
-    font-family:
-      var(--text-font-logo);
+    font-family: var(--text-font-logo);
 
-    font-size:
-      clamp(
-        1.8rem,
-        5vw,
-        3.5rem
-      );
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
 
     line-height: 1.1;
     text-align: center;
@@ -627,12 +525,7 @@ images.forEach(img => console.log(img))
 
   @media (max-width: 900px) {
     .donation-carousel {
-      height:
-        clamp(
-          16rem,
-          48vw,
-          22rem
-        );
+      height: clamp(16rem, 48vw, 22rem);
     }
 
     .donation-carousel__slide {
@@ -644,12 +537,7 @@ images.forEach(img => console.log(img))
 
   @media (max-width: 600px) {
     .donation-carousel {
-      height:
-        clamp(
-          15rem,
-          75vw,
-          21rem
-        );
+      height: clamp(15rem, 75vw, 21rem);
     }
 
     .donation-carousel__slide {
@@ -659,15 +547,9 @@ images.forEach(img => console.log(img))
     }
 
     .donation-carousel__overlay p {
-      padding:
-        0.8rem 1rem;
+      padding: 0.8rem 1rem;
 
-      font-size:
-        clamp(
-          1.6rem,
-          8vw,
-          2.4rem
-        );
+      font-size: clamp(1.6rem, 8vw, 2.4rem);
     }
   }
 
@@ -681,9 +563,7 @@ images.forEach(img => console.log(img))
     }
   }
 
-  @media (
-    prefers-reduced-motion: reduce
-  ) {
+  @media (prefers-reduced-motion: reduce) {
     .donation-carousel__track {
       transition: none;
     }
