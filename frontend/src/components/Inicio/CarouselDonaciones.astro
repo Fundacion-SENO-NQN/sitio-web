@@ -30,7 +30,8 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
 }))
 
 console.log(`IMG_URL: ${IMG_URL}`)
-console.log(`images: ${images}`)
+console.log(`images:`)
+images.forEach(img => console.log(img))
 ---
 
 <donation-carousel
