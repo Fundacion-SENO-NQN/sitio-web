@@ -100,6 +100,15 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
 
       const { signal } = this.abortController
 
+      // Pausa el carrusel cuando la pestaña no está visible
+      document.addEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange,
+        {
+          signal
+        }
+      )
+
       this.registerImageErrors(signal)
 
       this.track.addEventListener('transitionend', this.handleTransitionEnd, {
@@ -137,6 +146,18 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
       this.realImages = 0
 
       delete this.dataset.initialized
+    }
+
+    /* ======================================================
+       VISIBILITY
+    ====================================================== */
+
+    private handleVisibilityChange = (): void => {
+      if (document.hidden) {
+        this.stopCarousel()
+      } else {
+        this.startCarousel()
+      }
     }
 
     /* ======================================================
@@ -217,15 +238,6 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
 
       /*
        * Duplicamos TODO el conjunto.
-       *
-       * Ejemplo:
-       *
-       * 0 1 2 3 4 5 6 7 8 9
-       * 0 1 2 3 4 5 6 7 8 9
-       *
-       * De esta manera, aunque se vean varias imágenes
-       * simultáneamente, siempre existen imágenes después
-       * de la última real.
        */
       const clones = this.realSlides.map((slide) => {
         const clone = slide.cloneNode(true) as HTMLImageElement
@@ -287,6 +299,12 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
         return
       }
 
+      // Límite de seguridad: si el índice supera el total de imágenes
+      if (this.currentIndex >= this.slides.length - 1) {
+        this.currentIndex -= this.realImages
+        this.repositionWithoutAnimation()
+      }
+
       this.currentIndex += 1
 
       this.setTransform()
@@ -306,21 +324,6 @@ const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
       this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
     }
 
-    /*
-     * Cuando terminamos de animar hasta la primera imagen
-     * del segundo conjunto:
-     *
-     * 0 1 2 ... 9 [0] 1 2 ...
-     *               ↑
-     *
-     * saltamos instantáneamente a:
-     *
-     * [0] 1 2 ... 9 0 1 2 ...
-     *  ↑
-     *
-     * Ambas posiciones muestran exactamente las mismas
-     * imágenes, por lo que visualmente el salto no existe.
-     */
     private handleTransitionEnd = (event: TransitionEvent): void => {
       if (event.propertyName !== 'transform') {
         return
