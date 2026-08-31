@@ -8,6 +8,7 @@ import NavegacionPelucas from '../../components/Pelucas/NavegacionPelucas.astro'
 
 import ImgTaller from '../../assets/img_taller/confeccion_pelucas.avif'
 import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
+import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
 ---
 
 <Layout
@@ -115,6 +116,17 @@ import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
         sonrisa.
       </p>
     </blockquote>
+    <div class="wigs-cta-container">
+      <a
+        class="wigs-button-destacado"
+        href="https://forms.gle/fP7pBoqrkT5f7Rb27"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span>Solicitar una peluca</span>
+        <SvgFlecha />
+      </a>
+    </div>
   </main>
 </Layout>
 
@@ -383,6 +395,42 @@ import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
     text-wrap: balance;
   }
 
+  /* ========================================================
+     CALL TO ACTION (BOTÓN)
+  ======================================================== */
+
+  .wigs-cta-container {
+    margin-top: clamp(3rem, 8vw, 5rem);
+
+    display: flex;
+    justify-content: center;
+  }
+
+  .wigs-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 1rem 2.5rem;
+
+    color: var(--color-background, #ffffff);
+    background-color: var(--color-primary);
+
+    border-radius: 999px;
+
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+
+    transition:
+      background-color var(--transition, 0.3s ease),
+      transform var(--transition, 0.3s ease),
+      box-shadow var(--transition, 0.3s ease);
+  }
+
   @media (hover: hover) {
     .wigs-benefit-card:hover {
       border-color: var(--color-primary-light);
@@ -390,6 +438,14 @@ import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
       box-shadow: 0 1.2rem 2.8rem rgba(0, 0, 0, 0.12);
 
       transform: translateY(-0.5rem);
+    }
+
+    .wigs-button:hover {
+      background-color: var(--color-primary-hover);
+
+      box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.15);
+
+      transform: translateY(-0.2rem);
     }
   }
 
@@ -438,10 +494,104 @@ import SvgEstrella from '../../assets/icon-common/icon-estrella.svg'
     .wigs-quote {
       border-radius: 1.2rem;
     }
+
+    .wigs-button {
+      width: 100%;
+      padding: 1rem 1.5rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .wigs-benefit-card {
+    .wigs-benefit-card,
+    .wigs-button {
+      transition: none;
+    }
+  }
+
+  /* ========================================================
+     CALL TO ACTION (BOTÓN DESTACADO)
+  ======================================================== */
+
+  .wigs-cta-container {
+    /* Le damos mucho más espacio arriba y abajo para aislarlo visualmente */
+    margin: clamp(4rem, 10vw, 7rem) auto;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .wigs-cta-container svg {
+    height: 24px;
+    width: 24px;
+    transform: rotate(90deg);
+  }
+
+  .wigs-cta-container a.wigs-button-destacado {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem; /* Espacio entre el texto y la flecha */
+
+    /* Tamaño general más grande */
+    padding: 1.25rem 3rem;
+
+    color: var(--color-background, #ffffff) !important;
+    background-color: var(--color-primary, #6b9e35) !important;
+
+    border-radius: 999px;
+    border: none;
+
+    /* Tipografía más fuerte e imperativa */
+    font-size: clamp(1.1rem, 3vw, 1.25rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none !important;
+    text-align: center;
+
+    /* Sombra profunda para que "flote" sobre la página */
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.15);
+
+    /* La magia: una animación de latido constante y suave */
+    animation: latido-suave 2.5s infinite;
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  /* Animación para atraer la vista */
+  @keyframes latido-suave {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.04);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @media (hover: hover) {
+    .wigs-cta-container a.wigs-button-destacado:hover {
+      background-color: var(--color-primary-hover, #496b24) !important;
+      box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.25);
+      /* Al pasar el mouse, se levanta y se detiene el latido */
+      transform: translateY(-5px) scale(1.04);
+      animation: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .wigs-cta-container a.wigs-button-destacado {
+      width: 100%;
+      padding: 1.25rem 1rem;  
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Por si el usuario tiene desactivadas las animaciones en su sistema por accesibilidad */
+    .wigs-cta-container a.wigs-button-destacado {
+      animation: none;
       transition: none;
     }
   }
