@@ -396,124 +396,10 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
   }
 
   /* ========================================================
-     CALL TO ACTION (BOTÓN)
+     CALL TO ACTION
   ======================================================== */
 
   .wigs-cta-container {
-    margin-top: clamp(3rem, 8vw, 5rem);
-
-    display: flex;
-    justify-content: center;
-  }
-
-  .wigs-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 1rem 2.5rem;
-
-    color: var(--color-background, #ffffff);
-    background-color: var(--color-primary);
-
-    border-radius: 999px;
-
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-decoration: none;
-    text-align: center;
-
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-
-    transition:
-      background-color var(--transition, 0.3s ease),
-      transform var(--transition, 0.3s ease),
-      box-shadow var(--transition, 0.3s ease);
-  }
-
-  @media (hover: hover) {
-    .wigs-benefit-card:hover {
-      border-color: var(--color-primary-light);
-
-      box-shadow: 0 1.2rem 2.8rem rgba(0, 0, 0, 0.12);
-
-      transform: translateY(-0.5rem);
-    }
-
-    .wigs-button:hover {
-      background-color: var(--color-primary-hover);
-
-      box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.15);
-
-      transform: translateY(-0.2rem);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .wigs-hero {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .wigs-hero__image-container,
-    .wigs-hero__image {
-      min-height: 24rem;
-    }
-
-    .wigs-benefits__list {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 600px) {
-    .wigs-page {
-      width: calc(100% - 1rem);
-
-      padding-top: 1rem;
-    }
-
-    .wigs-hero__image-container,
-    .wigs-hero__image {
-      min-height: 19rem;
-    }
-
-    .wigs-hero__content h2 {
-      font-size: clamp(2rem, 11vw, 2.8rem);
-    }
-
-    .wigs-hero__description {
-      font-size: 0.98rem;
-      line-height: 1.7;
-    }
-
-    .wigs-hero__highlight {
-      padding: 1.2rem;
-
-      border-left-width: 4px;
-    }
-
-    .wigs-quote {
-      border-radius: 1.2rem;
-    }
-
-    .wigs-button {
-      width: 100%;
-      padding: 1rem 1.5rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .wigs-benefit-card,
-    .wigs-button {
-      transition: none;
-    }
-  }
-
-  /* ========================================================
-     CALL TO ACTION (BOTÓN DESTACADO)
-  ======================================================== */
-
-  .wigs-cta-container {
-    /* Le damos mucho más espacio arriba y abajo para aislarlo visualmente */
     margin: clamp(4rem, 10vw, 7rem) auto;
     display: flex;
     justify-content: center;
@@ -530,9 +416,8 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem; /* Espacio entre el texto y la flecha */
+    gap: 0.75rem;
 
-    /* Tamaño general más grande */
     padding: 1.25rem 3rem;
 
     color: var(--color-background, #ffffff) !important;
@@ -549,16 +434,12 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
     text-decoration: none !important;
     text-align: center;
 
-    /* Sombra profunda para que "flote" sobre la página */
     box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.15);
 
-    /* La magia: una animación de latido constante y suave */
     animation: latido-suave 2.5s infinite;
 
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-
-  /* Animación para atraer la vista */
   @keyframes latido-suave {
     0% {
       transform: scale(1);
@@ -575,7 +456,6 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
     .wigs-cta-container a.wigs-button-destacado:hover {
       background-color: var(--color-primary-hover, #496b24) !important;
       box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.25);
-      /* Al pasar el mouse, se levanta y se detiene el latido */
       transform: translateY(-5px) scale(1.04);
       animation: none;
     }
@@ -589,7 +469,6 @@ import SvgFlecha from '../../assets/icon-common/icon-flecha.svg'
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* Por si el usuario tiene desactivadas las animaciones en su sistema por accesibilidad */
     .wigs-cta-container a.wigs-button-destacado {
       animation: none;
       transition: none;
