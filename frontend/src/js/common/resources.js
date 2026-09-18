@@ -130,6 +130,19 @@ export const newsApi = createCrudApi({
 ========================================================== */
 
 export const donationImagesApi = {
+  uploadBatch(files, { title, description, publishInstagram, commentsEnabled, requestId }) {
+    const body = new FormData()
+    for (const file of files) body.append('images', file, file.name)
+    body.append('title', title)
+    body.append('description', description)
+    body.append('publish_instagram', String(publishInstagram))
+    body.append('instagram_comments_enabled', String(commentsEnabled))
+    body.append('request_id', requestId)
+    return request('/donaciones/img/lote', { method: 'POST', body, globalLoading: false })
+  },
+  batchStatus(requestId) {
+    return request(`/donaciones/img/lote/${encodeURIComponent(requestId)}`, { globalLoading: false })
+  },
   upload(file) {
     if (!(file instanceof File))
       throw new TypeError('Debe proporcionarse una imagen.')
