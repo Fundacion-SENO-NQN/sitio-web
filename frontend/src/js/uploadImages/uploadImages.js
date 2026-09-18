@@ -1,403 +1,145 @@
 import { donationImagesApi } from '../common/resources.js'
-
+import { request } from '../common/api.js'
 import { createImagePicker } from '../common/imagePicker.js'
-
-import { createEventScope, requireElement } from '../common/dom.js'
-
+import { requireElement } from '../common/dom.js'
 import { showToast } from '../common/toast.js'
 
-const MAX_IMAGES = 10
+const $ = (selector) => requireElement(selector, selector)
+const form = $('#uploadForm')
+const uploadButton = $('#btnUpload')
+const clearButton = $('#btnClearImages')
+const overlay = $('#modal-carga')
+const status = $('#instagramStatus')
+const account = $('#instagramAccount')
+const connect = $('#instagramConnect')
+const disconnect = $('#instagramDisconnect')
+const publish = $('#publishInstagram')
+const comments = $('#instagramComments')
+const title = $('#donationTitle')
+const description = $('#donationDescription')
+let uploading = false
+let connected = false
 
-const MAX_IMAGE_SIZE = 12 * 1024 * 1024
+const picker = createImagePicker({
+  input: '#images', dropZone: '#dropZone', selectedContainer: '#previewContainer',
+  multiple: true, maxFiles: 10, maxFileSize: 12 * 1024 * 1024,
+  allowedTypes: new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']),
+  allowedExtensions: new Set(['jpg', 'jpeg', 'png', 'webp', 'avif']),
+  hiddenClass: 'hidden', draggingClass: 'drag', disabledClass: 'disabled',
+  previewClass: 'preview', previewNumberClass: 'previewNumber', onChange: updateButton
+})
+picker.initialize()
+document.getElementById('modal-carga-global')?.remove()
+overlay.hidden = true
+updateButton()
 
-const VALID_IMAGE_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif'
-])
-
-const VALID_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif'])
-
-/* ==========================================================
-   ELEMENTS
-========================================================== */
-
-const form = requireElement('#uploadForm', 'formulario de imágenes de donación')
-
-const uploadButton = requireElement('#btnUpload', 'botón para subir imágenes')
-
-const clearButton = document.querySelector('#btnClearImages')
-
-const modalCarga = requireElement('#modal-carga', 'indicador de carga')
-
-/* ==========================================================
-   STATE
-========================================================== */
-
-const state = {
-  initialized: false,
-  uploading: false,
-
-  currentUpload: 0,
-  totalUploads: 0
+function updateButton() {
+  uploadButton.disabled = uploading || picker.count === 0
+  uploadButton.textContent = uploading ? 'Subiendo y publicando...' : `Subir ${picker.count || ''} ${picker.count === 1 ? 'imagen' : 'imágenes'}`
+  clearButton.disabled = uploading || picker.count === 0
+}
+function updateComments() {
+  comments.disabled = !connected || !publish.checked || uploading
 }
 
-let events = null
+async function loadInstagram() {
+  status.textContent = 'Consultando conexión...'
+  connect.disabled = true
+  try {
+    const data = await request('/instagram/status', { globalLoading: false })
+    connected = data.connected
+    status.textContent = data.connected ? 'Conectado' : (data.error || 'No conectado')
+    account.textContent = data.username ? `Cuenta: @${data.username}` : 'Cuenta: —'
+    connect.textContent = data.connected ? 'Cambiar cuenta' : 'Conectar Instagram'
+    connect.disabled = false
+    disconnect.hidden = !data.connected
+    publish.disabled = !data.connected
+    if (!data.connected) publish.checked = false
+    updateComments()
+  } catch (error) {
+    connected = false
+    publish.checked = false
+    publish.disabled = true
+    updateComments()
+    status.textContent = error.message || 'No se pudo consultar Instagram'
+  }
+}
+connect.addEventListener('click', async () => {
+  if (uploading) return
+  connect.disabled = true
+  try {
+    const { url } = await request('/instagram/connect', { method: 'POST', globalLoading: false })
+    window.location.assign(url)
+  } catch (error) {
+    showToast(error.message, 'error')
+    connect.disabled = false
+  }
+})
+disconnect.addEventListener('click', async () => {
+  if (uploading || !window.confirm('¿Desconectar la cuenta de Instagram de la plataforma?')) return
+  try {
+    await request('/instagram/disconnect', { method: 'DELETE', globalLoading: false })
+    await loadInstagram()
+  } catch (error) { showToast(error.message, 'error') }
+})
+publish.addEventListener('change', updateComments)
+for (const [input, counter, limit] of [
+  [title, $('#titleCount'), 120], [description, $('#descriptionCount'), 1200]
+]) input.addEventListener('input', () => { counter.textContent = `${input.value.length}/${limit}` })
+clearButton.addEventListener('click', () => { if (!uploading) picker.reset() })
 
-/* ==========================================================
-   IMAGE PICKER
-========================================================== */
-
-export const donationImagePicker = createImagePicker({
-  input: '#images',
-
-  dropZone: '#dropZone',
-
-  /*
-   * This is the correct option name expected by
-   * common/imagePicker.js.
-   */
-  selectedContainer: '#previewContainer',
-
-  multiple: true,
-
-  maxFiles: MAX_IMAGES,
-
-  maxFileSize: MAX_IMAGE_SIZE,
-
-  allowedTypes: VALID_IMAGE_TYPES,
-
-  allowedExtensions: VALID_IMAGE_EXTENSIONS,
-
-  hiddenClass: 'hidden',
-
-  draggingClass: 'drag',
-
-  disabledClass: 'disabled',
-
-  previewClass: 'preview',
-
-  previewNumberClass: 'previewNumber',
-
-  /*
-   * imagePicker already calls onChange after:
-   *
-   * - input selection
-   * - drag and drop
-   * - reset
-   * - setFiles()
-   */
-  onChange() {
-    updateUploadButton()
+form.addEventListener('submit', async (event) => {
+  event.preventDefault()
+  if (uploading) return
+  let files
+  try {
+    files = [...picker.validate()]
+    picker.requireFiles('Seleccioná al menos una imagen.')
+    if (publish.checked && !`${title.value}${description.value}`.trim()) {
+      throw new Error('Ingresá un título o una descripción para Instagram.')
+    }
+  } catch (error) { showToast(error.message, 'warning'); return }
+  const requestId = crypto.randomUUID()
+  uploading = true
+  picker.setDisabled(true)
+  overlay.hidden = false
+  updateComments()
+  updateButton()
+  try {
+    const result = await donationImagesApi.uploadBatch(files, {
+      title: title.value, description: description.value,
+      publishInstagram: publish.checked, commentsEnabled: comments.checked, requestId
+    })
+    if (result.instagram_status === 'published' || result.instagram_status === 'skipped') {
+      picker.reset()
+      showToast(result.message || (result.instagram_status === 'published'
+        ? `${result.website_uploaded} imágenes cargadas y publicadas en Instagram.`
+        : `${result.website_uploaded} imágenes cargadas en la web.`), result.message ? 'warning' : 'success')
+    } else {
+      // A failed or uncertain Meta response may still have published a post.
+      picker.reset()
+      showToast(`${result.website_uploaded} imágenes cargadas en la web. ${result.message || 'Revisá Instagram antes de repetir el envío.'}`, 'error')
+    }
+  } catch (error) {
+    try {
+      const result = await donationImagesApi.batchStatus(requestId)
+      picker.reset()
+      showToast(`Estado del envío: ${result.status}. ${result.website_count} imágenes en la web. ${result.message || 'Revisá Instagram antes de repetir.'}`, 'error')
+    } catch {
+      showToast(`No se confirmó el resultado. Código de envío: ${requestId}. Revisá la web e Instagram antes de repetir.`, 'error')
+    }
+  } finally {
+    uploading = false
+    picker.setDisabled(false)
+    overlay.hidden = true
+    updateComments()
+    updateButton()
   }
 })
 
-/* ==========================================================
-   PUBLIC CONTROLLER
-========================================================== */
-
-export const donationImagesController = {
-  initialize,
-  destroy,
-
-  upload: uploadSelectedImages,
-
-  clear: clearSelection,
-
-  get files() {
-    return donationImagePicker.files
-  },
-
-  get uploading() {
-    return state.uploading
-  }
+const oauthResult = new URL(location.href).searchParams.get('instagram')
+if (oauthResult) {
+  showToast(oauthResult === 'connected' ? 'Instagram conectado.' : 'No se completó la conexión con Instagram.', oauthResult === 'connected' ? 'success' : 'error')
+  history.replaceState({}, '', location.pathname)
 }
-
-/* ==========================================================
-   INITIALIZATION
-========================================================== */
-
-function initialize() {
-  if (state.initialized) {
-    return donationImagesController
-  }
-
-  events = createEventScope()
-
-  donationImagePicker.initialize()
-
-  events.on(form, 'submit', uploadSelectedImages)
-
-  if (clearButton) {
-    events.on(clearButton, 'click', clearSelection)
-  }
-
-  hideLoading()
-  updateUploadButton()
-
-  state.initialized = true
-  document.getElementById('modal-carga-global').remove()
-  return donationImagesController
-}
-
-function destroy() {
-  if (!state.initialized) {
-    return
-  }
-
-  events?.destroy()
-  events = null
-
-  donationImagePicker.destroy()
-
-  state.initialized = false
-  state.uploading = false
-
-  state.currentUpload = 0
-  state.totalUploads = 0
-
-  hideLoading()
-  updateUploadButton()
-}
-
-/* ==========================================================
-   SUBMIT
-========================================================== */
-
-async function uploadSelectedImages(event) {
-  event?.preventDefault()
-
-  if (state.uploading) {
-    return false
-  }
-
-  let files
-
-  try {
-    files = donationImagePicker.validate()
-
-    donationImagePicker.requireFiles('Seleccioná al menos una imagen.')
-  } catch (error) {
-    showToast(
-      getErrorMessage(error, 'Las imágenes seleccionadas no son válidas.'),
-      'warning'
-    )
-
-    donationImagePicker.focus()
-
-    return false
-  }
-
-  /*
-   * Use an independent array because the picker state may
-   * be changed later when preserving pending files.
-   */
-  files = [...files]
-
-  state.uploading = true
-  state.currentUpload = 0
-  state.totalUploads = files.length
-
-  donationImagePicker.setDisabled(true)
-
-  showLoading()
-  updateUploadButton()
-
-  let uploadedImages = 0
-
-  try {
-    /*
-     * The backend replaces the oldest donation image on
-     * every request.
-     *
-     * Sequential requests avoid two requests attempting to
-     * replace the same image simultaneously.
-     */
-    for (let index = 0; index < files.length; index += 1) {
-      state.currentUpload = index + 1
-
-      updateUploadButton()
-
-      await donationImagesApi.upload(files[index])
-
-      uploadedImages += 1
-    }
-
-    donationImagePicker.reset()
-
-    showToast(createSuccessMessage(uploadedImages), 'success')
-
-    return true
-  } catch (error) {
-    console.error('No se pudieron subir las imágenes de donación:', error)
-
-    /*
-     * Preserve only files that were not uploaded.
-     *
-     * Example:
-     *
-     * Selected: A, B, C
-     * Uploaded: A
-     * Failed:   B
-     *
-     * The picker keeps B and C, so A is not accidentally
-     * uploaded again.
-     */
-    if (uploadedImages > 0) {
-      const pendingFiles = files.slice(uploadedImages)
-
-      donationImagePicker.setFiles(pendingFiles)
-
-      showToast(
-        createPartialErrorMessage({
-          uploadedImages,
-
-          totalImages: files.length,
-
-          error
-        }),
-        'error'
-      )
-    } else {
-      /*
-       * No image was uploaded, so keep the complete
-       * selection available for retrying.
-       */
-      showToast(getErrorMessage(error, 'No se pudo subir la imagen.'), 'error')
-    }
-
-    return false
-  } finally {
-    state.uploading = false
-
-    state.currentUpload = 0
-    state.totalUploads = 0
-
-    donationImagePicker.setDisabled(false)
-
-    hideLoading()
-    updateUploadButton()
-  }
-}
-
-/* ==========================================================
-   CLEAR
-========================================================== */
-
-function clearSelection() {
-  if (state.uploading) {
-    return
-  }
-
-  donationImagePicker.reset()
-}
-
-/* ==========================================================
-   BUTTON STATE
-========================================================== */
-
-function updateUploadButton() {
-  const fileCount = donationImagePicker.count
-
-  uploadButton.disabled = state.uploading || fileCount === 0
-
-  uploadButton.setAttribute('aria-busy', String(state.uploading))
-
-  if (state.uploading) {
-    uploadButton.textContent = createUploadingText()
-
-    if (clearButton) {
-      clearButton.disabled = true
-    }
-
-    return
-  }
-
-  uploadButton.textContent =
-    fileCount === 1 ? 'Subir imagen' : `Subir ${fileCount} imágenes`
-
-  if (clearButton) {
-    clearButton.disabled = fileCount === 0
-  }
-}
-
-function createUploadingText() {
-  if (state.totalUploads <= 1) {
-    return 'Subiendo imagen...'
-  }
-
-  return (
-    `Subiendo imagen ` +
-    `${state.currentUpload} de ` +
-    `${state.totalUploads}...`
-  )
-}
-
-/* ==========================================================
-   LOADING
-========================================================== */
-
-function showLoading() {
-  modalCarga.hidden = false
-
-  modalCarga.setAttribute('aria-hidden', 'false')
-
-  modalCarga.setAttribute('aria-busy', 'true')
-}
-
-function hideLoading() {
-  modalCarga.hidden = true
-
-  modalCarga.setAttribute('aria-hidden', 'true')
-
-  modalCarga.setAttribute('aria-busy', 'false')
-}
-
-/* ==========================================================
-   MESSAGES
-========================================================== */
-
-function createSuccessMessage(amount) {
-  return amount === 1
-    ? 'Imagen cargada exitosamente.'
-    : `${amount} imágenes cargadas exitosamente.`
-}
-
-function createPartialErrorMessage({ uploadedImages, totalImages, error }) {
-  const pendingImages = Math.max(totalImages - uploadedImages, 0)
-
-  const uploadedText =
-    uploadedImages === 1
-      ? 'Se cargó 1 imagen'
-      : `Se cargaron ${uploadedImages} imágenes`
-
-  const pendingText =
-    pendingImages === 1
-      ? 'Quedó 1 imagen sin cargar.'
-      : `Quedaron ${pendingImages} imágenes sin cargar.`
-
-  const errorMessage = getErrorMessage(error, '')
-
-  return [`${uploadedText}, pero ocurrió un error.`, pendingText, errorMessage]
-    .filter(Boolean)
-    .join(' ')
-}
-
-function getErrorMessage(error, fallback) {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message.trim()
-  }
-
-  if (typeof error === 'string' && error.trim()) {
-    return error.trim()
-  }
-
-  return fallback
-}
-
-/* ==========================================================
-   EXECUTION
-========================================================== */
-
-initialize()
+loadInstagram()

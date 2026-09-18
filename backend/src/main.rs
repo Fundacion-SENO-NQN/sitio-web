@@ -1,10 +1,10 @@
 use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
-        equipo, evento, health, img_donation, logro, logro_fav, metodo_donacion, noticia, roles,
+        equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion, noticia, roles,
         service, user, voluntariado,
     },
-    services::{email::EmailService, frontend_rebuild::FrontendRebuildService},
+    services::{email::EmailService, frontend_rebuild::FrontendRebuildService, instagram::InstagramService},
 };
 use axum::{
     Router,
@@ -40,6 +40,7 @@ pub struct AppState {
     pub logros: RwLock<Vec<Logro>>,
     pub r2: utils::r2::R2Storage,
     pub frontend_rebuild: FrontendRebuildService,
+    pub instagram: InstagramService,
 }
 
 #[tokio::main]
@@ -106,6 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .expect("No se pudo cargar r2");
 
     let frontend_rebuild = FrontendRebuildService::from_env(db.clone());
+    let instagram = InstagramService::from_env()?;
 
     frontend_rebuild.clone().start();
 
@@ -117,6 +119,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         logros: RwLock::new(Vec::new()),
         r2,
         frontend_rebuild,
+        instagram,
+    });
+
+    // Keep long-lived Instagram tokens alive while this Fly machine is running.
+    let refresh_state = state.clone();
+    tokio::spawn(async move {
+        let mut timer = tokio::time::interval(std::time::Duration::from_secs(12 * 60 * 60));
+        loop {
+            timer.tick().await;
+            if let Err(error) = refresh_state.instagram.connection(&refresh_state.db).await {
+                eprintln!("Instagram token refresh check failed: {error}");
+            }
+            // Containers expire; a two-day grace period covers ambiguous Meta responses.
+            let old_ids = sqlx::query_scalar::<_, uuid::Uuid>(
+                "SELECT request_id FROM instagram_publications WHERE temp_cleaned_at IS NULL AND created_at < now() - interval '48 hours' LIMIT 100"
+            ).fetch_all(&refresh_state.db).await;
+            if let Ok(old_ids) = old_ids {
+                for id in old_ids {
+                    let mut all_deleted = true;
+                    for index in 0..10 {
+                        let key = format!("instagram-temp/{id}/{index}.jpg");
+                        if refresh_state.r2.delete_object(&key).await.is_err() { all_deleted = false; }
+                    }
+                    if all_deleted {
+                        let _ = sqlx::query("UPDATE instagram_publications SET temp_cleaned_at=now(), status=CASE WHEN status='processing' THEN 'unknown' ELSE status END WHERE request_id=$1")
+                            .bind(id).execute(&refresh_state.db).await;
+                    }
+                }
+            }
+        }
     });
 
     /* ========================================================
@@ -129,6 +161,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(logro::routes())
         .merge(logro_fav::routes())
         .merge(img_donation::routes())
+        .merge(instagram::routes())
         .merge(routes::auth::routes())
         .merge(user::routes())
         .merge(roles::routes())

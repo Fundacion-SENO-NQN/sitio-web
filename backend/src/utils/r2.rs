@@ -65,6 +65,18 @@ impl R2Storage {
         Ok(())
     }
 
+    pub async fn upload_jpeg(&self, key: &str, bytes: Vec<u8>) -> R2Result<()> {
+        self.client.put_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .body(ByteStream::from(bytes))
+            .content_type("image/jpeg")
+            .content_disposition("inline")
+            .cache_control("public, max-age=3600")
+            .send().await?;
+        Ok(())
+    }
+
     pub async fn delete_object(&self, key: &str) -> R2Result<()> {
         self.client
             .delete_object()
