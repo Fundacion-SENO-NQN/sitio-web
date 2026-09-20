@@ -1,7 +1,7 @@
 use crate::{AppState, auth::{auth_user::AuthUser, services::UPLOAD_IMG_DONATION}, error::api_error::{ApiError, ApiResult}};
 use axum::{Json, extract::{Query, State}, response::Redirect, http::StatusCode};
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sqlx::Row;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -29,7 +29,7 @@ pub async fn connect(AuthUser(user): AuthUser, State(state): State<Arc<AppState>
     Ok(Json(ConnectUrl { url }))
 }
 
-#[derive(Deserialize)]
+#[derive(serde::Deserialize)]
 pub struct Callback { code: Option<String>, state: Option<Uuid>, error: Option<String> }
 pub async fn callback(State(state): State<Arc<AppState>>, Query(params): Query<Callback>) -> Redirect {
     let failure = || Redirect::to(&state.instagram.return_uri("error"));
