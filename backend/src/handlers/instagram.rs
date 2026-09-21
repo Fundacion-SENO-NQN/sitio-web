@@ -60,8 +60,8 @@ pub async fn connect(
 ) -> ApiResult<Json<ConnectUrl>> {
     user.require(UPLOAD_IMG_DONATION)?;
     let state_id = Uuid::new_v4();
-    sqlx::query("INSERT INTO social_oauth_states (state, platform, expires_at) VALUES ($1, 'instagram', now() + interval '10 minutes')")
-        .bind(state_id).execute(&state.db).await?;
+    sqlx::query("INSERT INTO social_oauth_states (state, platform, initiated_by, expires_at) VALUES ($1, 'instagram', $2, now() + interval '10 minutes')")
+        .bind(state_id).bind(user.id).execute(&state.db).await?;
     let url = state
         .instagram
         .authorization_url(&state_id.to_string())
