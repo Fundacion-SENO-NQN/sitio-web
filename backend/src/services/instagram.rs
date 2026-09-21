@@ -91,16 +91,22 @@ impl InstagramService {
             .form(&[("client_id", self.app_id.as_str()), ("client_secret", self.app_secret.as_str()),
                 ("grant_type", "authorization_code"), ("redirect_uri", self.redirect_uri.as_str()), ("code", code)])
             .send().await.map_err(|e| e.to_string())?;
-        let short: Token = self.checked(response).await?.json().await.map_err(|e| e.to_string())?;
-        let response = self.client.get(format!("{}/access_token", self.graph))
+        let short: Token = self.checked(response).await
+            .map_err(|error| format!("falló el intercambio del código por el token corto: {error}"))?
+            .json().await.map_err(|e| format!("respuesta inválida para el token corto: {e}"))?;
+        let response = self.client.get("https://graph.instagram.com/access_token")
             .query(&[("grant_type", "ig_exchange_token"), ("client_secret", self.app_secret.as_str()),
                 ("access_token", short.access_token.as_str())])
             .send().await.map_err(|e| e.to_string())?;
-        let long: Token = self.checked(response).await?.json().await.map_err(|e| e.to_string())?;
+        let long: Token = self.checked(response).await
+            .map_err(|error| format!("falló el intercambio por el token de larga duración: {error}"))?
+            .json().await.map_err(|e| format!("respuesta inválida para el token de larga duración: {e}"))?;
         let response = self.client.get(format!("{}/me", self.graph))
             .bearer_auth(&long.access_token).query(&[("fields", "user_id,username")])
             .send().await.map_err(|e| e.to_string())?;
-        let profile: Profile = self.checked(response).await?.json().await.map_err(|e| e.to_string())?;
+        let profile: Profile = self.checked(response).await
+            .map_err(|error| format!("falló la consulta del perfil de Instagram: {error}"))?
+            .json().await.map_err(|e| format!("respuesta inválida para el perfil de Instagram: {e}"))?;
         let id = profile.user_id.or(profile.id).ok_or("Instagram no devolvió el ID")?;
         let expires = Utc::now() + ChronoDuration::seconds(long.expires_in.ok_or("Instagram no devolvió la duración del token")?);
         Ok((id, profile.username, long.access_token, expires))
@@ -134,10 +140,12 @@ impl InstagramService {
         if connection.expires_at <= now { return Err("La conexión de Instagram venció; volvé a conectarla".into()); }
         // A token must be at least 24 hours old to be refreshed.
         if connection.expires_at < now + ChronoDuration::days(7) {
-            let response = self.client.get(format!("{}/refresh_access_token", self.graph))
+            let response = self.client.get("https://graph.instagram.com/refresh_access_token")
                 .query(&[("grant_type", "ig_refresh_token"), ("access_token", connection.token.as_str())])
                 .send().await.map_err(|e| e.to_string())?;
-            let refreshed: Token = self.checked(response).await?.json().await.map_err(|e| e.to_string())?;
+            let refreshed: Token = self.checked(response).await
+                .map_err(|error| format!("falló la renovación del token de Instagram: {error}"))?
+                .json().await.map_err(|e| format!("respuesta inválida al renovar el token: {e}"))?;
             let encrypted = self.encrypt(&refreshed.access_token)?;
             let expires = now + ChronoDuration::seconds(refreshed.expires_in.ok_or("Falta expires_in")?);
             sqlx::query("UPDATE social_connections SET access_token_enc=$1, expires_at=$2, updated_at=NOW() WHERE platform='instagram' AND access_token_enc=$3")
