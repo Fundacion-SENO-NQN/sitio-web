@@ -79,48 +79,150 @@ pub async fn callback(
     State(state): State<Arc<AppState>>,
     Query(params): Query<Callback>,
 ) -> Redirect {
+    eprintln!("Instagram OAuth callback reached");
+
     let failure = || Redirect::to(&state.instagram.return_uri("error"));
+
     let Some(oauth_state) = params.state else {
+        eprintln!("Instagram OAuth failed [state_missing]");
         return failure();
     };
-    let consumed = sqlx::query("DELETE FROM social_oauth_states WHERE state=$1 AND platform='instagram' AND expires_at > now() RETURNING initiated_by")
-        .bind(oauth_state).fetch_optional(&state.db).await;
-    let Ok(Some(row)) = consumed else {
-        return failure();
-    };
-    if params.error.is_some() {
-        return Redirect::to(&state.instagram.return_uri("cancelled"));
-    }
-    let Some(code) = params.code else {
-        return failure();
-    };
-    let user_id: i64 = row.get("initiated_by");
-    let valid: bool =
-        sqlx::query_scalar("SELECT EXISTS (SELECT 1 FROM users WHERE id=$1 AND active=true)")
-            .bind(user_id)
-            .fetch_one(&state.db)
-            .await
-            .unwrap_or(false);
-    if !valid {
-        return failure();
-    }
-    let (id, username, token, expires) = match state.instagram.exchange(&code).await {
-        Ok(value) => value,
+
+    let row = match sqlx::query(
+        "DELETE FROM social_oauth_states
+         WHERE state = $1
+           AND platform = 'instagram'
+           AND expires_at > now()
+         RETURNING initiated_by",
+    )
+    .bind(oauth_state)
+    .fetch_optional(&state.db)
+    .await
+    {
+        Ok(Some(row)) => row,
+
+        Ok(None) => {
+            eprintln!(
+                "Instagram OAuth failed [state_invalid]: \
+                 el state no existe, venció o ya fue utilizado"
+            );
+            return failure();
+        }
+
         Err(error) => {
-            eprintln!("Instagram OAuth failed: {error}");
+            eprintln!(
+                "Instagram OAuth failed [state_database]: {error}"
+            );
             return failure();
         }
     };
-    let encrypted = match state.instagram.encrypt(&token) {
-        Ok(value) => value,
-        Err(_) => return failure(),
+
+    if let Some(error) = params.error.as_deref() {
+        eprintln!(
+            "Instagram OAuth cancelled [instagram_error]: {error}"
+        );
+
+        return Redirect::to(
+            &state.instagram.return_uri("cancelled"),
+        );
+    }
+
+    let Some(code) = params.code else {
+        eprintln!("Instagram OAuth failed [code_missing]");
+        return failure();
     };
-    let saved = sqlx::query("INSERT INTO social_connections (platform, external_user_id, username, access_token_enc, expires_at) VALUES ('instagram', $1, $2, $3, $4) ON CONFLICT (platform) DO UPDATE SET external_user_id=EXCLUDED.external_user_id, username=EXCLUDED.username, access_token_enc=EXCLUDED.access_token_enc, expires_at=EXCLUDED.expires_at, updated_at=now()")
-        .bind(id).bind(username).bind(encrypted).bind(expires).execute(&state.db).await;
-    if saved.is_err() {
+
+    let user_id: i64 = row.get("initiated_by");
+
+    let valid: bool = match sqlx::query_scalar(
+        "SELECT EXISTS (
+            SELECT 1
+            FROM users
+            WHERE id = $1
+              AND active = true
+        )",
+    )
+    .bind(user_id)
+    .fetch_one(&state.db)
+    .await
+    {
+        Ok(valid) => valid,
+
+        Err(error) => {
+            eprintln!(
+                "Instagram OAuth failed [user_database]: {error}"
+            );
+            return failure();
+        }
+    };
+
+    if !valid {
+        eprintln!(
+            "Instagram OAuth failed [user_invalid]: \
+             el usuario no existe o está inactivo"
+        );
         return failure();
     }
-    Redirect::to(&state.instagram.return_uri("connected"))
+
+    let (id, username, token, expires) =
+        match state.instagram.exchange(&code).await {
+            Ok(value) => value,
+
+            Err(error) => {
+                eprintln!(
+                    "Instagram OAuth failed [meta_exchange]: {error}"
+                );
+                return failure();
+            }
+        };
+
+    let encrypted = match state.instagram.encrypt(&token) {
+        Ok(value) => value,
+
+        Err(error) => {
+            eprintln!(
+                "Instagram OAuth failed [encryption]: {error}"
+            );
+            return failure();
+        }
+    };
+
+    let saved = sqlx::query(
+        "INSERT INTO social_connections (
+            platform,
+            external_user_id,
+            username,
+            access_token_enc,
+            expires_at
+        )
+        VALUES ('instagram', $1, $2, $3, $4)
+        ON CONFLICT (platform)
+        DO UPDATE SET
+            external_user_id = EXCLUDED.external_user_id,
+            username = EXCLUDED.username,
+            access_token_enc = EXCLUDED.access_token_enc,
+            expires_at = EXCLUDED.expires_at,
+            updated_at = now()",
+    )
+    .bind(id)
+    .bind(username)
+    .bind(encrypted)
+    .bind(expires)
+    .execute(&state.db)
+    .await;
+
+    if let Err(error) = saved {
+        eprintln!(
+            "Instagram OAuth failed [connection_database]: {error}"
+        );
+        return failure();
+    }
+
+    eprintln!("Instagram OAuth callback completed successfully");
+
+    Redirect::to(
+        &state.instagram.return_uri("connected"),
+    )
 }
 
 pub async fn disconnect(
