@@ -2,6 +2,7 @@ pub mod auth;
 pub mod equipo;
 pub mod evento;
 pub mod img_donation;
+pub mod instagram;
 pub mod logro;
 pub mod logro_fav;
 pub mod metodo_donacion;

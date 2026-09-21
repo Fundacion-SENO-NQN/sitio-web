@@ -1,4 +1,3 @@
-pub mod auth;
 pub mod equipo;
 pub mod evento;
 pub mod img_donation;

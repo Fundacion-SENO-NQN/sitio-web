@@ -80,3 +80,23 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 
     Ok(output)
 }
+
+/// Instagram accepts JPEG. Fit the whole picture into a square with a white background.
+pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
+    use image::{DynamicImage, Rgb, RgbImage, codecs::jpeg::JpegEncoder, imageops};
+    let image = image::load_from_memory(bytes)?;
+    let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
+    let mut square = RgbImage::from_pixel(1080, 1080, Rgb([255, 255, 255]));
+    let x = (1080 - thumbnail.width()) / 2;
+    let y = (1080 - thumbnail.height()) / 2;
+    // RGBA over white, including transparent PNGs.
+    let mut background = image::RgbaImage::from_pixel(1080, 1080, image::Rgba([255, 255, 255, 255]));
+    imageops::overlay(&mut background, &thumbnail, x.into(), y.into());
+    for (target, pixel) in square.pixels_mut().zip(background.pixels()) {
+        let a = pixel[3] as u16;
+        *target = Rgb(std::array::from_fn(|i| ((pixel[i] as u16 * a + 255 * (255 - a)) / 255) as u8));
+    }
+    let mut output = Vec::new();
+    JpegEncoder::new_with_quality(&mut output, 85).encode_image(&DynamicImage::ImageRgb8(square))?;
+    Ok(output)
+}
