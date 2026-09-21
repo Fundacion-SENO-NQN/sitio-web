@@ -1,10 +1,12 @@
 use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
-        equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion, noticia, roles,
-        service, user, voluntariado,
+        equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion,
+        noticia, roles, service, user, voluntariado,
     },
-    services::{email::EmailService, frontend_rebuild::FrontendRebuildService, instagram::InstagramService},
+    services::{
+        email::EmailService, frontend_rebuild::FrontendRebuildService, instagram::InstagramService,
+    },
 };
 use axum::{
     Router,
@@ -48,15 +50,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Loads .env locally.
     // On Fly.io, the variables will come from Fly secrets and fly.toml.
     dotenv().ok();
-
     /* ========================================================
      * SERVER ADDRESS
      * ====================================================== */
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
-
     let address = format!("0.0.0.0:{port}");
-
     /* ========================================================
      * CORS
      * ====================================================== */
@@ -81,7 +80,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if allowed_origins.is_empty() {
         return Err("CORS_ALLOWED_ORIGINS cannot be empty".into());
     }
-
     let cors = CorsLayer::new()
         .allow_origin(allowed_origins)
         .allow_methods([
@@ -105,12 +103,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let r2 = utils::r2::R2Storage::from_env()
         .await
         .expect("No se pudo cargar r2");
-
     let frontend_rebuild = FrontendRebuildService::from_env(db.clone());
     let instagram = InstagramService::from_env()?;
-
     frontend_rebuild.clone().start();
-
     let state = Arc::new(AppState {
         db,
         email,
@@ -121,7 +116,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         frontend_rebuild,
         instagram,
     });
-
     // Keep long-lived Instagram tokens alive while this Fly machine is running.
     let refresh_state = state.clone();
     tokio::spawn(async move {
@@ -140,7 +134,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let mut all_deleted = true;
                     for index in 0..10 {
                         let key = format!("instagram-temp/{id}/{index}.jpg");
-                        if refresh_state.r2.delete_object(&key).await.is_err() { all_deleted = false; }
+                        if refresh_state.r2.delete_object(&key).await.is_err() {
+                            all_deleted = false;
+                        }
                     }
                     if all_deleted {
                         let _ = sqlx::query("UPDATE instagram_publications SET temp_cleaned_at=now(), status=CASE WHEN status='processing' THEN 'unknown' ELSE status END WHERE request_id=$1")
@@ -150,7 +146,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     });
-
     /* ========================================================
      * ROUTES
      * ====================================================== */
@@ -174,14 +169,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(state)
         .layer(DefaultBodyLimit::max(130 * 1024 * 1024))
         .layer(cors);
-
     /* ========================================================
      * START SERVER
      * ====================================================== */
 
     let listener = tokio::net::TcpListener::bind(&address).await?;
-
     axum::serve(listener, app).await?;
-
     Ok(())
 }
