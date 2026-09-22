@@ -40,6 +40,9 @@ where
         if !user.active {
             return Err(ApiError::Forbidden);
         }
+        if claims.auth_version != user.auth_version {
+            return Err(ApiError::Unauthorized);
+        }
         let permissions = repositories::user::get_permissions(&state.db, user.role_id)
             .await?
             .into_iter()

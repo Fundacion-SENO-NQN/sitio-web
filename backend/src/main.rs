@@ -35,6 +35,7 @@ mod services;
 mod utils;
 
 pub struct AppState {
+    pub password_reset: services::password_reset::PasswordResetService,
     pub email: EmailService,
     pub db: PgPool,
     pub news: RwLock<Vec<Noticia>>,
@@ -107,6 +108,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instagram = InstagramService::from_env()?;
     frontend_rebuild.clone().start();
     let state = Arc::new(AppState {
+        password_reset: services::password_reset::PasswordResetService::from_env()?,
         db,
         email,
         news: RwLock::new(Vec::new()),

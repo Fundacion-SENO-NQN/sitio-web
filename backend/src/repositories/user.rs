@@ -14,6 +14,7 @@ pub async fn get_all(db: &PgPool) -> Result<Vec<User>, sqlx::Error> {
             u.id,
             u.username,
             u.password_hash,
+            u.auth_version,
             u.email,
             u.name,
             u.last_name,
@@ -38,6 +39,7 @@ pub async fn get_by_username(db: &PgPool, username: &str) -> Result<Option<User>
             u.id,
             u.username,
             u.password_hash,
+            u.auth_version,
             u.email,
             u.name,
             u.last_name,
@@ -63,6 +65,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> Result<Option<User>, sqlx::Error
             u.id,
             u.username,
             u.password_hash,
+            u.auth_version,
             u.email,
             u.name,
             u.last_name,
@@ -169,7 +172,7 @@ pub async fn change_password(
     sqlx::query(
         r#"
         UPDATE users
-        SET password_hash = $1
+        SET password_hash = $1, auth_version = auth_version + 1
         WHERE id = $2
         "#,
     )
@@ -186,7 +189,8 @@ pub async fn set_active(db: &PgPool, id: i64, active: bool) -> Result<UserRespon
         r#"
         WITH updated_user AS (
             UPDATE users
-            SET active = $1
+            SET active = $1,
+                auth_version = auth_version + CASE WHEN active IS DISTINCT FROM $1 THEN 1 ELSE 0 END
             WHERE id = $2
             RETURNING *
         )
@@ -221,6 +225,8 @@ pub async fn update(db: &PgPool, id: i64, update: PatchUserRequest) -> ApiResult
                 SET
                     username  = COALESCE($1, username),
                     email      = COALESCE($2, email),
+                    auth_version = auth_version + CASE
+                        WHEN $2 IS NOT NULL AND email IS DISTINCT FROM $2 THEN 1 ELSE 0 END,
                     name       = COALESCE($3, name),
                     last_name  = COALESCE($4, last_name),
                     role_id    = COALESCE($5, role_id)
