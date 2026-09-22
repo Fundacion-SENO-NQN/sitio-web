@@ -62,19 +62,43 @@ import '../../../style/uploadImages.css'
           <p id="instagramStatus" role="status">Consultando conexión...</p>
           <p id="instagramAccount">Cuenta: —</p>
           <div class="instagramButtons">
-            <button id="instagramConnect" type="button" class="button buttonGhost" disabled>Conectar Instagram</button>
-            <button id="instagramDisconnect" type="button" class="button buttonGhost" hidden>Desconectar</button>
+            <button
+              id="instagramConnect"
+              type="button"
+              class="button buttonGhost"
+              disabled>Conectar Instagram</button
+            >
+            <button
+              id="instagramDisconnect"
+              type="button"
+              class="button buttonGhost"
+              hidden>Desconectar</button
+            >
           </div>
-          <label><input id="publishInstagram" type="checkbox" disabled /> Publicar estas imágenes en Instagram</label>
-          <label><input id="instagramComments" type="checkbox" checked disabled /> Habilitar comentarios en Instagram</label>
+          <label
+            ><input id="publishInstagram" type="checkbox" disabled /> Publicar estas
+            imágenes en Instagram</label
+          >
+          <label
+            ><input id="instagramComments" type="checkbox" checked disabled /> Habilitar
+            comentarios en Instagram</label
+          >
         </fieldset>
 
         <div class="instagramCaption">
-          <label for="donationTitle">Título <span id="titleCount">0/120</span></label>
+          <label for="donationTitle"
+            >Título <span id="titleCount">0/120</span></label
+          >
           <input id="donationTitle" maxlength="120" />
-          <label for="donationDescription">Descripción <span id="descriptionCount">0/1200</span></label>
-          <textarea id="donationDescription" maxlength="1200" rows="6"></textarea>
-          <small>Instagram mostrará el título y la descripción juntos. Seleccioná de 1 a 10 imágenes para una foto o un carrusel.</small>
+          <label for="donationDescription"
+            >Descripción <span id="descriptionCount">0/1200</span></label
+          >
+          <textarea id="donationDescription" maxlength="1200" rows="6"
+          ></textarea>
+          <small
+            >Instagram mostrará el título y la descripción juntos. Seleccioná de
+            1 a 10 imágenes para una foto o un carrusel.</small
+          >
         </div>
 
         <div class="uploadActions">
@@ -103,8 +127,8 @@ import '../../../style/uploadImages.css'
       <strong>Tené en cuenta</strong>
 
       <p>
-        Las imágenes del sitio se guardan en AVIF. Si elegís Instagram, se
-        crea también un JPEG para cada foto y se publica una sola entrada o carrusel.
+        Las imágenes del sitio se guardan en AVIF. Si elegís Instagram, se crea
+        también un JPEG para cada foto y se publica una sola entrada o carrusel.
       </p>
     </aside>
   </main>
