@@ -30,7 +30,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Logro> {
                 l.id,
                 l.orden,
                 l.titulo,
-                l.descripcion,
+                l.contenido,
                 l.created_at
             FROM logros_fav lf
             JOIN logros l
@@ -53,7 +53,7 @@ pub async fn create(db: &PgPool, logro_id: i64, orden: i64) -> ApiResult<LogroFa
         .await?;
 
     // Remove the last favorite if there are already 3.
-    sqlx::query("DELETE FROM logros_fav WHERE orden = 3")
+    sqlx::query("DELETE FROM logros_fav WHERE orden = 2")
         .execute(&mut *tx)
         .await?;
 
