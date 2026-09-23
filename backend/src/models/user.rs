@@ -6,6 +6,7 @@ pub struct User {
     pub id: i64,
     pub username: String,
     pub password_hash: String,
+    pub auth_version: i64,
     pub email: String,
     pub name: String,
     pub last_name: String,

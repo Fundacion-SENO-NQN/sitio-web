@@ -10,7 +10,7 @@ The project is organized as a monorepo with two main applications:
 - **Backend:** Rust + Axum + PostgreSQL, prepared for Fly.io.
 - **Media storage:** Cloudflare R2.
 - **Authentication:** JWT with role- and permission-based authorization.
-- **Email:** SMTP, currently used for volunteer applications.
+- **Email:** SMTP for volunteer applications and password recovery.
 
 > Production website: [fundacionseno.org](https://fundacionseno.org)
 
@@ -757,6 +757,9 @@ VOLUNTEER_TO_EMAIL=destination@example.com
 SMTP_PORT=465
 SMTP_SECURITY=tls
 
+# Password recovery (frontend URL; HTTPS in production)
+PASSWORD_RESET_URL=http://localhost:4321/login/restablecer/
+
 # Optional frontend rebuild worker
 CLOUDFLARE_PAGES_DEPLOY_HOOK=
 FRONTEND_REBUILD_DELAY_SECONDS=300
@@ -826,6 +829,7 @@ The backend initializes R2 during startup, so these variables must be available 
 | `VOLUNTEER_TO_EMAIL` | Yes | — | Destination for volunteer applications |
 | `SMTP_PORT` | No | `465` | SMTP port |
 | `SMTP_SECURITY` | No | `tls` | `tls` or `starttls` |
+| `PASSWORD_RESET_URL` | For password recovery | — | Frontend reset page; production: `https://fundacionseno.org/login/restablecer/` |
 
 The email service is initialized at backend startup.
 
@@ -956,23 +960,11 @@ DATABASE_URL=...
 
 using `sqlx::PgPool`.
 
-**This repository currently does not include a migrations directory or SQL schema in `backend/`.**
+Feature-specific SQL scripts live in `backend/sql/` and must be applied manually. The repository still does not provide a complete initial schema for a new empty database.
 
-That means cloning the repository alone is not enough to create a new empty database from scratch. A compatible PostgreSQL schema must already exist or be provisioned separately.
+**Before deploying the password-recovery backend, apply [`backend/sql/password_reset.sql`](backend/sql/password_reset.sql).** Existing login queries also require its `users.auth_version` column. See the [password recovery setup and test guide](backend/sql/password_reset.md) for SMTP configuration, the new environment variable, and verification steps.
 
 The frontend rebuild feature also expects its rebuild-state data to exist in PostgreSQL.
-
-A useful future improvement would be to add versioned SQL migrations, for example:
-
-```text
-backend/
-└── migrations/
-    ├── 0001_initial_schema.sql
-    ├── 0002_...
-    └── ...
-```
-
-This would make local development, testing and disaster recovery considerably easier.
 
 ---
 

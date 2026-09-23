@@ -26,15 +26,27 @@ pub fn verify_password(password: &str, hash: &str) -> bool {
 }
 
 pub fn validate_password(password: &str) -> ApiResult<()> {
-    if password.len() < 8 {
+    if password.chars().count() < 8 {
         return Err(ApiError::BadRequest(
             "La contraseña debe de contener al menos 8 caracteres.".into(),
         ));
     }
 
-    if password.len() > 128 {
+    if password.chars().count() > 128 {
         return Err(ApiError::BadRequest("La contraseña es muy larga.".into()));
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn password_length_counts_unicode_characters() {
+        assert!(validate_password("áááá").is_err());
+        assert!(validate_password("áááááááá").is_ok());
+        assert!(validate_password(&"🔒".repeat(128)).is_ok());
+        assert!(validate_password(&"a".repeat(129)).is_err());
+    }
 }

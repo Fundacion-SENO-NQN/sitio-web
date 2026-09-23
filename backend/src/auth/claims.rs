@@ -7,4 +7,8 @@ pub struct Claims {
 
     /// expiration
     pub exp: usize,
+
+    /// Compatibilidad con los JWT anteriores a esta funcionalidad.
+    #[serde(default)]
+    pub auth_version: i64,
 }
