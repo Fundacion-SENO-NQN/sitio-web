@@ -8,6 +8,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct AuthUserData {
     pub id: i64,
+    pub auth_version: i64,
     pub username: String,
     pub role_id: i64,
     pub permissions: Vec<Service>,
@@ -49,6 +50,7 @@ where
             .collect::<Vec<Service>>();
         Ok(AuthUser(AuthUserData {
             id: user.id,
+            auth_version: user.auth_version,
             username: user.username,
             role_id: user.role_id,
             permissions,

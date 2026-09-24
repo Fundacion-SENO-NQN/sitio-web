@@ -35,6 +35,7 @@ mod services;
 mod utils;
 
 pub struct AppState {
+    pub profile: services::profile::ProfileService,
     pub password_reset: services::password_reset::PasswordResetService,
     pub email: EmailService,
     pub db: PgPool,
@@ -108,6 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instagram = InstagramService::from_env()?;
     frontend_rebuild.clone().start();
     let state = Arc::new(AppState {
+        profile: services::profile::ProfileService::default(),
         password_reset: services::password_reset::PasswordResetService::from_env()?,
         db,
         email,
@@ -160,6 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(img_donation::routes())
         .merge(instagram::routes())
         .merge(routes::auth::routes())
+        .merge(routes::profile::routes())
         .merge(user::routes())
         .merge(roles::routes())
         .merge(service::routes())

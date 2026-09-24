@@ -1,0 +1,240 @@
+---
+import SvgUser from '../../assets/icon-common/icon-user.svg'
+import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
+---
+
+<profile-menu class="profileMenu">
+  <button
+    class="button buttonGhost profileMenuToggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="profile-menu-options"
+    data-profile-toggle
+  >
+    <span class="profileAvatar" aria-hidden="true" data-profile-initials>
+      <SvgUser />
+    </span>
+    <span>Mi cuenta</span>
+    <span class="profileChevron" aria-hidden="true">
+      ⌄
+    </span>
+  </button>
+  <nav
+    class="profileDropdown"
+    id="profile-menu-options"
+    aria-label="Opciones de mi cuenta"
+    hidden
+  >
+    <div class="profileIdentity">
+      <strong data-profile-name>Mi cuenta</strong>
+      <span data-profile-role></span>
+    </div>
+    <a href="/plataforma/perfil/#datos">Mi perfil</a>
+    <a href="/plataforma/perfil/#contrasena">Cambiar contraseña</a>
+    <button type="button" data-profile-logout>
+      <SvgLogout aria-hidden="true" />
+      Cerrar sesión
+    </button>
+  </nav>
+</profile-menu>
+
+<script>
+  import { clearSession } from '../../api/profile'
+
+  class ProfileMenu extends HTMLElement {
+    private controller: AbortController | null = null
+    private get toggle() {
+      return this.querySelector<HTMLButtonElement>('[data-profile-toggle]')!
+    }
+    private get panel() {
+      return this.querySelector<HTMLElement>('nav')!
+    }
+
+    connectedCallback() {
+      if (this.controller) return
+      this.controller = new AbortController()
+      const { signal } = this.controller
+      this.refreshIdentity()
+      this.toggle.addEventListener(
+        'click',
+        () => this.setOpen(Boolean(this.panel.hidden)),
+        { signal }
+      )
+      this.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape' && !this.panel.hidden) {
+            event.preventDefault()
+            this.setOpen(false)
+            this.toggle.focus()
+          }
+          if (event.key === 'ArrowDown' && event.target === this.toggle) {
+            event.preventDefault()
+            this.setOpen(true)
+            this.panel.querySelector('a')?.focus()
+          }
+        },
+        { signal }
+      )
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (event.target instanceof Node && !this.contains(event.target))
+            this.setOpen(false)
+        },
+        { signal }
+      )
+      this.addEventListener(
+        'focusout',
+        (event) => {
+          if (
+            !(event.relatedTarget instanceof Node) ||
+            !this.contains(event.relatedTarget)
+          )
+            this.setOpen(false)
+        },
+        { signal }
+      )
+      this.panel
+        .querySelectorAll('a')
+        .forEach((link) =>
+          link.addEventListener('click', () => this.setOpen(false), { signal })
+        )
+      this.querySelector('[data-profile-logout]')?.addEventListener(
+        'click',
+        () => {
+          clearSession()
+          window.location.replace('/login/')
+        },
+        { signal }
+      )
+      window.addEventListener('profile-updated', this.refreshIdentity, {
+        signal
+      })
+      window.addEventListener('storage', this.refreshIdentity, { signal })
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort()
+      this.controller = null
+    }
+
+    private setOpen(open: boolean) {
+      this.panel.hidden = !open
+      this.toggle.setAttribute('aria-expanded', String(open))
+    }
+
+    private refreshIdentity = () => {
+      const first = localStorage.getItem('name')?.trim() ?? ''
+      const last = localStorage.getItem('lastname')?.trim() ?? ''
+      this.querySelector('[data-profile-name]')!.textContent =
+        `${first} ${last}`.trim() ||
+        localStorage.getItem('username') ||
+        'Mi cuenta'
+      this.querySelector('[data-profile-role]')!.textContent =
+        localStorage.getItem('role') || ''
+      const initials =
+        (Array.from(first)[0] ?? '') + (Array.from(last)[0] ?? '')
+      if (initials)
+        this.querySelector('[data-profile-initials]')!.textContent =
+          initials.toLocaleUpperCase('es-AR')
+    }
+  }
+  if (!customElements.get('profile-menu'))
+    customElements.define('profile-menu', ProfileMenu)
+</script>
+
+<style>
+  .profileMenu {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+  }
+  .profileMenuToggle {
+    min-height: 3rem;
+    gap: 0.65rem;
+    border: var(--admin-border);
+    background: var(--admin-surface);
+    font-weight: 700;
+  }
+  .profileAvatar {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--admin-primary-soft);
+    color: var(--color-primary-hover);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+  .profileAvatar svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .profileChevron {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .profileDropdown {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: min(17rem, calc(100vw - 2rem));
+    padding: 0.5rem;
+    border: var(--admin-border);
+    border-radius: var(--admin-radius);
+    background: var(--admin-surface);
+    box-shadow: var(--admin-shadow);
+  }
+  .profileIdentity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.7rem 0.8rem 1rem;
+    margin-bottom: 0.25rem;
+    border-bottom: var(--admin-border);
+    overflow-wrap: anywhere;
+  }
+  .profileIdentity span {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+  }
+  .profileDropdown a,
+  .profileDropdown button {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    color: var(--admin-text);
+    background: transparent;
+    border: 0;
+    border-radius: var(--admin-radius-small);
+    font: inherit;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .profileDropdown a:hover,
+  .profileDropdown button:hover {
+    background: var(--admin-surface-hover);
+  }
+  .profileDropdown a:focus-visible,
+  .profileDropdown button:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: -2px;
+  }
+  .profileDropdown button {
+    border-top: var(--admin-border);
+    margin-top: 0.3rem;
+    color: var(--color-danger, #b42318);
+  }
+  .profileDropdown button svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+</style>

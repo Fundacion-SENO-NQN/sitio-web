@@ -3,7 +3,7 @@ import LayoutPlataforma from '../../layouts/LayoutPlataforma.astro'
 
 import ModalCarga from '../../components/Common/ModalCarga.astro'
 
-import SvgLogOut from '../../assets/icon-common/icon-log-out.svg'
+import ProfileMenu from '../../components/Plataforma/ProfileMenu.astro'
 import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.svg'
 ---
 
@@ -21,20 +21,19 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
         <p>Seleccioná uno de los servicios disponibles para comenzar.</p>
       </div>
 
-      <a class="manual" href="/documentos/manual-de-uso.pdf" target="_blank">
-        <SvgDocumento />
-        <p>Manual de uso</p>
-      </a>
+      <div class="platformHomeActions">
+        <a
+          class="manual"
+          href="/documentos/manual-de-uso.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <SvgDocumento />
+          <p>Manual de uso</p>
+        </a>
 
-      <button
-        id="logout"
-        class="button buttonGhost platformHomeLogout"
-        type="button"
-      >
-        <SvgLogOut class="platformHomeLogout__icon" aria-hidden="true" />
-
-        <span>Cerrar sesión</span>
-      </button>
+        <ProfileMenu />
+      </div>
     </header>
 
     <main class="platformHomeMain" aria-labelledby="services-title">
@@ -55,8 +54,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
           class="platformHomeGrid"
           aria-live="polite"
           aria-busy="true"
-        >
-        </div>
+        ></div>
 
         <div
           id="servicesEmpty"
@@ -64,7 +62,10 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
           role="status"
           hidden
         >
-          <span class="emptyStateIcon" aria-hidden="true"> 🔒 </span>
+          <span class="emptyStateIcon" aria-hidden="true">
+            {' '}
+            🔒{' '}
+          </span>
 
           <h2>No tenés servicios asignados</h2>
 
@@ -80,7 +81,10 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
           role="alert"
           hidden
         >
-          <span class="emptyStateIcon" aria-hidden="true"> ! </span>
+          <span class="emptyStateIcon" aria-hidden="true">
+            {' '}
+            !{' '}
+          </span>
 
           <h2>No pudimos cargar los servicios</h2>
 
@@ -103,6 +107,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
 
 <script>
   import type Service from '../../data/interfaces/Service'
+  import { clearSession } from '../../api/profile'
 
   const API_URL = (
     import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
@@ -114,7 +119,6 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
     private errorState: HTMLElement | null = null
     private loadingOverlay: HTMLElement | null = null
     private nameElement: HTMLElement | null = null
-    private logoutButton: HTMLButtonElement | null = null
     private retryButton: HTMLButtonElement | null = null
 
     private abortController: AbortController | null = null
@@ -140,17 +144,11 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
 
       this.nameElement = this.querySelector<HTMLElement>('#name')
 
-      this.logoutButton = this.querySelector<HTMLButtonElement>('#logout')
-
       this.retryButton = this.querySelector<HTMLButtonElement>('#retryServices')
 
       this.abortController = new AbortController()
 
       const { signal } = this.abortController
-
-      this.logoutButton?.addEventListener('click', this.handleLogout, {
-        signal
-      })
 
       this.retryButton?.addEventListener(
         'click',
@@ -177,20 +175,6 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
       this.requestController = null
     }
 
-    private clearAuthentication(): void {
-      const authenticationKeys = [
-        'token',
-        'username',
-        'name',
-        'lastname',
-        'role'
-      ]
-
-      authenticationKeys.forEach((key) => {
-        window.localStorage.removeItem(key)
-      })
-    }
-
     private setLoading(loading: boolean): void {
       this.loadingOverlay?.toggleAttribute('hidden', !loading)
 
@@ -212,11 +196,8 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
     private async loadServices(): Promise<void> {
       const token = window.localStorage.getItem('token')
 
-      const username = window.localStorage.getItem('username')?.trim()
-
-      if (!token || !username) {
-        console.log('entre')
-        this.clearAuthentication()
+      if (!token) {
+        clearSession()
         window.location.replace('/login/')
         return
       }
@@ -232,20 +213,17 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
       }
 
       try {
-        const response = await fetch(
-          `${API_URL}/user/permissions/username/${encodeURIComponent(username)}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`
-            },
-            signal: this.requestController.signal
-          }
-        )
+        const response = await fetch(`${API_URL}/profile/permissions`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          signal: this.requestController.signal
+        })
 
         if (response.status === 401 || response.status === 403) {
-          console.log('entre en el error')
-          this.clearAuthentication()
+          clearSession()
           window.location.replace('/login/')
           return
         }
@@ -347,11 +325,6 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
 
       return link
     }
-
-    private handleLogout = (): void => {
-      this.clearAuthentication()
-      window.location.replace('/login/')
-    }
   }
 
   if (!customElements.get('platform-home')) {
@@ -435,17 +408,17 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
     line-height: 1.55;
   }
 
-  .platformHomeLogout {
-    min-height: 3rem;
-
+  .platformHomeActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
     flex: 0 0 auto;
   }
 
-  .platformHomeLogout__icon {
-    width: 1.35rem;
-    height: 1.35rem;
-
-    color: currentColor;
+  .manual {
+    gap: 0.35rem;
+    font-size: 0.85rem;
   }
 
   .platformHomeMain {
@@ -621,8 +594,10 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
       gap: 1rem;
     }
 
-    .platformHomeLogout, .manual {
+    .platformHomeActions {
       width: 100%;
+      justify-content: space-between;
+      order: -1;
     }
 
     .platformHomeGrid {

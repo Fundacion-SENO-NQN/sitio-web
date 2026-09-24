@@ -1,0 +1,394 @@
+---
+import LayoutPlataforma from '../../layouts/LayoutPlataforma.astro'
+import ProfileMenu from '../../components/Plataforma/ProfileMenu.astro'
+---
+
+<LayoutPlataforma titulo="Mi perfil">
+  <profile-page class="profilePage">
+    <header class="profileHeader">
+      <a class="profileBack" href="/plataforma/">
+        ← Volver al inicio
+      </a>
+      <ProfileMenu />
+    </header>
+    <main>
+      <div class="profileIntro">
+        <p class="profileEyebrow">MI CUENTA</p>
+        <h1>Mi perfil</h1>
+        <p>Actualizá tus datos personales y cuidá el acceso a tu cuenta.</p>
+      </div>
+
+      <div class="profileNotice" data-load-status role="status">
+        Cargando tu perfil...
+      </div>
+      <button class="button buttonSecondary" type="button" data-retry hidden>
+        Reintentar
+      </button>
+      <section
+        class="profileNotice profileSuccess"
+        data-finished
+        hidden
+        aria-labelledby="finished-title"
+      >
+        <h2 id="finished-title" tabindex="-1">
+          Cambios guardados
+        </h2>
+        <p data-finished-message></p>
+        <a class="button buttonPrimary" href="/login/">
+          Volver a iniciar sesión
+        </a>
+      </section>
+
+      <div class="profileGrid" data-profile-content hidden>
+        <section class="profileCard" id="datos" aria-labelledby="details-title">
+          <header>
+            <span class="profileBadge">01 · DATOS PERSONALES</span>
+            <h2 id="details-title">Tus datos</h2>
+            <p>El correo se usa para recuperar tu contraseña.</p>
+          </header>
+          <form class="form" id="profile-form" method="post">
+            <fieldset>
+              <div class="profileFields">
+                <div class="formGroup">
+                  <label for="profile-name">Nombre</label>
+                  <input
+                    id="profile-name"
+                    name="name"
+                    autocomplete="given-name"
+                    maxlength="100"
+                    required
+                  />
+                </div>
+                <div class="formGroup">
+                  <label for="profile-last-name">Apellido</label>
+                  <input
+                    id="profile-last-name"
+                    name="last_name"
+                    autocomplete="family-name"
+                    maxlength="100"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="formGroup">
+                <label for="profile-username">Usuario</label>
+                <input
+                  id="profile-username"
+                  name="username"
+                  autocomplete="username"
+                  minlength="3"
+                  maxlength="80"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+              <div class="formGroup">
+                <label for="profile-email">Correo electrónico</label>
+                <input
+                  id="profile-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+              <p class="profileRole">
+                Rol asignado: <strong data-role></strong>
+              </p>
+              <div class="formGroup">
+                <label for="profile-current-password">Contraseña actual</label>
+                <input
+                  id="profile-current-password"
+                  name="current_password"
+                  type="password"
+                  autocomplete="current-password"
+                  maxlength="512"
+                  aria-describedby="profile-confirm-help"
+                  required
+                />
+                <p class="fieldHelp" id="profile-confirm-help">
+                  Confirmá tu contraseña para guardar. Si cambiás el usuario o
+                  el correo, tendrás que iniciar sesión nuevamente.
+                </p>
+              </div>
+              <button class="button buttonPrimary" type="submit">
+                Guardar mis datos
+              </button>
+            </fieldset>
+            <p
+              class="profileNotice"
+              data-feedback
+              role="status"
+              tabindex="-1"
+              hidden
+            ></p>
+          </form>
+        </section>
+
+        <section
+          class="profileCard"
+          id="contrasena"
+          aria-labelledby="password-title"
+        >
+          <header>
+            <span class="profileBadge">02 · SEGURIDAD</span>
+            <h2 id="password-title">Cambiar contraseña</h2>
+            <p>Elegí una contraseña que uses solo en esta plataforma.</p>
+          </header>
+          <form class="form" id="password-form" method="post">
+            <fieldset>
+              <input
+                type="text"
+                name="username"
+                autocomplete="username"
+                class="srOnly"
+                tabindex="-1"
+                aria-hidden="true"
+                data-password-username
+              />
+              <div class="formGroup">
+                <label for="password-current">Contraseña actual</label>
+                <input
+                  id="password-current"
+                  name="current_password"
+                  type="password"
+                  autocomplete="current-password"
+                  maxlength="512"
+                  required
+                />
+              </div>
+              <div class="formGroup">
+                <label for="password-new">Nueva contraseña</label>
+                <input
+                  id="password-new"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  maxlength="256"
+                  aria-describedby="password-help"
+                  required
+                />
+                <p class="fieldHelp" id="password-help">
+                  Entre 8 y 128 caracteres. Debe ser diferente de la actual.
+                </p>
+              </div>
+              <div class="formGroup">
+                <label for="password-confirmation">
+                  Repetir nueva contraseña
+                </label>
+                <input
+                  id="password-confirmation"
+                  name="password_confirmation"
+                  type="password"
+                  autocomplete="new-password"
+                  maxlength="256"
+                  required
+                />
+              </div>
+              <label class="profileShowPassword">
+                <input type="checkbox" data-show-passwords />
+                Mostrar contraseñas
+              </label>
+              <p class="fieldHelp">
+                Al guardar, se cerrarán tus sesiones abiertas. Volvé a ingresar
+                con la nueva contraseña.
+              </p>
+              <button class="button buttonPrimary" type="submit">
+                Actualizar contraseña
+              </button>
+            </fieldset>
+            <p
+              class="profileNotice"
+              data-feedback
+              role="status"
+              tabindex="-1"
+              hidden
+            ></p>
+          </form>
+          <a class="profileRecovery" href="/login/recuperar/">
+            No recuerdo mi contraseña actual
+          </a>
+        </section>
+      </div>
+      <noscript>
+        Necesitás habilitar JavaScript para gestionar tu perfil.
+      </noscript>
+    </main>
+  </profile-page>
+</LayoutPlataforma>
+
+<script>
+  import '../../js/profile'
+</script>
+
+<style>
+  .profilePage {
+    display: block;
+    width: min(calc(100% - 2rem), 70rem);
+    padding-bottom: 4rem;
+  }
+  .profileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1.25rem;
+    border-bottom: var(--admin-border);
+  }
+  .profileBack {
+    color: var(--color-primary-hover);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .profileBack:hover {
+    text-decoration: underline;
+  }
+  .profileIntro {
+    padding-block: 2.5rem 2rem;
+  }
+  .profileEyebrow {
+    color: var(--color-primary-hover);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+  }
+  .profileIntro h1 {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    margin-block: 0.35rem 0.6rem;
+  }
+  .profileIntro > p:last-child,
+  .profileCard header p {
+    color: var(--admin-text-muted);
+    line-height: 1.6;
+  }
+  .profileGrid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    align-items: start;
+    gap: 1.5rem;
+  }
+  .profileCard {
+    min-width: 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius-large);
+    background: var(--admin-surface);
+    box-shadow: var(--admin-shadow-small);
+    scroll-margin-top: 1rem;
+  }
+  .profileCard header {
+    margin-bottom: 1.5rem;
+  }
+  .profileBadge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--color-secondary-hover);
+  }
+  .profileCard h2 {
+    font-size: 1.4rem;
+    margin-block: 0.5rem;
+  }
+  .profileCard header p {
+    font-size: 0.9rem;
+  }
+  fieldset {
+    display: grid;
+    gap: 1.2rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  fieldset:disabled {
+    opacity: 0.65;
+  }
+  .buttonPrimary {
+    background: var(--color-secondary);
+    color: var(--admin-text-on-color);
+    border: 1px solid var(--color-secondary);
+    font-weight: 700;
+  }
+  .buttonPrimary:hover:not(:disabled) {
+    background: var(--color-secondary-hover);
+    border-color: var(--color-secondary-hover);
+  }
+  .formGroup > input:invalid:not(:user-invalid) {
+    border-color: var(--admin-border-color);
+  }
+  .profileFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .profileRole {
+    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--admin-radius-small);
+    background: var(--admin-surface-soft);
+    overflow-wrap: anywhere;
+  }
+  .profileRole strong {
+    color: var(--color-primary-hover);
+  }
+  .profileNotice {
+    margin-block: 1rem;
+    padding: 1rem;
+    border-radius: var(--admin-radius-small);
+    background: var(--admin-secondary-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .profileNotice[data-error='true'] {
+    background: var(--admin-danger-soft);
+    color: #a32323;
+  }
+  .profileSuccess {
+    max-width: 40rem;
+    background: var(--admin-primary-soft);
+  }
+  .profileSuccess p {
+    margin-block: 0.6rem 1.2rem;
+  }
+  .profileShowPassword {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .profileShowPassword input {
+    width: 1rem;
+    min-height: 1rem;
+    height: 1rem;
+    accent-color: var(--color-secondary);
+  }
+  .profileRecovery {
+    display: block;
+    margin-top: 1.3rem;
+    font-size: 0.85rem;
+    color: var(--color-secondary-hover);
+  }
+  @media (max-width: 760px) {
+    .profileGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 400px) {
+    .profileFields {
+      grid-template-columns: 1fr;
+    }
+    .profileHeader {
+      gap: 0.25rem;
+    }
+    .profileBack {
+      font-size: 0.8rem;
+    }
+  }
+</style>
