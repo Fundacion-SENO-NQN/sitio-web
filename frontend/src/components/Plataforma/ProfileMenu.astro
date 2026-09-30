@@ -1,5 +1,5 @@
 ---
-import SvgUser from '../../assets/icon-common/icon-user.svg'
+import SvgEngranajes from '../../assets/icon-common/icon-engranajes.svg'
 import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
 ---
 
@@ -11,10 +11,10 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     aria-controls="profile-menu-options"
     data-profile-toggle
   >
-    <span class="profileAvatar" aria-hidden="true" data-profile-initials>
-      <SvgUser />
+    <span class="profileAvatar" aria-hidden="true">
+      <SvgEngranajes />
     </span>
-    <span>Mi cuenta</span>
+    <span>Ajustes</span>
     <span class="profileChevron" aria-hidden="true">
       ⌄
     </span>
@@ -29,8 +29,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
       <strong data-profile-name>Mi cuenta</strong>
       <span data-profile-role></span>
     </div>
-    <a href="/plataforma/perfil/#datos">Mi perfil</a>
-    <a href="/plataforma/perfil/#contrasena">Cambiar contraseña</a>
+    <button type="button" data-profile-settings>Ajustes de perfil</button>
     <button type="button" data-profile-logout>
       <SvgLogout aria-hidden="true" />
       Cerrar sesión
@@ -96,10 +95,17 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
         { signal }
       )
       this.panel
-        .querySelectorAll('a')
-        .forEach((link) =>
-          link.addEventListener('click', () => this.setOpen(false), { signal })
+        .querySelectorAll('a, button[data-profile-settings]')
+        .forEach((btn) =>
+          btn.addEventListener('click', () => this.setOpen(false), { signal })
         )
+      this.querySelector('[data-profile-settings]')?.addEventListener(
+        'click',
+        () => {
+          window.dispatchEvent(new Event('open-settings'))
+        },
+        { signal }
+      )
       this.querySelector('[data-profile-logout]')?.addEventListener(
         'click',
         () => {
@@ -133,11 +139,6 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
         'Mi cuenta'
       this.querySelector('[data-profile-role]')!.textContent =
         localStorage.getItem('role') || ''
-      const initials =
-        (Array.from(first)[0] ?? '') + (Array.from(last)[0] ?? '')
-      if (initials)
-        this.querySelector('[data-profile-initials]')!.textContent =
-          initials.toLocaleUpperCase('es-AR')
     }
   }
   if (!customElements.get('profile-menu'))
