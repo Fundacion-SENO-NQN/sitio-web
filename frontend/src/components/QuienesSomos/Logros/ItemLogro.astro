@@ -43,28 +43,34 @@ const imageUrl3 = `${IMG_URL}/img_logros/${logro.id}_3.avif`
 
   <div class="achievement__content">
     <p>{logro.contenido}</p>
-    <div class="achievement__extra-images">
-      <img
-        class="achievement__extra-image"
-        src={imageUrl2}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        width="600"
-        height="600"
-        onerror="this.style.display='none'"
-      />
-      <img
-        class="achievement__extra-image"
-        src={imageUrl3}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        width="600"
-        height="600"
-        onerror="this.style.display='none'"
-      />
-    </div>
+    {
+      (logro.image_count && logro.image_count > 1) && (
+        <div class="achievement__extra-images">
+          <img
+            class="achievement__extra-image"
+            src={imageUrl2}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width="600"
+            height="600"
+          />
+          {
+            logro.image_count > 2 && (
+              <img
+                class="achievement__extra-image"
+                src={imageUrl3}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                width="600"
+                height="600"
+              />
+            )
+          }
+        </div>
+      )
+    }
   </div>
 </details>
 
