@@ -23,7 +23,6 @@ const MAX_IMAGE_BYTES: usize = 12 * 1024 * 1024;
 
 pub async fn get_all_eventos(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Evento>>> {
     let eventos = repositories::evento::get_all(&state.db).await?;
-    println!("holaa");
     Ok(Json(eventos))
 }
 
