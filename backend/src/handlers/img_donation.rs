@@ -202,8 +202,11 @@ pub async fn upload_donation_batch(
     let mut converted = Vec::with_capacity(files.len());
     for file in files {
         let item = tokio::task::spawn_blocking(move || {
+            println!("205");
             let avif = convert_to_avif(&file)?;
+            println!("207");
             let jpeg = if publish { Some(convert_to_instagram_jpeg(&file)?) } else { None };
+            println!("209");
             Ok::<_, image::ImageError>((avif, jpeg))
         }).await.map_err(|_| ApiError::InternalServerError)?
           .map_err(|_| ApiError::BadRequest("Una imagen no se pudo procesar".into()))?;
