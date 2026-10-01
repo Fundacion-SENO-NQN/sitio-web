@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "start": "node server.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "generate-types": "wrangler types"
@@ -15,7 +16,8 @@
   "dependencies": {
     "@astrojs/cloudflare": "14.3.2",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "7.3.3"
+    "astro": "7.3.3",
+    "dotenv": "^18.0.5"
   },
   "devDependencies": {
     "wrangler": "4.125.0"
