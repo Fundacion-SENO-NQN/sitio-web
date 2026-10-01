@@ -31,5 +31,6 @@ pub async fn login(
         name: user.name,
         last_name: user.last_name,
         role_name: user.role_name,
+        email: user.email,
     }))
 }

@@ -287,6 +287,8 @@ import '../../style/login.css'
 
         window.localStorage.setItem('role', response.role_name)
 
+        window.localStorage.setItem('email', response.email)
+
         window.location.replace('/plataforma/')
       } catch (error) {
         console.error('No se pudo iniciar sesión:', error)
