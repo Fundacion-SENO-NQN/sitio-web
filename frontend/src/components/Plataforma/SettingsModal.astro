@@ -14,7 +14,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     <header class="modalHeader adminModalHeader">
       <h2 id="settings-title">Ajustes</h2>
       <button class="modalClose adminModalClose" type="button" aria-label="Cerrar ajustes" data-settings-close>
-        ×
+        x
       </button>
     </header>
 
@@ -556,6 +556,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
   .settingsModal {
     max-width: 50rem;
     width: 95%;
+    overflow: hidden;
   }
 
   .settingsBody {
@@ -581,6 +582,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     flex-grow: 1;
     min-width: 0;
     padding: 1.5rem 1.5rem 1.5rem 0;
+    overflow-y: auto;
   }
 
   .settingsTab {

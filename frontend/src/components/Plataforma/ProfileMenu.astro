@@ -1,6 +1,7 @@
 ---
 import SvgEngranajes from '../../assets/icon-common/icon-engranajes.svg'
 import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
+import SvgFlechaSimple from '../../assets/icon-common/icon-flecha-simple.svg'
 ---
 
 <profile-menu class="profileMenu">
@@ -15,9 +16,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
       <SvgEngranajes />
     </span>
     <span>Ajustes</span>
-    <span class="profileChevron" aria-hidden="true">
-      ⌄
-    </span>
+    <SvgFlechaSimple class="profileChevron" aria-hidden="true" />
   </button>
   <nav
     class="profileDropdown"
@@ -30,7 +29,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
       <span data-profile-role></span>
     </div>
     <button type="button" data-profile-settings>Ajustes de perfil</button>
-    <button type="button" data-profile-logout>
+    <button class="danger" type="button" data-profile-logout>
       <SvgLogout aria-hidden="true" />
       Cerrar sesión
     </button>
@@ -174,8 +173,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     height: 1.1rem;
   }
   .profileChevron {
-    font-size: 1.25rem;
-    line-height: 1;
+    height: 1.5rem;
   }
   .profileDropdown {
     position: absolute;
@@ -195,7 +193,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     gap: 0.2rem;
     padding: 0.7rem 0.8rem 1rem;
     margin-bottom: 0.25rem;
-    border-bottom: var(--admin-border);
+    /* border-bottom: var(--admin-border); */
     overflow-wrap: anywhere;
   }
   .profileIdentity span {
@@ -232,6 +230,9 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
   .profileDropdown button {
     border-top: var(--admin-border);
     margin-top: 0.3rem;
+  }
+
+  .profileDropdown button.danger {
     color: var(--color-danger, #b42318);
   }
   .profileDropdown button svg {
