@@ -33,9 +33,11 @@ export function buildAchievementFormData({
     orden: orden ?? order
   })
 
-  const normalizedImage = normalizeAchievementImage(image)
+  const normalizedImages = normalizeAchievementImage(image)
 
-  if (normalizedImage) validateAchievementImage(normalizedImage)
+  if (normalizedImages) {
+    normalizedImages.forEach(validateAchievementImage)
+  }
 
   const formData = new FormData()
 
@@ -49,8 +51,11 @@ export function buildAchievementFormData({
    * Al editar, si no se selecciona una imagen nueva, el
    * campo se omite y el backend conserva la imagen actual.
    */
-  if (normalizedImage)
-    formData.append('image', normalizedImage, normalizedImage.name)
+  if (normalizedImages) {
+    normalizedImages.forEach(img => {
+      formData.append('image', img, img.name)
+    })
+  }
 
   return formData
 }
@@ -110,11 +115,11 @@ export function validateAchievementImage(image) {
  * creación, porque allí la imagen sí es obligatoria.
  */
 export function validateCreateAchievementImage(image) {
-  const normalizedImage = normalizeAchievementImage(image)
+  const normalizedImages = normalizeAchievementImage(image)
 
-  if (!normalizedImage) throw new Error('La imagen es requerida.')
+  if (!normalizedImages || normalizedImages.length === 0) throw new Error('Al menos una imagen es requerida.')
 
-  return validateAchievementImage(normalizedImage)
+  return normalizedImages.map(validateAchievementImage)
 }
 
 /*
@@ -131,7 +136,7 @@ export const validateCreateImage = validateCreateAchievementImage
 function normalizeAchievementImage(image) {
   if (image === null || image === undefined || image === '') return null
 
-  if (isFile(image)) return image
+  if (isFile(image)) return [image]
 
   /*
    * Admite un FileList o el arreglo expuesto por
@@ -142,14 +147,16 @@ function normalizeAchievementImage(image) {
 
     if (images.length === 0) return null
 
-    if (images.length > 1) throw new Error('Cada logro admite una sola imagen.')
+    if (images.length > 3) throw new Error('Cada logro admite hasta tres imágenes.')
 
-    const selectedImage = images[0]
+    const selectedImages = []
+    for (const selectedImage of images) {
+        if (!isFile(selectedImage))
+          throw new TypeError('La imagen seleccionada no es válida.')
+        selectedImages.push(selectedImage)
+    }
 
-    if (!isFile(selectedImage))
-      throw new TypeError('La imagen seleccionada no es válida.')
-
-    return selectedImage
+    return selectedImages
   }
 
   throw new TypeError('La imagen seleccionada no es válida.')

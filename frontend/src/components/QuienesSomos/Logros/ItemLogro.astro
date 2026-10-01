@@ -14,19 +14,22 @@ const IMG_URL = (
   'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
 ).replace(/\/+$/, '')
 
-const imageUrl = `${IMG_URL}/img_logros/${logro.id}.avif`
+const imageUrl1 = `${IMG_URL}/img_logros/${logro.id}.avif`
+const imageUrl2 = `${IMG_URL}/img_logros/${logro.id}_2.avif`
+const imageUrl3 = `${IMG_URL}/img_logros/${logro.id}_3.avif`
 ---
 
 <details class="achievement">
   <summary class="achievement__summary">
     <img
       class="achievement__image"
-      src={imageUrl}
+      src={imageUrl1}
       alt=""
       loading="lazy"
       decoding="async"
       width="600"
       height="600"
+      onerror="this.style.display='none'"
     />
 
     <h3 class="achievement__title">
@@ -40,6 +43,28 @@ const imageUrl = `${IMG_URL}/img_logros/${logro.id}.avif`
 
   <div class="achievement__content">
     <p>{logro.contenido}</p>
+    <div class="achievement__extra-images">
+      <img
+        class="achievement__extra-image"
+        src={imageUrl2}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+        onerror="this.style.display='none'"
+      />
+      <img
+        class="achievement__extra-image"
+        src={imageUrl3}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+        onerror="this.style.display='none'"
+      />
+    </div>
   </div>
 </details>
 
@@ -161,6 +186,22 @@ const imageUrl = `${IMG_URL}/img_logros/${logro.id}.avif`
     line-height: 1.7;
     text-wrap: pretty;
     overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .achievement__extra-images {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .achievement__extra-image {
+    width: clamp(8rem, 20vw, 15rem);
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--radius-small);
+    background-color: var(--color-background);
   }
 
   .achievement[open] .achievement__summary {
