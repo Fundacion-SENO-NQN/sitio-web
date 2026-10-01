@@ -7,7 +7,7 @@ pub struct Logro {
     pub orden: i64,
     pub titulo: String,
     pub contenido: String,
-    pub image_count: Option<i32>,
+    pub image_count: i16,
     pub created_at: DateTime<Utc>,
 }
 
@@ -16,7 +16,7 @@ pub struct UpdateLogro {
     pub orden: Option<i64>,
     pub titulo: Option<String>,
     pub contenido: Option<String>,
-    pub image_count: Option<i32>,
+    pub image_count: Option<i16>,
 }
 
 #[derive(Debug, Deserialize)]

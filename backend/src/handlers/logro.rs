@@ -118,7 +118,7 @@ pub async fn create_logro(
         avif_images.push(avif_image);
     }
 
-    let logro = repositories::logro::create(&state.db, titulo, contenido).await?;
+    let logro = repositories::logro::create(&state.db, titulo, contenido, images.len() as i16).await?;
 
     for (index, avif_image) in avif_images.into_iter().enumerate() {
         let image_key = logro_image_key(logro.id, index);
@@ -236,11 +236,17 @@ pub async fn patch_logro(
         }
     }
 
+    let image_count = if !images.is_empty() {
+        Some(images.len() as i16)
+    } else {
+        None
+    };
+
     let update = UpdateLogro {
         titulo,
         contenido,
         orden: None,
-        image_count: None,
+        image_count,
     };
 
     let logro = repositories::logro::update(&state.db, id, update).await?;

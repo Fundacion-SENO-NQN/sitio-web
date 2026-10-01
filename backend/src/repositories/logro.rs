@@ -19,6 +19,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Logro>> {
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         FROM logros
         ORDER BY
@@ -42,6 +43,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Logro>> {
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         FROM logros
         WHERE id = $1
@@ -56,7 +58,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Logro>> {
    CREATE
 ========================================================== */
 
-pub async fn create(db: &PgPool, titulo: &str, contenido: &str) -> ApiResult<Logro> {
+pub async fn create(db: &PgPool, titulo: &str, contenido: &str, image_count: i16) -> ApiResult<Logro> {
     let mut tx = db.begin().await?;
 
     /*
@@ -71,7 +73,8 @@ pub async fn create(db: &PgPool, titulo: &str, contenido: &str) -> ApiResult<Log
             (
                 orden,
                 titulo,
-                contenido
+                contenido,
+                image_count
             )
         VALUES
             (
@@ -80,18 +83,21 @@ pub async fn create(db: &PgPool, titulo: &str, contenido: &str) -> ApiResult<Log
                     FROM logros
                 ),
                 $1,
-                $2
+                $2,
+                $3
             )
         RETURNING
             id,
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         "#,
     )
     .bind(titulo)
     .bind(contenido)
+    .bind(image_count)
     .fetch_one(&mut *tx)
     .await?;
 
@@ -109,7 +115,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
         orden,
         titulo,
         contenido,
-        ..
+        image_count,
     } = update;
 
     let mut tx = db.begin().await?;
@@ -128,6 +134,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         FROM logros
         WHERE id = $1
@@ -169,18 +176,21 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
         UPDATE logros
         SET
             titulo = COALESCE($1, titulo),
-            contenido = COALESCE($2, contenido)
-        WHERE id = $3
+            contenido = COALESCE($2, contenido),
+            image_count = COALESCE($3, image_count)
+        WHERE id = $4
         RETURNING
             id,
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         "#,
     )
     .bind(titulo)
     .bind(contenido)
+    .bind(image_count)
     .bind(id)
     .fetch_optional(&mut *tx)
     .await?
@@ -230,6 +240,7 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Logro> {
             orden,
             titulo,
             contenido,
+            image_count,
             created_at
         FROM logros
         WHERE id = $1

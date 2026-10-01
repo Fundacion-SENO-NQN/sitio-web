@@ -1,0 +1,87 @@
+warning: field `role_id` is never read
+  --> src/auth/auth_user.rs:13:9
+   |
+ 9 | pub struct AuthUserData {
+   |            ------------ field in this struct
+...
+13 |     pub role_id: i64,
+   |         ^^^^^^^
+   |
+   = note: `AuthUserData` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `require_any` and `require_all` are never used
+  --> src/auth/permission.rs:16:12
+   |
+ 3 | impl AuthUserData {
+   | ----------------- methods in this implementation
+...
+16 |     pub fn require_any(&self, permissions: &[&str]) -> Result<(), ApiErr...
+   |            ^^^^^^^^^^^
+...
+24 |     pub fn require_all(&self, permissions: &[&str]) -> Result<(), ApiErr...
+   |            ^^^^^^^^^^^
+
+warning: struct `DonationImagesState` is never constructed
+ --> src/models/img_donation.rs:4:12
+  |
+4 | pub struct DonationImagesState {
+  |            ^^^^^^^^^^^^^^^^^^^
+
+warning: field `created_at` is never read
+  --> src/models/voluntariado.rs:91:9
+   |
+89 | pub struct SolicitudVoluntariadoCreada {
+   |            --------------------------- field in this struct
+90 |     pub id: i64,
+91 |     pub created_at: DateTime<Utc>,
+   |         ^^^^^^^^^^
+   |
+   = note: `SolicitudVoluntariadoCreada` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: function `path_team_img` is never used
+ --> src/utils/equipo.rs:3:8
+  |
+3 | pub fn path_team_img(id: i64) -> Result<PathBuf, Box<dyn std::error::Erro...
+  |        ^^^^^^^^^^^^^
+
+warning: type alias `ImageResult` is never used
+  --> src/utils/image.rs:10:10
+   |
+10 | pub type ImageResult<T> = Result<T, Box<dyn std::error::Error + Send + S...
+   |          ^^^^^^^^^^^
+
+warning: function `save_image` is never used
+  --> src/utils/image.rs:12:8
+   |
+12 | pub fn save_image(path: PathBuf, bytes: &[u8]) -> Result<String, Box<dyn...
+   |        ^^^^^^^^^^
+
+warning: function `ensure_parent_directory` is never used
+  --> src/utils/image.rs:29:4
+   |
+29 | fn ensure_parent_directory(path: &Path) -> Result<(), std::io::Error> {
+   |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `delete_image` is never used
+  --> src/utils/image.rs:37:8
+   |
+37 | pub fn delete_image(image_path: PathBuf) -> Result<(), Box<dyn std::erro...
+   |        ^^^^^^^^^^^^
+
+warning: function `path_logro_img` is never used
+ --> src/utils/logro.rs:3:8
+  |
+3 | pub fn path_logro_img(id: i64) -> Result<PathBuf, Box<dyn std::error::Err...
+  |        ^^^^^^^^^^^^^^
+
+warning: function `path_news_img` is never used
+ --> src/utils/noticia.rs:3:8
+  |
+3 | pub fn path_news_img(id: i64) -> Result<PathBuf, Box<dyn std::error::Erro...
+  |        ^^^^^^^^^^^^^
+
+warning: `backend` (bin "backend") generated 11 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running `target/debug/backend`
+Error: PoolTimedOut
