@@ -14,11 +14,11 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     <header class="modalHeader adminModalHeader">
       <h2 id="settings-title">Ajustes</h2>
       <button class="modalClose adminModalClose" type="button" aria-label="Cerrar ajustes" data-settings-close>
-        ×
+        x
       </button>
     </header>
 
-    <div class="modalBody settingsBody" style="padding: 0;">
+    <div class="modalBody settingsBody">
       <div class="settingsSidebar">
         <button class="settingsTab" type="button" data-settings-tab="datos" aria-selected="true" aria-controls="settings-datos">
           Tus datos
@@ -28,7 +28,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
         </button>
       </div>
 
-      <div class="settingsContent" style="padding: 1.5rem;">
+      <div class="settingsContent">
         <!-- TUS DATOS -->
         <section id="settings-datos" class="settingsSection" aria-labelledby="settings-datos-title">
           <header class="settingsSectionHeader">
@@ -394,7 +394,15 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
       retry.hidden = true
 
       try {
-        const profile = await profileRequest<Profile>('/profile')
+        // Read directly from localStorage
+        const profile: Profile = {
+          id: 0, // id is not needed for the frontend view
+          username: localStorage.getItem('username') || '',
+          email: localStorage.getItem('email') || '',
+          name: localStorage.getItem('name') || '',
+          last_name: localStorage.getItem('lastname') || '',
+          role_name: localStorage.getItem('role') || ''
+        }
         if (!this.isConnected) return
         this.fill(profile)
 
@@ -548,13 +556,14 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
   .settingsModal {
     max-width: 50rem;
     width: 95%;
+    overflow: hidden;
   }
 
   .settingsBody {
     display: flex;
     flex-direction: row;
     gap: 1.5rem;
-    padding: 1.5rem;
+    padding: 0 !important;
     min-height: 400px;
   }
 
@@ -565,7 +574,15 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     width: 200px;
     flex-shrink: 0;
     border-right: 1px solid var(--admin-border-color);
-    padding-right: 1rem;
+    padding: 1.5rem 1rem 1.5rem 1.5rem;
+    background-color: var(--admin-surface);
+  }
+
+  .settingsContent {
+    flex-grow: 1;
+    min-width: 0;
+    padding: 1.5rem 1.5rem 1.5rem 0;
+    overflow-y: auto;
   }
 
   .settingsTab {
@@ -593,10 +610,6 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     color: var(--color-primary-hover);
   }
 
-  .settingsContent {
-    flex-grow: 1;
-    min-width: 0;
-  }
 
   .settingsSectionHeader {
     margin-bottom: 1.5rem;

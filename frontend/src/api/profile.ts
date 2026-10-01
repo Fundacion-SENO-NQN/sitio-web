@@ -12,7 +12,7 @@ const API_URL = (
 ).replace(/\/+$/, '')
 
 export function clearSession(): void {
-  for (const key of ['token', 'username', 'name', 'lastname', 'role'])
+  for (const key of ['token', 'username', 'name', 'lastname', 'role', 'email'])
     localStorage.removeItem(key)
 }
 
@@ -21,7 +21,8 @@ export function cacheProfile(profile: Profile): void {
     username: profile.username,
     name: profile.name,
     lastname: profile.last_name,
-    role: profile.role_name
+    role: profile.role_name,
+    email: profile.email
   })) {
     localStorage.setItem(key, value)
   }
