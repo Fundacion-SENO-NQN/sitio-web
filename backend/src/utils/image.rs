@@ -86,7 +86,13 @@ pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
     println!("86");
     use image::{DynamicImage, Rgb, RgbImage, codecs::jpeg::JpegEncoder, imageops};
     println!("88");
-    let image = image::load_from_memory(bytes)?;
+    let image = match image::load_from_memory(bytes) {
+        Ok(img) => img,
+        Err(e) => {
+            println!("ERROR en load_from_memory: {:?}", e);
+            return Err(e);
+        }
+    };
     println!("90");
     let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
     println!("92");
@@ -97,16 +103,20 @@ pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
     let y = (1080 - thumbnail.height()) / 2;
     // RGBA over white, including transparent PNGs.
     println!("99");
-    let mut background = image::RgbaImage::from_pixel(1080, 1080, image::Rgba([255, 255, 255, 255]));
+    let mut background =
+        image::RgbaImage::from_pixel(1080, 1080, image::Rgba([255, 255, 255, 255]));
     println!("101");
     imageops::overlay(&mut background, &thumbnail, x.into(), y.into());
     for (target, pixel) in square.pixels_mut().zip(background.pixels()) {
         let a = pixel[3] as u16;
-        *target = Rgb(std::array::from_fn(|i| ((pixel[i] as u16 * a + 255 * (255 - a)) / 255) as u8));
+        *target = Rgb(std::array::from_fn(|i| {
+            ((pixel[i] as u16 * a + 255 * (255 - a)) / 255) as u8
+        }));
     }
     println!("107");
     let mut output = Vec::new();
-    JpegEncoder::new_with_quality(&mut output, 85).encode_image(&DynamicImage::ImageRgb8(square))?;
+    JpegEncoder::new_with_quality(&mut output, 85)
+        .encode_image(&DynamicImage::ImageRgb8(square))?;
     println!("110");
     Ok(output)
 }
