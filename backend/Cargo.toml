@@ -14,7 +14,7 @@ serde_json = "1"
 chrono = { version = "0.4.45", features = ["serde"] }
 chrono-tz = "0.10"
 dotenvy = "0.15"
-image = { version = "0.25", features = ["avif"] }
+image = { version = "0.25", features = ["avif", "webp"] }
 argon2 = { version = "0.5", features = ["std"] }
 password-hash = { version = "0.6.1", features = ["getrandom"] }
 jsonwebtoken = "9"
