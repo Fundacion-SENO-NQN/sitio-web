@@ -10,11 +10,11 @@ export const achievementImagePicker = createImagePicker({
   input: '#image',
 
   /*
-   * Los logros admiten una sola imagen.
+   * Los logros admiten hasta 3 imágenes.
    */
-  multiple: false,
+  multiple: true,
 
-  maxFiles: 1,
+  maxFiles: 3,
 
   maxFileSize: MAX_IMAGE_SIZE,
 
@@ -57,7 +57,7 @@ export function validarImagenLogro({ editing = false } = {}) {
 
   if (!editing) achievementImagePicker.requireFiles('La imagen es requerida.')
 
-  return achievementImagePicker.files[0] ?? null
+  return achievementImagePicker.files.length > 0 ? achievementImagePicker.files : null
 }
 
 /* ==========================================================

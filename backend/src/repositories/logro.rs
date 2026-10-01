@@ -109,6 +109,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
         orden,
         titulo,
         contenido,
+        ..
     } = update;
 
     let mut tx = db.begin().await?;

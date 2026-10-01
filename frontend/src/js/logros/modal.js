@@ -140,7 +140,7 @@ export function createLogroModal({
 
         orden: editing ? Number(item?.orden) : 0,
 
-        image: imagePicker.files[0] ?? null
+        image: imagePicker.files.length > 0 ? imagePicker.files : null
       })
     },
 
