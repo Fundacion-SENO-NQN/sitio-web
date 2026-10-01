@@ -1,0 +1,720 @@
+---
+import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
+---
+
+<settings-modal
+  id="settings-modal"
+  class="modal adminModal"
+  aria-labelledby="settings-title"
+  aria-modal="true"
+  role="dialog"
+  hidden
+>
+  <div class="modalContent adminModalContent settingsModal">
+    <header class="modalHeader adminModalHeader">
+      <h2 id="settings-title">Ajustes</h2>
+      <button class="modalClose adminModalClose" type="button" aria-label="Cerrar ajustes" data-settings-close>
+        ×
+      </button>
+    </header>
+
+    <div class="modalBody settingsBody" style="padding: 0;">
+      <div class="settingsSidebar">
+        <button class="settingsTab" type="button" data-settings-tab="datos" aria-selected="true" aria-controls="settings-datos">
+          Tus datos
+        </button>
+        <button class="settingsTab" type="button" data-settings-tab="contrasena" aria-selected="false" aria-controls="settings-contrasena">
+          Cambiar contraseña
+        </button>
+      </div>
+
+      <div class="settingsContent" style="padding: 1.5rem;">
+        <!-- TUS DATOS -->
+        <section id="settings-datos" class="settingsSection" aria-labelledby="settings-datos-title">
+          <header class="settingsSectionHeader">
+            <h3 id="settings-datos-title">Tus datos</h3>
+            <p>El correo se usa para recuperar tu contraseña.</p>
+          </header>
+          <form class="form" id="settings-profile-form" method="post">
+            <fieldset>
+              <div class="profileFields">
+                <div class="formGroup">
+                  <label for="settings-profile-name">Nombre</label>
+                  <input
+                    id="settings-profile-name"
+                    name="name"
+                    autocomplete="given-name"
+                    maxlength="100"
+                    required
+                  />
+                </div>
+                <div class="formGroup">
+                  <label for="settings-profile-last-name">Apellido</label>
+                  <input
+                    id="settings-profile-last-name"
+                    name="last_name"
+                    autocomplete="family-name"
+                    maxlength="100"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="formGroup">
+                <label for="settings-profile-username">Usuario</label>
+                <input
+                  id="settings-profile-username"
+                  name="username"
+                  autocomplete="username"
+                  minlength="3"
+                  maxlength="80"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+              <div class="formGroup">
+                <label for="settings-profile-email">Correo electrónico</label>
+                <input
+                  id="settings-profile-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+              <p class="profileRole">
+                Rol asignado: <strong data-role></strong>
+              </p>
+              <div class="formGroup">
+                <label for="settings-profile-current-password">Contraseña actual</label>
+                <input
+                  id="settings-profile-current-password"
+                  name="current_password"
+                  type="password"
+                  autocomplete="current-password"
+                  maxlength="512"
+                  aria-describedby="settings-profile-confirm-help"
+                  required
+                />
+                <p class="fieldHelp" id="settings-profile-confirm-help">
+                  Confirmá tu contraseña para guardar. Si cambiás el usuario o
+                  el correo, tendrás que iniciar sesión nuevamente.
+                </p>
+              </div>
+              <button class="button buttonPrimary" type="submit">
+                Guardar mis datos
+              </button>
+            </fieldset>
+            <p
+              class="profileNotice"
+              data-feedback
+              role="status"
+              tabindex="-1"
+              hidden
+            ></p>
+          </form>
+        </section>
+
+        <!-- CAMBIAR CONTRASEÑA -->
+        <section id="settings-contrasena" class="settingsSection" aria-labelledby="settings-password-title" hidden>
+          <header class="settingsSectionHeader">
+            <h3 id="settings-password-title">Cambiar contraseña</h3>
+            <p>Elegí una contraseña que uses solo en esta plataforma.</p>
+          </header>
+          <form class="form" id="settings-password-form" method="post">
+            <fieldset>
+              <input
+                type="text"
+                name="username"
+                autocomplete="username"
+                class="srOnly"
+                tabindex="-1"
+                aria-hidden="true"
+                data-password-username
+              />
+              <div class="formGroup">
+                <label for="settings-password-current">Contraseña actual</label>
+                <input
+                  id="settings-password-current"
+                  name="current_password"
+                  type="password"
+                  autocomplete="current-password"
+                  maxlength="512"
+                  required
+                />
+              </div>
+              <div class="formGroup">
+                <label for="settings-password-new">Nueva contraseña</label>
+                <input
+                  id="settings-password-new"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  maxlength="256"
+                  aria-describedby="settings-password-help"
+                  required
+                />
+                <p class="fieldHelp" id="settings-password-help">
+                  Entre 8 y 128 caracteres. Debe ser diferente de la actual.
+                </p>
+              </div>
+              <div class="formGroup">
+                <label for="settings-password-confirmation">
+                  Repetir nueva contraseña
+                </label>
+                <input
+                  id="settings-password-confirmation"
+                  name="password_confirmation"
+                  type="password"
+                  autocomplete="new-password"
+                  maxlength="256"
+                  required
+                />
+              </div>
+              <label class="profileShowPassword">
+                <input type="checkbox" data-show-passwords />
+                Mostrar contraseñas
+              </label>
+              <p class="fieldHelp">
+                Al guardar, se cerrarán tus sesiones abiertas. Volvé a ingresar
+                con la nueva contraseña.
+              </p>
+              <button class="button buttonPrimary" type="submit">
+                Actualizar contraseña
+              </button>
+            </fieldset>
+            <p
+              class="profileNotice"
+              data-feedback
+              role="status"
+              tabindex="-1"
+              hidden
+            ></p>
+          </form>
+          <a class="profileRecovery" href="/login/recuperar/">
+            No recuerdo mi contraseña actual
+          </a>
+        </section>
+
+        <!-- SUCCESS NOTICE -->
+        <section
+          class="profileNotice profileSuccess"
+          data-finished
+          hidden
+          aria-labelledby="settings-finished-title"
+        >
+          <h3 id="settings-finished-title" tabindex="-1">
+            Cambios guardados
+          </h3>
+          <p data-finished-message></p>
+          <a class="button buttonPrimary" href="/login/">
+            Volver a iniciar sesión
+          </a>
+        </section>
+
+        <!-- CARGANDO NOTICE -->
+        <div class="profileNotice" data-load-status role="status" style="margin-top: 0;">
+          Cargando tu perfil...
+        </div>
+        <button class="button buttonSecondary" type="button" data-retry hidden>
+          Reintentar
+        </button>
+
+      </div>
+    </div>
+
+    <footer class="modalFooter adminModalFooter" style="justify-content: flex-start;">
+      <button class="button buttonGhost settingsLogout" type="button" data-settings-logout>
+        <SvgLogout aria-hidden="true" />
+        Cerrar sesión
+      </button>
+    </footer>
+  </div>
+</settings-modal>
+
+<script>
+  import {
+    cacheProfile,
+    clearSession,
+    profileRequest,
+    type Profile
+  } from '../../api/profile'
+
+  class SettingsModal extends HTMLElement {
+    private controller: AbortController | null = null
+    private busy = false
+
+    private get details() {
+      return this.querySelector<HTMLFormElement>('#settings-profile-form')!
+    }
+    private get passwordForm() {
+      return this.querySelector<HTMLFormElement>('#settings-password-form')!
+    }
+
+    private get tabs() {
+      return this.querySelectorAll<HTMLButtonElement>('[data-settings-tab]')
+    }
+
+    connectedCallback() {
+      if (this.controller) return
+      this.controller = new AbortController()
+      const { signal } = this.controller
+
+      this.querySelector('[data-settings-close]')?.addEventListener(
+        'click',
+        () => this.close(),
+        { signal }
+      )
+
+      this.querySelector('[data-retry]')?.addEventListener(
+        'click',
+        () => void this.load(),
+        { signal }
+      )
+
+      this.details.addEventListener(
+        'submit',
+        (event) => void this.saveDetails(event),
+        { signal }
+      )
+
+      this.passwordForm.addEventListener(
+        'submit',
+        (event) => void this.savePassword(event),
+        { signal }
+      )
+
+      this.querySelector('[data-show-passwords]')?.addEventListener(
+        'change',
+        (event) => {
+          const checked = (event.target as HTMLInputElement).checked
+          for (const name of [
+            'current_password',
+            'password',
+            'password_confirmation'
+          ]) {
+            this.input(this.passwordForm, name).type = checked
+              ? 'text'
+              : 'password'
+          }
+        },
+        { signal }
+      )
+
+      this.tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          this.switchTab(tab.dataset.settingsTab!)
+        }, { signal })
+      })
+
+      this.querySelector('[data-settings-logout]')?.addEventListener(
+        'click',
+        () => {
+          clearSession()
+          window.location.replace('/login/')
+        },
+        { signal }
+      )
+
+      window.addEventListener(
+        'storage',
+        (event) => {
+          if (
+            (!event.key || event.key === 'token') &&
+            !localStorage.getItem('token')
+          )
+            window.location.replace('/login/')
+        },
+        { signal }
+      )
+
+      window.addEventListener('open-settings', () => {
+        this.open()
+      }, { signal })
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort()
+      this.controller = null
+    }
+
+    public open() {
+      if (!localStorage.getItem('token')) {
+        window.location.replace('/login/')
+        return
+      }
+      this.hidden = false
+      this.setAttribute('aria-hidden', 'false')
+      this.classList.remove('hidden')
+      void this.load()
+    }
+
+    public close() {
+      this.hidden = true
+      this.setAttribute('aria-hidden', 'true')
+      this.classList.add('hidden')
+    }
+
+    private switchTab(tabId: string) {
+      this.tabs.forEach(t => {
+        const selected = t.dataset.settingsTab === tabId
+        t.setAttribute('aria-selected', String(selected))
+      })
+
+      const sections = this.querySelectorAll<HTMLElement>('.settingsSection')
+      sections.forEach(sec => {
+        sec.hidden = sec.id !== `settings-${tabId}`
+      })
+    }
+
+    private input(form: HTMLFormElement, name: string) {
+      return form.elements.namedItem(name) as HTMLInputElement
+    }
+
+    private fill(profile: Profile) {
+      for (const key of ['username', 'email', 'name', 'last_name'] as const)
+        this.input(this.details, key).value = profile[key]
+      this.input(this.passwordForm, 'username').value = profile.username
+      this.querySelector('[data-role]')!.textContent = profile.role_name
+      cacheProfile(profile)
+    }
+
+    private async load() {
+      const status = this.querySelector<HTMLElement>('[data-load-status]')!
+      const retry = this.querySelector<HTMLButtonElement>('[data-retry]')!
+      const sections = this.querySelectorAll<HTMLElement>('.settingsSection')
+
+      sections.forEach(s => s.hidden = true)
+      status.hidden = false
+      status.textContent = 'Cargando tu perfil...'
+      status.dataset.error = 'false'
+      retry.hidden = true
+
+      try {
+        const profile = await profileRequest<Profile>('/profile')
+        if (!this.isConnected) return
+        this.fill(profile)
+
+        status.hidden = true
+        // Restore currently selected tab
+        const activeTab = this.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.dataset.settingsTab || 'datos'
+        this.switchTab(activeTab)
+      } catch (error) {
+        status.textContent =
+          error instanceof Error ? error.message : 'No pudimos cargar tu perfil.'
+        status.dataset.error = 'true'
+        retry.hidden = false
+      }
+    }
+
+    private setBusy(busy: boolean) {
+      this.busy = busy
+      for (const form of [this.details, this.passwordForm]) {
+        form.querySelector('fieldset')!.disabled = busy
+        form.setAttribute('aria-busy', String(busy))
+      }
+    }
+
+    private feedback(form: HTMLFormElement, text: string, error = false) {
+      const element = form.querySelector<HTMLElement>('[data-feedback]')!
+      element.textContent = text
+      element.dataset.error = String(error)
+      element.setAttribute('role', error ? 'alert' : 'status')
+      element.hidden = !text
+      if (text) element.focus()
+    }
+
+    private finish(message: string) {
+      clearSession()
+      this.details.reset()
+      this.passwordForm.reset()
+
+      const sections = this.querySelectorAll<HTMLElement>('.settingsSection')
+      sections.forEach(s => s.hidden = true)
+
+      const notice = this.querySelector<HTMLElement>('[data-finished]')!
+      notice.querySelector('[data-finished-message]')!.textContent = message
+      notice.hidden = false
+      notice.querySelector<HTMLElement>('h3')!.focus()
+    }
+
+    private async saveDetails(event: SubmitEvent) {
+      event.preventDefault()
+      if (this.busy || !this.details.reportValidity()) return
+      const values = Object.fromEntries(new FormData(this.details)) as Record<
+        string,
+        string
+      >
+      this.feedback(this.details, '')
+      this.setBusy(true)
+      try {
+        const result = await profileRequest<{
+          user: Profile
+          reauthenticate: boolean
+        }>('/profile', values)
+        if (result.reauthenticate) {
+          this.finish(
+            `Guardamos tus datos y cerramos tus sesiones anteriores. Iniciá sesión con el usuario ${result.user.username} y tu contraseña actual.`
+          )
+        } else {
+          this.fill(result.user)
+          this.feedback(this.details, 'Tus datos fueron actualizados.')
+        }
+      } catch (error) {
+        this.feedback(
+          this.details,
+          error instanceof Error
+            ? error.message
+            : 'No pudimos guardar los datos.',
+          true
+        )
+      } finally {
+        this.input(this.details, 'current_password').value = ''
+        this.setBusy(false)
+      }
+    }
+
+    private async savePassword(event: SubmitEvent) {
+      event.preventDefault()
+      if (this.busy || !this.passwordForm.reportValidity()) return
+      const values = {
+        current_password: this.input(this.passwordForm, 'current_password').value,
+        password: this.input(this.passwordForm, 'password').value,
+        password_confirmation: this.input(
+          this.passwordForm,
+          'password_confirmation'
+        ).value
+      }
+      const length = [...values.password].length
+      if (length < 8 || length > 128) {
+        this.feedback(
+          this.passwordForm,
+          'La nueva contraseña debe tener entre 8 y 128 caracteres.',
+          true
+        )
+        return
+      }
+      if (values.password !== values.password_confirmation) {
+        this.feedback(this.passwordForm, 'Las contraseñas no coinciden.', true)
+        return
+      }
+      if (values.password === values.current_password) {
+        this.feedback(
+          this.passwordForm,
+          'La nueva contraseña debe ser diferente a la actual.',
+          true
+        )
+        return
+      }
+      this.feedback(this.passwordForm, '')
+      this.setBusy(true)
+      try {
+        await profileRequest<void>('/profile/password', values)
+        this.finish(
+          'Tu contraseña fue actualizada y cerramos tus sesiones anteriores. Iniciá sesión con tu nueva contraseña.'
+        )
+      } catch (error) {
+        this.feedback(
+          this.passwordForm,
+          error instanceof Error
+            ? error.message
+            : 'No pudimos cambiar la contraseña.',
+          true
+        )
+      } finally {
+        for (const name of [
+          'current_password',
+          'password',
+          'password_confirmation'
+        ]) {
+          this.input(this.passwordForm, name).value = ''
+          this.input(this.passwordForm, name).type = 'password'
+        }
+        this.querySelector<HTMLInputElement>('[data-show-passwords]')!.checked =
+          false
+        this.setBusy(false)
+      }
+    }
+  }
+
+  if (!customElements.get('settings-modal'))
+    customElements.define('settings-modal', SettingsModal)
+</script>
+
+<style>
+  .settingsModal {
+    max-width: 50rem;
+    width: 95%;
+  }
+
+  .settingsBody {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    min-height: 400px;
+  }
+
+  .settingsSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 200px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--admin-border-color);
+    padding-right: 1rem;
+  }
+
+  .settingsTab {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: var(--admin-radius-small);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .settingsTab:hover {
+    background: var(--admin-surface-hover);
+    color: var(--admin-text);
+  }
+
+  .settingsTab[aria-selected="true"] {
+    background: var(--admin-primary-soft);
+    color: var(--color-primary-hover);
+  }
+
+  .settingsContent {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .settingsSectionHeader {
+    margin-bottom: 1.5rem;
+  }
+
+  .settingsSectionHeader h3 {
+    font-size: 1.4rem;
+    margin-block: 0;
+  }
+
+  .settingsSectionHeader p {
+    font-size: 0.9rem;
+    color: var(--admin-text-muted);
+    margin-top: 0.25rem;
+  }
+
+  fieldset {
+    display: grid;
+    gap: 1.2rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  fieldset:disabled {
+    opacity: 0.65;
+  }
+
+  .profileFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .profileRole {
+    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--admin-radius-small);
+    background: var(--admin-surface-soft);
+    overflow-wrap: anywhere;
+  }
+
+  .profileRole strong {
+    color: var(--color-primary-hover);
+  }
+
+  .profileNotice {
+    margin-block: 1rem;
+    padding: 1rem;
+    border-radius: var(--admin-radius-small);
+    background: var(--admin-secondary-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .profileNotice[data-error='true'] {
+    background: var(--admin-danger-soft);
+    color: #a32323;
+  }
+
+  .profileSuccess {
+    max-width: 40rem;
+    background: var(--admin-primary-soft);
+  }
+
+  .profileSuccess p {
+    margin-block: 0.6rem 1.2rem;
+  }
+
+  .profileShowPassword {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .profileShowPassword input {
+    width: 1rem;
+    min-height: 1rem;
+    height: 1rem;
+    accent-color: var(--color-secondary);
+  }
+
+  .profileRecovery {
+    display: block;
+    margin-top: 1.3rem;
+    font-size: 0.85rem;
+    color: var(--color-secondary-hover);
+  }
+
+  .settingsLogout {
+    color: var(--color-danger, #b42318);
+  }
+
+  .settingsLogout svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  @media (max-width: 760px) {
+    .settingsBody {
+      flex-direction: column;
+    }
+    .settingsSidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--admin-border-color);
+      padding-right: 0;
+      padding-bottom: 1rem;
+      flex-direction: row;
+      overflow-x: auto;
+    }
+    .settingsTab {
+      white-space: nowrap;
+    }
+    .profileFields {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
