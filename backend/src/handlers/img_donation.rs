@@ -151,7 +151,6 @@ pub async fn upload_donation_batch(
     State(state): State<Arc<AppState>>,
     mut multipart: Multipart,
 ) -> ApiResult<axum::Json<BatchResult>> {
-    println!("Entre");
     use crate::utils::image::convert_to_instagram_jpeg;
     use uuid::Uuid;
 
@@ -162,7 +161,6 @@ pub async fn upload_donation_batch(
     let mut publish = false;
     let mut comments = true;
     let mut request_id = None;
-    println!("165");
     while let Some(field) = multipart.next_field().await.map_err(|_| ApiError::BadRequest("Multipart inválido".into()))? {
         let name = field.name().unwrap_or("").to_string();
         if name == "images" {
@@ -183,7 +181,6 @@ pub async fn upload_donation_batch(
             }
         }
     }
-    println!("186");
     if files.is_empty() || title.chars().count() > 120 || description.chars().count() > 1200 {
         return Err(ApiError::BadRequest("Revisá las imágenes, el título y la descripción".into()));
     }
@@ -196,23 +193,18 @@ pub async fn upload_donation_batch(
     if publish && title.trim().is_empty() && description.trim().is_empty() {
         return Err(ApiError::BadRequest("Instagram requiere un título o una descripción".into()));
     }
-    println!("199");
 
     // Validate and convert everything before replacing a slot on the public website.
     let mut converted = Vec::with_capacity(files.len());
     for file in files {
         let item = tokio::task::spawn_blocking(move || {
-            println!("205");
             let avif = convert_to_avif(&file)?;
-            println!("207");
             let jpeg = if publish { Some(convert_to_instagram_jpeg(&file)?) } else { None };
-            println!("209");
             Ok::<_, image::ImageError>((avif, jpeg))
         }).await.map_err(|_| ApiError::InternalServerError)?
           .map_err(|_| ApiError::BadRequest("Una imagen no se pudo procesar".into()))?;
         converted.push(item);
     }
-    println!("212");
     let inserted = sqlx::query("INSERT INTO instagram_publications (request_id, status) VALUES ($1, 'processing') ON CONFLICT DO NOTHING")
         .bind(request_id).execute(&state.db).await?;
     if inserted.rows_affected() == 0 {
@@ -221,7 +213,6 @@ pub async fn upload_donation_batch(
     let mut count = 0;
     let mut temporary = Vec::<String>::new();
     let mut urls = Vec::new();
-    println!("221");
     for (index, (avif, jpeg)) in converted.into_iter().enumerate() {
         if let Some(jpeg) = jpeg {
             let key = format!("instagram-temp/{request_id}/{index}.jpg");
@@ -242,7 +233,6 @@ pub async fn upload_donation_batch(
         transaction.commit().await?;
         count += 1;
     }
-    println!("242");
     if let Err(error) = state.frontend_rebuild.mark_pending().await {
         eprintln!("Frontend rebuild could not be scheduled: {error}");
     }
