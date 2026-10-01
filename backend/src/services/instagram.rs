@@ -214,3 +214,35 @@ impl InstagramService {
         Ok(PublishOutcome { id: published.id, comments_warning })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn dummy_service() -> InstagramService {
+        InstagramService {
+            client: Client::builder().build().unwrap(),
+            app_id: "dummy_app_id".into(),
+            app_secret: "dummy_app_secret".into(),
+            redirect_uri: "https://example.com/redirect".into(),
+            return_uri: "https://example.com/return".into(),
+            graph: "https://graph.instagram.com/v26.0".into(),
+            public_image_url: "https://images.example.com".into(),
+            key: [0; 32],
+        }
+    }
+
+    #[test]
+    fn test_image_url_generator() {
+        let service = dummy_service();
+
+        // Happy path
+        assert_eq!(service.image_url("test-image.jpg"), "https://images.example.com/test-image.jpg");
+
+        // Empty key
+        assert_eq!(service.image_url(""), "https://images.example.com/");
+
+        // Key with path elements
+        assert_eq!(service.image_url("folder/subfolder/img.png"), "https://images.example.com/folder/subfolder/img.png");
+    }
+}
