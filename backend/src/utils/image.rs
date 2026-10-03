@@ -123,7 +123,7 @@ pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, image::ImageEr
     // 7. Codificar como JPEG.
     let mut output = Cursor::new(Vec::new());
 
-    let encoder = JpegEncoder::new_with_quality(&mut output, 85);
+    let mut encoder = JpegEncoder::new_with_quality(&mut output, 85);
 
     encoder.encode_image(&DynamicImage::ImageRgb8(square))?;
 
