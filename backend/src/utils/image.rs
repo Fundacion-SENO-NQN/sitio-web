@@ -85,6 +85,7 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 pub fn convert_to_instagram_jpeg(
     bytes: &[u8],
 ) -> Result<Vec<u8>, image::ImageError> {
+    println!("1");
     use image::{
         DynamicImage,
         Rgb,
@@ -94,12 +95,15 @@ pub fn convert_to_instagram_jpeg(
     };
     use std::io::Cursor;
 
+    println!("2");
     // 1. Decodificar JPG/PNG/WebP/AVIF, etc.
     let image = image::load_from_memory(bytes)?;
 
+    println!("3");
     // 2. Redimensionar manteniendo proporción
     let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
 
+    println!("4");
     // 3. Crear fondo blanco
     let mut background =
         image::RgbaImage::from_pixel(
@@ -108,10 +112,12 @@ pub fn convert_to_instagram_jpeg(
             image::Rgba([255, 255, 255, 255]),
         );
 
+    println!("5");
     // 4. Centrar la imagen
     let x = (1080 - thumbnail.width()) / 2;
     let y = (1080 - thumbnail.height()) / 2;
 
+    println!("6");
     // 5. Componer sobre blanco
     imageops::overlay(
         &mut background,
@@ -120,27 +126,32 @@ pub fn convert_to_instagram_jpeg(
         y.into(),
     );
 
+    println!("7");
     // 6. Convertir RGBA -> RGB
     let mut square = RgbImage::new(1080, 1080);
 
+    println!("8");
     for (target, pixel) in square
         .pixels_mut()
         .zip(background.pixels())
     {
         *target = Rgb([pixel[0], pixel[1], pixel[2]]);
     }
+    println!("9");
 
     // 7. Codificar como JPEG
     let mut output = Cursor::new(Vec::new());
-
+    println!("10");
     let mut encoder = JpegEncoder::new_with_quality(
         &mut output,
         85,
     );
+    println!("11");
 
     encoder.encode_image(
         &DynamicImage::ImageRgb8(square)
     )?;
+    println!("12");
 
     Ok(output.into_inner())
 }
