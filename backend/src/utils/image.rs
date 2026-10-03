@@ -82,21 +82,65 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 }
 
 /// Instagram accepts JPEG. Fit the whole picture into a square with a white background.
-pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
-    use image::{DynamicImage, Rgb, RgbImage, codecs::jpeg::JpegEncoder, imageops};
+pub fn convert_to_instagram_jpeg(
+    bytes: &[u8],
+) -> Result<Vec<u8>, image::ImageError> {
+    use image::{
+        DynamicImage,
+        Rgb,
+        RgbImage,
+        codecs::jpeg::JpegEncoder,
+        imageops,
+    };
+    use std::io::Cursor;
+
+    // 1. Decodificar JPG/PNG/WebP/AVIF, etc.
     let image = image::load_from_memory(bytes)?;
+
+    // 2. Redimensionar manteniendo proporción
     let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
-    let mut square = RgbImage::from_pixel(1080, 1080, Rgb([255, 255, 255]));
+
+    // 3. Crear fondo blanco
+    let mut background =
+        image::RgbaImage::from_pixel(
+            1080,
+            1080,
+            image::Rgba([255, 255, 255, 255]),
+        );
+
+    // 4. Centrar la imagen
     let x = (1080 - thumbnail.width()) / 2;
     let y = (1080 - thumbnail.height()) / 2;
-    // RGBA over white, including transparent PNGs.
-    let mut background = image::RgbaImage::from_pixel(1080, 1080, image::Rgba([255, 255, 255, 255]));
-    imageops::overlay(&mut background, &thumbnail, x.into(), y.into());
-    for (target, pixel) in square.pixels_mut().zip(background.pixels()) {
-        let a = pixel[3] as u16;
-        *target = Rgb(std::array::from_fn(|i| ((pixel[i] as u16 * a + 255 * (255 - a)) / 255) as u8));
+
+    // 5. Componer sobre blanco
+    imageops::overlay(
+        &mut background,
+        &thumbnail,
+        x.into(),
+        y.into(),
+    );
+
+    // 6. Convertir RGBA -> RGB
+    let mut square = RgbImage::new(1080, 1080);
+
+    for (target, pixel) in square
+        .pixels_mut()
+        .zip(background.pixels())
+    {
+        *target = Rgb([pixel[0], pixel[1], pixel[2]]);
     }
-    let mut output = std::io::Cursor::new(Vec::new());
-    JpegEncoder::new_with_quality(&mut output, 85).encode_image(&DynamicImage::ImageRgb8(square))?;
+
+    // 7. Codificar como JPEG
+    let mut output = Cursor::new(Vec::new());
+
+    let mut encoder = JpegEncoder::new_with_quality(
+        &mut output,
+        85,
+    );
+
+    encoder.encode_image(
+        &DynamicImage::ImageRgb8(square)
+    )?;
+
     Ok(output.into_inner())
 }
