@@ -14,7 +14,7 @@ serde_json = "1"
 chrono = { version = "0.4.45", features = ["serde"] }
 chrono-tz = "0.10"
 dotenvy = "0.15"
-image = { version = "0.25", features = ["avif", "webp"] }
+image = { version = "0.25", features = ["avif"] }
 argon2 = { version = "0.5", features = ["std"] }
 password-hash = { version = "0.6.1", features = ["getrandom"] }
 jsonwebtoken = "9"
@@ -43,4 +43,3 @@ reqwest = { version = "0.13.4", features = ["json", "form", "query"] }
 aes-gcm = "0.10"
 hex = "0.4"
 sha2 = "0.10"
-libavif = { version = "0.14.0", default-features = false, features = ["codec-dav1d"] }
