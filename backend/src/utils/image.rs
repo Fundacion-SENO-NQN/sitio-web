@@ -53,24 +53,7 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
         return Ok(bytes.to_vec());
     }
 
-    let input_format = image::guess_format(bytes).unwrap_or(image::ImageFormat::Jpeg);
-    let original = if input_format == image::ImageFormat::Avif {
-        let img = libavif::decode_rgb(bytes).map_err(|e| image::ImageError::Decoding(image::error::DecodingError::new(image::error::ImageFormatHint::Exact(image::ImageFormat::Avif), e)))?;
-        let mut vec = Vec::with_capacity((img.width() * img.height() * 4) as usize);
-        for y in 0..img.height() {
-            for x in 0..img.width() {
-                let pixel = img.pixel(x, y);
-                vec.push(pixel.0);
-                vec.push(pixel.1);
-                vec.push(pixel.2);
-                vec.push(pixel.3);
-            }
-        }
-        let buffer = image::ImageBuffer::from_raw(img.width(), img.height(), vec).unwrap();
-        image::DynamicImage::ImageRgba8(buffer)
-    } else {
-        image::load_from_memory(bytes)?
-    };
+    let original = image::load_from_memory(bytes)?;
 
     let (original_width, original_height) = original.dimensions();
 
@@ -101,24 +84,7 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 /// Instagram accepts JPEG. Fit the whole picture into a square with a white background.
 pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
     use image::{DynamicImage, Rgb, RgbImage, codecs::jpeg::JpegEncoder, imageops};
-    let input_format = image::guess_format(bytes).unwrap_or(image::ImageFormat::Jpeg);
-    let image = if input_format == image::ImageFormat::Avif {
-        let img = libavif::decode_rgb(bytes).map_err(|e| image::ImageError::Decoding(image::error::DecodingError::new(image::error::ImageFormatHint::Exact(image::ImageFormat::Avif), e)))?;
-        let mut vec = Vec::with_capacity((img.width() * img.height() * 4) as usize);
-        for y in 0..img.height() {
-            for x in 0..img.width() {
-                let pixel = img.pixel(x, y);
-                vec.push(pixel.0);
-                vec.push(pixel.1);
-                vec.push(pixel.2);
-                vec.push(pixel.3);
-            }
-        }
-        let buffer = image::ImageBuffer::from_raw(img.width(), img.height(), vec).unwrap();
-        image::DynamicImage::ImageRgba8(buffer)
-    } else {
-        image::load_from_memory(bytes)?
-    };
+    let image = image::load_from_memory(bytes)?;
     let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
     let mut square = RgbImage::from_pixel(1080, 1080, Rgb([255, 255, 255]));
     let x = (1080 - thumbnail.width()) / 2;
