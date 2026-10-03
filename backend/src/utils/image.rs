@@ -71,14 +71,14 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 
     let (width, height) = rgba.dimensions();
 
-    let mut output = Vec::new();
+    let mut output = std::io::Cursor::new(Vec::new());
 
     let encoder = AvifEncoder::new_with_speed_quality(&mut output, AVIF_SPEED, AVIF_QUALITY)
         .with_num_threads(None);
 
     encoder.write_image(rgba.as_raw(), width, height, ExtendedColorType::Rgba8)?;
 
-    Ok(output)
+    Ok(output.into_inner())
 }
 
 /// Instagram accepts JPEG. Fit the whole picture into a square with a white background.
@@ -96,7 +96,7 @@ pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
         let a = pixel[3] as u16;
         *target = Rgb(std::array::from_fn(|i| ((pixel[i] as u16 * a + 255 * (255 - a)) / 255) as u8));
     }
-    let mut output = Vec::new();
+    let mut output = std::io::Cursor::new(Vec::new());
     JpegEncoder::new_with_quality(&mut output, 85).encode_image(&DynamicImage::ImageRgb8(square))?;
-    Ok(output)
+    Ok(output.into_inner())
 }
