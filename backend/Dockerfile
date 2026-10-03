@@ -27,6 +27,14 @@ RUN cargo chef prepare \
 
 FROM chef AS builder
 
+# Dependencias nativas necesarias para AVIF / dav1d
+RUN apt-get update \
+    && apt-get install -y \
+    --no-install-recommends \
+    pkg-config \
+    libdav1d-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=planner \
     /app/recipe.json \
     recipe.json
@@ -52,6 +60,7 @@ RUN apt-get update \
     && apt-get install -y \
     --no-install-recommends \
     ca-certificates \
+    libdav1d6 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
