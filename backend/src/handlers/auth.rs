@@ -21,8 +21,7 @@ pub async fn login(
     if !auth::password::verify_password(&request.password, &user.password_hash) {
         return Err(ApiError::Unauthorized);
     }
-    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET no encontrado");
-    let token = auth::jwt::generate_token(user.id, user.auth_version, &secret)
+    let token = auth::jwt::generate_token(user.id, user.auth_version, &state.jwt_secret)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(Json(LoginResponse {

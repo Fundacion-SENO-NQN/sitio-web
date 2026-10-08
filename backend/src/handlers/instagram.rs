@@ -110,21 +110,15 @@ pub async fn callback(
         }
 
         Err(error) => {
-            eprintln!(
-                "Instagram OAuth failed [state_database]: {error}"
-            );
+            eprintln!("Instagram OAuth failed [state_database]: {error}");
             return failure();
         }
     };
 
     if let Some(error) = params.error.as_deref() {
-        eprintln!(
-            "Instagram OAuth cancelled [instagram_error]: {error}"
-        );
+        eprintln!("Instagram OAuth cancelled [instagram_error]: {error}");
 
-        return Redirect::to(
-            &state.instagram.return_uri("cancelled"),
-        );
+        return Redirect::to(&state.instagram.return_uri("cancelled"));
     }
 
     let Some(code) = params.code else {
@@ -149,9 +143,7 @@ pub async fn callback(
         Ok(valid) => valid,
 
         Err(error) => {
-            eprintln!(
-                "Instagram OAuth failed [user_database]: {error}"
-            );
+            eprintln!("Instagram OAuth failed [user_database]: {error}");
             return failure();
         }
     };
@@ -164,25 +156,20 @@ pub async fn callback(
         return failure();
     }
 
-    let (id, username, token, expires) =
-        match state.instagram.exchange(&code).await {
-            Ok(value) => value,
+    let (id, username, token, expires) = match state.instagram.exchange(&code).await {
+        Ok(value) => value,
 
-            Err(error) => {
-                eprintln!(
-                    "Instagram OAuth failed [meta_exchange]: {error}"
-                );
-                return failure();
-            }
-        };
+        Err(error) => {
+            eprintln!("Instagram OAuth failed [meta_exchange]: {error}");
+            return failure();
+        }
+    };
 
     let encrypted = match state.instagram.encrypt(&token) {
         Ok(value) => value,
 
         Err(error) => {
-            eprintln!(
-                "Instagram OAuth failed [encryption]: {error}"
-            );
+            eprintln!("Instagram OAuth failed [encryption]: {error}");
             return failure();
         }
     };
@@ -212,17 +199,13 @@ pub async fn callback(
     .await;
 
     if let Err(error) = saved {
-        eprintln!(
-            "Instagram OAuth failed [connection_database]: {error}"
-        );
+        eprintln!("Instagram OAuth failed [connection_database]: {error}");
         return failure();
     }
 
     eprintln!("Instagram OAuth callback completed successfully");
 
-    Redirect::to(
-        &state.instagram.return_uri("connected"),
-    )
+    Redirect::to(&state.instagram.return_uri("connected"))
 }
 
 pub async fn disconnect(

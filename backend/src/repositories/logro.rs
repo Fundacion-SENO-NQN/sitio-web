@@ -58,7 +58,12 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Logro>> {
    CREATE
 ========================================================== */
 
-pub async fn create(db: &PgPool, titulo: &str, contenido: &str, image_count: i16) -> ApiResult<Logro> {
+pub async fn create(
+    db: &PgPool,
+    titulo: &str,
+    contenido: &str,
+    image_count: i16,
+) -> ApiResult<Logro> {
     let mut tx = db.begin().await?;
 
     /*

@@ -98,11 +98,15 @@ pub async fn create_logro(
     validate_required_text(contenido, "El contenido es requerido.")?;
 
     if images.is_empty() {
-        return Err(ApiError::BadRequest("Al menos una imagen es requerida.".into()));
+        return Err(ApiError::BadRequest(
+            "Al menos una imagen es requerida.".into(),
+        ));
     }
 
     if images.len() > 3 {
-        return Err(ApiError::BadRequest("Se admiten como máximo 3 imágenes.".into()));
+        return Err(ApiError::BadRequest(
+            "Se admiten como máximo 3 imágenes.".into(),
+        ));
     }
 
     /*
@@ -118,7 +122,8 @@ pub async fn create_logro(
         avif_images.push(avif_image);
     }
 
-    let logro = repositories::logro::create(&state.db, titulo, contenido, images.len() as i16).await?;
+    let logro =
+        repositories::logro::create(&state.db, titulo, contenido, images.len() as i16).await?;
 
     for (index, avif_image) in avif_images.into_iter().enumerate() {
         let image_key = logro_image_key(logro.id, index);
@@ -222,7 +227,9 @@ pub async fn patch_logro(
     }
 
     if images.len() > 3 {
-        return Err(ApiError::BadRequest("Se admiten como máximo 3 imágenes.".into()));
+        return Err(ApiError::BadRequest(
+            "Se admiten como máximo 3 imágenes.".into(),
+        ));
     }
 
     let mut avif_images = Vec::new();
