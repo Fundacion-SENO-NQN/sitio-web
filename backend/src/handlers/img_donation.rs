@@ -161,16 +161,36 @@ pub async fn upload_donation_batch(
     let mut publish = false;
     let mut comments = true;
     let mut request_id = None;
-    while let Some(field) = multipart.next_field().await.map_err(|_| ApiError::BadRequest("Multipart inválido".into()))? {
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|_| ApiError::BadRequest("Multipart inválido".into()))?
+    {
         let name = field.name().unwrap_or("").to_string();
         if name == "images" {
-            let bytes = field.bytes().await.map_err(|_| ApiError::BadRequest("Imagen inválida".into()))?;
+            let bytes = field
+                .bytes()
+                .await
+                .map_err(|_| ApiError::BadRequest("Imagen inválida".into()))?;
             if bytes.is_empty() || bytes.len() > MAX_DONATION_IMAGE_SIZE || files.len() >= 10 {
-                return Err(ApiError::BadRequest("Se admiten entre 1 y 10 imágenes de hasta 12 MB".into()));
+                return Err(ApiError::BadRequest(
+                    "Se admiten entre 1 y 10 imágenes de hasta 12 MB".into(),
+                ));
             }
             files.push(bytes.to_vec());
-        } else if ["title", "description", "publish_instagram", "instagram_comments_enabled", "request_id"].contains(&name.as_str()) {
-            let value = field.text().await.map_err(|_| ApiError::BadRequest("Campo de texto inválido".into()))?;
+        } else if [
+            "title",
+            "description",
+            "publish_instagram",
+            "instagram_comments_enabled",
+            "request_id",
+        ]
+        .contains(&name.as_str())
+        {
+            let value = field
+                .text()
+                .await
+                .map_err(|_| ApiError::BadRequest("Campo de texto inválido".into()))?;
             match name.as_str() {
                 "title" => title = value,
                 "description" => description = value,
@@ -182,16 +202,29 @@ pub async fn upload_donation_batch(
         }
     }
     if files.is_empty() || title.chars().count() > 120 || description.chars().count() > 1200 {
-        return Err(ApiError::BadRequest("Revisá las imágenes, el título y la descripción".into()));
+        return Err(ApiError::BadRequest(
+            "Revisá las imágenes, el título y la descripción".into(),
+        ));
     }
     let request_id = request_id.ok_or(ApiError::BadRequest("Falta request_id UUID".into()))?;
     let connection = if publish {
-        Some(state.instagram.connection(&state.db).await
-            .map_err(ApiError::ServiceUnavailable)?
-            .ok_or(ApiError::BadRequest("Conectá Instagram antes de publicar".into()))?)
-    } else { None };
+        Some(
+            state
+                .instagram
+                .connection(&state.db)
+                .await
+                .map_err(ApiError::ServiceUnavailable)?
+                .ok_or(ApiError::BadRequest(
+                    "Conectá Instagram antes de publicar".into(),
+                ))?,
+        )
+    } else {
+        None
+    };
     if publish && title.trim().is_empty() && description.trim().is_empty() {
-        return Err(ApiError::BadRequest("Instagram requiere un título o una descripción".into()));
+        return Err(ApiError::BadRequest(
+            "Instagram requiere un título o una descripción".into(),
+        ));
     }
 
     // Validate and convert everything before replacing a slot on the public website.
@@ -201,16 +234,24 @@ pub async fn upload_donation_batch(
             println!("Antes AVIF");
             let avif = convert_to_avif(&file)?;
             println!("Antes JPEG");
-            let jpeg = if publish { Some(convert_to_instagram_jpeg(&file)?) } else { None };
+            let jpeg = if publish {
+                Some(convert_to_instagram_jpeg(&file)?)
+            } else {
+                None
+            };
             Ok::<_, image::ImageError>((avif, jpeg))
-        }).await.map_err(|_| ApiError::InternalServerError)?
-          .map_err(|_| ApiError::BadRequest("Una imagen no se pudo procesar".into()))?;
+        })
+        .await
+        .map_err(|_| ApiError::InternalServerError)?
+        .map_err(|_| ApiError::BadRequest("Una imagen no se pudo procesar".into()))?;
         converted.push(item);
     }
     let inserted = sqlx::query("INSERT INTO instagram_publications (request_id, status) VALUES ($1, 'processing') ON CONFLICT DO NOTHING")
         .bind(request_id).execute(&state.db).await?;
     if inserted.rows_affected() == 0 {
-        return Err(ApiError::Conflict("Este envío ya se recibió. Consultá el resultado antes de intentarlo de nuevo".into()));
+        return Err(ApiError::Conflict(
+            "Este envío ya se recibió. Consultá el resultado antes de intentarlo de nuevo".into(),
+        ));
     }
     let mut count = 0;
     let mut temporary = Vec::<String>::new();
@@ -220,7 +261,15 @@ pub async fn upload_donation_batch(
             let key = format!("instagram-temp/{request_id}/{index}.jpg");
             if let Err(error) = state.r2.upload_jpeg(&key, jpeg).await {
                 eprintln!("R2 Instagram JPEG failed: {error}");
-                return Ok(axum::Json(batch_failure(&state, request_id, count, "No se pudo guardar la imagen para Instagram").await));
+                return Ok(axum::Json(
+                    batch_failure(
+                        &state,
+                        request_id,
+                        count,
+                        "No se pudo guardar la imagen para Instagram",
+                    )
+                    .await,
+                ));
             }
             urls.push(state.instagram.image_url(&key));
             temporary.push(key);
@@ -230,7 +279,15 @@ pub async fn upload_donation_batch(
         let key = repositories::img_donation::donation_image_key(slot);
         if let Err(error) = state.r2.upload_avif(&key, avif).await {
             eprintln!("R2 donation image failed: {error}");
-            return Ok(axum::Json(batch_failure(&state, request_id, count, "No se pudo guardar una imagen en la web").await));
+            return Ok(axum::Json(
+                batch_failure(
+                    &state,
+                    request_id,
+                    count,
+                    "No se pudo guardar una imagen en la web",
+                )
+                .await,
+            ));
         }
         transaction.commit().await?;
         count += 1;
@@ -239,14 +296,29 @@ pub async fn upload_donation_batch(
         eprintln!("Frontend rebuild could not be scheduled: {error}");
     }
     if let Some(connection) = connection {
-        let caption = [title.trim(), description.trim()].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join("\n\n");
-        match state.instagram.publish(&connection, &urls, &caption, comments).await {
+        let caption = [title.trim(), description.trim()]
+            .into_iter()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        match state
+            .instagram
+            .publish(&connection, &urls, &caption, comments)
+            .await
+        {
             Ok(outcome) => {
                 let _ = sqlx::query("UPDATE instagram_publications SET status='published', website_count=$2, media_id=$3, updated_at=now() WHERE request_id=$1")
                     .bind(request_id).bind(count as i32).bind(&outcome.id).execute(&state.db).await;
                 let mut deleted = true;
-                for key in temporary { if let Err(error) = state.r2.delete_object(&key).await { deleted = false; eprintln!("Temporary Instagram image cleanup failed: {error}"); } }
-                if deleted { let _ = sqlx::query("UPDATE instagram_publications SET temp_cleaned_at=now() WHERE request_id=$1").bind(request_id).execute(&state.db).await; }
+                for key in temporary {
+                    if let Err(error) = state.r2.delete_object(&key).await {
+                        deleted = false;
+                        eprintln!("Temporary Instagram image cleanup failed: {error}");
+                    }
+                }
+                if deleted {
+                    let _ = sqlx::query("UPDATE instagram_publications SET temp_cleaned_at=now() WHERE request_id=$1").bind(request_id).execute(&state.db).await;
+                }
                 Ok(axum::Json(BatchResult {
                     website_uploaded: count, instagram_status: "published", instagram_media_id: Some(outcome.id),
                     message: outcome.comments_warning.then(|| "Se publicó, pero no se pudieron desactivar los comentarios. Revisá la publicación en Instagram.".into())
@@ -257,25 +329,52 @@ pub async fn upload_donation_batch(
                 let message = "La web se actualizó, pero no se confirmó la publicación en Instagram. Revisá la cuenta antes de volver a publicar.";
                 let _ = sqlx::query("UPDATE instagram_publications SET status='unknown', website_count=$2, message=$3, updated_at=now() WHERE request_id=$1")
                     .bind(request_id).bind(count as i32).bind(message).execute(&state.db).await;
-                Ok(axum::Json(BatchResult { website_uploaded: count, instagram_status: "unknown", instagram_media_id: None, message: Some(message.into()) }))
+                Ok(axum::Json(BatchResult {
+                    website_uploaded: count,
+                    instagram_status: "unknown",
+                    instagram_media_id: None,
+                    message: Some(message.into()),
+                }))
             }
         }
     } else {
         let _ = sqlx::query("UPDATE instagram_publications SET status='published', website_count=$2, updated_at=now() WHERE request_id=$1")
             .bind(request_id).bind(count as i32).execute(&state.db).await;
-        Ok(axum::Json(BatchResult { website_uploaded: count, instagram_status: "skipped", instagram_media_id: None, message: None }))
+        Ok(axum::Json(BatchResult {
+            website_uploaded: count,
+            instagram_status: "skipped",
+            instagram_media_id: None,
+            message: None,
+        }))
     }
 }
 
-async fn batch_failure(state: &Arc<AppState>, request_id: uuid::Uuid, count: usize, message: &str) -> BatchResult {
+async fn batch_failure(
+    state: &Arc<AppState>,
+    request_id: uuid::Uuid,
+    count: usize,
+    message: &str,
+) -> BatchResult {
     let _ = sqlx::query("UPDATE instagram_publications SET status='failed', website_count=$2, message=$3, updated_at=now() WHERE request_id=$1")
         .bind(request_id).bind(count as i32).bind(message).execute(&state.db).await;
-    if count > 0 { let _ = state.frontend_rebuild.mark_pending().await; }
-    BatchResult { website_uploaded: count, instagram_status: "failed", instagram_media_id: None, message: Some(message.into()) }
+    if count > 0 {
+        let _ = state.frontend_rebuild.mark_pending().await;
+    }
+    BatchResult {
+        website_uploaded: count,
+        instagram_status: "failed",
+        instagram_media_id: None,
+        message: Some(message.into()),
+    }
 }
 
 #[derive(serde::Serialize)]
-pub struct BatchStatus { status: String, website_count: i32, media_id: Option<String>, message: Option<String> }
+pub struct BatchStatus {
+    status: String,
+    website_count: i32,
+    media_id: Option<String>,
+    message: Option<String>,
+}
 
 pub async fn batch_status(
     AuthUser(user): AuthUser,
@@ -287,7 +386,9 @@ pub async fn batch_status(
     let row = sqlx::query("SELECT status, website_count, media_id, message FROM instagram_publications WHERE request_id=$1")
         .bind(request_id).fetch_optional(&state.db).await?.ok_or(ApiError::NotFound)?;
     Ok(axum::Json(BatchStatus {
-        status: row.get("status"), website_count: row.get("website_count"),
-        media_id: row.get("media_id"), message: row.get("message"),
+        status: row.get("status"),
+        website_count: row.get("website_count"),
+        media_id: row.get("media_id"),
+        message: row.get("message"),
     }))
 }

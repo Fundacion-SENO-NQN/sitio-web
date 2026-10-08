@@ -45,6 +45,7 @@ pub struct AppState {
     pub r2: utils::r2::R2Storage,
     pub frontend_rebuild: FrontendRebuildService,
     pub instagram: InstagramService,
+    pub jwt_secret: String,
 }
 
 #[tokio::main]
@@ -108,6 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let frontend_rebuild = FrontendRebuildService::from_env(db.clone());
     let instagram = InstagramService::from_env()?;
     frontend_rebuild.clone().start();
+    let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET no encontrado");
     let state = Arc::new(AppState {
         profile: services::profile::ProfileService::default(),
         password_reset: services::password_reset::PasswordResetService::from_env()?,
@@ -119,6 +121,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         r2,
         frontend_rebuild,
         instagram,
+        jwt_secret,
     });
     // Keep long-lived Instagram tokens alive while this Fly machine is running.
     let refresh_state = state.clone();

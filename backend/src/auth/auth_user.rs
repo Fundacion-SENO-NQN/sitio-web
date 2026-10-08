@@ -32,9 +32,8 @@ where
         let token = auth_header
             .strip_prefix("Bearer ")
             .ok_or(ApiError::Unauthorized)?;
-        let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET no está definido");
-        let claims = auth::jwt::validate_token(token, &secret)?;
         let state = Arc::<AppState>::from_ref(state);
+        let claims = auth::jwt::validate_token(token, &state.jwt_secret)?;
         let user = repositories::user::get_by_id(&state.db, claims.sub)
             .await?
             .ok_or(ApiError::Unauthorized)?;

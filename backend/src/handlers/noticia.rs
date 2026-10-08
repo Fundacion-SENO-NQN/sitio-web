@@ -464,14 +464,8 @@ fn invalid_form_field(field: &str) -> ApiError {
    OBTENER ÚLTIMAS NOTICIAS
 ========================================================== */
 
-pub async fn get_latest_news(
-    State(state): State<Arc<AppState>>,
-) -> ApiResult<Json<Vec<Noticia>>> {
-    let noticias =
-        noticia::get_latest(
-            &state.db,
-        )
-        .await?;
+pub async fn get_latest_news(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Noticia>>> {
+    let noticias = noticia::get_latest(&state.db).await?;
 
     Ok(Json(noticias))
 }

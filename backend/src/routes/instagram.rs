@@ -1,5 +1,8 @@
 use crate::{AppState, handlers::instagram};
-use axum::{Router, routing::{get, post, delete}};
+use axum::{
+    Router,
+    routing::{delete, get, post},
+};
 use std::sync::Arc;
 
 pub fn routes() -> Router<Arc<AppState>> {
