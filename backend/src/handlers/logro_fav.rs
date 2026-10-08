@@ -14,7 +14,6 @@ use std::sync::Arc;
 
 pub async fn get_all_logros_fav(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Logro>>> {
     let favs = repositories::logro_fav::get_all(&state.db).await?;
-
     Ok(Json(favs))
 }
 
