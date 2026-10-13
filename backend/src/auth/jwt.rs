@@ -37,9 +37,9 @@ mod tests {
     use super::*;
     #[test]
     fn jwt_versions_and_legacy_sessions() {
-        let secret = "test-only-key-for-jwt-signing";
-        let token = generate_token(42, 3, secret).unwrap();
-        let claims = validate_token(&token, secret).unwrap();
+        let secret = uuid::Uuid::new_v4().to_string();
+        let token = generate_token(42, 3, &secret).unwrap();
+        let claims = validate_token(&token, &secret).unwrap();
         assert_eq!(claims.sub, 42);
         assert_eq!(claims.auth_version, 3);
         let old =
@@ -50,6 +50,6 @@ mod tests {
             &EncodingKey::from_secret(secret.as_bytes()),
         )
         .unwrap();
-        assert_eq!(validate_token(&token, secret).unwrap().auth_version, 0);
+        assert_eq!(validate_token(&token, &secret).unwrap().auth_version, 0);
     }
 }
