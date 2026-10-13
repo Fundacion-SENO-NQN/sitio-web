@@ -901,7 +901,6 @@ function appendContent(parent, content) {
 ========================================================== */
 
 function resolveAccessor(accessor, item, context) {
-  // console.log(accessor)
   if (typeof accessor === 'function') return accessor(item, context)
   if (typeof accessor === 'string') return item?.[accessor]
   return accessor
