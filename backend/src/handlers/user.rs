@@ -36,9 +36,7 @@ pub async fn create_user(
 ) -> ApiResult<(StatusCode, Json<UserResponse>)> {
     admin.require(ADMIN_USERS)?;
 
-    if validate_password(&request.password).is_err() {
-        return Err(validate_password(&request.password).err().unwrap());
-    }
+    validate_password(&request.password)?;
 
     let password_hash = auth::password::hash_password(&request.password)?;
 
