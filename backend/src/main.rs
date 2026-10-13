@@ -70,8 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
      *
      * Origins must not contain a trailing slash.
      */
-    let cors_origins =
-        env::var("CORS_ALLOWED_ORIGINS").unwrap_or_else(|_| "http://localhost:4321".to_string());
+    let cors_origins = env::var("CORS_ALLOWED_ORIGINS").expect("CORS_ALLOWED_ORIGINS must be set");
 
     let allowed_origins: Vec<HeaderValue> = cors_origins
         .split(',')
