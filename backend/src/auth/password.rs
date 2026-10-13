@@ -49,4 +49,34 @@ mod tests {
         assert!(validate_password(&"🔒".repeat(128)).is_ok());
         assert!(validate_password(&"a".repeat(129)).is_err());
     }
+
+    #[test]
+    fn verify_password_correct_password_matches_hash() {
+        let password = "MySecurePassword123!";
+        let hash = hash_password(password).unwrap();
+        assert!(verify_password(password, &hash));
+    }
+
+    #[test]
+    fn verify_password_incorrect_password_fails() {
+        let password = "MySecurePassword123!";
+        let wrong_password = "WrongPassword123!";
+        let hash = hash_password(password).unwrap();
+        assert!(!verify_password(wrong_password, &hash));
+    }
+
+    #[test]
+    fn verify_password_malformed_hash_returns_false() {
+        let password = "MySecurePassword123!";
+        let malformed_hash = "not_a_valid_hash";
+        assert!(!verify_password(password, malformed_hash));
+    }
+
+    #[test]
+    fn verify_password_fails_against_hash_of_another_password() {
+        let password_1 = "PasswordOne";
+        let password_2 = "PasswordTwo";
+        let hash_2 = hash_password(password_2).unwrap();
+        assert!(!verify_password(password_1, &hash_2));
+    }
 }
