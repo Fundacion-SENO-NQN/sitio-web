@@ -4,7 +4,7 @@ const VALID_IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
-  'image/avif'
+  'image/avif',
 ])
 
 /* ==========================================================
@@ -23,14 +23,14 @@ export function buildAchievementFormData({
    */
   title,
   content,
-  order
+  order,
 } = {}) {
   const normalizedData = validateAchievementData({
     titulo: titulo ?? title,
 
     contenido: contenido ?? content,
 
-    orden: orden ?? order
+    orden: orden ?? order,
   })
 
   const normalizedImages = normalizeAchievementImage(image)
@@ -52,7 +52,7 @@ export function buildAchievementFormData({
    * campo se omite y el backend conserva la imagen actual.
    */
   if (normalizedImages) {
-    normalizedImages.forEach(img => {
+    normalizedImages.forEach((img) => {
       formData.append('image', img, img.name)
     })
   }
@@ -77,7 +77,7 @@ export function validateAchievementData({ titulo, contenido, orden = 0 } = {}) {
 
   const normalizedContent = cleanRequiredText(
     contenido,
-    'La descripción es requerida.'
+    'La descripción es requerida.',
   )
 
   if (normalizedContent.length < 10)
@@ -88,7 +88,7 @@ export function validateAchievementData({ titulo, contenido, orden = 0 } = {}) {
 
     contenido: normalizedContent,
 
-    orden: normalizeOrder(orden)
+    orden: normalizeOrder(orden),
   }
 }
 
@@ -117,7 +117,8 @@ export function validateAchievementImage(image) {
 export function validateCreateAchievementImage(image) {
   const normalizedImages = normalizeAchievementImage(image)
 
-  if (!normalizedImages || normalizedImages.length === 0) throw new Error('Al menos una imagen es requerida.')
+  if (!normalizedImages || normalizedImages.length === 0)
+    throw new Error('Al menos una imagen es requerida.')
 
   return normalizedImages.map(validateAchievementImage)
 }
@@ -147,13 +148,14 @@ function normalizeAchievementImage(image) {
 
     if (images.length === 0) return null
 
-    if (images.length > 3) throw new Error('Cada logro admite hasta tres imágenes.')
+    if (images.length > 3)
+      throw new Error('Cada logro admite hasta tres imágenes.')
 
     const selectedImages = []
     for (const selectedImage of images) {
-        if (!isFile(selectedImage))
-          throw new TypeError('La imagen seleccionada no es válida.')
-        selectedImages.push(selectedImage)
+      if (!isFile(selectedImage))
+        throw new TypeError('La imagen seleccionada no es válida.')
+      selectedImages.push(selectedImage)
     }
 
     return selectedImages

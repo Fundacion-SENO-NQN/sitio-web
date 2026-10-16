@@ -13,14 +13,14 @@ export function createLogroModal({
   update,
   refresh,
   imagePicker,
-  setLoading
+  setLoading,
 } = {}) {
   validarConfiguracion({
     create,
     update,
     refresh,
     imagePicker,
-    setLoading
+    setLoading,
   })
 
   /* ========================================================
@@ -31,7 +31,7 @@ export function createLogroModal({
 
   const contentInput = requireElement(
     '#description',
-    'campo de descripción del logro'
+    'campo de descripción del logro',
   )
 
   /* ========================================================
@@ -67,7 +67,7 @@ export function createLogroModal({
 
     try {
       return await refresh({
-        showLoading: false
+        showLoading: false,
       })
     } finally {
       setLoading(false)
@@ -128,7 +128,7 @@ export function createLogroModal({
         editing,
         titleInput,
         contentInput,
-        imagePicker
+        imagePicker,
       })
     },
 
@@ -140,7 +140,7 @@ export function createLogroModal({
 
         orden: editing ? Number(item?.orden) : 0,
 
-        image: imagePicker.files.length > 0 ? imagePicker.files : null
+        image: imagePicker.files.length > 0 ? imagePicker.files : null,
       })
     },
 
@@ -160,17 +160,49 @@ export function createLogroModal({
 
     onOpenCreate() {
       imagePicker.setRequired(true)
+      imagePicker.setHelpText('Seleccioná hasta 3 imágenes para el logro.')
     },
 
-    onOpenEdit() {
+    onOpenEdit({ item }) {
       imagePicker.setRequired(false)
+
+      imagePicker.setHelpText(
+        'Dejá este campo vacío para conservar las imágenes actuales.',
+      )
+
+      imagePicker.showCurrentImages({
+        id: item.id,
+
+        count: item.image_count ?? 1,
+
+        directory: 'img_logros',
+
+        indexed: false,
+
+        getUrl: ({ id, index, directory }) => {
+          const IMG_URL = (
+            import.meta.env.PUBLIC_IMG_URL ??
+            'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+          ).replace(/\/+$/, '')
+
+          if (index === 0) {
+            return `${IMG_URL}/${directory}/${id}.avif`
+          } else {
+            return `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
+          }
+        },
+
+        title: item.titulo,
+
+        cacheBust: true,
+      })
     },
 
     onClose() {
       imagePicker.setDisabled(false)
       imagePicker.reset()
       imagePicker.setRequired(false)
-    }
+    },
   })
 }
 
@@ -183,7 +215,7 @@ function validarFormulario({ editing, titleInput, contentInput, imagePicker }) {
 
   if (titulo.length < 3) {
     focusSoon(titleInput, {
-      selectText: true
+      selectText: true,
     })
 
     throw new Error('El título es muy corto.')
@@ -218,13 +250,13 @@ function validarConfiguracion({
   update,
   refresh,
   imagePicker,
-  setLoading
+  setLoading,
 }) {
   const funciones = {
     create,
     update,
     refresh,
-    setLoading
+    setLoading,
   }
 
   for (const [nombre, funcion] of Object.entries(funciones)) {
@@ -241,7 +273,9 @@ function validarConfiguracion({
     'setRequired',
     'setDisabled',
     'reset',
-    'focus'
+    'focus',
+    'setHelpText',
+    'showCurrentImages',
   ]
 
   for (const metodo of metodosRequeridos) {
