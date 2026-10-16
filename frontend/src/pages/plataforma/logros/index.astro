@@ -162,26 +162,78 @@ import '../../../style/logros.css'
               required></textarea>
           </label>
 
-          <label class="formField">
-            <span class="formLabel">
-              Imagen
+          <div class="formField">
+            <header class="formFieldHeader">
+              <div class="formLabel">
+                Imagen
 
-              <span class="optionalLabel"> Opcional al editar </span>
-            </span>
+                <span class="optionalLabel"> Opcional al editar </span>
+              </div>
 
-            <input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/avif"
-              multiple
-            />
+              <div class="formHelp">
+                <p id="texto-ayuda-imagenes">
+                  Seleccioná hasta 3 imágenes para el logro. Al editar, dejá
+                  este campo vacío para conservar las imágenes actuales.
+                </p>
+              </div>
+            </header>
 
-            <span class="formHelp">
-              Seleccioná una imagen al crear el logro. Al editar, dejá este
-              campo vacío para conservar la imagen actual.
-            </span>
-          </label>
+            <label
+              id="zona-subida-imagenes"
+              class="imagePicker zona-subida"
+              for="image"
+            >
+              <input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                aria-describedby="texto-ayuda-imagenes"
+                multiple
+              />
+
+              <span class="imagePickerIcon subida-icono" aria-hidden="true">
+                +
+              </span>
+
+              <strong> Seleccionar imágenes </strong>
+
+              <span> También podés arrastrarlas hasta esta zona </span>
+
+              <small>
+                JPG, PNG, WebP o AVIF · máximo 3 imágenes · 12 MB por archivo
+              </small>
+            </label>
+
+            <div
+              id="imagenes-seleccionadas"
+              class="imagePreviewGrid galeria-preview oculto"
+              aria-label="Imágenes seleccionadas"
+              aria-live="polite"
+            >
+            </div>
+
+            <div
+              id="imagenes-actuales-contenedor"
+              class="currentImages imagenes-actuales oculto"
+            >
+              <div class="currentImagesHeader imagenes-actuales-cabecera">
+                <h4>Imágenes actuales</h4>
+
+                <p>
+                  Si seleccionás nuevas imágenes, reemplazarán completamente las
+                  imágenes actuales.
+                </p>
+              </div>
+
+              <div
+                id="imagenes-actuales"
+                class="imagePreviewGrid galeria-actuales"
+                aria-label="Imágenes publicadas actualmente"
+              >
+              </div>
+            </div>
+          </div>
         </div>
 
         <footer class="modalFooter modalButtons">

@@ -1,3 +1,4 @@
+import Sortable from 'sortablejs'
 import { showToast } from './toast.js'
 
 const DEFAULT_IMAGE_URL = (import.meta.env.PUBLIC_IMG_URL ?? '').replace(
@@ -354,7 +355,20 @@ export function createImagePicker({
 
           name: file.name,
 
+          file: file,
+
           number: index + 1,
+
+          onRemove: () => {
+             state.files = state.files.filter(f => f.name !== file.name);
+             synchronizeInputFiles();
+             renderSelectedImages();
+
+          // Re-render preview to update the numbering visually
+          renderSelectedImages();
+          if (typeof onChange === 'function') onChange(state.files, controller)
+  ;
+          },
 
           previewClass,
           previewNumberClass
@@ -364,7 +378,29 @@ export function createImagePicker({
 
     elements.selectedContainer?.appendChild(fragment)
 
+
     elements.selectedContainer?.classList.remove(hiddenClass)
+
+    if (elements.selectedContainer && !state.sortableInstance) {
+      state.sortableInstance = Sortable.create(elements.selectedContainer, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: () => {
+          // Update state.files to match new order
+          const newFiles = [];
+          const children = Array.from(elements.selectedContainer.children);
+          children.forEach((child) => {
+            const fileName = child.getAttribute('data-filename');
+            const file = state.files.find(f => f.name === fileName);
+            if (file) newFiles.push(file);
+          });
+          state.files = newFiles;
+          synchronizeInputFiles();
+          if (typeof onChange === 'function') onChange(state.files, controller)
+        }
+      });
+    }
+
   }
 
   /* ========================================================
@@ -679,7 +715,8 @@ function createPreviewElement({
   alt,
   name,
   number,
-
+  file,
+  onRemove,
   previewClass,
   previewNumberClass
 }) {
@@ -721,7 +758,26 @@ function createPreviewElement({
   caption.textContent = name
   caption.title = name
 
-  figure.append(image, numberElement, caption)
+
+  figure.setAttribute('data-filename', file ? file.name : name);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'removeImageBtn';
+  removeBtn.innerHTML = '×';
+  removeBtn.title = 'Eliminar imagen';
+  removeBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onRemove) onRemove();
+  };
+
+  if (onRemove) {
+    figure.append(image, numberElement, caption, removeBtn);
+  } else {
+    figure.append(image, numberElement, caption);
+  }
+
 
   return figure
 }
