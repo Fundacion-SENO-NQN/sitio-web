@@ -170,7 +170,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
      * Avoid an unnecessary UPDATE when the request only
      * contains the existing order.
      */
-    if titulo.is_none() && contenido.is_none() {
+    if titulo.is_none() && contenido.is_none() && image_count.is_none() {
         tx.commit().await?;
 
         return Ok(current);
