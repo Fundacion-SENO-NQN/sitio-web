@@ -368,42 +368,17 @@ pub struct ProxyImageQuery {
 
 pub async fn proxy_image(
     AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
     Query(query): Query<ProxyImageQuery>,
 ) -> ApiResult<impl IntoResponse> {
     user.require(ADMIN_LOGROS)?;
 
-    let base_url = std::env::var("PUBLIC_IMG_URL")
-        .unwrap_or_else(|_| "https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev".to_string());
-
-    let base_url = base_url.trim_end_matches('/');
-
     let image_key = logro_image_key(query.id, query.index);
-    let url = format!("{}/{}", base_url, image_key);
 
-    let response = reqwest::get(&url).await.map_err(|e| {
-        eprintln!("Error fetching proxied image: {}", e);
-        ApiError::InternalServerError
+    let bytes = state.r2.get_object(&image_key).await.map_err(|e| {
+        eprintln!("Error fetching image from R2: {}", e);
+        ApiError::NotFound
     })?;
-
-    if !response.status().is_success() {
-        return Err(ApiError::NotFound);
-    }
-
-    // Enforce a 15MB limit
-    if let Some(content_length) = response.content_length() {
-        if content_length > 15 * 1024 * 1024 {
-            return Err(ApiError::BadRequest("La imagen excede el límite de 15MB.".into()));
-        }
-    }
-
-    let bytes = response.bytes().await.map_err(|e| {
-        eprintln!("Error reading proxied image bytes: {}", e);
-        ApiError::InternalServerError
-    })?;
-
-    if bytes.len() > 15 * 1024 * 1024 {
-        return Err(ApiError::BadRequest("La imagen excede el límite de 15MB.".into()));
-    }
 
     Ok((
         axum::http::StatusCode::OK,
