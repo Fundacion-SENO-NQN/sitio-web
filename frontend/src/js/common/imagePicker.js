@@ -208,9 +208,12 @@ export function createImagePicker({
   function setFiles(files, { synchronizeInput = true } = {}) {
     const normalizedFiles = normalizeFiles(files)
 
-    validate(normalizedFiles)
+    // Append instead of replace
+    const combinedFiles = [...state.files, ...normalizedFiles]
 
-    state.files = normalizedFiles
+    validate(combinedFiles)
+
+    state.files = combinedFiles
 
     if (synchronizeInput) synchronizeInputFiles()
 
@@ -224,12 +227,17 @@ export function createImagePicker({
   }
 
   function processSelectedFiles(files, options = {}) {
+    const oldFiles = [...state.files]
     try {
       setFiles(files, options)
     } catch (error) {
       console.error('Invalid image selection:', error)
 
-      if (clearOnInvalid) clearSelected()
+      // Restore old files
+      state.files = oldFiles
+      synchronizeInputFiles()
+
+      if (clearOnInvalid && oldFiles.length === 0) clearSelected()
 
       if (typeof onError === 'function') {
         onError(error, controller)
@@ -359,6 +367,8 @@ export function createImagePicker({
 
           number: index + 1,
 
+          isCover: index === 0,
+
           onRemove: () => {
              state.files = state.files.filter(f => f.name !== file.name);
              synchronizeInputFiles();
@@ -396,6 +406,7 @@ export function createImagePicker({
           });
           state.files = newFiles;
           synchronizeInputFiles();
+          renderSelectedImages(); // re-render to update numbers and cover badge
           if (typeof onChange === 'function') onChange(state.files, controller)
         }
       });
@@ -483,6 +494,8 @@ export function createImagePicker({
           name: `Imagen ${index + 1}`,
 
           number: index + 1,
+
+          isCover: index === 0,
 
           previewClass,
           previewNumberClass
@@ -717,6 +730,7 @@ function createPreviewElement({
   number,
   file,
   onRemove,
+  isCover = false,
   previewClass,
   previewNumberClass
 }) {
@@ -757,6 +771,14 @@ function createPreviewElement({
 
   caption.textContent = name
   caption.title = name
+
+  if (isCover) {
+    const coverBadge = document.createElement('span')
+    coverBadge.className = 'cover-badge'
+    coverBadge.textContent = 'Portada'
+    // append coverBadge to figure
+    setTimeout(() => figure.appendChild(coverBadge), 0)
+  }
 
 
   figure.setAttribute('data-filename', file ? file.name : name);

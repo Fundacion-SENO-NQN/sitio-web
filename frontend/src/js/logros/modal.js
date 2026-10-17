@@ -163,39 +163,49 @@ export function createLogroModal({
       imagePicker.setHelpText('Seleccioná hasta 3 imágenes para el logro.')
     },
 
-    onOpenEdit({ item }) {
+    async onOpenEdit({ item }) {
       imagePicker.setRequired(false)
 
       imagePicker.setHelpText(
-        'Dejá este campo vacío para conservar las imágenes actuales.',
+        'Podés reordenar, agregar o eliminar las imágenes.',
       )
 
-      imagePicker.showCurrentImages({
-        id: item.id,
+      const IMG_URL = (
+        import.meta.env.PUBLIC_IMG_URL ??
+        'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+      ).replace(/\/+$/, '')
 
-        count: item.image_count ?? 1,
+      const count = item.image_count ?? 1
+      const directory = 'img_logros'
+      const id = item.id
 
-        directory: 'img_logros',
+      const files = [];
 
-        indexed: false,
+      for (let index = 0; index < count; index++) {
+        let url;
+        if (index === 0) {
+          url = `${IMG_URL}/${directory}/${id}.avif?admin=${Date.now()}`
+        } else {
+          url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif?admin=${Date.now()}`
+        }
 
-        getUrl: ({ id, index, directory }) => {
-          const IMG_URL = (
-            import.meta.env.PUBLIC_IMG_URL ??
-            'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
-          ).replace(/\/+$/, '')
-
-          if (index === 0) {
-            return `${IMG_URL}/${directory}/${id}.avif`
-          } else {
-            return `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            const blob = await response.blob();
+            // Generate a proper file name for display
+            const fileName = `logro_${id}_img_${index + 1}.avif`;
+            const file = new File([blob], fileName, { type: blob.type });
+            files.push(file);
           }
-        },
+        } catch (error) {
+          console.error(`Failed to fetch image ${index + 1} for achievement ${id}`, error);
+        }
+      }
 
-        title: item.titulo,
-
-        cacheBust: true,
-      })
+      if (files.length > 0) {
+        imagePicker.setFiles(files, { synchronizeInput: true });
+      }
     },
 
     onClose() {
