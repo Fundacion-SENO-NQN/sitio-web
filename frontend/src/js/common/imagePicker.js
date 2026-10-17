@@ -205,11 +205,10 @@ export function createImagePicker({
     })
   }
 
-  function setFiles(files, { synchronizeInput = true } = {}) {
+  function setFiles(files, { synchronizeInput = true, append = false } = {}) {
     const normalizedFiles = normalizeFiles(files)
 
-    // Append instead of replace
-    const combinedFiles = [...state.files, ...normalizedFiles]
+    const combinedFiles = append ? [...state.files, ...normalizedFiles] : normalizedFiles
 
     validate(combinedFiles)
 
@@ -227,6 +226,7 @@ export function createImagePicker({
   }
 
   function processSelectedFiles(files, options = {}) {
+    options.append = true;
     const oldFiles = [...state.files]
     try {
       setFiles(files, options)

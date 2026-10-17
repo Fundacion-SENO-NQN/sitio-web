@@ -175,6 +175,8 @@ export function createLogroModal({
         'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
       ).replace(/\/+$/, '')
 
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
+
       const count = item.image_count ?? 1
       const directory = 'img_logros'
       const id = item.id
@@ -189,11 +191,16 @@ export function createLogroModal({
           url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
         }
 
+        const proxyUrl = `${API_URL}/logros/proxy-image?url=${encodeURIComponent(url)}`;
         const fileName = `logro_${id}_img_${index + 1}.avif`;
 
         try {
           // Adding a fetch option cache to ensure we get the fresh image without using query params that might break R2 CORS/Routing.
-          const response = await fetch(url, { cache: 'no-cache' });
+          const token = localStorage.getItem('token')
+          const headers = {}
+          if (token) headers['Authorization'] = `Bearer ${token}`
+
+          const response = await fetch(proxyUrl, { headers, cache: 'no-cache' });
           if (response.ok) {
             const blob = await response.blob();
             const file = new File([blob], fileName, { type: blob.type });

@@ -7,8 +7,10 @@ use crate::{
 };
 use axum::{
     Json,
-    extract::{Multipart, Path, State},
+    extract::{Multipart, Path, Query, State},
     http::StatusCode,
+    response::IntoResponse,
+    body::Body,
 };
 use std::{collections::HashSet, sync::Arc};
 
@@ -352,6 +354,64 @@ pub async fn delete_logro(
     }
 
     Ok(Json(logro))
+}
+
+/* ==========================================================
+   PROXY IMAGE
+========================================================== */
+
+#[derive(serde::Deserialize)]
+pub struct ProxyImageQuery {
+    pub url: String,
+}
+
+pub async fn proxy_image(
+    AuthUser(user): AuthUser,
+    Query(query): Query<ProxyImageQuery>,
+) -> ApiResult<impl IntoResponse> {
+    user.require(ADMIN_LOGROS)?;
+
+    let url = query.url;
+
+    let allowed_prefix = std::env::var("PUBLIC_IMG_URL")
+        .unwrap_or_else(|_| "https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev".to_string())
+        .trim_end_matches('/')
+        .to_string() + "/img_logros/";
+
+    if !url.starts_with(&allowed_prefix) {
+        return Err(ApiError::BadRequest("URL inválida o no permitida.".into()));
+    }
+
+    let response = reqwest::get(&url).await.map_err(|e| {
+        eprintln!("Error fetching proxied image: {}", e);
+        ApiError::InternalServerError
+    })?;
+
+    if !response.status().is_success() {
+        return Err(ApiError::NotFound);
+    }
+
+    // Enforce a 15MB limit
+    if let Some(content_length) = response.content_length() {
+        if content_length > 15 * 1024 * 1024 {
+            return Err(ApiError::BadRequest("La imagen excede el límite de 15MB.".into()));
+        }
+    }
+
+    let bytes = response.bytes().await.map_err(|e| {
+        eprintln!("Error reading proxied image bytes: {}", e);
+        ApiError::InternalServerError
+    })?;
+
+    if bytes.len() > 15 * 1024 * 1024 {
+        return Err(ApiError::BadRequest("La imagen excede el límite de 15MB.".into()));
+    }
+
+    Ok((
+        axum::http::StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "image/avif")],
+        Body::from(bytes),
+    ))
 }
 
 /* ==========================================================
