@@ -180,55 +180,33 @@ export function createLogroModal({
       const id = item.id
 
       const files = [];
-      let fetchFailed = false;
 
       for (let index = 0; index < count; index++) {
         let url;
         if (index === 0) {
-          url = `${IMG_URL}/${directory}/${id}.avif?admin=${Date.now()}`
+          url = `${IMG_URL}/${directory}/${id}.avif`
         } else {
-          url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif?admin=${Date.now()}`
+          url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
         }
 
         const fileName = `logro_${id}_img_${index + 1}.avif`;
 
         try {
-          const response = await fetch(url);
+          // Adding a fetch option cache to ensure we get the fresh image without using query params that might break R2 CORS/Routing.
+          const response = await fetch(url, { cache: 'no-cache' });
           if (response.ok) {
             const blob = await response.blob();
             const file = new File([blob], fileName, { type: blob.type });
             files.push(file);
           } else {
-            fetchFailed = true;
-            break;
+            console.error(`Fetch not ok for image ${index + 1} for achievement ${id}`);
           }
         } catch (error) {
           console.error(`Failed to fetch image ${index + 1} for achievement ${id}`, error);
-          fetchFailed = true;
-          break;
         }
       }
 
-      if (fetchFailed) {
-        imagePicker.setHelpText('Hubo un error al cargar las imágenes. No se pueden editar, pero no se perderán.');
-        imagePicker.setDisabled(true);
-        imagePicker.showCurrentImages({
-          id: item.id,
-          count: item.image_count ?? 1,
-          directory: 'img_logros',
-          indexed: false,
-          getUrl: ({ id, index, directory }) => {
-            const BASE_IMG_URL = (import.meta.env.PUBLIC_IMG_URL ?? 'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev').replace(/\/+$/, '')
-            if (index === 0) {
-              return `${BASE_IMG_URL}/${directory}/${id}.avif`
-            } else {
-              return `${BASE_IMG_URL}/${directory}/${id}_${index + 1}.avif`
-            }
-          },
-          title: item.titulo,
-          cacheBust: true,
-        });
-      } else if (files.length > 0) {
+      if (files.length > 0) {
         imagePicker.setFiles(files, { synchronizeInput: true });
       }
     },
