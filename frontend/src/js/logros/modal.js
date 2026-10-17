@@ -163,39 +163,74 @@ export function createLogroModal({
       imagePicker.setHelpText('Seleccioná hasta 3 imágenes para el logro.')
     },
 
-    onOpenEdit({ item }) {
+    async onOpenEdit({ item }) {
       imagePicker.setRequired(false)
 
       imagePicker.setHelpText(
-        'Dejá este campo vacío para conservar las imágenes actuales.',
+        'Podés reordenar, agregar o eliminar las imágenes.',
       )
 
-      imagePicker.showCurrentImages({
-        id: item.id,
+      const IMG_URL = (
+        import.meta.env.PUBLIC_IMG_URL ??
+        'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+      ).replace(/\/+$/, '')
 
-        count: item.image_count ?? 1,
+      const count = item.image_count ?? 1
+      const directory = 'img_logros'
+      const id = item.id
 
-        directory: 'img_logros',
+      const files = [];
+      let fetchFailed = false;
 
-        indexed: false,
+      for (let index = 0; index < count; index++) {
+        let url;
+        if (index === 0) {
+          url = `${IMG_URL}/${directory}/${id}.avif?admin=${Date.now()}`
+        } else {
+          url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif?admin=${Date.now()}`
+        }
 
-        getUrl: ({ id, index, directory }) => {
-          const IMG_URL = (
-            import.meta.env.PUBLIC_IMG_URL ??
-            'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
-          ).replace(/\/+$/, '')
+        const fileName = `logro_${id}_img_${index + 1}.avif`;
 
-          if (index === 0) {
-            return `${IMG_URL}/${directory}/${id}.avif`
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const file = new File([blob], fileName, { type: blob.type });
+            files.push(file);
           } else {
-            return `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
+            fetchFailed = true;
+            break;
           }
-        },
+        } catch (error) {
+          console.error(`Failed to fetch image ${index + 1} for achievement ${id}`, error);
+          fetchFailed = true;
+          break;
+        }
+      }
 
-        title: item.titulo,
-
-        cacheBust: true,
-      })
+      if (fetchFailed) {
+        imagePicker.setHelpText('Hubo un error al cargar las imágenes. No se pueden editar, pero no se perderán.');
+        imagePicker.setDisabled(true);
+        imagePicker.showCurrentImages({
+          id: item.id,
+          count: item.image_count ?? 1,
+          directory: 'img_logros',
+          indexed: false,
+          getUrl: ({ id, index, directory }) => {
+            const BASE_IMG_URL = (import.meta.env.PUBLIC_IMG_URL ?? 'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev').replace(/\/+$/, '')
+            if (index === 0) {
+              return `${BASE_IMG_URL}/${directory}/${id}.avif`
+            } else {
+              return `${BASE_IMG_URL}/${directory}/${id}_${index + 1}.avif`
+            }
+          },
+          title: item.titulo,
+          cacheBust: true,
+        });
+      } else if (files.length > 0) {
+        imagePicker.setFiles(files, { synchronizeInput: true });
+      }
     },
 
     onClose() {
