@@ -184,14 +184,7 @@ export function createLogroModal({
       const files = [];
 
       for (let index = 0; index < count; index++) {
-        let url;
-        if (index === 0) {
-          url = `${IMG_URL}/${directory}/${id}.avif`
-        } else {
-          url = `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
-        }
-
-        const proxyUrl = `${API_URL}/logros/proxy-image?url=${encodeURIComponent(url)}`;
+        const proxyUrl = `${API_URL}/logros/proxy-image?id=${id}&index=${index}`;
         const fileName = `logro_${id}_img_${index + 1}.avif`;
 
         try {

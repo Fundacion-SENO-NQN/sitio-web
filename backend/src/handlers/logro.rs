@@ -362,7 +362,8 @@ pub async fn delete_logro(
 
 #[derive(serde::Deserialize)]
 pub struct ProxyImageQuery {
-    pub url: String,
+    pub id: i64,
+    pub index: usize,
 }
 
 pub async fn proxy_image(
@@ -371,16 +372,13 @@ pub async fn proxy_image(
 ) -> ApiResult<impl IntoResponse> {
     user.require(ADMIN_LOGROS)?;
 
-    let url = query.url;
+    let base_url = std::env::var("PUBLIC_IMG_URL")
+        .unwrap_or_else(|_| "https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev".to_string());
 
-    let allowed_prefix = std::env::var("PUBLIC_IMG_URL")
-        .unwrap_or_else(|_| "https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev".to_string())
-        .trim_end_matches('/')
-        .to_string() + "/img_logros/";
+    let base_url = base_url.trim_end_matches('/');
 
-    if !url.starts_with(&allowed_prefix) {
-        return Err(ApiError::BadRequest("URL inválida o no permitida.".into()));
-    }
+    let image_key = logro_image_key(query.id, query.index);
+    let url = format!("{}/{}", base_url, image_key);
 
     let response = reqwest::get(&url).await.map_err(|e| {
         eprintln!("Error fetching proxied image: {}", e);
