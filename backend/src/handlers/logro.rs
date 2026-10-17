@@ -7,8 +7,10 @@ use crate::{
 };
 use axum::{
     Json,
-    extract::{Multipart, Path, State},
+    extract::{Multipart, Path, Query, State},
     http::StatusCode,
+    response::IntoResponse,
+    body::Body,
 };
 use std::{collections::HashSet, sync::Arc};
 
@@ -352,6 +354,37 @@ pub async fn delete_logro(
     }
 
     Ok(Json(logro))
+}
+
+/* ==========================================================
+   PROXY IMAGE
+========================================================== */
+
+#[derive(serde::Deserialize)]
+pub struct ProxyImageQuery {
+    pub id: i64,
+    pub index: usize,
+}
+
+pub async fn proxy_image(
+    AuthUser(user): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Query(query): Query<ProxyImageQuery>,
+) -> ApiResult<impl IntoResponse> {
+    user.require(ADMIN_LOGROS)?;
+
+    let image_key = logro_image_key(query.id, query.index);
+
+    let bytes = state.r2.get_object(&image_key).await.map_err(|e| {
+        eprintln!("Error fetching image from R2: {}", e);
+        ApiError::NotFound
+    })?;
+
+    Ok((
+        axum::http::StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "image/avif")],
+        Body::from(bytes),
+    ))
 }
 
 /* ==========================================================

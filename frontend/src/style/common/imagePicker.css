@@ -996,3 +996,4 @@
 .removeImageBtn:hover {
   background-color: rgba(185, 28, 28, 1);
 }
+.cover-badge { position: absolute; bottom: 1.5rem; right: 0.2rem; background-color: var(--color-primary, #1e3a8a); color: white; padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 4px; font-weight: bold; pointer-events: none; z-index: 5; }

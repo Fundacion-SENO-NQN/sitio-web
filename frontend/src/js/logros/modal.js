@@ -163,39 +163,52 @@ export function createLogroModal({
       imagePicker.setHelpText('Seleccioná hasta 3 imágenes para el logro.')
     },
 
-    onOpenEdit({ item }) {
+    async onOpenEdit({ item }) {
       imagePicker.setRequired(false)
 
       imagePicker.setHelpText(
-        'Dejá este campo vacío para conservar las imágenes actuales.',
+        'Podés reordenar, agregar o eliminar las imágenes.',
       )
 
-      imagePicker.showCurrentImages({
-        id: item.id,
+      const IMG_URL = (
+        import.meta.env.PUBLIC_IMG_URL ??
+        'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+      ).replace(/\/+$/, '')
 
-        count: item.image_count ?? 1,
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
 
-        directory: 'img_logros',
+      const count = item.image_count ?? 1
+      const directory = 'img_logros'
+      const id = item.id
 
-        indexed: false,
+      const files = [];
 
-        getUrl: ({ id, index, directory }) => {
-          const IMG_URL = (
-            import.meta.env.PUBLIC_IMG_URL ??
-            'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
-          ).replace(/\/+$/, '')
+      for (let index = 0; index < count; index++) {
+        const proxyUrl = `${API_URL}/logros/proxy-image?id=${id}&index=${index}`;
+        const fileName = `logro_${id}_img_${index + 1}.avif`;
 
-          if (index === 0) {
-            return `${IMG_URL}/${directory}/${id}.avif`
+        try {
+          // Adding a fetch option cache to ensure we get the fresh image without using query params that might break R2 CORS/Routing.
+          const token = localStorage.getItem('token')
+          const headers = {}
+          if (token) headers['Authorization'] = `Bearer ${token}`
+
+          const response = await fetch(proxyUrl, { headers, cache: 'no-cache' });
+          if (response.ok) {
+            const blob = await response.blob();
+            const file = new File([blob], fileName, { type: blob.type });
+            files.push(file);
           } else {
-            return `${IMG_URL}/${directory}/${id}_${index + 1}.avif`
+            console.error(`Fetch not ok for image ${index + 1} for achievement ${id}`);
           }
-        },
+        } catch (error) {
+          console.error(`Failed to fetch image ${index + 1} for achievement ${id}`, error);
+        }
+      }
 
-        title: item.titulo,
-
-        cacheBust: true,
-      })
+      if (files.length > 0) {
+        imagePicker.setFiles(files, { synchronizeInput: true });
+      }
     },
 
     onClose() {
