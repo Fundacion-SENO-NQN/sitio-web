@@ -352,7 +352,6 @@ export function createImagePicker({
 
     state.files.forEach((file, index) => {
       const previewUrl = URL.createObjectURL(file)
-
       state.previewUrls.push(previewUrl)
 
       fragment.appendChild(
