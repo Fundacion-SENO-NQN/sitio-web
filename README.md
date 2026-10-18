@@ -62,6 +62,7 @@ The website has two major responsibilities:
    - Upload and replace media.
    - Update donation methods.
    - Manage news, events, achievements and team members without editing source code.
+   - Self-manage user profiles and configure platform-wide settings (e.g., connect Instagram).
 
 The project is designed so that the public site can remain lightweight while the administration platform communicates with a separate API.
 
@@ -571,6 +572,24 @@ The backend currently exposes the following route groups.
 | `GET` | `/roles-service/{id}` | Get services associated with a role |
 | `GET` | `/services` | Get available services/permissions |
 
+### Profile
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/profile` | Get current user profile |
+| `PATCH` | `/profile` | Update current user profile |
+| `GET` | `/profile/permissions` | Get current user permissions |
+| `PATCH` | `/profile/password` | Change current user password |
+
+### Instagram
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/instagram/status` | Get Instagram connection status |
+| `POST` | `/instagram/connect` | Initiate Instagram connection |
+| `GET` | `/auth/instagram/callback` | Instagram OAuth callback |
+| `DELETE` | `/instagram/disconnect` | Disconnect Instagram |
+
 ---
 
 ## Media storage
@@ -764,6 +783,15 @@ PASSWORD_RESET_URL=http://localhost:4321/login/restablecer/
 CLOUDFLARE_PAGES_DEPLOY_HOOK=
 FRONTEND_REBUILD_DELAY_SECONDS=300
 FRONTEND_REBUILD_POLL_SECONDS=15
+
+# Instagram
+INSTAGRAM_APP_ID=your-instagram-app-id
+INSTAGRAM_APP_SECRET=your-instagram-app-secret
+SOCIAL_TOKEN_KEY=your-32-byte-hex-encoded-key
+INSTAGRAM_IMAGE_BASE_URL=https://images.example.com
+INSTAGRAM_REDIRECT_URI=http://localhost:8080/auth/instagram/callback
+INSTAGRAM_FRONTEND_RETURN_URL=http://localhost:4321/plataforma
+INSTAGRAM_API_VERSION=v26.0
 ```
 
 ### Run the backend
@@ -840,6 +868,18 @@ The email service is initialized at backend startup.
 | `CLOUDFLARE_PAGES_DEPLOY_HOOK` | No | Disabled | Cloudflare Pages deploy-hook URL |
 | `FRONTEND_REBUILD_DELAY_SECONDS` | No | `300` | Delay before executing a pending rebuild |
 | `FRONTEND_REBUILD_POLL_SECONDS` | No | `15` | Database polling interval |
+
+## Backend — Instagram
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `INSTAGRAM_APP_ID` | Yes | — | Instagram App ID |
+| `INSTAGRAM_APP_SECRET` | Yes | — | Instagram App Secret |
+| `SOCIAL_TOKEN_KEY` | Yes | — | 32-byte hex string to encrypt Instagram tokens |
+| `INSTAGRAM_IMAGE_BASE_URL` | Yes | — | Base URL to load images on the frontend (e.g. R2 public domain or proxy) |
+| `INSTAGRAM_REDIRECT_URI` | Yes | — | OAuth callback URL (`/auth/instagram/callback`) |
+| `INSTAGRAM_FRONTEND_RETURN_URL` | Yes | — | Frontend URL to redirect to after OAuth success |
+| `INSTAGRAM_API_VERSION` | No | `v26.0` | Instagram Graph API version |
 
 ---
 
