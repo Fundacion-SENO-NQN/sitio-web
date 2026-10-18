@@ -246,20 +246,12 @@ function validarFormulario({
 
   imagePicker.validate()
 
-  /*
-   * Al editar, no seleccionar imágenes significa conservar
-   * las que ya tiene la noticia.
-   */
-  if (!editing) {
-    try {
-      imagePicker.requireFiles(
-        'Seleccioná al menos una imagen para crear la noticia.'
-      )
-    } catch (error) {
-      imagePicker.focus()
+  try {
+    imagePicker.requireFiles('Seleccioná al menos una imagen para la noticia.')
+  } catch (error) {
+    imagePicker.focus()
 
-      throw error
-    }
+    throw error
   }
 }
 
