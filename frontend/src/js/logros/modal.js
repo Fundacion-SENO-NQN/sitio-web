@@ -244,14 +244,13 @@ function validarFormulario({ editing, titleInput, contentInput, imagePicker }) {
 
   imagePicker.validate()
 
-  if (!editing)
-    try {
-      imagePicker.requireFiles('La imagen es requerida.')
-    } catch (error) {
-      imagePicker.focus()
+  try {
+    imagePicker.requireFiles('La imagen es requerida.')
+  } catch (error) {
+    imagePicker.focus()
 
-      throw error
-    }
+    throw error
+  }
 }
 
 /* ==========================================================

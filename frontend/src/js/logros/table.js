@@ -142,7 +142,7 @@ function crearColumnaImagen() {
     errorClassName: 'achievementImageError',
 
     src(logro) {
-      return `${IMG_URL}/img_logros/` + `${logro.id}.avif`
+      return `${IMG_URL}/img_logros/${logro.id}.avif?t=${Date.now()}`
     },
 
     alt(logro) {
