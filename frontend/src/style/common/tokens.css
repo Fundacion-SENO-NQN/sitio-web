@@ -162,7 +162,7 @@
 
   --admin-z-modal: 1000;
 
-  --admin-z-toast: 2000;
+  --admin-z-toast: 9999;
 
   --admin-z-loading: 3000;
 }

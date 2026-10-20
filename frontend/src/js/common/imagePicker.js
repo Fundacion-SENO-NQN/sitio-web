@@ -1,3 +1,4 @@
+import Sortable from 'sortablejs'
 import { showToast } from './toast.js'
 
 const DEFAULT_IMAGE_URL = (import.meta.env.PUBLIC_IMG_URL ?? '').replace(
@@ -204,12 +205,14 @@ export function createImagePicker({
     })
   }
 
-  function setFiles(files, { synchronizeInput = true } = {}) {
+  function setFiles(files, { synchronizeInput = true, append = false } = {}) {
     const normalizedFiles = normalizeFiles(files)
 
-    validate(normalizedFiles)
+    const combinedFiles = append ? [...state.files, ...normalizedFiles] : normalizedFiles
 
-    state.files = normalizedFiles
+    validate(combinedFiles)
+
+    state.files = combinedFiles
 
     if (synchronizeInput) synchronizeInputFiles()
 
@@ -223,12 +226,18 @@ export function createImagePicker({
   }
 
   function processSelectedFiles(files, options = {}) {
+    options.append = true;
+    const oldFiles = [...state.files]
     try {
       setFiles(files, options)
     } catch (error) {
       console.error('Invalid image selection:', error)
 
-      if (clearOnInvalid) clearSelected()
+      // Restore old files
+      state.files = oldFiles
+      synchronizeInputFiles()
+
+      if (clearOnInvalid && oldFiles.length === 0) clearSelected()
 
       if (typeof onError === 'function') {
         onError(error, controller)
@@ -343,7 +352,6 @@ export function createImagePicker({
 
     state.files.forEach((file, index) => {
       const previewUrl = URL.createObjectURL(file)
-
       state.previewUrls.push(previewUrl)
 
       fragment.appendChild(
@@ -354,7 +362,22 @@ export function createImagePicker({
 
           name: file.name,
 
+          file: file,
+
           number: index + 1,
+
+          isCover: index === 0,
+
+          onRemove: () => {
+             state.files = state.files.filter(f => f.name !== file.name);
+             synchronizeInputFiles();
+             renderSelectedImages();
+
+          // Re-render preview to update the numbering visually
+          renderSelectedImages();
+          if (typeof onChange === 'function') onChange(state.files, controller)
+  ;
+          },
 
           previewClass,
           previewNumberClass
@@ -364,7 +387,30 @@ export function createImagePicker({
 
     elements.selectedContainer?.appendChild(fragment)
 
+
     elements.selectedContainer?.classList.remove(hiddenClass)
+
+    if (elements.selectedContainer && !state.sortableInstance) {
+      state.sortableInstance = Sortable.create(elements.selectedContainer, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: () => {
+          // Update state.files to match new order
+          const newFiles = [];
+          const children = Array.from(elements.selectedContainer.children);
+          children.forEach((child) => {
+            const fileName = child.getAttribute('data-filename');
+            const file = state.files.find(f => f.name === fileName);
+            if (file) newFiles.push(file);
+          });
+          state.files = newFiles;
+          synchronizeInputFiles();
+          renderSelectedImages(); // re-render to update numbers and cover badge
+          if (typeof onChange === 'function') onChange(state.files, controller)
+        }
+      });
+    }
+
   }
 
   /* ========================================================
@@ -447,6 +493,8 @@ export function createImagePicker({
           name: `Imagen ${index + 1}`,
 
           number: index + 1,
+
+          isCover: index === 0,
 
           previewClass,
           previewNumberClass
@@ -679,7 +727,9 @@ function createPreviewElement({
   alt,
   name,
   number,
-
+  file,
+  onRemove,
+  isCover = false,
   previewClass,
   previewNumberClass
 }) {
@@ -721,7 +771,34 @@ function createPreviewElement({
   caption.textContent = name
   caption.title = name
 
-  figure.append(image, numberElement, caption)
+  if (isCover) {
+    const coverBadge = document.createElement('span')
+    coverBadge.className = 'cover-badge'
+    coverBadge.textContent = 'Portada'
+    // append coverBadge to figure
+    setTimeout(() => figure.appendChild(coverBadge), 0)
+  }
+
+
+  figure.setAttribute('data-filename', file ? file.name : name);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'removeImageBtn';
+  removeBtn.innerHTML = '×';
+  removeBtn.title = 'Eliminar imagen';
+  removeBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onRemove) onRemove();
+  };
+
+  if (onRemove) {
+    figure.append(image, numberElement, caption, removeBtn);
+  } else {
+    figure.append(image, numberElement, caption);
+  }
+
 
   return figure
 }

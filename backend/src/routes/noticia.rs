@@ -3,6 +3,7 @@ use axum::routing::{get, patch};
 
 pub fn routes() -> Router<Arc<AppState>> {
     Router::new()
+        .route("/noticias/proxy-image", get(noticia::proxy_image))
         .route("/noticias", get(noticia::get_all).post(noticia::create))
         .route("/noticias/order", patch(noticia::change_order))
         .route(

@@ -398,8 +398,8 @@ export function createUserModal({
       return false
     }
 
-    if (password.length < 6) {
-      showToast('La contraseña debe contener al menos 6 caracteres.', 'warning')
+    if ([...password].length < 8 || [...password].length > 128) {
+      showToast('La contraseña debe contener entre 8 y 128 caracteres.', 'warning')
 
       return false
     }
@@ -608,10 +608,10 @@ function validarFormulario({
     throw new Error('Seleccioná un rol válido.')
   }
 
-  if (!editing && passwordInput.value.length < 6) {
+  if (!editing && ([...passwordInput.value].length < 8 || [...passwordInput.value].length > 128)) {
     focusSoon(passwordInput)
 
-    throw new Error('La contraseña debe contener al menos 6 caracteres.')
+    throw new Error('La contraseña debe contener entre 8 y 128 caracteres.')
   }
 }
 

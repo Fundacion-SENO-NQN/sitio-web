@@ -7,6 +7,14 @@
 
 @import url('./common/index.css');
 
+.instagramPanel, .instagramCaption { width: min(100%, 34rem); display: grid; gap: .65rem; }
+.instagramPanel { padding: 1rem; border: var(--admin-border); border-radius: var(--admin-radius); }
+.instagramPanel legend { font-weight: 700; }
+.instagramPanel p { margin: 0; }
+.instagramButtons { display: flex; flex-wrap: wrap; gap: .5rem; }
+.instagramCaption input, .instagramCaption textarea { width: 100%; padding: .6rem; font: inherit; border: var(--admin-border); border-radius: var(--admin-radius); }
+.instagramCaption label { display: flex; justify-content: space-between; }
+
 /* ==========================================================
    PAGE
 ========================================================== */

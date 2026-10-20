@@ -159,7 +159,7 @@ function normalizeBody(body, headers) {
    RESPONSE
 ========================================================== */
 
-async function parseResponse(response) {
+export async function parseResponse(response) {
   if (response.status === 204 || response.status === 205) return null
 
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? ''

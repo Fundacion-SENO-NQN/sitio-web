@@ -13,14 +13,14 @@ export function createLogroModal({
   update,
   refresh,
   imagePicker,
-  setLoading
+  setLoading,
 } = {}) {
   validarConfiguracion({
     create,
     update,
     refresh,
     imagePicker,
-    setLoading
+    setLoading,
   })
 
   /* ========================================================
@@ -31,7 +31,7 @@ export function createLogroModal({
 
   const contentInput = requireElement(
     '#description',
-    'campo de descripción del logro'
+    'campo de descripción del logro',
   )
 
   /* ========================================================
@@ -67,7 +67,7 @@ export function createLogroModal({
 
     try {
       return await refresh({
-        showLoading: false
+        showLoading: false,
       })
     } finally {
       setLoading(false)
@@ -128,7 +128,7 @@ export function createLogroModal({
         editing,
         titleInput,
         contentInput,
-        imagePicker
+        imagePicker,
       })
     },
 
@@ -140,7 +140,7 @@ export function createLogroModal({
 
         orden: editing ? Number(item?.orden) : 0,
 
-        image: imagePicker.files[0] ?? null
+        image: imagePicker.files.length > 0 ? imagePicker.files : null,
       })
     },
 
@@ -160,17 +160,62 @@ export function createLogroModal({
 
     onOpenCreate() {
       imagePicker.setRequired(true)
+      imagePicker.setHelpText('Seleccioná hasta 3 imágenes para el logro.')
     },
 
-    onOpenEdit() {
+    async onOpenEdit({ item }) {
       imagePicker.setRequired(false)
+
+      imagePicker.setHelpText(
+        'Podés reordenar, agregar o eliminar las imágenes.',
+      )
+
+      const IMG_URL = (
+        import.meta.env.PUBLIC_IMG_URL ??
+        'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
+      ).replace(/\/+$/, '')
+
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
+
+      const count = item.image_count ?? 1
+      const directory = 'img_logros'
+      const id = item.id
+
+      const files = [];
+
+      for (let index = 0; index < count; index++) {
+        const proxyUrl = `${API_URL}/logros/proxy-image?id=${id}&index=${index}`;
+        const fileName = `logro_${id}_img_${index + 1}.avif`;
+
+        try {
+          // Adding a fetch option cache to ensure we get the fresh image without using query params that might break R2 CORS/Routing.
+          const token = localStorage.getItem('token')
+          const headers = {}
+          if (token) headers['Authorization'] = `Bearer ${token}`
+
+          const response = await fetch(proxyUrl, { headers, cache: 'no-cache' });
+          if (response.ok) {
+            const blob = await response.blob();
+            const file = new File([blob], fileName, { type: blob.type });
+            files.push(file);
+          } else {
+            console.error(`Fetch not ok for image ${index + 1} for achievement ${id}`);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch image ${index + 1} for achievement ${id}`, error);
+        }
+      }
+
+      if (files.length > 0) {
+        imagePicker.setFiles(files, { synchronizeInput: true });
+      }
     },
 
     onClose() {
       imagePicker.setDisabled(false)
       imagePicker.reset()
       imagePicker.setRequired(false)
-    }
+    },
   })
 }
 
@@ -183,7 +228,7 @@ function validarFormulario({ editing, titleInput, contentInput, imagePicker }) {
 
   if (titulo.length < 3) {
     focusSoon(titleInput, {
-      selectText: true
+      selectText: true,
     })
 
     throw new Error('El título es muy corto.')
@@ -199,14 +244,13 @@ function validarFormulario({ editing, titleInput, contentInput, imagePicker }) {
 
   imagePicker.validate()
 
-  if (!editing)
-    try {
-      imagePicker.requireFiles('La imagen es requerida.')
-    } catch (error) {
-      imagePicker.focus()
+  try {
+    imagePicker.requireFiles('La imagen es requerida.')
+  } catch (error) {
+    imagePicker.focus()
 
-      throw error
-    }
+    throw error
+  }
 }
 
 /* ==========================================================
@@ -218,13 +262,13 @@ function validarConfiguracion({
   update,
   refresh,
   imagePicker,
-  setLoading
+  setLoading,
 }) {
   const funciones = {
     create,
     update,
     refresh,
-    setLoading
+    setLoading,
   }
 
   for (const [nombre, funcion] of Object.entries(funciones)) {
@@ -241,7 +285,9 @@ function validarConfiguracion({
     'setRequired',
     'setDisabled',
     'reset',
-    'focus'
+    'focus',
+    'setHelpText',
+    'showCurrentImages',
   ]
 
   for (const metodo of metodosRequeridos) {

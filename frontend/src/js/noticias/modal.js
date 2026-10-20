@@ -160,28 +160,50 @@ export function createNoticiaModal({
       )
     },
 
-    onOpenEdit({ item }) {
+    async onOpenEdit({ item }) {
       imagePicker.setRequired(false)
 
       imagePicker.setHelpText(
         'Dejá este campo vacío para conservar las imágenes actuales.'
       )
 
-      imagePicker.showCurrentImages({
-        id: item.id,
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
 
-        count: item.cant_img,
+      const count = item.cant_img ?? 1
+      const id = item.id
 
-        directory: 'img_noticias',
+      const files = []
 
-        indexed: true,
+      for (let index = 0; index < count; index++) {
+        const proxyUrl = `${API_URL}/noticias/proxy-image?id=${id}&index=${index}`
+        const fileName = `noticia_${id}_img_${index}.avif`
 
-        extension: 'avif',
+        try {
+          const token = localStorage.getItem('token')
+          const headers = {}
+          if (token) headers['Authorization'] = `Bearer ${token}`
 
-        title: obtenerTituloNoticia(item),
+          const response = await fetch(proxyUrl, { headers, cache: 'no-cache' })
+          if (response.ok) {
+            const blob = await response.blob()
+            const file = new File([blob], fileName, { type: blob.type })
+            files.push(file)
+          } else {
+            console.error(
+              `Fetch not ok for image ${index} for noticia ${id}`
+            )
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch image ${index} for noticia ${id}`,
+            error
+          )
+        }
+      }
 
-        cacheBust: true
-      })
+      if (files.length > 0) {
+        imagePicker.setFiles(files, { synchronizeInput: true })
+      }
     },
 
     onClose() {

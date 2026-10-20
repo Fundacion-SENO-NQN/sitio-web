@@ -20,6 +20,7 @@ pub enum ApiError {
     Conflict(String),
     InternalServerError,
     ServiceUnavailable(String),
+    TooManyRequests,
 }
 
 impl fmt::Display for ApiError {
@@ -48,6 +49,13 @@ impl fmt::Display for ApiError {
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         match self {
+            ApiError::TooManyRequests => (
+                StatusCode::TOO_MANY_REQUESTS,
+                Json(ErrorResponse {
+                    error: "Se recibieron muchas solicitudes. Esperá un minuto y volvé a intentar."
+                        .into(),
+                }),
+            ),
             ApiError::Unauthorized => (
                 StatusCode::UNAUTHORIZED,
                 Json(ErrorResponse {
