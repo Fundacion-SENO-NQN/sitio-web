@@ -1,2 +1,19 @@
-fly.toml
+# Compilaciones locales de Rust
+target/
+
+# Variables y secretos locales
+.env
+.env.*
+!.env.example
+
+# Configuraciones locales
 .git/
+.github/
+.vscode/
+.idea/
+*.log
+Thumbs.db
+.DS_Store
+
+# Fly lo lee antes de preparar el contexto
+fly.toml

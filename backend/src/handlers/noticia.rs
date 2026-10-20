@@ -32,6 +32,37 @@ pub async fn get_all(State(state): State<Arc<AppState>>) -> Result<Json<Vec<Noti
 }
 
 /* ==========================================================
+   PROXY IMAGE
+========================================================== */
+
+#[derive(serde::Deserialize)]
+pub struct ProxyImageQuery {
+    pub id: i64,
+    pub index: usize,
+}
+
+pub async fn proxy_image(
+    AuthUser(admin): AuthUser,
+    State(state): State<Arc<AppState>>,
+    axum::extract::Query(query): axum::extract::Query<ProxyImageQuery>,
+) -> Result<impl IntoResponse, ApiError> {
+    admin.require(ADMIN_NOTICIAS)?;
+
+    let image_key = noticia_image_key(query.id, query.index);
+
+    let bytes = state.r2.get_object(&image_key).await.map_err(|e| {
+        eprintln!("Error fetching image from R2: {}", e);
+        ApiError::BadRequest(String::from("La imagen no existe."))
+    })?;
+
+    Ok((
+        axum::http::StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "image/avif")],
+        axum::body::Body::from(bytes),
+    ))
+}
+
+/* ==========================================================
    GET /noticias/:id
 ========================================================== */
 
@@ -464,14 +495,8 @@ fn invalid_form_field(field: &str) -> ApiError {
    OBTENER ÚLTIMAS NOTICIAS
 ========================================================== */
 
-pub async fn get_latest_news(
-    State(state): State<Arc<AppState>>,
-) -> ApiResult<Json<Vec<Noticia>>> {
-    let noticias =
-        noticia::get_latest(
-            &state.db,
-        )
-        .await?;
+pub async fn get_latest_news(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<Noticia>>> {
+    let noticias = noticia::get_latest(&state.db).await?;
 
     Ok(Json(noticias))
 }

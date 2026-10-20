@@ -71,12 +71,61 @@ pub fn convert_to_avif(bytes: &[u8]) -> Result<Vec<u8>, ImageError> {
 
     let (width, height) = rgba.dimensions();
 
-    let mut output = Vec::new();
+    let mut output = std::io::Cursor::new(Vec::new());
 
     let encoder = AvifEncoder::new_with_speed_quality(&mut output, AVIF_SPEED, AVIF_QUALITY)
         .with_num_threads(None);
 
     encoder.write_image(rgba.as_raw(), width, height, ExtendedColorType::Rgba8)?;
 
-    Ok(output)
+    Ok(output.into_inner())
+}
+
+/// Instagram accepts JPEG. Fit the whole picture into a square with a white background.
+pub fn convert_to_instagram_jpeg(bytes: &[u8]) -> Result<Vec<u8>, image::ImageError> {
+    use image::{
+        DynamicImage, Rgb, RgbImage, Rgba, RgbaImage, codecs::jpeg::JpegEncoder, imageops,
+    };
+    use std::io::Cursor;
+
+    // 1. Decodificar AVIF
+    let image = image::load_from_memory(bytes)?;
+
+    println!(
+        "AVIF decodificado: {}x{} - {:?}",
+        image.width(),
+        image.height(),
+        image.color()
+    );
+
+    // 2. Redimensionar manteniendo la relación de aspecto.
+    //    Nunca supera 1080x1080.
+    let thumbnail = image.thumbnail(1080, 1080).to_rgba8();
+
+    // 3. Crear un lienzo cuadrado blanco de 1080x1080.
+    let mut background = RgbaImage::from_pixel(1080, 1080, Rgba([255, 255, 255, 255]));
+
+    // 4. Centrar la imagen.
+    let x = (1080 - thumbnail.width()) / 2;
+    let y = (1080 - thumbnail.height()) / 2;
+
+    // 5. Componer la imagen sobre el fondo blanco.
+    imageops::overlay(&mut background, &thumbnail, x.into(), y.into());
+
+    // 6. Eliminar el canal alpha.
+    //    JPEG no soporta transparencia.
+    let mut square = RgbImage::new(1080, 1080);
+
+    for (target, pixel) in square.pixels_mut().zip(background.pixels()) {
+        *target = Rgb([pixel[0], pixel[1], pixel[2]]);
+    }
+
+    // 7. Codificar como JPEG.
+    let mut output = Cursor::new(Vec::new());
+
+    let mut encoder = JpegEncoder::new_with_quality(&mut output, 85);
+
+    encoder.encode_image(&DynamicImage::ImageRgb8(square))?;
+
+    Ok(output.into_inner())
 }

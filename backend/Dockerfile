@@ -2,7 +2,7 @@
 # CARGO CHEF
 # ==========================================================
 
-FROM rust:1-bookworm AS chef
+FROM rust:1-trixie AS chef
 
 RUN cargo install cargo-chef --locked
 
@@ -27,6 +27,13 @@ RUN cargo chef prepare \
 
 FROM chef AS builder
 
+RUN apt-get update \
+    && apt-get install -y \
+    --no-install-recommends \
+    pkg-config \
+    libdav1d-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=planner \
     /app/recipe.json \
     recipe.json
@@ -46,12 +53,13 @@ RUN cargo build \
 # RUNTIME
 # ==========================================================
 
-FROM debian:bookworm-slim AS runtime
+FROM debian:trixie-slim AS runtime
 
 RUN apt-get update \
     && apt-get install -y \
     --no-install-recommends \
     ca-certificates \
+    libdav1d7 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

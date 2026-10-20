@@ -38,6 +38,7 @@ const currentPath = normalizePath(Astro.url.pathname)
               ]}
               href={item.href}
               aria-current={isCurrentPage ? 'page' : undefined}
+              aria-label={"Navegación a " + item.name}
             >
               {item.name}
             </a>

@@ -3,6 +3,7 @@ use axum::routing::{get, put};
 
 pub fn routes() -> Router<Arc<AppState>> {
     Router::new()
+        .route("/logros/proxy-image", get(logro::proxy_image))
         .route(
             "/logros",
             get(logro::get_all_logros).post(logro::create_logro),

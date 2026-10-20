@@ -44,6 +44,7 @@ const isCurrentNavigationItem = (href: string): boolean => {
               ]}
               href={item.href}
               aria-current={isCurrentPage ? 'page' : undefined}
+              aria-label={"Navegación a " + item.name}
             >
               {item.name}
             </a>

@@ -8,6 +8,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct AuthUserData {
     pub id: i64,
+    pub auth_version: i64,
     pub username: String,
     pub role_id: i64,
     pub permissions: Vec<Service>,
@@ -31,14 +32,16 @@ where
         let token = auth_header
             .strip_prefix("Bearer ")
             .ok_or(ApiError::Unauthorized)?;
-        let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET no está definido");
-        let claims = auth::jwt::validate_token(token, &secret)?;
         let state = Arc::<AppState>::from_ref(state);
+        let claims = auth::jwt::validate_token(token, &state.jwt_secret)?;
         let user = repositories::user::get_by_id(&state.db, claims.sub)
             .await?
             .ok_or(ApiError::Unauthorized)?;
         if !user.active {
             return Err(ApiError::Forbidden);
+        }
+        if claims.auth_version != user.auth_version {
+            return Err(ApiError::Unauthorized);
         }
         let permissions = repositories::user::get_permissions(&state.db, user.role_id)
             .await?
@@ -46,6 +49,7 @@ where
             .collect::<Vec<Service>>();
         Ok(AuthUser(AuthUserData {
             id: user.id,
+            auth_version: user.auth_version,
             username: user.username,
             role_id: user.role_id,
             permissions,

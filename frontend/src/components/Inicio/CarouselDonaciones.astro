@@ -5,8 +5,8 @@ const IMG_URL = (
 ).replace(/\/+$/, '')
 
 /*
- * The backend stores the donation carousel in ten fixed
- * positions:
+ * El backend guarda las imágenes del carrusel de donaciones
+ * en diez posiciones fijas:
  *
  * img_donaciones/0.avif
  * img_donaciones/1.avif
@@ -16,25 +16,18 @@ const IMG_URL = (
 const IMAGE_COUNT = 10
 
 /*
- * This value changes on every Astro build.
+ * Cambia en cada build de Astro.
  *
- * Since the backend overwrites existing R2 objects while
- * keeping the same filename, this query parameter prevents
- * the browser or CDN from continuing to use an old image
- * after the automatic frontend rebuild.
+ * Como el backend reemplaza objetos de R2 manteniendo el
+ * mismo nombre, este parámetro evita mostrar imágenes viejas
+ * almacenadas en caché.
  */
 const buildVersion = Date.now().toString()
 
-const images = Array.from(
-  {
-    length: IMAGE_COUNT
-  },
-  (_, index) => ({
-    index,
-
-    src: `${IMG_URL}/img_donaciones/${index}.avif` + `?v=${buildVersion}`
-  })
-)
+const images = Array.from({ length: IMAGE_COUNT }, (_, index) => ({
+  index,
+  src: `${IMG_URL}/img_donaciones/${index}.avif?v=${buildVersion}`
+}))
 ---
 
 <donation-carousel
@@ -73,18 +66,17 @@ const images = Array.from(
 
 <script>
   const SLIDE_INTERVAL = 5000
-  const TRANSITION_DURATION = 800
-  const RESET_DELAY = TRANSITION_DURATION + 100
 
   class DonationCarousel extends HTMLElement {
     private track: HTMLElement | null = null
+
+    private realSlides: HTMLImageElement[] = []
     private slides: HTMLImageElement[] = []
 
     private currentIndex = 0
     private realImages = 0
 
     private intervalId: number | undefined
-    private resetTimerId: number | undefined
     private resizeFrameId: number | undefined
 
     private resizeObserver: ResizeObserver | null = null
@@ -108,6 +100,15 @@ const images = Array.from(
 
       const { signal } = this.abortController
 
+      // Pausa el carrusel cuando la pestaña no está visible
+      document.addEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange,
+        {
+          signal
+        }
+      )
+
       this.registerImageErrors(signal)
 
       this.track.addEventListener('transitionend', this.handleTransitionEnd, {
@@ -118,18 +119,11 @@ const images = Array.from(
 
       this.resizeObserver.observe(this)
 
-      /*
-       * Do not wait for every image to load.
-       *
-       * The slides already have fixed dimensions, so their
-       * positions can be calculated immediately.
-       */
       this.refreshSlides()
     }
 
     disconnectedCallback(): void {
       this.stopCarousel()
-      this.clearResetTimer()
 
       if (this.resizeFrameId !== undefined) {
         window.cancelAnimationFrame(this.resizeFrameId)
@@ -144,12 +138,26 @@ const images = Array.from(
       this.abortController = null
 
       this.track = null
+
+      this.realSlides = []
       this.slides = []
 
       this.currentIndex = 0
       this.realImages = 0
 
       delete this.dataset.initialized
+    }
+
+    /* ======================================================
+       VISIBILITY
+    ====================================================== */
+
+    private handleVisibilityChange = (): void => {
+      if (document.hidden) {
+        this.stopCarousel()
+      } else {
+        this.startCarousel()
+      }
     }
 
     /* ======================================================
@@ -176,8 +184,8 @@ const images = Array.from(
         )
 
         /*
-         * The error may have happened before the custom
-         * element was initialized.
+         * La imagen puede haber fallado antes de que
+         * se inicialice el custom element.
          */
         if (image.complete && image.naturalWidth === 0) {
           image.remove()
@@ -191,60 +199,67 @@ const images = Array.from(
       }
 
       this.stopCarousel()
-      this.clearResetTimer()
 
       /*
-       * Remove the old clone before rebuilding the slide
-       * collection.
+       * Eliminamos todas las copias creadas anteriormente.
        */
       this.track
         .querySelectorAll('[data-carousel-clone]')
         .forEach((clone) => clone.remove())
 
-      const realSlides = Array.from(
+      this.realSlides = Array.from(
         this.track.querySelectorAll<HTMLImageElement>('[data-carousel-image]')
       )
 
-      this.realImages = realSlides.length
+      this.realImages = this.realSlides.length
       this.currentIndex = 0
 
       if (this.realImages === 0) {
         this.slides = []
 
         this.showEmptyState()
+
         return
       }
 
       this.hideEmptyState()
 
+      /*
+       * Si solamente existe una imagen no necesitamos
+       * animar ni duplicar nada.
+       */
       if (this.realImages === 1) {
-        this.slides = realSlides
+        this.slides = this.realSlides
 
         this.repositionWithoutAnimation()
+
         return
       }
 
       /*
-       * Clone the first slide so the last forward movement
-       * remains continuous.
+       * Duplicamos TODO el conjunto.
        */
-      const clone = realSlides[0].cloneNode(true) as HTMLImageElement
+      const clones = this.realSlides.map((slide) => {
+        const clone = slide.cloneNode(true) as HTMLImageElement
 
-      clone.alt = ''
-      clone.loading = 'eager'
-      clone.fetchPriority = 'auto'
+        clone.alt = ''
+        clone.loading = 'eager'
+        clone.fetchPriority = 'auto'
 
-      clone.removeAttribute('data-carousel-image')
+        clone.removeAttribute('data-carousel-image')
 
-      clone.setAttribute('data-carousel-clone', '')
+        clone.setAttribute('data-carousel-clone', '')
 
-      clone.setAttribute('aria-hidden', 'true')
+        clone.setAttribute('aria-hidden', 'true')
 
-      clone.classList.add('donation-carousel__slide--clone')
+        clone.classList.add('donation-carousel__slide--clone')
 
-      this.track.appendChild(clone)
+        return clone
+      })
 
-      this.slides = [...realSlides, clone]
+      this.track.append(...clones)
+
+      this.slides = [...this.realSlides, ...clones]
 
       window.requestAnimationFrame(() => {
         if (!this.isConnected) {
@@ -252,6 +267,7 @@ const images = Array.from(
         }
 
         this.repositionWithoutAnimation()
+
         this.startCarousel()
       })
     }
@@ -283,35 +299,15 @@ const images = Array.from(
         return
       }
 
-      /*
-       * Recover defensively if the previous clone reset did
-       * not execute.
-       */
-      if (this.currentIndex >= this.realImages) {
-        this.resetToFirstSlide()
+      // Límite de seguridad: si el índice supera el total de imágenes
+      if (this.currentIndex >= this.slides.length - 1) {
+        this.currentIndex -= this.realImages
+        this.repositionWithoutAnimation()
       }
 
       this.currentIndex += 1
 
       this.setTransform()
-
-      /*
-       * transitionend normally resets the carousel after
-       * reaching the clone. This timer is a fallback for
-       * browsers or CSS configurations where transitionend
-       * is not emitted.
-       */
-      if (this.currentIndex === this.realImages) {
-        this.clearResetTimer()
-
-        this.resetTimerId = window.setTimeout(() => {
-          this.resetTimerId = undefined
-
-          if (this.currentIndex === this.realImages) {
-            this.resetToFirstSlide()
-          }
-        }, RESET_DELAY)
-      }
     }
 
     private setTransform(): void {
@@ -328,10 +324,16 @@ const images = Array.from(
       this.track.style.transform = `translate3d(-${currentSlide.offsetLeft}px, 0, 0)`
     }
 
-    private resetToFirstSlide(): void {
-      this.clearResetTimer()
+    private handleTransitionEnd = (event: TransitionEvent): void => {
+      if (event.propertyName !== 'transform') {
+        return
+      }
 
-      this.currentIndex = 0
+      if (this.currentIndex < this.realImages) {
+        return
+      }
+
+      this.currentIndex -= this.realImages
 
       this.repositionWithoutAnimation()
     }
@@ -346,33 +348,12 @@ const images = Array.from(
       this.setTransform()
 
       /*
-       * Force the browser to apply the position before
-       * restoring the CSS transition.
+       * Forzamos al navegador a aplicar el transform sin
+       * transición antes de volver a activar la animación.
        */
       this.track.getBoundingClientRect()
 
       this.track.style.removeProperty('transition')
-    }
-
-    private handleTransitionEnd = (event: TransitionEvent): void => {
-      if (
-        event.propertyName !== 'transform' ||
-        this.currentIndex !== this.realImages
-      ) {
-        return
-      }
-
-      this.resetToFirstSlide()
-    }
-
-    private clearResetTimer(): void {
-      if (this.resetTimerId === undefined) {
-        return
-      }
-
-      window.clearTimeout(this.resetTimerId)
-
-      this.resetTimerId = undefined
     }
 
     /* ======================================================
@@ -397,7 +378,6 @@ const images = Array.from(
 
     private showEmptyState(): void {
       this.stopCarousel()
-      this.clearResetTimer()
 
       this.track?.setAttribute('hidden', '')
 
@@ -405,9 +385,7 @@ const images = Array.from(
         '[data-carousel-empty]'
       )
 
-      if (emptyElement) {
-        emptyElement.hidden = false
-      }
+      if (emptyElement) emptyElement.hidden = false
 
       this.classList.add('donation-carousel--empty')
     }
@@ -419,9 +397,7 @@ const images = Array.from(
         '[data-carousel-empty]'
       )
 
-      if (emptyElement) {
-        emptyElement.hidden = true
-      }
+      if (emptyElement) emptyElement.hidden = true
 
       this.classList.remove('donation-carousel--empty')
     }
@@ -447,8 +423,16 @@ const images = Array.from(
     background-color: var(--color-secondary-light);
   }
 
+  /*
+   * IMPORTANTE:
+   *
+   * El track no debe tener width: 100%.
+   *
+   * Queremos que su contenido pueda extenderse horizontalmente
+   * todo lo necesario para contener originales + clones.
+   */
   .donation-carousel__track {
-    width: 100%;
+    min-width: 100%;
     height: 100%;
 
     display: flex;
@@ -488,6 +472,7 @@ const images = Array.from(
     z-index: 1;
 
     color: var(--color-text);
+
     background-color: rgba(255, 255, 255, 0.9);
 
     border-radius: var(--radius-small);
@@ -517,13 +502,18 @@ const images = Array.from(
   .donation-carousel__overlay p {
     width: 100%;
 
+    margin: 0;
+
     padding: clamp(0.75rem, 2vw, 1.25rem);
 
     color: var(--color-text);
+
     background: rgba(144, 184, 214, 0.86);
 
     font-family: var(--text-font-logo);
+
     font-size: clamp(1.8rem, 5vw, 3.5rem);
+
     line-height: 1.1;
     text-align: center;
     text-wrap: balance;

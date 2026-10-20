@@ -953,3 +953,47 @@
     transition: none;
   }
 }
+
+/* ==========================================================
+   NEW STYLES FOR IMAGE PICKER SORTABLE
+========================================================== */
+
+/* DRAG & DROP SORTING */
+.sortable-ghost {
+  opacity: 0.4;
+  background-color: var(--color-primary-50, #f0fdf4);
+}
+
+/* REMOVE BUTTON STYLING */
+.removeImageBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  z-index: 10;
+}
+
+.preview-imagen:hover .removeImageBtn,
+.preview-imagen:focus-within .removeImageBtn,
+.adminImagePreviewItem:hover .removeImageBtn,
+.adminImagePreviewItem:focus-within .removeImageBtn {
+  opacity: 1;
+}
+
+.removeImageBtn:hover {
+  background-color: rgba(185, 28, 28, 1);
+}
+.cover-badge { position: absolute; bottom: 1.5rem; right: 0.2rem; background-color: var(--color-primary, #1e3a8a); color: white; padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 4px; font-weight: bold; pointer-events: none; z-index: 5; }

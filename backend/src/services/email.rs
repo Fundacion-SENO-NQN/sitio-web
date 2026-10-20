@@ -1,10 +1,10 @@
-use std::env;
+use crate::models::voluntariado::CreateSolicitudVoluntariado;
 use lettre::{
     Address, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
     message::{Mailbox, header::ContentType},
     transport::smtp::authentication::Credentials,
 };
-use crate::models::voluntariado::CreateSolicitudVoluntariado;
+use std::env;
 
 #[derive(Debug)]
 pub struct EmailService {
@@ -58,13 +58,57 @@ impl EmailService {
             }
         };
 
-        let mailer = builder.port(smtp_port).credentials(credentials).build();
+        let mailer = builder
+            .port(smtp_port)
+            .credentials(credentials)
+            .timeout(Some(std::time::Duration::from_secs(20)))
+            .build();
 
         Ok(Self {
             mailer,
             from: Mailbox::new(Some(smtp_from_name), from_address),
             volunteer_recipient: Mailbox::new(Some("Fundación SENO".to_owned()), recipient_address),
         })
+    }
+
+    pub async fn send_password_reset(&self, recipient: &str, link: &str) -> Result<(), String> {
+        self.send_account_email(
+            recipient,
+            "Recuperá tu contraseña | Fundación SENO",
+            format!("Solicitaste restablecer la contraseña de tu usuario en la plataforma de Fundación SENO.\n\nAbrí este enlace para elegir una nueva contraseña:\n{link}\n\nEl enlace vence en 30 minutos y solo se puede usar una vez.\nSi no hiciste esta solicitud, ignorá este correo. Tu contraseña no cambió.\n\nFundación SENO"),
+        ).await
+    }
+
+    pub async fn send_password_changed(&self, recipient: &str) -> Result<(), String> {
+        self.send_account_email(
+            recipient,
+            "Tu contraseña fue actualizada | Fundación SENO",
+            "La contraseña de tu usuario en la plataforma de Fundación SENO fue actualizada.\n\nLas sesiones anteriores quedaron cerradas. Iniciá sesión con tu nueva contraseña.\nSi no hiciste este cambio, contactá de inmediato al administrador de la plataforma.\n\nFundación SENO".into(),
+        ).await
+    }
+
+    async fn send_account_email(
+        &self,
+        recipient: &str,
+        subject: &str,
+        body: String,
+    ) -> Result<(), String> {
+        let address: Address = recipient
+            .trim()
+            .parse()
+            .map_err(|_| "El correo registrado no es válido")?;
+        let message = Message::builder()
+            .from(self.from.clone())
+            .to(Mailbox::new(None, address))
+            .subject(subject)
+            .header(ContentType::TEXT_PLAIN)
+            .body(body)
+            .map_err(|_| "No se pudo construir el correo de la cuenta")?;
+        self.mailer
+            .send(message)
+            .await
+            .map_err(|_| "No se pudo entregar el correo de la cuenta")?;
+        Ok(())
     }
 
     pub async fn send_volunteer_request(

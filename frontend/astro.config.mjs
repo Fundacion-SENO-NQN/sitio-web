@@ -13,10 +13,38 @@ export default defineConfig({
     imageService: 'compile'
   }),
 
+  build: {
+    inlineStylesheets: 'always'
+  },
+
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+
+        "img-src 'self' data: blob: https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev https://media.fundacionseno.org",
+
+        "font-src 'self' data:",
+
+        "connect-src 'self' https://sitio-web-fundacion-seno.fly.dev https://api.fundacionseno.org",
+
+        "frame-src 'self' https://www.google.com https://maps.google.com"
+      ]
+    }
+  },
+
   integrations: [
     sitemap({
-      filter: (page) =>
-        !page.includes('/plataforma') && !page.includes('/login')
+      filter: (page) => {
+        const pathname = new URL(page).pathname
+
+        return (
+          !pathname.startsWith('/plataforma') &&
+          !pathname.startsWith('/login') &&
+          pathname !== '/404' &&
+          pathname !== '/404/'
+        )
+      }
     })
   ]
 })

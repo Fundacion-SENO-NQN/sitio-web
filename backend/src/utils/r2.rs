@@ -65,6 +65,46 @@ impl R2Storage {
         Ok(())
     }
 
+    pub async fn get_object(&self, key: &str) -> R2Result<Vec<u8>> {
+        let response = self
+            .client
+            .get_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .send()
+            .await?;
+
+        // Enforce a 15MB limit at content-length level if provided
+        if let Some(content_length) = response.content_length() {
+            if content_length > 15 * 1024 * 1024 {
+                return Err("File size exceeds 15MB limit".into());
+            }
+        }
+
+        let body = response.body.collect().await?;
+        let bytes = body.into_bytes().to_vec();
+
+        if bytes.len() > 15 * 1024 * 1024 {
+            return Err("File size exceeds 15MB limit".into());
+        }
+
+        Ok(bytes)
+    }
+
+    pub async fn upload_jpeg(&self, key: &str, bytes: Vec<u8>) -> R2Result<()> {
+        self.client
+            .put_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .body(ByteStream::from(bytes))
+            .content_type("image/jpeg")
+            .content_disposition("inline")
+            .cache_control("public, max-age=3600")
+            .send()
+            .await?;
+        Ok(())
+    }
+
     pub async fn delete_object(&self, key: &str) -> R2Result<()> {
         self.client
             .delete_object()
