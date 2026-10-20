@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "compatibility_date": "2026-07-29",
+  "compatibility_date": "2026-10-20",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "name": "sitio-web-testing",
   "main": "@astrojs/cloudflare/entrypoints/server",
