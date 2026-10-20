@@ -12,7 +12,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "generate-types": "wrangler types",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev:testing": "astro dev --config astro.testing.config.mjs",
+    "build:testing": "astro build --config astro.testing.config.mjs",
+    "preview:testing": "astro preview --config astro.testing.config.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.2",
