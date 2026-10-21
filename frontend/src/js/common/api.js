@@ -2,12 +2,9 @@ import { startLoading } from './loadingScreen.js'
 
 const rawApiUrl = import.meta.env.PUBLIC_API_URL
 
-if (!rawApiUrl)
-  throw new Error(
-    'PUBLIC_API_URL is not configured. Add it to the environment variables.'
-  )
-
-const BASE_URL = rawApiUrl.replace(/\/+$/, '')
+// Use a fallback URL if the environment variable is not defined to avoid crashing
+// global module execution during Astro static prerendering or tests.
+const BASE_URL = (rawApiUrl || 'https://sitio-web-fundacion-seno.fly.dev').replace(/\/+$/, '')
 
 /* ==========================================================
    API ERROR
