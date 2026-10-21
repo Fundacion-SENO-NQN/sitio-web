@@ -23,6 +23,11 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+backup.7z
+package-lock.json
+package.json
+supabase/
+
 backend/Cargo.lock
 backend/target/
 backend/idk.http
