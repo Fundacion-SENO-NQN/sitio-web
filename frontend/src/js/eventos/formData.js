@@ -104,11 +104,13 @@ export const buildEventoFormData = buildEventFormData
 ========================================================== */
 
 export function validateEventImages(images) {
-  if (!Array.isArray(images))
-    throw new TypeError('La lista de imágenes no es válida.')
+  if (!Array.isArray(images) || images.length === 0) {
+    throw new Error('Debe proporcionar al menos una imagen del evento.')
+  }
 
-  if (images.length > MAX_IMAGES)
+  if (images.length > MAX_IMAGES) {
     throw new Error(`Podés seleccionar como máximo ${MAX_IMAGES} imágenes.`)
+  }
 
   images.forEach((image, index) => {
     validateEventImage(image, index)
