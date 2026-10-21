@@ -11,6 +11,7 @@ pub async fn login(
     Json(request): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, ApiError> {
     println!("login 13");
+    println!("{:?}",request);
     let user = crate::repositories::user::get_by_username(&state.db, &request.username).await?;
     println!("login 15");
     println!("{:?}",user);
