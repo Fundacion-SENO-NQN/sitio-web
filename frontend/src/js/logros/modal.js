@@ -175,7 +175,7 @@ export function createLogroModal({
         'https://pub-508ef05ca2d548c1b336a8b1f0f31c83.r2.dev'
       ).replace(/\/+$/, '')
 
-      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev').replace(/\/+$/, '')
 
       const count = item.image_count ?? 1
       const directory = 'img_logros'

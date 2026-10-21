@@ -167,7 +167,7 @@ export function createNoticiaModal({
         'Dejá este campo vacío para conservar las imágenes actuales.'
       )
 
-      const API_URL = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '')
+      const API_URL = (import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev').replace(/\/+$/, '')
 
       const count = item.cant_img ?? 1
       const id = item.id
