@@ -13,6 +13,7 @@ pub async fn login(
     println!("login 13");
     let user = crate::repositories::user::get_by_username(&state.db, &request.username).await?;
     println!("login 15");
+    println!(user);
     let user = match user {
         Some(user) => user,
         None => return Err(ApiError::Unauthorized),
