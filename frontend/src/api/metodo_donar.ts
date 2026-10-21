@@ -1,12 +1,6 @@
 import type CuentaPago from '../data/interfaces/CuentaPago'
 
-const rawApiUrl = import.meta.env.PUBLIC_API_URL
-
-if (!rawApiUrl) {
-  throw new Error(
-    'PUBLIC_API_URL is not configured. Add it to the environment variables.'
-  )
-}
+const rawApiUrl = import.meta.env.PUBLIC_API_URL || 'https://sitio-web-fundacion-seno.fly.dev'
 
 const API_URL = rawApiUrl.replace(/\/+$/, '')
 
