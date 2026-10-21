@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseResponse } from './api.js'
+import { parseResponse, validateOrderChanges } from './api.js'
 
 describe('parseResponse', () => {
   it('returns null for status 204 (No Content)', async () => {
@@ -63,5 +63,53 @@ describe('parseResponse', () => {
     })
     const result = await parseResponse(response)
     expect(result).toBeNull()
+  })
+})
+
+describe('validateOrderChanges', () => {
+  it('returns changes array when valid', () => {
+    const changes = [
+      { id: 1, orden: 1 },
+      { id: 2, orden: 2 }
+    ]
+    expect(validateOrderChanges(changes)).toEqual(changes)
+  })
+
+  it('throws TypeError when changes is not an array or is empty', () => {
+    expect(() => validateOrderChanges(null)).toThrow(TypeError)
+    expect(() => validateOrderChanges([])).toThrow(TypeError)
+  })
+
+  it('throws TypeError when an element is not an object', () => {
+    expect(() => validateOrderChanges([null])).toThrow(TypeError)
+    expect(() => validateOrderChanges(['string'])).toThrow(TypeError)
+  })
+
+  it('throws TypeError when id is invalid', () => {
+    expect(() => validateOrderChanges([{ id: -1, orden: 1 }])).toThrow(TypeError)
+    expect(() => validateOrderChanges([{ id: 'abc', orden: 1 }])).toThrow(TypeError)
+    expect(() => validateOrderChanges([{ orden: 1 }])).toThrow(TypeError)
+  })
+
+  it('throws TypeError when orden is invalid', () => {
+    expect(() => validateOrderChanges([{ id: 1, orden: -1 }])).toThrow(TypeError)
+    expect(() => validateOrderChanges([{ id: 1, orden: 'abc' }])).toThrow(TypeError)
+    expect(() => validateOrderChanges([{ id: 1 }])).toThrow(TypeError)
+  })
+
+  it('throws TypeError when id is repeated', () => {
+    const changes = [
+      { id: 1, orden: 1 },
+      { id: 1, orden: 2 }
+    ]
+    expect(() => validateOrderChanges(changes)).toThrow(TypeError)
+  })
+
+  it('throws TypeError when orden is repeated', () => {
+    const changes = [
+      { id: 1, orden: 1 },
+      { id: 2, orden: 1 }
+    ]
+    expect(() => validateOrderChanges(changes)).toThrow(TypeError)
   })
 })
