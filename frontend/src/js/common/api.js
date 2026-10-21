@@ -1,6 +1,6 @@
 import { startLoading } from './loadingScreen.js'
 
-const rawApiUrl = import.meta.env.PUBLIC_API_URL
+const rawApiUrl = import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
 
 if (!rawApiUrl)
   throw new Error(
