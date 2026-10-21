@@ -1,5 +1,4 @@
-const rawApiUrl = import.meta.env.PUBLIC_API_URL
-if (!rawApiUrl) throw new Error('PUBLIC_API_URL is not configured.')
+const rawApiUrl = import.meta.env.PUBLIC_API_URL || ''
 const API = rawApiUrl.replace(/\/+$/, '')
 
 export async function passwordRecoveryRequest(
