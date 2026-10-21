@@ -82,6 +82,22 @@ warning: function `path_news_img` is never used
   |        ^^^^^^^^^^^^^
 
 warning: `backend` (bin "backend") generated 11 warnings
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
+warning: unused dependency `password-hash`
+  --> Cargo.toml:19:1
+   |
+19 | password-hash = { version = "0.6.1", features = ["getrandom"] }
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `cargo::unused_dependencies` is set to `warn` by default
+help: consider removing the dependency on `password-hash`
+warning: unused dependency `tracing-subscriber`
+  --> Cargo.toml:11:1
+   |
+11 | tracing-subscriber = "0.3"
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: consider removing the dependency on `tracing-subscriber`
+warning: `backend` (manifest) generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.42s
      Running `target/debug/backend`
 Error: PoolTimedOut
