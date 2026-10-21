@@ -10,20 +10,25 @@ pub async fn login(
     State(state): State<Arc<AppState>>,
     Json(request): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, ApiError> {
+    println!("login 13");
     let user = crate::repositories::user::get_by_username(&state.db, &request.username).await?;
+    println!("login 15");
     let user = match user {
         Some(user) => user,
         None => return Err(ApiError::Unauthorized),
     };
+    println!("login 20");
     if !user.active {
         return Err(ApiError::Forbidden);
     }
+    println!("login 21");
     if !auth::password::verify_password(&request.password, &user.password_hash) {
         return Err(ApiError::Unauthorized);
     }
+    println!("login 28");
     let token = auth::jwt::generate_token(user.id, user.auth_version, &state.jwt_secret)
         .map_err(|_| ApiError::InternalServerError)?;
-
+    println!("login 31");
     Ok(Json(LoginResponse {
         token,
         username: user.username,
