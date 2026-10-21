@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseResponse } from './api.js'
+import { parseResponse, validateId } from './api.js'
 
 describe('parseResponse', () => {
   it('returns null for status 204 (No Content)', async () => {
@@ -63,5 +63,48 @@ describe('parseResponse', () => {
     })
     const result = await parseResponse(response)
     expect(result).toBeNull()
+  })
+})
+
+describe('validateId', () => {
+  it('returns numeric id for positive integers', () => {
+    expect(validateId(1)).toBe(1)
+    expect(validateId(42)).toBe(42)
+  })
+
+  it('returns numeric id for strings representing positive integers', () => {
+    expect(validateId('1')).toBe(1)
+    expect(validateId('42')).toBe(42)
+  })
+
+  it('throws TypeError for 0', () => {
+    expect(() => validateId(0)).toThrow(TypeError)
+    expect(() => validateId(0)).toThrow('El id no es válido.')
+  })
+
+  it('throws TypeError for negative integers', () => {
+    expect(() => validateId(-1)).toThrow(TypeError)
+    expect(() => validateId('-1')).toThrow('El id no es válido.')
+  })
+
+  it('throws TypeError for non-integer numbers', () => {
+    expect(() => validateId(1.5)).toThrow(TypeError)
+    expect(() => validateId('1.5')).toThrow('El id no es válido.')
+  })
+
+  it('throws TypeError for non-numeric strings', () => {
+    expect(() => validateId('abc')).toThrow(TypeError)
+    expect(() => validateId('123a')).toThrow('El id no es válido.')
+  })
+
+  it('throws TypeError for null and undefined', () => {
+    expect(() => validateId(null)).toThrow(TypeError)
+    expect(() => validateId(undefined)).toThrow('El id no es válido.')
+  })
+
+  it('throws TypeError for objects and arrays', () => {
+    expect(() => validateId({})).toThrow(TypeError)
+    expect(() => validateId([])).toThrow('El id no es válido.')
+    expect(() => validateId([1, 2])).toThrow('El id no es válido.')
   })
 })
