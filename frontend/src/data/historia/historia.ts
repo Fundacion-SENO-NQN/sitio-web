@@ -2,7 +2,7 @@ import type Historia from '../interfaces/Historia'
 
 export const historia: Historia[] = [
   {
-    date: 1998,
+    date: '1998',
     contenido: [
       {
         titulo: 'Ezequiel Valdebenito',
@@ -12,7 +12,7 @@ export const historia: Historia[] = [
     ],
   },
   {
-    date: 2006,
+    date: '2006',
     contenido: [
       {
         titulo: 'Diagnóstico',
@@ -25,7 +25,7 @@ export const historia: Historia[] = [
     ],
   },
   {
-    date: 2007,
+    date: '2007',
     contenido: [
       {
         titulo: 'Tenemos que hacer algo',
@@ -34,7 +34,7 @@ export const historia: Historia[] = [
     ],
   },
   {
-    date: 2009,
+    date: '2009',
     contenido: [
       {
         titulo: 'Fundación S.E.N.O.',
@@ -47,7 +47,7 @@ export const historia: Historia[] = [
     ],
   },
   {
-    date: 2010,
+    date: '2010',
     contenido: [
       {
         titulo: 'Personería jurídica',
@@ -56,7 +56,7 @@ export const historia: Historia[] = [
     ],
   },
   {
-    date: 2012,
+    date: '2012',
     contenido: [
       {
         titulo: 'Fallecimiento de Eze',
