@@ -62,6 +62,18 @@ mod tests {
         assert!(user.has_permission("read"));
         assert!(user.has_permission("write"));
         assert!(!user.has_permission("delete"));
+
+        // Exact match testing
+        assert!(!user.has_permission("rea"));
+        assert!(!user.has_permission("read "));
+
+        // Case sensitivity
+        assert!(!user.has_permission("READ"));
+        assert!(!user.has_permission("Read"));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(!empty_user.has_permission("read"));
     }
 
     #[test]
@@ -69,6 +81,10 @@ mod tests {
         let user = mock_auth_user_data(vec!["read"]);
         assert!(user.require("read").is_ok());
         assert!(matches!(user.require("write"), Err(ApiError::Forbidden)));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(empty_user.require("read"), Err(ApiError::Forbidden)));
     }
 
     #[test]
@@ -78,6 +94,11 @@ mod tests {
         assert!(user.require_any(&["write"]).is_ok());
         assert!(matches!(user.require_any(&["delete", "admin"]), Err(ApiError::Forbidden)));
         assert!(matches!(user.require_any(&[]), Err(ApiError::Forbidden)));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(empty_user.require_any(&["read"]), Err(ApiError::Forbidden)));
+        assert!(matches!(empty_user.require_any(&[]), Err(ApiError::Forbidden)));
     }
 
     #[test]
@@ -87,5 +108,10 @@ mod tests {
         assert!(user.require_all(&["read"]).is_ok());
         assert!(matches!(user.require_all(&["read", "delete"]), Err(ApiError::Forbidden)));
         assert!(user.require_all(&[]).is_ok());
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(empty_user.require_all(&["read"]), Err(ApiError::Forbidden)));
+        assert!(empty_user.require_all(&[]).is_ok());
     }
 }
