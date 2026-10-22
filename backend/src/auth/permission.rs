@@ -105,13 +105,29 @@ mod tests {
     fn test_require_all() {
         let user = mock_auth_user_data(vec!["read", "write"]);
         assert!(user.require_all(&["read", "write"]).is_ok());
+        assert!(user.require_all(&["write", "read"]).is_ok());
         assert!(user.require_all(&["read"]).is_ok());
+        assert!(user.require_all(&["read", "read"]).is_ok());
         assert!(matches!(user.require_all(&["read", "delete"]), Err(ApiError::Forbidden)));
+        assert!(matches!(user.require_all(&["delete", "admin"]), Err(ApiError::Forbidden)));
         assert!(user.require_all(&[]).is_ok());
+
+        // Exact match testing
+        assert!(matches!(user.require_all(&["rea"]), Err(ApiError::Forbidden)));
+        assert!(matches!(user.require_all(&["read "]), Err(ApiError::Forbidden)));
+
+        // Case sensitivity
+        assert!(matches!(user.require_all(&["READ"]), Err(ApiError::Forbidden)));
+        assert!(matches!(user.require_all(&["Read", "write"]), Err(ApiError::Forbidden)));
 
         // Empty user permissions
         let empty_user = mock_auth_user_data(vec![]);
         assert!(matches!(empty_user.require_all(&["read"]), Err(ApiError::Forbidden)));
         assert!(empty_user.require_all(&[]).is_ok());
+
+        // User with duplicate permissions
+        let duplicate_user = mock_auth_user_data(vec!["read", "read", "write"]);
+        assert!(duplicate_user.require_all(&["read", "write"]).is_ok());
+        assert!(matches!(duplicate_user.require_all(&["delete"]), Err(ApiError::Forbidden)));
     }
 }
