@@ -74,6 +74,28 @@ mod tests {
         // Empty user permissions
         let empty_user = mock_auth_user_data(vec![]);
         assert!(!empty_user.has_permission("read"));
+
+        // Empty permission strings
+        let empty_permission_user = mock_auth_user_data(vec![""]);
+        assert!(empty_permission_user.has_permission(""));
+        assert!(!empty_permission_user.has_permission("read"));
+        assert!(!user.has_permission(""));
+
+        // Duplicate permissions
+        let duplicate_permission_user = mock_auth_user_data(vec!["read", "read", "write"]);
+        assert!(duplicate_permission_user.has_permission("read"));
+        assert!(duplicate_permission_user.has_permission("write"));
+
+        // Special characters
+        let special_chars_user = mock_auth_user_data(vec!["read:users", "write:users"]);
+        assert!(special_chars_user.has_permission("read:users"));
+        assert!(!special_chars_user.has_permission("read"));
+        assert!(!special_chars_user.has_permission("read:"));
+
+        // Unicode/Non-ASCII characters
+        let unicode_user = mock_auth_user_data(vec!["leer_niños"]);
+        assert!(unicode_user.has_permission("leer_niños"));
+        assert!(!unicode_user.has_permission("leer_ninos"));
     }
 
     #[test]
