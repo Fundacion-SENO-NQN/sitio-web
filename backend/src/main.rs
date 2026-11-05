@@ -1,7 +1,7 @@
 use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
-        equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion,
+        bingo, equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion,
         noticia, roles, service, user, voluntariado,
     },
     services::{
@@ -157,6 +157,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
      * ====================================================== */
 
     let app = Router::new()
+        .merge(bingo::routes())
         .merge(voluntariado::routes())
         .merge(equipo::routes())
         .merge(logro::routes())

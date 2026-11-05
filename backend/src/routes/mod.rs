@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod bingo;
 pub mod equipo;
 pub mod evento;
 pub mod health;
