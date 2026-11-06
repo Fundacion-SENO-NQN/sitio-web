@@ -1,0 +1,324 @@
+---
+export interface ColumnaTabla {
+  label: string
+  sortKey?: string
+  srOnly?: boolean
+  align?: 'left' | 'center' | 'right'
+  className?: string
+}
+
+export interface Props {
+  servicio: string
+  servicioPlural?: string
+  filas: Array<string | ColumnaTabla>
+  caption?: string
+  iconoVacio?: string
+  tituloVacio?: string
+  descripcionVacio?: string
+  textoBotonVacio?: string
+  mostrarBotonVacio?: boolean
+  tituloError?: string
+  descripcionError?: string
+  mensajeCargando?: string
+  ancha?: boolean
+  tableClass?: string
+}
+
+const {
+  servicio,
+  servicioPlural = `${servicio}s`,
+  filas,
+  caption,
+  iconoVacio = '📋',
+  tituloVacio,
+  descripcionVacio,
+  textoBotonVacio,
+  mostrarBotonVacio = true,
+  tituloError,
+  descripcionError = 'Revisá la conexión con el servidor e intentá nuevamente.',
+  mensajeCargando,
+  ancha,
+  tableClass
+} = Astro.props
+
+const columnas: ColumnaTabla[] = filas.map((fila) =>
+  typeof fila === 'string' ? { label: fila } : fila
+)
+
+const captionTexto = caption ?? `Listado de ${servicioPlural}`
+const mensajeCargandoTexto = mensajeCargando ?? `Cargando ${servicioPlural}...`
+const tituloErrorTexto =
+  tituloError ?? `No se pudieron cargar los ${servicioPlural}`
+const tituloVacioTexto = tituloVacio ?? `No hay ${servicioPlural} registrados`
+const descripcionVacioTexto =
+  descripcionVacio ?? `Creá el primer ${servicio} para comenzar.`
+const textoBotonVacioTexto = textoBotonVacio ?? `Crear ${servicio}`
+const esAncha = ancha ?? columnas.length > 7
+
+function obtenerClaseAlineacion(align?: 'left' | 'center' | 'right') {
+  if (align === 'center') return 'tableCellCenter'
+  if (align === 'right') return 'tableCellNumeric'
+  return ''
+}
+---
+
+<section class="tableContainer tablaComponente" aria-label={captionTexto}>
+  <div
+    id={`estado-cargando-${servicio}`}
+    class="emptyState estado-tabla tablaEstado"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="spinner" aria-hidden="true"></div>
+
+    <p>{mensajeCargandoTexto}</p>
+  </div>
+
+  <div
+    id={`estado-error-${servicio}`}
+    class="emptyState estado-tabla tablaEstado tablaEstadoError oculto"
+    role="alert"
+  >
+    <span class="emptyStateIcon estado-icono" aria-hidden="true">!</span>
+
+    <h2>{tituloErrorTexto}</h2>
+
+    <p>{descripcionError}</p>
+
+    <button
+      id={`btn-reintentar-${servicio}`}
+      class="button buttonSecondary"
+      type="button"
+    >
+      Reintentar
+    </button>
+  </div>
+
+  <div
+    id={`estado-vacio-${servicio}`}
+    class="emptyState estado-tabla tablaEstado oculto"
+    role="status"
+  >
+    <span class="emptyStateIcon estado-icono" aria-hidden="true">
+      {iconoVacio}
+    </span>
+
+    <h2>{tituloVacioTexto}</h2>
+
+    <p>{descripcionVacioTexto}</p>
+
+    {
+      mostrarBotonVacio && (
+        <button
+          id={`btn-primer-${servicio}`}
+          class="button buttonPrimary"
+          type="button"
+        >
+          {textoBotonVacioTexto}
+        </button>
+      )
+    }
+  </div>
+
+  <div
+    id={`tabla-wrapper-${servicio}`}
+    class="tableWrapper tablaComponente__wrapper oculto"
+  >
+    <table
+      class:list={[
+        'table',
+        'adminTable',
+        'tablaComponente__table',
+        { tableWide: esAncha, 'tablaComponente__table--ancha': esAncha },
+        tableClass
+      ]}
+    >
+      <caption class="srOnly">{captionTexto}</caption>
+
+      <thead>
+        <tr>
+          {
+            columnas.map((columna) =>
+              columna.sortKey ? (
+                <th
+                  scope="col"
+                  class:list={[
+                    'sortable',
+                    columna.className,
+                    obtenerClaseAlineacion(columna.align)
+                  ]}
+                  data-sort-servicio={servicio}
+                  data-sort-key={columna.sortKey}
+                  tabindex="0"
+                  role="button"
+                  aria-sort="none"
+                >
+                  <span class:list={{ srOnly: columna.srOnly }}>
+                    {columna.label}
+                  </span>
+                  <span class="sortIndicator" aria-hidden="true" />
+                </th>
+              ) : (
+                <th
+                  scope="col"
+                  class:list={[
+                    columna.className,
+                    obtenerClaseAlineacion(columna.align)
+                  ]}
+                >
+                  <span class:list={{ srOnly: columna.srOnly }}>
+                    {columna.label}
+                  </span>
+                </th>
+              )
+            )
+          }
+        </tr>
+      </thead>
+
+      <tbody id={`tbody-${servicio}`}></tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .tablaComponente {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--admin-text);
+    background-color: var(--admin-surface);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius-large);
+    box-shadow: var(--admin-shadow);
+  }
+
+  .tablaComponente__wrapper {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-inline: contain;
+  }
+
+  .tablaComponente__table--ancha {
+    min-width: 82rem;
+  }
+
+  .tablaComponente__table--ancha :global(:is(th, td)) {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .tablaEstadoError .emptyStateIcon {
+    color: var(--color-red);
+    background-color: var(--admin-danger-soft);
+  }
+
+  /* Dynamic cell helpers rendered inside tbody */
+  .tablaComponente :global(.acciones-tabla),
+  .tablaComponente :global(.adminTableActions) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--admin-space-small);
+    flex-wrap: nowrap;
+  }
+
+  .tablaComponente :global(.celda-acciones) {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .tablaComponente :global(.celda-numero) {
+    white-space: nowrap;
+  }
+
+  .tablaComponente :global(.numero-badge) {
+    min-width: 2.3rem;
+    height: 2rem;
+    padding-inline: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-secondary-hover);
+    background-color: var(--admin-secondary-soft);
+    border: 1px solid var(--color-secondary-light);
+    border-radius: var(--admin-radius-small);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tablaComponente :global(.celda-nowrap) {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tablaComponente :global(.celda-texto-largo) {
+    min-width: 9rem;
+    max-width: 15rem;
+    overflow-wrap: anywhere;
+  }
+
+  .tablaComponente :global(.celda-cuotas) {
+    white-space: nowrap;
+  }
+
+  /* 8-quote squares strip inside table cells */
+  .tablaComponente :global(.cuotasSquares) {
+    display: inline-grid;
+    grid-template-columns: repeat(8, 1.6rem);
+    gap: 0.3rem;
+    align-items: center;
+    vertical-align: middle;
+  }
+
+  .tablaComponente :global(.cuotaSquare) {
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 0.34rem;
+    border: 1px solid transparent;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+
+  /* Paid -> Green */
+  .tablaComponente :global(.cuotaSquare--paid) {
+    color: #ffffff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-hover);
+    box-shadow: 0 1px 2px rgba(73, 107, 36, 0.22);
+  }
+
+  /* Unpaid & on time -> Gray */
+  .tablaComponente :global(.cuotaSquare--pending) {
+    color: #555e68;
+    background-color: #d8dde3;
+    border-color: #b8c0ca;
+  }
+
+  /* Unpaid & out of time -> Yellow */
+  .tablaComponente :global(.cuotaSquare--late) {
+    color: #4a4300;
+    background-color: var(--color-yellow);
+    border-color: #b5a800;
+    box-shadow: 0 1px 2px rgba(140, 128, 0, 0.2);
+  }
+
+  @media (max-width: 640px) {
+    .tablaComponente {
+      border-radius: var(--admin-radius);
+    }
+
+    .tablaComponente__table--ancha :global(:is(th, td)) {
+      padding: 0.75rem 0.8rem;
+    }
+  }
+</style>

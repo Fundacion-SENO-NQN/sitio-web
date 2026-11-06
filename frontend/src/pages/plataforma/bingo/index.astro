@@ -1,0 +1,197 @@
+---
+import LayoutPlataforma from '../../../layouts/LayoutPlataforma.astro'
+import HeaderPlataforma from '../../../components/Plataforma/HeaderPlataforma.astro'
+import ControlTabla from '../../../components/Plataforma/ControlTabla.astro'
+import Tabla, {
+  type ColumnaTabla
+} from '../../../components/Plataforma/Tabla.astro'
+import ModalFormulario, {
+  type SeccionFormulario
+} from '../../../components/Plataforma/ModalFormulario.astro'
+import ModalEliminar from '../../../components/Plataforma/ModalEliminar.astro'
+import SelectorCuotas from '../../../components/Plataforma/SelectorCuotas.astro'
+import {
+  LATE_PAYMENT_NOTICE_OPTIONS,
+  MONTH_OPTIONS
+} from '../../../js/bingo/constants.js'
+
+const columnasBingo: Array<string | ColumnaTabla> = [
+  { label: 'Nro', sortKey: 'nroBingo' },
+  { label: 'Nombre', sortKey: 'name' },
+  { label: 'Apellido', sortKey: 'lastName' },
+  'Teléfono',
+  'Dirección',
+  'Barrio',
+  { label: 'Localidad', sortKey: 'locality' },
+  'Lugar de cobro',
+  { label: 'Mes de inicio', sortKey: 'startMonth' },
+  'Fecha de cobro',
+  'Cuotas',
+  'Aviso automático',
+  { label: 'Acciones', align: 'right' }
+]
+
+const seccionesFormularioBingo: SeccionFormulario[] = [
+  {
+    id: 'bingo-datos-comprador',
+    titulo: 'Datos del comprador',
+    descripcion: 'Identificación del cartón y datos de contacto de la persona.',
+    columnas: 2,
+    campos: [
+      {
+        name: 'nro_bingo',
+        label: 'Número de bingo',
+        type: 'number',
+        min: 0,
+        max: 32767,
+        step: 1,
+        inputmode: 'numeric',
+        placeholder: 'Ej.: 104',
+        required: true,
+        ayuda: 'Número único asignado al cartón.'
+      },
+      {
+        name: 'phone',
+        label: 'Teléfono',
+        type: 'tel',
+        inputmode: 'tel',
+        maxLength: 50,
+        placeholder: 'Ej.: 299 412-3456',
+        required: true
+      },
+      {
+        name: 'name',
+        label: 'Nombre',
+        type: 'text',
+        maxLength: 120,
+        placeholder: 'Ej.: María',
+        required: true
+      },
+      {
+        name: 'last_name',
+        label: 'Apellido',
+        type: 'text',
+        maxLength: 120,
+        placeholder: 'Ej.: González',
+        required: true
+      }
+    ]
+  },
+  {
+    id: 'bingo-domicilio',
+    titulo: 'Domicilio',
+    descripcion: 'Dirección y zona de residencia.',
+    columnas: 2,
+    campos: [
+      {
+        name: 'address',
+        label: 'Dirección',
+        type: 'text',
+        maxLength: 220,
+        placeholder: 'Ej.: Av. Argentina 450',
+        required: true,
+        completo: true
+      },
+      {
+        name: 'neighborhood',
+        label: 'Barrio',
+        type: 'text',
+        maxLength: 120,
+        placeholder: 'Ej.: Centro',
+        required: true
+      },
+      {
+        name: 'locality',
+        label: 'Localidad',
+        type: 'text',
+        maxLength: 120,
+        placeholder: 'Ej.: Neuquén Capital',
+        required: true
+      }
+    ]
+  },
+  {
+    id: 'bingo-cobro-avisos',
+    titulo: 'Cobro y avisos',
+    descripcion: 'Modalidad de cobro, mes de inicio y recordatorios por WhatsApp.',
+    columnas: 2,
+    campos: [
+      {
+        name: 'collection_locate',
+        label: 'Lugar de cobro',
+        type: 'text',
+        maxLength: 220,
+        placeholder: 'Ej.: Domicilio / Sede Fundación',
+        required: true
+      },
+      {
+        name: 'collection_date',
+        label: 'Fecha de cobro',
+        type: 'text',
+        maxLength: 120,
+        placeholder: 'Ej.: Del 1 al 10',
+        required: true
+      },
+      {
+        name: 'start_month',
+        label: 'Mes de inicio',
+        type: 'select',
+        required: true,
+        options: [...MONTH_OPTIONS],
+        ayuda: 'Mes correspondiente a la primera cuota.'
+      },
+      {
+        name: 'late_payment_notice',
+        label: 'Aviso automático',
+        type: 'select',
+        required: true,
+        value: 0,
+        options: [...LATE_PAYMENT_NOTICE_OPTIONS],
+        ayuda: 'Día del mes en que se envía el recordatorio automático por WhatsApp.'
+      }
+    ]
+  }
+]
+---
+
+<LayoutPlataforma titulo="Bingo">
+  <HeaderPlataforma
+    title="Bingo"
+    content="Administrá internamente los bingos."
+  />
+
+  <main class="adminPage">
+    <ControlTabla
+      servicio="bingo"
+      servicioPlural="bingos"
+      busqueda="número, nombre, localidad o fecha"
+    />
+
+    <Tabla
+      servicio="bingo"
+      servicioPlural="bingos"
+      filas={columnasBingo}
+      iconoVacio="🎟️"
+      tituloVacio="No hay bingos registrados"
+      descripcionVacio="Creá el primer número de bingo para comenzar."
+    />
+  </main>
+
+  <ModalFormulario
+    servicio="bingo"
+    servicioPlural="bingos"
+    size="large"
+    secciones={seccionesFormularioBingo}
+  >
+    <SelectorCuotas servicio="bingo" />
+  </ModalFormulario>
+
+  <ModalEliminar
+    servicio="bingo"
+    descripcion="El número de bingo será eliminado permanentemente."
+  />
+
+  <script>
+    import '../../../js/bingo/bingo.js'
+  </script>
+</LayoutPlataforma>
