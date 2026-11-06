@@ -26,7 +26,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Bingo>> {
                 late_payment_notice,
                 address,
                 created_at
-            FROM bingo
+            FROM bingos
             ORDER BY nro_bingo
             "#,
     )
@@ -56,7 +56,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Bingo>> {
                 late_payment_notice,
                 address,
                 created_at
-            FROM bingo
+            FROM bingos
             WHERE id = $1
             "#,
     )
@@ -72,7 +72,7 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Bingo>> {
 pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
     let bingo = sqlx::query_as::<_, Bingo>(
         r#"
-        INSERT INTO bingo
+        INSERT INTO bingos
         (
             name,
             last_name,
@@ -145,7 +145,7 @@ pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
 pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bingo> {
     let bingo = sqlx::query_as::<_, Bingo>(
         r#"
-        UPDATE bingo
+        UPDATE bingos
         SET
             name = COALESCE($1, name),
             last_name = COALESCE($2, last_name),
@@ -205,7 +205,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Bingo> {
     let bingo = sqlx::query_as::<_, Bingo>(
         r#"
-        DELETE FROM bingo
+        DELETE FROM bingos
         WHERE id = $1
         RETURNING
             id,
