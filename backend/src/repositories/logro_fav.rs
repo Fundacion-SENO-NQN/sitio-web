@@ -1,6 +1,7 @@
 use crate::{
     error::api_error::ApiResult,
     models::logro::{CreateLogroFav, Logro, LogroFav},
+    repositories::{base, tablas::LOGROS},
 };
 use sqlx::PgPool;
 
@@ -49,10 +50,9 @@ pub async fn create(db: &PgPool, logro_id: i64, orden: i64) -> ApiResult<LogroFa
     let mut tx = db.begin().await?;
 
     // Verify the logro exists.
-    sqlx::query("SELECT 1 FROM logros WHERE id = $1")
-        .bind(logro_id)
-        .fetch_one(&mut *tx)
-        .await?;
+    if !base::existe_por_id(&mut *tx, &LOGROS, logro_id).await? {
+        return Err(sqlx::Error::RowNotFound.into());
+    }
 
     // Remove the last favorite if there are already 3.
     sqlx::query("DELETE FROM logros_fav WHERE orden = 2")

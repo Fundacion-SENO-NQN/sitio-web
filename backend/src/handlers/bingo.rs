@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 /* ==========================================================
    GET ALL
-========================================================== */
+========================================================= */
 
 pub async fn get_all_bingo(
     AuthUser(user): AuthUser,
@@ -26,7 +26,7 @@ pub async fn get_all_bingo(
 
 /* ==========================================================
    GET BY ID
-========================================================== */
+========================================================= */
 
 pub async fn get_bingo_by_id(
     AuthUser(user): AuthUser,
@@ -44,7 +44,7 @@ pub async fn get_bingo_by_id(
 
 /* ==========================================================
    CREATE
-========================================================== */
+========================================================= */
 
 pub async fn create_bingo(
     AuthUser(user): AuthUser,
@@ -121,7 +121,7 @@ pub async fn create_bingo(
 
             Some("late_payment_notice") => {
                 let raw = read_text(field, "Aviso automático inválido").await?;
-                late_payment_notice = Some(parse_i16(&raw, "Aviso automático inválido")?);
+                late_payment_notice = Some(parse_late_payment_notice(&raw)?);
             }
 
             _ => {}
@@ -170,7 +170,7 @@ pub async fn create_bingo(
 
 /* ==========================================================
    PATCH
-========================================================== */
+========================================================= */
 
 pub async fn patch_bingo(
     AuthUser(user): AuthUser,
@@ -248,7 +248,7 @@ pub async fn patch_bingo(
 
             Some("late_payment_notice") => {
                 let raw = read_text(field, "Aviso automático inválido").await?;
-                late_payment_notice = Some(parse_i16(&raw, "Aviso automático inválido")?);
+                late_payment_notice = Some(parse_late_payment_notice(&raw)?);
             }
 
             _ => {}
@@ -304,7 +304,7 @@ pub async fn patch_bingo(
 
 /* ==========================================================
    DELETE
-========================================================== */
+========================================================= */
 
 pub async fn delete_bingo(
     AuthUser(user): AuthUser,
@@ -320,7 +320,7 @@ pub async fn delete_bingo(
 
 /* ==========================================================
    PRIVATE HELPERS
-========================================================== */
+========================================================= */
 
 async fn read_text(
     field: axum::extract::multipart::Field<'_>,
@@ -384,6 +384,18 @@ fn parse_start_month(raw: &str) -> ApiResult<i16> {
     }
 
     Ok(month)
+}
+
+fn parse_late_payment_notice(raw: &str) -> ApiResult<i16> {
+    let notice = parse_i16(raw, "Aviso automático inválido")?;
+
+    if !(0..=31).contains(&notice) {
+        return Err(ApiError::BadRequest(
+            "El aviso automático debe estar entre 0 y 31".into(),
+        ));
+    }
+
+    Ok(notice)
 }
 
 /// Parses and validates the 2-byte quote value.
@@ -473,5 +485,14 @@ mod tests {
         assert_eq!(parse_nro_bingo("0").unwrap(), 0);
         assert_eq!(parse_nro_bingo("42").unwrap(), 42);
         assert!(parse_nro_bingo("-1").is_err());
+    }
+
+    #[test]
+    fn parse_late_payment_notice_validates_range() {
+        assert_eq!(parse_late_payment_notice("0").unwrap(), 0);
+        assert_eq!(parse_late_payment_notice("15").unwrap(), 15);
+        assert_eq!(parse_late_payment_notice("31").unwrap(), 31);
+        assert!(parse_late_payment_notice("-1").is_err());
+        assert!(parse_late_payment_notice("32").is_err());
     }
 }

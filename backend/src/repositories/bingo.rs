@@ -1,6 +1,7 @@
 use crate::{
     error::api_error::{ApiError, ApiResult},
     models::bingo::{Bingo, CreateBingo, UpdateBingo},
+    repositories::base::{self, Ordenamiento},
 };
 use sqlx::PgPool;
 
@@ -9,29 +10,7 @@ use sqlx::PgPool;
 ========================================================== */
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Bingo>> {
-    Ok(sqlx::query_as::<_, Bingo>(
-        r#"
-            SELECT
-                id,
-                name,
-                last_name,
-                phone,
-                neighborhood,
-                collection_date,
-                collection_locate,
-                start_month,
-                locality,
-                quote,
-                nro_bingo,
-                late_payment_notice,
-                address,
-                created_at
-            FROM bingos
-            ORDER BY nro_bingo
-            "#,
-    )
-    .fetch_all(db)
-    .await?)
+    Ok(base::obtener_todos::<Bingo>(db, &[Ordenamiento::asc("nro_bingo")]).await?)
 }
 
 /* ==========================================================
@@ -39,30 +18,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Bingo>> {
 ========================================================== */
 
 pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Bingo>> {
-    Ok(sqlx::query_as::<_, Bingo>(
-        r#"
-            SELECT
-                id,
-                name,
-                last_name,
-                phone,
-                neighborhood,
-                collection_date,
-                collection_locate,
-                start_month,
-                locality,
-                quote,
-                nro_bingo,
-                late_payment_notice,
-                address,
-                created_at
-            FROM bingos
-            WHERE id = $1
-            "#,
-    )
-    .bind(id)
-    .fetch_optional(db)
-    .await?)
+    Ok(base::obtener_por_id::<Bingo>(db, id).await?)
 }
 
 /* ==========================================================
@@ -203,31 +159,9 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
 ========================================================== */
 
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Bingo> {
-    let bingo = sqlx::query_as::<_, Bingo>(
-        r#"
-        DELETE FROM bingos
-        WHERE id = $1
-        RETURNING
-            id,
-            name,
-            last_name,
-            phone,
-            neighborhood,
-            collection_date,
-            collection_locate,
-            start_month,
-            locality,
-            quote,
-            nro_bingo,
-            late_payment_notice,
-            address,
-            created_at
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(db)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let bingo = base::eliminar_por_id_retornando::<Bingo>(db, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     Ok(bingo)
 }

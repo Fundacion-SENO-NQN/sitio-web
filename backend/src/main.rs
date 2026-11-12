@@ -2,10 +2,12 @@ use crate::{
     models::{equipo::Equipo, logro::Logro, noticia::Noticia},
     routes::{
         bingo, equipo, evento, health, img_donation, instagram, logro, logro_fav, metodo_donacion,
-        noticia, roles, service, user, voluntariado,
+        noticia, roles, service, user, voluntariado, 
+        //whatsapp,
     },
     services::{
         email::EmailService, frontend_rebuild::FrontendRebuildService, instagram::InstagramService,
+        // whatsapp::WhatsAppService,
     },
 };
 use axum::{
@@ -45,6 +47,7 @@ pub struct AppState {
     pub r2: utils::r2::R2Storage,
     pub frontend_rebuild: FrontendRebuildService,
     pub instagram: InstagramService,
+    // pub whatsapp: WhatsAppService,
     pub jwt_secret: String,
 }
 
@@ -107,7 +110,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .expect("No se pudo cargar r2");
     let frontend_rebuild = FrontendRebuildService::from_env(db.clone());
     let instagram = InstagramService::from_env()?;
+    // let whatsapp = WhatsAppService::from_env()?;
     frontend_rebuild.clone().start();
+    // whatsapp.clone().start(db.clone());
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET no encontrado");
     let state = Arc::new(AppState {
         profile: services::profile::ProfileService::default(),
@@ -120,6 +125,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         r2,
         frontend_rebuild,
         instagram,
+        // whatsapp,
         jwt_secret,
     });
     // Keep long-lived Instagram tokens alive while this Fly machine is running.
@@ -164,6 +170,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(logro_fav::routes())
         .merge(img_donation::routes())
         .merge(instagram::routes())
+        // .merge(whatsapp::routes())
         .merge(routes::auth::routes())
         .merge(routes::profile::routes())
         .merge(user::routes())

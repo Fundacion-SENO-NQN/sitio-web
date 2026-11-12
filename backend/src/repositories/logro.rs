@@ -1,6 +1,10 @@
 use crate::{
     error::api_error::{ApiError, ApiResult},
     models::logro::{ChangeOrderLogro, Logro, UpdateLogro},
+    repositories::{
+        base::{self, Ordenamiento},
+        tablas::{LOGROS, LOGROS_FAV},
+    },
 };
 
 use sqlx::{PgPool, Postgres, Transaction};
@@ -12,23 +16,10 @@ use std::collections::HashSet;
 ========================================================== */
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Logro>> {
-    Ok(sqlx::query_as::<_, Logro>(
-        r#"
-        SELECT
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        FROM logros
-        ORDER BY
-            orden ASC,
-            id ASC
-        "#,
+    Ok(
+        base::obtener_todos::<Logro>(db, [Ordenamiento::asc("orden"), Ordenamiento::asc("id")])
+            .await?,
     )
-    .fetch_all(db)
-    .await?)
 }
 
 /* ==========================================================
@@ -36,22 +27,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Logro>> {
 ========================================================== */
 
 pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Logro>> {
-    Ok(sqlx::query_as::<_, Logro>(
-        r#"
-        SELECT
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        FROM logros
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(db)
-    .await?)
+    Ok(base::obtener_por_id::<Logro>(db, id).await?)
 }
 
 /* ==========================================================
@@ -132,24 +108,9 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
      * compatibility with the current frontend, but changing
      * it must be done through change_order().
      */
-    let current = sqlx::query_as::<_, Logro>(
-        r#"
-        SELECT
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        FROM logros
-        WHERE id = $1
-        FOR UPDATE
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let current = base::obtener_por_id_para_actualizar::<Logro>(&mut *tx, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     if let Some(requested_order) = orden {
         if requested_order < 0 {
@@ -219,43 +180,15 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Logro> {
      * concurrent order modifications and reduces deadlock
      * risks.
      */
-    sqlx::query(
-        r#"
-        LOCK TABLE logros IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    sqlx::query(
-        r#"
-        LOCK TABLE logros_fav IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
+    base::bloquear_tabla(&mut *tx, &LOGROS).await?;
+    base::bloquear_tabla(&mut *tx, &LOGROS_FAV).await?;
 
     /*
      * Load the achievement before modifying related rows.
      */
-    let logro = sqlx::query_as::<_, Logro>(
-        r#"
-        SELECT
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        FROM logros
-        WHERE id = $1
-        FOR UPDATE
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let logro = base::obtener_por_id_para_actualizar::<Logro>(&mut *tx, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     /* ======================================================
        REMOVE FROM FEATURED ACHIEVEMENTS
@@ -321,17 +254,9 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Logro> {
        DELETE ACHIEVEMENT
     ====================================================== */
 
-    let delete_result = sqlx::query(
-        r#"
-        DELETE FROM logros
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    let rows_affected = base::eliminar_por_id(&mut *tx, &LOGROS, id).await?;
 
-    if delete_result.rows_affected() != 1 {
+    if rows_affected != 1 {
         return Err(ApiError::NotFound);
     }
 
@@ -412,19 +337,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderLogro>) -> ApiResul
      * Load all affected rows and verify that every supplied
      * ID exists.
      */
-    let current_rows = sqlx::query_as::<_, (i64, i64)>(
-        r#"
-        SELECT
-            id,
-            orden
-        FROM logros
-        WHERE id = ANY($1)
-        FOR UPDATE
-        "#,
-    )
-    .bind(&ids)
-    .fetch_all(&mut *tx)
-    .await?;
+    let current_rows = base::obtener_ordenes_para_actualizar(&mut *tx, &LOGROS, &ids).await?;
 
     if current_rows.len() != order.len() {
         return Err(ApiError::BadRequest("Uno o más logros no existen.".into()));
@@ -454,14 +367,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderLogro>) -> ApiResul
         ));
     }
 
-    let maximum_order: i64 = sqlx::query_scalar(
-        r#"
-        SELECT COALESCE(MAX(orden), -1)
-        FROM logros
-        "#,
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let maximum_order = base::orden_maximo(&mut *tx, &LOGROS, -1, 0).await?;
 
     let temporary_base = maximum_order.checked_add(1).ok_or_else(|| {
         ApiError::BadRequest("No se pudo calcular una posición temporal válida.".into())
@@ -492,19 +398,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderLogro>) -> ApiResul
             ApiError::BadRequest("No se pudo calcular una posición temporal válida.".into())
         })?;
 
-        let result = sqlx::query(
-            r#"
-            UPDATE logros
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(temporary_order)
-        .bind(logro.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &LOGROS, logro.id, temporary_order).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }
@@ -516,19 +412,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderLogro>) -> ApiResul
      * positions can be assigned safely.
      */
     for logro in &order {
-        let result = sqlx::query(
-            r#"
-            UPDATE logros
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(logro.orden)
-        .bind(logro.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &LOGROS, logro.id, logro.orden).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }
@@ -586,13 +472,6 @@ fn validate_order_changes(order: &[ChangeOrderLogro]) -> ApiResult<()> {
 ========================================================== */
 
 async fn lock_logros_table(tx: &mut Transaction<'_, Postgres>) -> ApiResult<()> {
-    sqlx::query(
-        r#"
-        LOCK TABLE logros IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut **tx)
-    .await?;
-
+    base::bloquear_tabla(&mut **tx, &LOGROS).await?;
     Ok(())
 }

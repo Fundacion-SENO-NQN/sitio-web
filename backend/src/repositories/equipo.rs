@@ -1,47 +1,20 @@
 use crate::{
     error::api_error::{ApiError, ApiResult},
     models::equipo::{ChangeOrderEquipo, Equipo, UpdateEquipo},
+    repositories::{
+        base::{self, Ordenamiento},
+        tablas::EQUIPO,
+    },
 };
 use sqlx::PgPool;
 use std::collections::HashSet;
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Equipo>> {
-    Ok(sqlx::query_as::<_, Equipo>(
-        r#"
-            SELECT
-                id,
-                orden,
-                nombre,
-                apellido,
-                puesto,
-                descripcion,
-                created_at
-            FROM equipo
-            ORDER BY orden
-            "#,
-    )
-    .fetch_all(db)
-    .await?)
+    Ok(base::obtener_todos::<Equipo>(db, Some(Ordenamiento::asc("orden"))).await?)
 }
 
 pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Equipo>> {
-    Ok(sqlx::query_as::<_, Equipo>(
-        r#"
-            SELECT
-                id,
-                orden,
-                nombre,
-                apellido,
-                puesto,
-                descripcion,
-                created_at
-            FROM equipo
-            WHERE id = $1
-            "#,
-    )
-    .bind(id)
-    .fetch_optional(db)
-    .await?)
+    Ok(base::obtener_por_id::<Equipo>(db, id).await?)
 }
 
 /* ==========================================================
@@ -61,13 +34,7 @@ pub async fn create(
      * Prevent two simultaneous creations from receiving
      * the same MAX(orden) + 1 value.
      */
-    sqlx::query(
-        r#"
-        LOCK TABLE equipo IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
+    base::bloquear_tabla(&mut *tx, &EQUIPO).await?;
 
     let member = sqlx::query_as::<_, Equipo>(
         r#"
@@ -153,24 +120,9 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateEquipo) -> ApiResult<Equ
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Equipo> {
     let mut tx = db.begin().await?;
 
-    let member = sqlx::query_as::<_, Equipo>(
-        r#"
-        DELETE FROM equipo
-        WHERE id = $1
-        RETURNING
-            id,
-            orden,
-            nombre,
-            apellido,
-            puesto,
-            descripcion,
-            created_at
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let member = base::eliminar_por_id_retornando::<Equipo>(&mut *tx, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     /*
      * Compact every order after the deleted member.
@@ -255,14 +207,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
     .execute(&mut *tx)
     .await?;
 
-    let total_members = sqlx::query_scalar::<_, i64>(
-        r#"
-        SELECT COUNT(*)
-        FROM equipo
-        "#,
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let total_members = base::contar(&mut *tx, &EQUIPO).await?;
 
     for member in &order {
         if member.orden >= total_members {
@@ -279,19 +224,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
      * Lock and read every member that participates in the
      * reorder.
      */
-    let current_rows = sqlx::query_as::<_, (i64, i64)>(
-        r#"
-        SELECT
-            id,
-            orden
-        FROM equipo
-        WHERE id = ANY($1)
-        FOR UPDATE
-        "#,
-    )
-    .bind(&ids)
-    .fetch_all(&mut *tx)
-    .await?;
+    let current_rows = base::obtener_ordenes_para_actualizar(&mut *tx, &EQUIPO, &ids).await?;
 
     if current_rows.len() != order.len() {
         return Err(ApiError::NotFound);
@@ -301,16 +234,6 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
      * When only some members are sent, their destination
      * positions must be the same positions currently occupied
      * by that group.
-     *
-     * Example:
-     *
-     * Member A currently has order 2.
-     * Member B currently has order 3.
-     *
-     * Valid destinations: 2 and 3.
-     *
-     * Sending destination 4 would collide with a member that
-     * was not included in the request.
      */
     let current_orders = current_rows
         .iter()
@@ -331,14 +254,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
      * - Outside the currently used range.
      * - Unique for every member.
      */
-    let temporary_base = sqlx::query_scalar::<_, i64>(
-        r#"
-        SELECT COALESCE(MAX(orden), -1) + 1
-        FROM equipo
-        "#,
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let temporary_base = base::orden_maximo(&mut *tx, &EQUIPO, -1, 1).await?;
 
     /*
      * First move every selected member outside the active
@@ -349,19 +265,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
             .checked_add(index as i64)
             .ok_or(ApiError::InternalServerError)?;
 
-        let result = sqlx::query(
-            r#"
-            UPDATE equipo
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(temporary_order)
-        .bind(member.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &EQUIPO, member.id, temporary_order).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }
@@ -371,19 +277,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEquipo>) -> ApiResu
      * orders can be assigned without violating UNIQUE.
      */
     for member in &order {
-        let result = sqlx::query(
-            r#"
-            UPDATE equipo
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(member.orden)
-        .bind(member.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &EQUIPO, member.id, member.orden).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }

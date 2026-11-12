@@ -4,6 +4,10 @@ use crate::{
         CreateMetodoDonacionRequest, InformacionDonacion, MetodoDonacion, MetodoDonacionResponse,
         PatchInformacionDonacionRequest, PatchMetodoDonacionRequest,
     },
+    repositories::{
+        base::{self, Entidad, Ordenamiento},
+        tablas::{INFORMACION_DONACION, METODO_DONACION},
+    },
 };
 
 use sqlx::{FromRow, PgPool, Postgres, Transaction};
@@ -28,6 +32,10 @@ struct InformacionDonacionRow {
     metodo_donacion_id: i64,
 }
 
+impl Entidad for InformacionDonacionRow {
+    const TABLA: &'static crate::models::tabla::Tabla = &INFORMACION_DONACION;
+}
+
 impl From<InformacionDonacionRow> for InformacionDonacion {
     fn from(row: InformacionDonacionRow) -> Self {
         Self {
@@ -47,37 +55,16 @@ impl From<InformacionDonacionRow> for InformacionDonacion {
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<MetodoDonacionResponse>> {
     let mut tx = db.begin().await?;
 
-    let metodos = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        ORDER BY id
-        "#,
-    )
-    .fetch_all(&mut *tx)
-    .await?;
+    let metodos =
+        base::obtener_todos::<MetodoDonacion>(&mut *tx, Some(Ordenamiento::asc("id"))).await?;
 
-    let information_rows = sqlx::query_as::<_, InformacionDonacionRow>(
-        r#"
-            SELECT
-                id,
-                titulo,
-                valor,
-                created_at,
-                updated_at,
-                metodo_donacion_id
-            FROM informacion_donacion
-            ORDER BY
-                metodo_donacion_id,
-                id
-            "#,
+    let information_rows = base::obtener_todos::<InformacionDonacionRow>(
+        &mut *tx,
+        [
+            Ordenamiento::asc("metodo_donacion_id"),
+            Ordenamiento::asc("id"),
+        ],
     )
-    .fetch_all(&mut *tx)
     .await?;
 
     tx.commit().await?;
@@ -108,21 +95,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<MetodoDonacionResponse>> {
 pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<MetodoDonacionResponse>> {
     let mut tx = db.begin().await?;
 
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?;
+    let metodo = base::obtener_por_id::<MetodoDonacion>(&mut *tx, id).await?;
 
     let Some(metodo) = metodo else {
         tx.rollback().await?;
@@ -281,22 +254,9 @@ pub async fn update(
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<MetodoDonacionResponse> {
     let mut tx = db.begin().await?;
 
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let metodo = base::obtener_por_id::<MetodoDonacion>(&mut *tx, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     let informacion = load_information(&mut tx, metodo.id).await?;
 
@@ -304,15 +264,7 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<MetodoDonacionResponse> {
      * informacion_donacion is removed automatically through
      * ON DELETE CASCADE.
      */
-    sqlx::query(
-        r#"
-        DELETE FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    base::eliminar_por_id(&mut *tx, &METODO_DONACION, id).await?;
 
     tx.commit().await?;
 
@@ -327,22 +279,15 @@ async fn load_information(
     tx: &mut Transaction<'_, Postgres>,
     metodo_id: i64,
 ) -> ApiResult<Vec<InformacionDonacion>> {
-    Ok(sqlx::query_as::<_, InformacionDonacion>(
-        r#"
-        SELECT
-            id,
-            titulo,
-            valor,
-            created_at,
-            updated_at
-        FROM informacion_donacion
-        WHERE metodo_donacion_id = $1
-        ORDER BY id
-        "#,
+    let rows = base::obtener_donde::<InformacionDonacionRow, _>(
+        &mut **tx,
+        "metodo_donacion_id",
+        metodo_id,
+        Some(Ordenamiento::asc("id")),
     )
-    .bind(metodo_id)
-    .fetch_all(&mut **tx)
-    .await?)
+    .await?;
+
+    Ok(rows.into_iter().map(Into::into).collect())
 }
 
 /* ==========================================================

@@ -4,18 +4,13 @@ use crate::{
         role::{CreateRoleRequest, PatchRoleRequest, Role, RoleRow, RoleWithServices},
         service::Service,
     },
+    repositories::{base, tablas::ROLES},
 };
 use sqlx::PgPool;
 use std::collections::HashMap;
 
 pub async fn get_all(db: &PgPool) -> Result<Vec<Role>, sqlx::Error> {
-    sqlx::query_as::<_, Role>(
-        r#"
-        SELECT * FROM roles
-        "#,
-    )
-    .fetch_all(db)
-    .await
+    base::obtener_todos::<Role>(db, ()).await
 }
 
 pub async fn get_all_with_services(db: &PgPool) -> Result<Vec<RoleWithServices>, sqlx::Error> {
@@ -166,7 +161,7 @@ pub async fn create(db: &PgPool, request: CreateRoleRequest) -> ApiResult<RoleWi
 
     tx.commit().await?;
 
-    Ok(get_by_id(db, role.id).await?.ok_or(ApiError::NotFound)?)
+    get_by_id(db, role.id).await?.ok_or(ApiError::NotFound)
 }
 
 pub async fn update(
@@ -226,22 +221,13 @@ pub async fn update(
 
     tx.commit().await?;
 
-    Ok(get_by_id(db, id).await?.ok_or(ApiError::NotFound)?)
+    get_by_id(db, id).await?.ok_or(ApiError::NotFound)
 }
 
 pub async fn delete(db: &PgPool, id: i64) -> Result<Option<Role>, ApiError> {
     let mut tx = db.begin().await?;
     // Check if the role exists
-    let exists = sqlx::query_as::<_, Role>(
-        r#"
-        SELECT *
-        FROM roles
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?;
+    let exists = base::obtener_por_id::<Role>(&mut *tx, id).await?;
 
     if exists.is_none() {
         return Err(ApiError::NotFound);
@@ -277,15 +263,7 @@ pub async fn delete(db: &PgPool, id: i64) -> Result<Option<Role>, ApiError> {
     .await?;
 
     // Delete role
-    sqlx::query(
-        r#"
-        DELETE FROM roles
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    base::eliminar_por_id(&mut *tx, &ROLES, id).await?;
 
     tx.commit().await?;
 

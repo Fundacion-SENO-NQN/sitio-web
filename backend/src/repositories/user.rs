@@ -4,6 +4,7 @@ use crate::{
         service::Service,
         user::{PatchUserRequest, User, UserResponse},
     },
+    repositories::{base, tablas::USERS},
 };
 use sqlx::PgPool;
 
@@ -267,10 +268,7 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<UserResponse> {
         .await?
         .ok_or(crate::error::api_error::ApiError::NotFound)?;
 
-    sqlx::query("DELETE FROM users WHERE id = $1")
-        .bind(id)
-        .execute(&mut *tx)
-        .await?;
+    base::eliminar_por_id(&mut *tx, &USERS, id).await?;
 
     tx.commit().await?;
 
