@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
 
 use crate::{
     models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
@@ -11,6 +11,10 @@ use crate::{
 };
 
 const NOTICIAS_ORDER_LOCK: i64 = 982_451_653;
+
+static COLUMNAS_NOTICIA_INSERT: &[&str] = &["fecha", "titulo", "orden", "contenido", "cant_img"];
+
+static COLUMNAS_NOTICIA_UPDATE: &[&str] = &["fecha", "titulo", "contenido", "cant_img"];
 
 /* ==========================================================
    OBTENER TODAS
@@ -54,52 +58,18 @@ pub async fn create(
     .execute(&mut *transaction)
     .await?;
 
-    let next_order = sqlx::query_scalar::<_, i64>(
-        r#"
-            SELECT
-                COALESCE(
-                    MAX(orden),
-                    -1
-                ) + 1
-            FROM noticias
-            "#,
-    )
-    .fetch_one(&mut *transaction)
-    .await?;
+    let next_order = base::orden_maximo(&mut *transaction, &NOTICIAS, -1, 1).await?;
 
-    let noticia = sqlx::query_as::<_, Noticia>(
-        r#"
-            INSERT INTO noticias (
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            )
-            VALUES (
-                $1,
-                $2,
-                $3,
-                $4,
-                $5
-            )
-            RETURNING
-                id,
-                created_at,
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            "#,
-    )
-    .bind(fecha)
-    .bind(titulo)
-    .bind(next_order)
-    .bind(contenido)
-    .bind(cant_img)
-    .fetch_one(&mut *transaction)
-    .await?;
+    let sql = base::sql_insertar(&NOTICIAS, COLUMNAS_NOTICIA_INSERT, true)?;
+
+    let noticia = sqlx::query_as::<_, Noticia>(AssertSqlSafe(sql))
+        .bind(fecha)
+        .bind(titulo)
+        .bind(next_order)
+        .bind(contenido)
+        .bind(cant_img)
+        .fetch_one(&mut *transaction)
+        .await?;
 
     transaction.commit().await?;
 
@@ -130,32 +100,16 @@ pub async fn update(
         return get_by_id(pool, id).await;
     }
 
-    sqlx::query_as::<_, Noticia>(
-        r#"
-        UPDATE noticias
-        SET
-            fecha = COALESCE($1, fecha),
-            titulo = COALESCE($2, titulo),
-            contenido = COALESCE($3, contenido),
-            cant_img = COALESCE($4, cant_img)
-        WHERE id = $5
-        RETURNING
-            id,
-            created_at,
-            fecha,
-            titulo,
-            orden,
-            contenido,
-            cant_img
-        "#,
-    )
-    .bind(fecha)
-    .bind(titulo)
-    .bind(contenido)
-    .bind(cant_img)
-    .bind(id)
-    .fetch_optional(pool)
-    .await
+    let sql = base::sql_actualizar_coalesce_por_id(&NOTICIAS, COLUMNAS_NOTICIA_UPDATE, true)?;
+
+    sqlx::query_as::<_, Noticia>(AssertSqlSafe(sql))
+        .bind(fecha)
+        .bind(titulo)
+        .bind(contenido)
+        .bind(cant_img)
+        .bind(id)
+        .fetch_optional(pool)
+        .await
 }
 
 /* ==========================================================

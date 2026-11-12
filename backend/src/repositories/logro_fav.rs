@@ -1,9 +1,14 @@
 use crate::{
     error::api_error::ApiResult,
     models::logro::{CreateLogroFav, Logro, LogroFav},
-    repositories::{base, tablas::LOGROS},
+    repositories::{
+        base,
+        tablas::{LOGROS, LOGROS_FAV},
+    },
 };
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
+
+static COLUMNAS_LOGRO_FAV_INSERT: &[&str] = &["logro_id", "orden"];
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Logro>> {
     Ok(sqlx::query_as::<_, Logro>(
@@ -71,26 +76,13 @@ pub async fn create(db: &PgPool, logro_id: i64, orden: i64) -> ApiResult<LogroFa
     .execute(&mut *tx)
     .await?;
 
-    let logro_fav = sqlx::query_as::<_, LogroFav>(
-        r#"
-        INSERT INTO logros_fav
-            (
-                logro_id,
-                orden
-            )
-        VALUES
-            ($1, $2)
-        RETURNING
-            id,
-            logro_id,
-            orden,
-            created_at
-        "#,
-    )
-    .bind(logro_id)
-    .bind(orden)
-    .fetch_one(&mut *tx)
-    .await?;
+    let sql = base::sql_insertar(&LOGROS_FAV, COLUMNAS_LOGRO_FAV_INSERT, true)?;
+
+    let logro_fav = sqlx::query_as::<_, LogroFav>(AssertSqlSafe(sql))
+        .bind(logro_id)
+        .bind(orden)
+        .fetch_one(&mut *tx)
+        .await?;
 
     tx.commit().await?;
 
@@ -126,25 +118,14 @@ pub async fn replace_all(db: &PgPool, request: Vec<CreateLogroFav>) -> ApiResult
     .execute(&mut *tx)
     .await?;
 
+    let sql = base::sql_insertar(&LOGROS_FAV, COLUMNAS_LOGRO_FAV_INSERT, false)?;
+
     for item in request {
-        sqlx::query(
-            r#"
-            INSERT INTO logros_fav
-            (
-                logro_id,
-                orden
-            )
-            VALUES
-            (
-                $1,
-                $2
-            )
-            "#,
-        )
-        .bind(item.logro_id)
-        .bind(item.orden)
-        .execute(&mut *tx)
-        .await?;
+        sqlx::query(AssertSqlSafe(sql.clone()))
+            .bind(item.logro_id)
+            .bind(item.orden)
+            .execute(&mut *tx)
+            .await?;
     }
 
     tx.commit().await?;

@@ -4,7 +4,7 @@
    Único lugar donde se declaran las tablas usadas por las
    operaciones genéricas de `repositories::base`.
 
-   Las columnas, su orden, su tipo y su nulabilidad reflejan
+   Las columnas, su orden, su tipo y su mutabilidad reflejan
    el esquema existente tal como lo leen los modelos y las
    consultas originales de cada repositorio. Al agregar una
    columna a un modelo `Entidad`, hay que agregarla aquí.
@@ -34,13 +34,13 @@ pub static EQUIPO: Tabla = Tabla::nueva(
     "equipo",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("orden", Tipo::I64),
         Columna::requerida("nombre", Tipo::String),
         Columna::requerida("apellido", Tipo::String),
         Columna::requerida("puesto", Tipo::String),
         Columna::requerida("descripcion", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -49,11 +49,11 @@ pub static EVENTOS: Tabla = Tabla::nueva(
     "eventos",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("id", Tipo::I64),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
         Columna::requerida("titulo", Tipo::String),
         Columna::requerida("descripcion", Tipo::String),
-        Columna::requerida("orden", Tipo::I64),
+        Columna::solo_insercion("orden", Tipo::I64),
         Columna::opcional("lugar", Tipo::String),
         Columna::opcional("fecha", Tipo::String),
         Columna::opcional("horario", Tipo::String),
@@ -66,12 +66,12 @@ pub static LOGROS: Tabla = Tabla::nueva(
     "logros",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
-        Columna::requerida("orden", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
+        Columna::solo_insercion("orden", Tipo::I64),
         Columna::requerida("titulo", Tipo::String),
         Columna::requerida("contenido", Tipo::String),
         Columna::requerida("image_count", Tipo::I16),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -80,10 +80,10 @@ pub static LOGROS_FAV: Tabla = Tabla::nueva(
     "logros_fav",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("logro_id", Tipo::I64),
         Columna::requerida("orden", Tipo::I64),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -91,11 +91,11 @@ pub static NOTICIAS: Tabla = Tabla::nueva(
     "noticias",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("id", Tipo::I64),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
         Columna::requerida("fecha", Tipo::String),
         Columna::requerida("titulo", Tipo::String),
-        Columna::requerida("orden", Tipo::I64),
+        Columna::solo_insercion("orden", Tipo::I64),
         Columna::requerida("contenido", Tipo::String),
         Columna::requerida("cant_img", Tipo::I64),
     ],
@@ -109,11 +109,11 @@ pub static METODO_DONACION: Tabla = Tabla::nueva(
     "metodo_donacion",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("nombre", Tipo::String),
         Columna::requerida("descripcion", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
-        Columna::requerida("updated_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
+        Columna::inmutable("updated_at", Tipo::TimestampTz),
     ],
 );
 
@@ -123,12 +123,12 @@ pub static INFORMACION_DONACION: Tabla = Tabla::nueva(
     "informacion_donacion",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("titulo", Tipo::String),
         Columna::requerida("valor", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
-        Columna::requerida("updated_at", Tipo::TimestampTz),
-        Columna::requerida("metodo_donacion_id", Tipo::I64),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
+        Columna::inmutable("updated_at", Tipo::TimestampTz),
+        Columna::solo_insercion("metodo_donacion_id", Tipo::I64),
     ],
 );
 
@@ -140,7 +140,7 @@ pub static BINGOS: Tabla = Tabla::nueva(
     "bingos",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("name", Tipo::String),
         Columna::requerida("last_name", Tipo::String),
         Columna::requerida("phone", Tipo::String),
@@ -153,7 +153,7 @@ pub static BINGOS: Tabla = Tabla::nueva(
         Columna::requerida("nro_bingo", Tipo::I16),
         Columna::requerida("late_payment_notice", Tipo::I16),
         Columna::requerida("address", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -165,9 +165,9 @@ pub static ROLES: Tabla = Tabla::nueva(
     "roles",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("name", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -175,11 +175,11 @@ pub static SERVICES: Tabla = Tabla::nueva(
     "services",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("name", Tipo::String),
         Columna::requerida("titulo", Tipo::String),
         Columna::requerida("url", Tipo::String),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 
@@ -187,16 +187,39 @@ pub static USERS: Tabla = Tabla::nueva(
     "users",
     "id",
     &[
-        Columna::requerida("id", Tipo::I64),
+        Columna::inmutable("id", Tipo::I64),
         Columna::requerida("username", Tipo::String),
         Columna::requerida("email", Tipo::String),
         Columna::requerida("name", Tipo::String),
         Columna::requerida("last_name", Tipo::String),
         Columna::requerida("password_hash", Tipo::String),
         Columna::requerida("role_id", Tipo::I64),
-        Columna::requerida("auth_version", Tipo::I64),
+        Columna::inmutable("auth_version", Tipo::I64),
         Columna::requerida("active", Tipo::Bool),
-        Columna::requerida("created_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
+    ],
+);
+
+/* ==========================================================
+   VOLUNTARIADO
+========================================================== */
+
+pub static SOLICITUDES_VOLUNTARIADO: Tabla = Tabla::nueva(
+    "solicitudes_voluntariado",
+    "id",
+    &[
+        Columna::inmutable("id", Tipo::I64),
+        Columna::requerida("nombre", Tipo::String),
+        Columna::requerida("apellido", Tipo::String),
+        Columna::requerida("localidad", Tipo::String),
+        Columna::requerida("email", Tipo::String),
+        Columna::requerida("tipo", Tipo::String),
+        Columna::requerida("descripcion", Tipo::String),
+        Columna::requerida("acepta_contacto", Tipo::Bool),
+        Columna::requerida("email_estado", Tipo::String),
+        Columna::opcional("email_error", Tipo::String),
+        Columna::opcional("email_enviado_at", Tipo::TimestampTz),
+        Columna::inmutable("created_at", Tipo::TimestampTz),
     ],
 );
 

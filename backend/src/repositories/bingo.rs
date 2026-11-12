@@ -1,9 +1,42 @@
 use crate::{
     error::api_error::{ApiError, ApiResult},
     models::bingo::{Bingo, CreateBingo, UpdateBingo},
-    repositories::base::{self, Ordenamiento},
+    repositories::{
+        base::{self, Ordenamiento},
+        tablas::BINGOS,
+    },
 };
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
+
+static COLUMNAS_CREATE: &[&str] = &[
+    "name",
+    "last_name",
+    "phone",
+    "neighborhood",
+    "collection_date",
+    "collection_locate",
+    "start_month",
+    "locality",
+    "quote",
+    "nro_bingo",
+    "late_payment_notice",
+    "address",
+];
+
+static COLUMNAS_UPDATE: &[&str] = &[
+    "name",
+    "last_name",
+    "phone",
+    "neighborhood",
+    "collection_date",
+    "collection_locate",
+    "address",
+    "locality",
+    "start_month",
+    "quote",
+    "nro_bingo",
+    "late_payment_notice",
+];
 
 /* ==========================================================
    GET ALL
@@ -26,70 +59,24 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<Bingo>> {
 ========================================================== */
 
 pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
-    let bingo = sqlx::query_as::<_, Bingo>(
-        r#"
-        INSERT INTO bingos
-        (
-            name,
-            last_name,
-            phone,
-            neighborhood,
-            collection_date,
-            collection_locate,
-            start_month,
-            locality,
-            quote,
-            nro_bingo,
-            late_payment_notice,
-            address
-        )
-        VALUES
-        (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10,
-            $11,
-            $12
-        )
-        RETURNING
-            id,
-            name,
-            last_name,
-            phone,
-            neighborhood,
-            collection_date,
-            collection_locate,
-            start_month,
-            locality,
-            quote,
-            nro_bingo,
-            late_payment_notice,
-            address,
-            created_at
-        "#,
-    )
-    .bind(new_bingo.name)
-    .bind(new_bingo.last_name)
-    .bind(new_bingo.phone)
-    .bind(new_bingo.neighborhood)
-    .bind(new_bingo.collection_date)
-    .bind(new_bingo.collection_locate)
-    .bind(new_bingo.start_month)
-    .bind(new_bingo.locality)
-    .bind(new_bingo.quote)
-    .bind(new_bingo.nro_bingo)
-    .bind(new_bingo.late_payment_notice)
-    .bind(new_bingo.address)
-    .fetch_one(db)
-    .await
-    .map_err(map_bingo_db_error)?;
+    let sql = base::sql_insertar(&BINGOS, COLUMNAS_CREATE, true)?;
+
+    let bingo = sqlx::query_as::<_, Bingo>(AssertSqlSafe(sql))
+        .bind(new_bingo.name)
+        .bind(new_bingo.last_name)
+        .bind(new_bingo.phone)
+        .bind(new_bingo.neighborhood)
+        .bind(new_bingo.collection_date)
+        .bind(new_bingo.collection_locate)
+        .bind(new_bingo.start_month)
+        .bind(new_bingo.locality)
+        .bind(new_bingo.quote)
+        .bind(new_bingo.nro_bingo)
+        .bind(new_bingo.late_payment_notice)
+        .bind(new_bingo.address)
+        .fetch_one(db)
+        .await
+        .map_err(map_bingo_db_error)?;
 
     Ok(bingo)
 }
@@ -99,57 +86,26 @@ pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
 ========================================================== */
 
 pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bingo> {
-    let bingo = sqlx::query_as::<_, Bingo>(
-        r#"
-        UPDATE bingos
-        SET
-            name = COALESCE($1, name),
-            last_name = COALESCE($2, last_name),
-            phone = COALESCE($3, phone),
-            neighborhood = COALESCE($4, neighborhood),
-            collection_date = COALESCE($5, collection_date),
-            collection_locate = COALESCE($6, collection_locate),
-            address = COALESCE($7, address),
-            locality = COALESCE($8, locality),
-            start_month = COALESCE($9, start_month),
-            quote = COALESCE($10, quote),
-            nro_bingo = COALESCE($11, nro_bingo),
-            late_payment_notice = COALESCE($12, late_payment_notice)
-        WHERE id = $13
-        RETURNING
-            id,
-            name,
-            last_name,
-            phone,
-            neighborhood,
-            collection_date,
-            collection_locate,
-            start_month,
-            locality,
-            quote,
-            nro_bingo,
-            late_payment_notice,
-            address,
-            created_at
-        "#,
-    )
-    .bind(update.name)
-    .bind(update.last_name)
-    .bind(update.phone)
-    .bind(update.neighborhood)
-    .bind(update.collection_date)
-    .bind(update.collection_locate)
-    .bind(update.address)
-    .bind(update.locality)
-    .bind(update.start_month)
-    .bind(update.quote)
-    .bind(update.nro_bingo)
-    .bind(update.late_payment_notice)
-    .bind(id)
-    .fetch_optional(db)
-    .await
-    .map_err(map_bingo_db_error)?
-    .ok_or(ApiError::NotFound)?;
+    let sql = base::sql_actualizar_coalesce_por_id(&BINGOS, COLUMNAS_UPDATE, true)?;
+
+    let bingo = sqlx::query_as::<_, Bingo>(AssertSqlSafe(sql))
+        .bind(update.name)
+        .bind(update.last_name)
+        .bind(update.phone)
+        .bind(update.neighborhood)
+        .bind(update.collection_date)
+        .bind(update.collection_locate)
+        .bind(update.address)
+        .bind(update.locality)
+        .bind(update.start_month)
+        .bind(update.quote)
+        .bind(update.nro_bingo)
+        .bind(update.late_payment_notice)
+        .bind(id)
+        .fetch_optional(db)
+        .await
+        .map_err(map_bingo_db_error)?
+        .ok_or(ApiError::NotFound)?;
 
     Ok(bingo)
 }

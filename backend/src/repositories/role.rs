@@ -6,7 +6,7 @@ use crate::{
     },
     repositories::{base, tablas::ROLES},
 };
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
 use std::collections::HashMap;
 
 pub async fn get_all(db: &PgPool) -> Result<Vec<Role>, sqlx::Error> {
@@ -127,16 +127,12 @@ pub async fn get_by_id(db: &PgPool, id: i64) -> Result<Option<RoleWithServices>,
 pub async fn create(db: &PgPool, request: CreateRoleRequest) -> ApiResult<RoleWithServices> {
     let mut tx = db.begin().await?;
 
-    let role = sqlx::query_as::<_, Role>(
-        r#"
-        INSERT INTO roles (name)
-        VALUES ($1)
-        RETURNING *
-        "#,
-    )
-    .bind(&request.name)
-    .fetch_one(&mut *tx)
-    .await?;
+    let sql = base::sql_insertar(&ROLES, &["name"], true)?;
+
+    let role = sqlx::query_as::<_, Role>(AssertSqlSafe(sql))
+        .bind(&request.name)
+        .fetch_one(&mut *tx)
+        .await?;
 
     for service_id in &request.service_id {
         sqlx::query(
@@ -172,18 +168,13 @@ pub async fn update(
     let mut tx = db.begin().await?;
 
     // Update role name
-    sqlx::query(
-        r#"
-        UPDATE roles
-        SET
-            name = COALESCE($1, name)
-        WHERE id = $2
-        "#,
-    )
-    .bind(request.name.as_ref())
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    let sql = base::sql_actualizar_coalesce_por_id(&ROLES, &["name"], false)?;
+
+    sqlx::query(AssertSqlSafe(sql))
+        .bind(request.name.as_ref())
+        .bind(id)
+        .execute(&mut *tx)
+        .await?;
 
     // Replace permissions if provided
     if let Some(service_ids) = request.service_id {

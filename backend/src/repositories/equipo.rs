@@ -6,8 +6,11 @@ use crate::{
         tablas::EQUIPO,
     },
 };
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
 use std::collections::HashSet;
+
+static COLUMNAS_EQUIPO_MUTABLES: &[&str] =
+    &["orden", "nombre", "apellido", "puesto", "descripcion"];
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Equipo>> {
     Ok(base::obtener_todos::<Equipo>(db, Some(Ordenamiento::asc("orden"))).await?)
@@ -36,39 +39,18 @@ pub async fn create(
      */
     base::bloquear_tabla(&mut *tx, &EQUIPO).await?;
 
-    let member = sqlx::query_as::<_, Equipo>(
-        r#"
-        INSERT INTO equipo
-        (
-            orden,
-            nombre,
-            apellido,
-            puesto,
-            descripcion
-        )
-        SELECT
-            COALESCE(MAX(orden), -1) + 1,
-            $1,
-            $2,
-            $3,
-            $4
-        FROM equipo
-        RETURNING
-            id,
-            orden,
-            nombre,
-            apellido,
-            puesto,
-            descripcion,
-            created_at
-        "#,
-    )
-    .bind(nombre)
-    .bind(apellido)
-    .bind(puesto)
-    .bind(descripcion)
-    .fetch_one(&mut *tx)
-    .await?;
+    let next_order = base::orden_maximo(&mut *tx, &EQUIPO, -1, 1).await?;
+
+    let sql = base::sql_insertar(&EQUIPO, COLUMNAS_EQUIPO_MUTABLES, true)?;
+
+    let member = sqlx::query_as::<_, Equipo>(AssertSqlSafe(sql))
+        .bind(next_order)
+        .bind(nombre)
+        .bind(apellido)
+        .bind(puesto)
+        .bind(descripcion)
+        .fetch_one(&mut *tx)
+        .await?;
 
     tx.commit().await?;
 
@@ -80,35 +62,18 @@ pub async fn create(
 ========================================================== */
 
 pub async fn update(db: &PgPool, id: i64, update: UpdateEquipo) -> ApiResult<Equipo> {
-    let member = sqlx::query_as::<_, Equipo>(
-        r#"
-        UPDATE equipo
-        SET
-            orden = COALESCE($1, orden),
-            nombre = COALESCE($2, nombre),
-            apellido = COALESCE($3, apellido),
-            puesto = COALESCE($4, puesto),
-            descripcion = COALESCE($5, descripcion)
-        WHERE id = $6
-        RETURNING
-            id,
-            orden,
-            nombre,
-            apellido,
-            puesto,
-            descripcion,
-            created_at
-        "#,
-    )
-    .bind(update.orden)
-    .bind(update.nombre)
-    .bind(update.apellido)
-    .bind(update.puesto)
-    .bind(update.descripcion)
-    .bind(id)
-    .fetch_optional(db)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let sql = base::sql_actualizar_coalesce_por_id(&EQUIPO, COLUMNAS_EQUIPO_MUTABLES, true)?;
+
+    let member = sqlx::query_as::<_, Equipo>(AssertSqlSafe(sql))
+        .bind(update.orden)
+        .bind(update.nombre)
+        .bind(update.apellido)
+        .bind(update.puesto)
+        .bind(update.descripcion)
+        .bind(id)
+        .fetch_optional(db)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     Ok(member)
 }

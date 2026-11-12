@@ -63,18 +63,28 @@ impl TipoColumna {
             TipoColumna::Json => "JSONB",
         }
     }
+
+    /// Comprueba si el tipo representa una fecha o marca temporal.
+    pub const fn es_temporal(self) -> bool {
+        matches!(
+            self,
+            TipoColumna::Date | TipoColumna::DateTime | TipoColumna::TimestampTz
+        )
+    }
 }
 
-/// Columna de una tabla.
+/// Columna de una tabla con sus restricciones de mutabilidad.
 #[derive(Debug, Clone, Copy)]
 pub struct Columna {
     pub nombre: &'static str,
     pub tipo: TipoColumna,
     pub nullable: bool,
+    pub insertable: bool,
+    pub updatable: bool,
 }
 
 impl Columna {
-    /// Columna `NOT NULL`.
+    /// Columna `NOT NULL`, insertable y modificable por UPDATE.
     pub const fn requerida(nombre: &'static str, tipo: TipoColumna) -> Self {
         assert!(
             es_identificador_valido(nombre),
@@ -85,10 +95,12 @@ impl Columna {
             nombre,
             tipo,
             nullable: false,
+            insertable: true,
+            updatable: true,
         }
     }
 
-    /// Columna que admite `NULL` (se decodifica como `Option<T>`).
+    /// Columna que admite `NULL` (se decodifica como `Option<T>`), insertable y modificable.
     pub const fn opcional(nombre: &'static str, tipo: TipoColumna) -> Self {
         assert!(
             es_identificador_valido(nombre),
@@ -99,6 +111,99 @@ impl Columna {
             nombre,
             tipo,
             nullable: true,
+            insertable: true,
+            updatable: true,
+        }
+    }
+
+    /// Columna asignable únicamente al crear el registro (ej. `orden` en noticias o claves fijas).
+    /// No se permite incluirla en actualizaciones generales.
+    pub const fn solo_insercion(nombre: &'static str, tipo: TipoColumna) -> Self {
+        assert!(
+            es_identificador_valido(nombre),
+            "nombre de columna inválido"
+        );
+
+        Self {
+            nombre,
+            tipo,
+            nullable: false,
+            insertable: true,
+            updatable: false,
+        }
+    }
+
+    /// Columna opcional asignable únicamente al crear el registro.
+    #[allow(dead_code)]
+    pub const fn solo_insercion_opcional(nombre: &'static str, tipo: TipoColumna) -> Self {
+        assert!(
+            es_identificador_valido(nombre),
+            "nombre de columna inválido"
+        );
+
+        Self {
+            nombre,
+            tipo,
+            nullable: true,
+            insertable: true,
+            updatable: false,
+        }
+    }
+
+    /// Columna administrada por la base de datos o el sistema (`id` serial, `created_at`, `updated_at`, etc.).
+    /// No admite inserciones ni actualizaciones directas mediante parámetros del usuario.
+    pub const fn inmutable(nombre: &'static str, tipo: TipoColumna) -> Self {
+        assert!(
+            es_identificador_valido(nombre),
+            "nombre de columna inválido"
+        );
+
+        Self {
+            nombre,
+            tipo,
+            nullable: false,
+            insertable: false,
+            updatable: false,
+        }
+    }
+
+    /// Columna opcional no modificable por el usuario.
+    #[allow(dead_code)]
+    pub const fn inmutable_opcional(nombre: &'static str, tipo: TipoColumna) -> Self {
+        assert!(
+            es_identificador_valido(nombre),
+            "nombre de columna inválido"
+        );
+
+        Self {
+            nombre,
+            tipo,
+            nullable: true,
+            insertable: false,
+            updatable: false,
+        }
+    }
+
+    /// Constructor exhaustivo para columnas con configuraciones particulares.
+    #[allow(dead_code)]
+    pub const fn personalizada(
+        nombre: &'static str,
+        tipo: TipoColumna,
+        nullable: bool,
+        insertable: bool,
+        updatable: bool,
+    ) -> Self {
+        assert!(
+            es_identificador_valido(nombre),
+            "nombre de columna inválido"
+        );
+
+        Self {
+            nombre,
+            tipo,
+            nullable,
+            insertable,
+            updatable,
         }
     }
 
@@ -112,6 +217,14 @@ impl Columna {
 
     pub const fn nullable(&self) -> bool {
         self.nullable
+    }
+
+    pub const fn es_insertable(&self) -> bool {
+        self.insertable
+    }
+
+    pub const fn es_actualizable(&self) -> bool {
+        self.updatable
     }
 }
 
@@ -177,6 +290,18 @@ impl Tabla {
 
     pub const fn columnas(&self) -> &'static [Columna] {
         self.columnas
+    }
+
+    /// Columnas aptas para operaciones de inserción directa.
+    #[allow(dead_code)]
+    pub fn columnas_insertables(&self) -> impl Iterator<Item = &'static Columna> {
+        self.columnas.iter().filter(|col| col.es_insertable())
+    }
+
+    /// Columnas aptas para operaciones de actualización directa.
+    #[allow(dead_code)]
+    pub fn columnas_actualizables(&self) -> impl Iterator<Item = &'static Columna> {
+        self.columnas.iter().filter(|col| col.es_actualizable())
     }
 
     /// Columna de la clave primaria (siempre existe: se valida al construir).
@@ -263,9 +388,10 @@ mod tests {
         "prueba",
         "id",
         &[
-            Columna::requerida("id", TipoColumna::I64),
+            Columna::inmutable("id", TipoColumna::I64),
             Columna::requerida("nombre", TipoColumna::String),
             Columna::opcional("detalle", TipoColumna::String),
+            Columna::solo_insercion("posicion", TipoColumna::I64),
         ],
     );
 
@@ -273,11 +399,35 @@ mod tests {
     fn conserva_orden_y_nulabilidad() {
         let nombres: Vec<_> = PRUEBA.columnas().iter().map(Columna::nombre).collect();
 
-        assert_eq!(nombres, ["id", "nombre", "detalle"]);
+        assert_eq!(nombres, ["id", "nombre", "detalle", "posicion"]);
         assert!(!PRUEBA.columna("nombre").unwrap().nullable());
         assert!(PRUEBA.columna("detalle").unwrap().nullable());
         assert_eq!(PRUEBA.clave_primaria().nombre(), "id");
         assert_eq!(PRUEBA.clave_primaria().tipo(), TipoColumna::I64);
+    }
+
+    #[test]
+    fn respeta_reglas_de_mutabilidad() {
+        let id = PRUEBA.columna("id").unwrap();
+        assert!(!id.es_insertable());
+        assert!(!id.es_actualizable());
+
+        let nombre = PRUEBA.columna("nombre").unwrap();
+        assert!(nombre.es_insertable());
+        assert!(nombre.es_actualizable());
+
+        let posicion = PRUEBA.columna("posicion").unwrap();
+        assert!(posicion.es_insertable());
+        assert!(!posicion.es_actualizable());
+
+        let insertables: Vec<_> = PRUEBA.columnas_insertables().map(Columna::nombre).collect();
+        assert_eq!(insertables, ["nombre", "detalle", "posicion"]);
+
+        let actualizables: Vec<_> = PRUEBA
+            .columnas_actualizables()
+            .map(Columna::nombre)
+            .collect();
+        assert_eq!(actualizables, ["nombre", "detalle"]);
     }
 
     #[test]

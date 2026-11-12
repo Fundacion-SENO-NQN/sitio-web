@@ -7,9 +7,12 @@ use crate::{
     },
 };
 
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::{AssertSqlSafe, PgPool, Postgres, Transaction};
 
 use std::collections::HashSet;
+
+static COLUMNAS_LOGRO_INSERT: &[&str] = &["orden", "titulo", "contenido", "image_count"];
+static COLUMNAS_LOGRO_UPDATE: &[&str] = &["titulo", "contenido", "image_count"];
 
 /* ==========================================================
    GET ALL
@@ -48,39 +51,17 @@ pub async fn create(
      */
     lock_logros_table(&mut tx).await?;
 
-    let logro = sqlx::query_as::<_, Logro>(
-        r#"
-        INSERT INTO logros
-            (
-                orden,
-                titulo,
-                contenido,
-                image_count
-            )
-        VALUES
-            (
-                (
-                    SELECT COALESCE(MAX(orden), -1) + 1
-                    FROM logros
-                ),
-                $1,
-                $2,
-                $3
-            )
-        RETURNING
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        "#,
-    )
-    .bind(titulo)
-    .bind(contenido)
-    .bind(image_count)
-    .fetch_one(&mut *tx)
-    .await?;
+    let next_order = base::orden_maximo(&mut *tx, &LOGROS, -1, 1).await?;
+
+    let sql = base::sql_insertar(&LOGROS, COLUMNAS_LOGRO_INSERT, true)?;
+
+    let logro = sqlx::query_as::<_, Logro>(AssertSqlSafe(sql))
+        .bind(next_order)
+        .bind(titulo)
+        .bind(contenido)
+        .bind(image_count)
+        .fetch_one(&mut *tx)
+        .await?;
 
     tx.commit().await?;
 
@@ -137,30 +118,16 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateLogro) -> ApiResult<Logr
         return Ok(current);
     }
 
-    let logro = sqlx::query_as::<_, Logro>(
-        r#"
-        UPDATE logros
-        SET
-            titulo = COALESCE($1, titulo),
-            contenido = COALESCE($2, contenido),
-            image_count = COALESCE($3, image_count)
-        WHERE id = $4
-        RETURNING
-            id,
-            orden,
-            titulo,
-            contenido,
-            image_count,
-            created_at
-        "#,
-    )
-    .bind(titulo)
-    .bind(contenido)
-    .bind(image_count)
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let sql = base::sql_actualizar_coalesce_por_id(&LOGROS, COLUMNAS_LOGRO_UPDATE, true)?;
+
+    let logro = sqlx::query_as::<_, Logro>(AssertSqlSafe(sql))
+        .bind(titulo)
+        .bind(contenido)
+        .bind(image_count)
+        .bind(id)
+        .fetch_optional(&mut *tx)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     tx.commit().await?;
 

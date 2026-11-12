@@ -3,10 +3,11 @@
    ----------------------------------------------------------
    Genera y ejecuta las consultas que se repetían en varios
    repositorios (SELECT por tabla, por id, con filtros, con
-   ORDER BY / LIMIT / FOR UPDATE, DELETE por id y las
-   operaciones de las tablas con columna `orden`).
+   ORDER BY / LIMIT / FOR UPDATE, DELETE por id, INSERT y
+   UPDATE con control estricto de mutabilidad, y operaciones
+   de las tablas con columna `orden`).
 
-   Reglas de seguridad:
+   Reglas de seguridad y mutabilidad:
 
    - Los nombres de tabla salen exclusivamente de los
      metadatos estáticos (`repositories::tablas`), validados
@@ -14,6 +15,10 @@
    - Las columnas se reciben como `&'static str` y sólo se
      usan si están declaradas en la tabla; de lo contrario la
      consulta se rechaza con `ErrorConsulta`.
+   - Las columnas protegidas (`id`, `created_at`, `updated_at`,
+     `auth_version` o posiciones fijadas por reordenamiento)
+     no admiten inserción o actualización según sus banderas
+     `insertable` y `updatable`.
    - La dirección de ORDER BY es un enum, nunca texto.
    - Todos los valores viajan como parámetros (`$n`) con
      `bind`; jamás se concatenan en el SQL.
@@ -189,10 +194,19 @@ impl CriteriosOrden for &Vec<Ordenamiento> {
 ========================================================== */
 
 /// Error al generar SQL. Indica un error de programación (una columna mal
-/// escrita, un tipo de filtro incorrecto), nunca un dato del usuario.
+/// escrita, un tipo de filtro incorrecto, intento de mutar columnas no
+/// permitidas), nunca un dato del usuario.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ErrorConsulta {
     ColumnaDesconocida {
+        tabla: &'static str,
+        columna: &'static str,
+    },
+    ColumnaNoInsertable {
+        tabla: &'static str,
+        columna: &'static str,
+    },
+    ColumnaNoActualizable {
         tabla: &'static str,
         columna: &'static str,
     },
@@ -209,6 +223,9 @@ pub enum ErrorConsulta {
     SinColumnas {
         tabla: &'static str,
     },
+    SinAsignaciones {
+        tabla: &'static str,
+    },
 }
 
 impl fmt::Display for ErrorConsulta {
@@ -216,6 +233,18 @@ impl fmt::Display for ErrorConsulta {
         match self {
             ErrorConsulta::ColumnaDesconocida { tabla, columna } => {
                 write!(f, "la columna `{columna}` no está declarada en `{tabla}`")
+            }
+            ErrorConsulta::ColumnaNoInsertable { tabla, columna } => {
+                write!(
+                    f,
+                    "la columna `{columna}` en `{tabla}` no admite inserciones directas"
+                )
+            }
+            ErrorConsulta::ColumnaNoActualizable { tabla, columna } => {
+                write!(
+                    f,
+                    "la columna `{columna}` en `{tabla}` no admite modificaciones directas"
+                )
             }
             ErrorConsulta::TipoIncompatible {
                 tabla,
@@ -229,10 +258,19 @@ impl fmt::Display for ErrorConsulta {
                 recibido.nombre_postgres(),
             ),
             ErrorConsulta::NuloNoPermitido { tabla, columna } => {
-                write!(f, "`{tabla}.{columna}` no admite comparaciones con NULL")
+                write!(
+                    f,
+                    "`{tabla}.{columna}` no admite valores o comparaciones NULL"
+                )
             }
             ErrorConsulta::SinColumnas { tabla } => {
-                write!(f, "la consulta sobre `{tabla}` no selecciona columnas")
+                write!(f, "la consulta sobre `{tabla}` no especifica columnas")
+            }
+            ErrorConsulta::SinAsignaciones { tabla } => {
+                write!(
+                    f,
+                    "la sentencia UPDATE sobre `{tabla}` no incluye asignaciones"
+                )
             }
         }
     }
@@ -249,7 +287,7 @@ impl From<ErrorConsulta> for sqlx::Error {
 }
 
 /* ==========================================================
-   IDENTIFICADORES
+   IDENTIFICADORES Y RESOLUCIÓN
 ========================================================== */
 
 /// Palabras reservadas de PostgreSQL (incluye las que sólo pueden ser
@@ -385,7 +423,7 @@ fn escribir_parametro(sql: &mut String, numero: usize) {
     write!(sql, "${numero}").expect("escribir en un String no falla");
 }
 
-fn resolver_columna(
+pub fn resolver_columna(
     tabla: &'static Tabla,
     nombre: &'static str,
 ) -> Result<&'static Columna, ErrorConsulta> {
@@ -395,6 +433,38 @@ fn resolver_columna(
             tabla: tabla.nombre(),
             columna: nombre,
         })
+}
+
+pub fn resolver_columna_insertable(
+    tabla: &'static Tabla,
+    nombre: &'static str,
+) -> Result<&'static Columna, ErrorConsulta> {
+    let columna = resolver_columna(tabla, nombre)?;
+
+    if !columna.es_insertable() {
+        return Err(ErrorConsulta::ColumnaNoInsertable {
+            tabla: tabla.nombre(),
+            columna: nombre,
+        });
+    }
+
+    Ok(columna)
+}
+
+pub fn resolver_columna_actualizable(
+    tabla: &'static Tabla,
+    nombre: &'static str,
+) -> Result<&'static Columna, ErrorConsulta> {
+    let columna = resolver_columna(tabla, nombre)?;
+
+    if !columna.es_actualizable() {
+        return Err(ErrorConsulta::ColumnaNoActualizable {
+            tabla: tabla.nombre(),
+            columna: nombre,
+        });
+    }
+
+    Ok(columna)
 }
 
 fn resolver_columna_tipada(
@@ -605,6 +675,320 @@ impl ConsultaSelect {
 }
 
 /* ==========================================================
+   CONSTRUCTOR DE INSERT
+========================================================== */
+
+/// Sentencia `INSERT INTO` parametrizada con control de columnas insertables.
+#[derive(Debug, Clone)]
+pub struct ConsultaInsert {
+    tabla: &'static Tabla,
+    columnas: Vec<&'static str>,
+    retornar_todo: bool,
+    retornando: Option<Vec<&'static str>>,
+}
+
+impl ConsultaInsert {
+    pub fn en(tabla: &'static Tabla) -> Self {
+        Self {
+            tabla,
+            columnas: Vec::new(),
+            retornar_todo: false,
+            retornando: None,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn columna(mut self, columna: &'static str) -> Self {
+        self.columnas.push(columna);
+        self
+    }
+
+    pub fn columnas(mut self, columnas: impl IntoIterator<Item = &'static str>) -> Self {
+        self.columnas.extend(columnas);
+        self
+    }
+
+    /// Añade `RETURNING <todas las columnas de la tabla>`.
+    pub fn retornar_todo(mut self) -> Self {
+        self.retornar_todo = true;
+        self.retornando = None;
+        self
+    }
+
+    /// Añade `RETURNING <columnas especificadas>`.
+    pub fn retornando(mut self, columnas: impl IntoIterator<Item = &'static str>) -> Self {
+        self.retornando = Some(columnas.into_iter().collect());
+        self.retornar_todo = false;
+        self
+    }
+
+    pub fn construir(&self) -> Result<String, ErrorConsulta> {
+        let tabla = self.tabla;
+
+        if self.columnas.is_empty() {
+            return Err(ErrorConsulta::SinColumnas {
+                tabla: tabla.nombre(),
+            });
+        }
+
+        let columnas_resueltas = self
+            .columnas
+            .iter()
+            .map(|&col| resolver_columna_insertable(tabla, col))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        let mut sql = String::from("INSERT INTO ");
+        escribir_identificador(&mut sql, tabla.nombre());
+        sql.push_str(" (");
+        escribir_columnas(&mut sql, columnas_resueltas);
+        sql.push_str(") VALUES (");
+
+        for indice in 0..self.columnas.len() {
+            if indice > 0 {
+                sql.push_str(", ");
+            }
+            escribir_parametro(&mut sql, indice + 1);
+        }
+        sql.push(')');
+
+        if self.retornar_todo {
+            sql.push_str(" RETURNING ");
+            escribir_columnas(&mut sql, tabla.columnas());
+        } else if let Some(ref columnas_retorno) = self.retornando {
+            if columnas_retorno.is_empty() {
+                return Err(ErrorConsulta::SinColumnas {
+                    tabla: tabla.nombre(),
+                });
+            }
+            let resueltas = columnas_retorno
+                .iter()
+                .map(|&col| resolver_columna(tabla, col))
+                .collect::<Result<Vec<_>, _>>()?;
+            sql.push_str(" RETURNING ");
+            escribir_columnas(&mut sql, resueltas);
+        }
+
+        Ok(sql)
+    }
+}
+
+/* ==========================================================
+   CONSTRUCTOR DE UPDATE
+========================================================== */
+
+/// Modo en que se asigna el valor a una columna en una sentencia UPDATE.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ModoAsignacion {
+    /// `col = $n`
+    Directo,
+    /// `col = COALESCE($n, col)` (para modificaciones parciales)
+    Coalesce,
+    /// `col = NOW()` (para columnas temporales automáticas como `updated_at`)
+    Ahora,
+    /// `col = NULL` (para limpiar columnas opcionales explícitamente)
+    Nulo,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Asignacion {
+    columna: &'static str,
+    modo: ModoAsignacion,
+}
+
+/// Sentencia `UPDATE` parametrizada con control de columnas actualizables.
+#[derive(Debug, Clone)]
+pub struct ConsultaUpdate {
+    tabla: &'static Tabla,
+    asignaciones: Vec<Asignacion>,
+    condiciones: Vec<&'static str>,
+    retornar_todo: bool,
+    retornando: Option<Vec<&'static str>>,
+}
+
+impl ConsultaUpdate {
+    pub fn en(tabla: &'static Tabla) -> Self {
+        Self {
+            tabla,
+            asignaciones: Vec::new(),
+            condiciones: Vec::new(),
+            retornar_todo: false,
+            retornando: None,
+        }
+    }
+
+    /// Asignación directa: `col = $n`.
+    pub fn asignar(mut self, columna: &'static str) -> Self {
+        self.asignaciones.push(Asignacion {
+            columna,
+            modo: ModoAsignacion::Directo,
+        });
+        self
+    }
+
+    /// Asignación con preservación del valor actual cuando el parámetro es NULL:
+    /// `col = COALESCE($n, col)`.
+    pub fn asignar_coalesce(mut self, columna: &'static str) -> Self {
+        self.asignaciones.push(Asignacion {
+            columna,
+            modo: ModoAsignacion::Coalesce,
+        });
+        self
+    }
+
+    /// Asignación de fecha y hora actual gestionada por la base de datos: `col = NOW()`.
+    pub fn asignar_ahora(mut self, columna: &'static str) -> Self {
+        self.asignaciones.push(Asignacion {
+            columna,
+            modo: ModoAsignacion::Ahora,
+        });
+        self
+    }
+
+    /// Asignación explícita de `NULL`: `col = NULL`.
+    pub fn asignar_nulo(mut self, columna: &'static str) -> Self {
+        self.asignaciones.push(Asignacion {
+            columna,
+            modo: ModoAsignacion::Nulo,
+        });
+        self
+    }
+
+    /// Condición por clave primaria: `WHERE <pk> = $n`.
+    pub fn donde_clave_primaria(mut self) -> Self {
+        self.condiciones.push(self.tabla.clave_primaria().nombre());
+        self
+    }
+
+    /// Condición de igualdad: `AND col = $n`.
+    pub fn donde_igual(mut self, columna: &'static str) -> Self {
+        self.condiciones.push(columna);
+        self
+    }
+
+    /// Devuelve todas las columnas declaradas de la tabla (`RETURNING <todas>`).
+    pub fn retornar_todo(mut self) -> Self {
+        self.retornar_todo = true;
+        self.retornando = None;
+        self
+    }
+
+    /// Devuelve un subconjunto específico de columnas (`RETURNING col1, col2`).
+    #[allow(dead_code)]
+    pub fn retornando(mut self, columnas: impl IntoIterator<Item = &'static str>) -> Self {
+        self.retornando = Some(columnas.into_iter().collect());
+        self.retornar_todo = false;
+        self
+    }
+
+    pub fn construir(&self) -> Result<String, ErrorConsulta> {
+        let tabla = self.tabla;
+
+        if self.asignaciones.is_empty() {
+            return Err(ErrorConsulta::SinAsignaciones {
+                tabla: tabla.nombre(),
+            });
+        }
+
+        // Validar cada asignación
+        for asig in &self.asignaciones {
+            match asig.modo {
+                ModoAsignacion::Ahora => {
+                    let col = resolver_columna(tabla, asig.columna)?;
+                    if !col.tipo().es_temporal() {
+                        return Err(ErrorConsulta::TipoIncompatible {
+                            tabla: tabla.nombre(),
+                            columna: col.nombre(),
+                            declarado: col.tipo(),
+                            recibido: TipoColumna::TimestampTz,
+                        });
+                    }
+                }
+                ModoAsignacion::Nulo => {
+                    let col = resolver_columna(tabla, asig.columna)?;
+                    if !col.nullable() {
+                        return Err(ErrorConsulta::NuloNoPermitido {
+                            tabla: tabla.nombre(),
+                            columna: col.nombre(),
+                        });
+                    }
+                }
+                ModoAsignacion::Directo | ModoAsignacion::Coalesce => {
+                    resolver_columna_actualizable(tabla, asig.columna)?;
+                }
+            }
+        }
+
+        // Validar condiciones
+        for &cond in &self.condiciones {
+            resolver_columna(tabla, cond)?;
+        }
+
+        let mut sql = String::from("UPDATE ");
+        escribir_identificador(&mut sql, tabla.nombre());
+        sql.push_str(" SET ");
+
+        let mut parametro = 0;
+
+        for (indice, asig) in self.asignaciones.iter().enumerate() {
+            if indice > 0 {
+                sql.push_str(", ");
+            }
+
+            escribir_identificador(&mut sql, asig.columna);
+
+            match asig.modo {
+                ModoAsignacion::Directo => {
+                    parametro += 1;
+                    sql.push_str(" = ");
+                    escribir_parametro(&mut sql, parametro);
+                }
+                ModoAsignacion::Coalesce => {
+                    parametro += 1;
+                    sql.push_str(" = COALESCE(");
+                    escribir_parametro(&mut sql, parametro);
+                    sql.push_str(", ");
+                    escribir_identificador(&mut sql, asig.columna);
+                    sql.push(')');
+                }
+                ModoAsignacion::Ahora => {
+                    sql.push_str(" = NOW()");
+                }
+                ModoAsignacion::Nulo => {
+                    sql.push_str(" = NULL");
+                }
+            }
+        }
+
+        for (indice, &cond) in self.condiciones.iter().enumerate() {
+            sql.push_str(if indice == 0 { " WHERE " } else { " AND " });
+            escribir_identificador(&mut sql, cond);
+            parametro += 1;
+            sql.push_str(" = ");
+            escribir_parametro(&mut sql, parametro);
+        }
+
+        if self.retornar_todo {
+            sql.push_str(" RETURNING ");
+            escribir_columnas(&mut sql, tabla.columnas());
+        } else if let Some(ref columnas_retorno) = self.retornando {
+            if columnas_retorno.is_empty() {
+                return Err(ErrorConsulta::SinColumnas {
+                    tabla: tabla.nombre(),
+                });
+            }
+            let resueltas = columnas_retorno
+                .iter()
+                .map(|&col| resolver_columna(tabla, col))
+                .collect::<Result<Vec<_>, _>>()?;
+            sql.push_str(" RETURNING ");
+            escribir_columnas(&mut sql, resueltas);
+        }
+
+        Ok(sql)
+    }
+}
+
+/* ==========================================================
    GENERADORES DE SQL
    (funciones puras: se prueban sin base de datos)
 ========================================================== */
@@ -691,6 +1075,88 @@ pub fn sql_eliminar_por_id(
     }
 
     Ok(sql)
+}
+
+/// Genera un `INSERT INTO` parametrizado con columnas explícitas y `RETURNING` opcional.
+pub fn sql_insertar(
+    tabla: &'static Tabla,
+    columnas: &[&'static str],
+    retornar_todo: bool,
+) -> Result<String, ErrorConsulta> {
+    let mut consulta = ConsultaInsert::en(tabla).columnas(columnas.iter().copied());
+    if retornar_todo {
+        consulta = consulta.retornar_todo();
+    }
+    consulta.construir()
+}
+
+/// Genera un `INSERT INTO` parametrizado con columnas explícitas y `RETURNING` de columnas elegidas.
+pub fn sql_insertar_retornando(
+    tabla: &'static Tabla,
+    columnas: &[&'static str],
+    retornando: &[&'static str],
+) -> Result<String, ErrorConsulta> {
+    ConsultaInsert::en(tabla)
+        .columnas(columnas.iter().copied())
+        .retornando(retornando.iter().copied())
+        .construir()
+}
+
+/// Genera un `UPDATE` parametrizado que utiliza `COALESCE` para conservar los valores existentes
+/// cuando el parámetro es `NULL`, filtrando por la clave primaria.
+pub fn sql_actualizar_coalesce_por_id(
+    tabla: &'static Tabla,
+    columnas: &[&'static str],
+    retornar_todo: bool,
+) -> Result<String, ErrorConsulta> {
+    let mut consulta = ConsultaUpdate::en(tabla);
+    for &col in columnas {
+        consulta = consulta.asignar_coalesce(col);
+    }
+    consulta = consulta.donde_clave_primaria();
+    if retornar_todo {
+        consulta = consulta.retornar_todo();
+    }
+    consulta.construir()
+}
+
+/// Genera un `UPDATE` con `COALESCE` por clave primaria que además actualiza automáticamente
+/// una columna de marca temporal con `NOW()` (por ejemplo `updated_at`).
+pub fn sql_actualizar_coalesce_con_timestamp_por_id(
+    tabla: &'static Tabla,
+    columnas: &[&'static str],
+    columna_timestamp: &'static str,
+    retornar_todo: bool,
+) -> Result<String, ErrorConsulta> {
+    let mut consulta = ConsultaUpdate::en(tabla);
+    for &col in columnas {
+        consulta = consulta.asignar_coalesce(col);
+    }
+    consulta = consulta
+        .asignar_ahora(columna_timestamp)
+        .donde_clave_primaria();
+    if retornar_todo {
+        consulta = consulta.retornar_todo();
+    }
+    consulta.construir()
+}
+
+/// Genera un `UPDATE` con asignación directa (`col = $n`) por clave primaria.
+#[allow(dead_code)]
+pub fn sql_actualizar_directo_por_id(
+    tabla: &'static Tabla,
+    columnas: &[&'static str],
+    retornar_todo: bool,
+) -> Result<String, ErrorConsulta> {
+    let mut consulta = ConsultaUpdate::en(tabla);
+    for &col in columnas {
+        consulta = consulta.asignar(col);
+    }
+    consulta = consulta.donde_clave_primaria();
+    if retornar_todo {
+        consulta = consulta.retornar_todo();
+    }
+    consulta.construir()
 }
 
 pub fn sql_bloquear_tabla(tabla: &'static Tabla) -> String {
