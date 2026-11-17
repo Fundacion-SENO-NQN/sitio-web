@@ -52,7 +52,8 @@ mod tests {
             &token,
             &DecodingKey::from_secret(secret.as_bytes()),
             &validation,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(decoded.claims.sub, user_id);
         assert_eq!(decoded.claims.auth_version, auth_version);

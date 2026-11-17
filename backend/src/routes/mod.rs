@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod bingo;
 pub mod equipo;
 pub mod evento;
 pub mod health;
@@ -13,3 +14,4 @@ pub mod roles;
 pub mod service;
 pub mod user;
 pub mod voluntariado;
+// pub mod whatsapp;

@@ -29,3 +29,198 @@ impl AuthUserData {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::service::Service;
+    use chrono::Utc;
+
+    fn mock_service(name: &str) -> Service {
+        Service {
+            id: 1,
+            name: name.to_string(),
+            titulo: name.to_string(),
+            url: format!("/{}", name),
+            created_at: Utc::now(),
+        }
+    }
+
+    fn mock_auth_user_data(permissions: Vec<&str>) -> AuthUserData {
+        AuthUserData {
+            id: 1,
+            auth_version: 1,
+            username: "testuser".to_string(),
+            role_id: 1,
+            permissions: permissions.into_iter().map(mock_service).collect(),
+        }
+    }
+
+    #[test]
+    fn test_has_permission() {
+        let user = mock_auth_user_data(vec!["read", "write"]);
+        assert!(user.has_permission("read"));
+        assert!(user.has_permission("write"));
+        assert!(!user.has_permission("delete"));
+
+        // Exact match testing
+        assert!(!user.has_permission("rea"));
+        assert!(!user.has_permission("read "));
+
+        // Case sensitivity
+        assert!(!user.has_permission("READ"));
+        assert!(!user.has_permission("Read"));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(!empty_user.has_permission("read"));
+
+        // Empty permission strings
+        let empty_permission_user = mock_auth_user_data(vec![""]);
+        assert!(empty_permission_user.has_permission(""));
+        assert!(!empty_permission_user.has_permission("read"));
+        assert!(!user.has_permission(""));
+
+        // Duplicate permissions
+        let duplicate_permission_user = mock_auth_user_data(vec!["read", "read", "write"]);
+        assert!(duplicate_permission_user.has_permission("read"));
+        assert!(duplicate_permission_user.has_permission("write"));
+
+        // Special characters
+        let special_chars_user = mock_auth_user_data(vec!["read:users", "write:users"]);
+        assert!(special_chars_user.has_permission("read:users"));
+        assert!(!special_chars_user.has_permission("read"));
+        assert!(!special_chars_user.has_permission("read:"));
+
+        // Unicode/Non-ASCII characters
+        let unicode_user = mock_auth_user_data(vec!["leer_niños"]);
+        assert!(unicode_user.has_permission("leer_niños"));
+        assert!(!unicode_user.has_permission("leer_ninos"));
+    }
+
+    #[test]
+    fn test_require() {
+        let user = mock_auth_user_data(vec!["read"]);
+        assert!(user.require("read").is_ok());
+        assert!(matches!(user.require("write"), Err(ApiError::Forbidden)));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(
+            empty_user.require("read"),
+            Err(ApiError::Forbidden)
+        ));
+    }
+
+    #[test]
+    fn test_require_any() {
+        let user = mock_auth_user_data(vec!["read", "write"]);
+        assert!(user.require_any(&["read", "delete"]).is_ok());
+        assert!(user.require_any(&["write"]).is_ok());
+        assert!(matches!(
+            user.require_any(&["delete", "admin"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(matches!(user.require_any(&[]), Err(ApiError::Forbidden)));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(
+            empty_user.require_any(&["read"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(matches!(
+            empty_user.require_any(&[]),
+            Err(ApiError::Forbidden)
+        ));
+    }
+
+    #[test]
+    fn test_require_all() {
+        let user = mock_auth_user_data(vec!["read", "write"]);
+        assert!(user.require_all(&["read", "write"]).is_ok());
+        assert!(user.require_all(&["write", "read"]).is_ok());
+        assert!(user.require_all(&["read"]).is_ok());
+        assert!(user.require_all(&["read", "read"]).is_ok());
+        assert!(matches!(
+            user.require_all(&["read", "delete"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(matches!(
+            user.require_all(&["delete", "admin"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(user.require_all(&[]).is_ok());
+
+        // Exact match testing
+        assert!(matches!(
+            user.require_all(&["rea"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(matches!(
+            user.require_all(&["read "]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Case sensitivity
+        assert!(matches!(
+            user.require_all(&["READ"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(matches!(
+            user.require_all(&["Read", "write"]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Empty user permissions
+        let empty_user = mock_auth_user_data(vec![]);
+        assert!(matches!(
+            empty_user.require_all(&["read"]),
+            Err(ApiError::Forbidden)
+        ));
+        assert!(empty_user.require_all(&[]).is_ok());
+
+        // User with duplicate permissions
+        let duplicate_user = mock_auth_user_data(vec!["read", "read", "write"]);
+        assert!(duplicate_user.require_all(&["read", "write"]).is_ok());
+        assert!(matches!(
+            duplicate_user.require_all(&["delete"]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Special characters
+        let special_chars_user = mock_auth_user_data(vec!["read:users", "write:users"]);
+        assert!(
+            special_chars_user
+                .require_all(&["read:users", "write:users"])
+                .is_ok()
+        );
+        assert!(matches!(
+            special_chars_user.require_all(&["read:users", "read"]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Unicode/Non-ASCII characters
+        let unicode_user = mock_auth_user_data(vec!["leer_niños"]);
+        assert!(unicode_user.require_all(&["leer_niños"]).is_ok());
+        assert!(matches!(
+            unicode_user.require_all(&["leer_ninos"]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Empty permission strings
+        let empty_permission_user = mock_auth_user_data(vec![""]);
+        assert!(empty_permission_user.require_all(&[""]).is_ok());
+        assert!(matches!(
+            empty_permission_user.require_all(&["", "read"]),
+            Err(ApiError::Forbidden)
+        ));
+
+        // Partial match arrays
+        let partial_user = mock_auth_user_data(vec!["read", "write"]);
+        assert!(matches!(
+            partial_user.require_all(&["read", "delete", "write"]),
+            Err(ApiError::Forbidden)
+        ));
+    }
+}

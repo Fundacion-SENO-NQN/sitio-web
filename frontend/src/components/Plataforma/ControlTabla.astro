@@ -1,0 +1,155 @@
+---
+export interface Props {
+  servicio: string
+  servicioPlural: string
+  busqueda: string
+  textoNuevo?: string
+  mostrarBotonNuevo?: boolean
+  idBotonNuevo?: string
+  idBuscador?: string
+  idCantidad?: string
+}
+
+const {
+  servicio,
+  servicioPlural,
+  busqueda,
+  textoNuevo,
+  mostrarBotonNuevo = true,
+  idBotonNuevo,
+  idBuscador,
+  idCantidad
+} = Astro.props
+
+const botonNuevoId = idBotonNuevo ?? `btn-nuevo-${servicio}`
+const buscadorId = idBuscador ?? `buscar-${servicioPlural}`
+const cantidadId = idCantidad ?? `cantidad-${servicioPlural}`
+const etiquetaNuevo = textoNuevo ?? `Nuevo ${servicio}`
+---
+
+<section
+  class="adminToolbar toolbar controlTabla"
+  aria-label={`Herramientas de administración de ${servicioPlural}`}
+>
+  {
+    mostrarBotonNuevo && (
+      <button
+        id={botonNuevoId}
+        class="button buttonPrimary controlTabla__nuevo"
+        type="button"
+      >
+        <span aria-hidden="true">+</span>
+        <span>{etiquetaNuevo}</span>
+      </button>
+    )
+  }
+
+  <label
+    class="adminSearchWrapper searchWrapper hasIcon buscador controlTabla__buscador"
+    for={buscadorId}
+  >
+    <span class="srOnly">Buscar {servicioPlural}</span>
+
+    <span class="adminSearchIcon searchIcon icono-busqueda" aria-hidden="true">
+      ⌕
+    </span>
+
+    <input
+      id={buscadorId}
+      class="adminSearch search controlTabla__input"
+      type="search"
+      placeholder={`Buscar por ${busqueda}...`}
+      autocomplete="off"
+      aria-describedby={cantidadId}
+    />
+  </label>
+
+  <slot />
+
+  <div
+    class="adminSummary toolbarSummary resumen controlTabla__resumen"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <span id={cantidadId}>0 {servicioPlural}</span>
+  </div>
+</section>
+
+<style>
+  .controlTabla {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--admin-space-medium);
+    flex-wrap: wrap;
+  }
+
+  .controlTabla__buscador {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    position: relative;
+    display: block;
+    flex: 1 1 18rem;
+  }
+
+  .controlTabla__input {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.9rem;
+    padding: 0.75rem 1rem 0.75rem 2.8rem;
+    color: var(--admin-text);
+    background-color: var(--admin-surface);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow-small);
+  }
+
+  .controlTabla__input:focus {
+    border-color: var(--color-secondary);
+    box-shadow: var(--admin-focus);
+  }
+
+  .controlTabla__resumen {
+    flex: 0 0 auto;
+    color: var(--admin-text-muted);
+    font-size: 0.9rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 960px) {
+    .controlTabla {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .controlTabla__buscador {
+      width: 100%;
+      flex-basis: auto;
+    }
+
+    .controlTabla__resumen {
+      width: 100%;
+      text-align: right;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .controlTabla {
+      gap: var(--admin-space);
+    }
+
+    .controlTabla__nuevo {
+      width: 100%;
+    }
+
+    .controlTabla__resumen {
+      text-align: left;
+      white-space: normal;
+    }
+  }
+</style>

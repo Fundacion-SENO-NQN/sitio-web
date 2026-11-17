@@ -1,0 +1,113 @@
+---
+export interface Props {
+  servicio: string
+  titulo?: string
+  pregunta?: string
+  descripcion?: string
+  advertencia?: string
+  textoCancelar?: string
+  textoConfirmar?: string
+}
+
+const {
+  servicio,
+  titulo,
+  pregunta,
+  descripcion = 'El registro será eliminado permanentemente.',
+  advertencia = 'Esta acción no se puede deshacer.',
+  textoCancelar = 'Cancelar',
+  textoConfirmar
+} = Astro.props
+
+const tituloTexto = titulo ?? `Eliminar ${servicio}`
+const preguntaTexto =
+  pregunta ?? `¿Seguro que querés eliminar este ${servicio}?`
+const textoConfirmarFinal = textoConfirmar ?? `Eliminar ${servicio}`
+---
+
+<div
+  id={`modal-eliminar-${servicio}`}
+  class="modal modalEliminar oculto"
+  role="dialog"
+  aria-modal="true"
+  aria-hidden="true"
+  aria-labelledby={`modal-eliminar-${servicio}-titulo`}
+  aria-describedby={`texto-eliminar-${servicio}`}
+  tabindex="-1"
+>
+  <div
+    class="modalBackdrop modal-fondo"
+    data-cerrar-modal-eliminar={servicio}
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="modalContent modalSmall deleteModal modalEliminar__content">
+    <header class="modalHeader modalEliminar__header">
+      <h2 id={`modal-eliminar-${servicio}-titulo`}>{tituloTexto}</h2>
+
+      <button
+        id={`btn-cerrar-modal-eliminar-${servicio}`}
+        class="modalClose"
+        type="button"
+        aria-label="Cerrar ventana de eliminación"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    <div class="deleteBody eliminar-contenido modalEliminar__body">
+      <span class="deleteIcon eliminar-icono" aria-hidden="true">!</span>
+
+      <h3>{preguntaTexto}</h3>
+
+      <p id={`texto-eliminar-${servicio}`}>{descripcion}</p>
+
+      {advertencia && <p class="deleteWarning advertencia">{advertencia}</p>}
+    </div>
+
+    <footer class="modalFooter modalEliminar__footer">
+      <button
+        id={`btn-cancelar-eliminar-${servicio}`}
+        class="button buttonGhost"
+        type="button"
+      >
+        {textoCancelar}
+      </button>
+
+      <button
+        id={`btn-confirmar-eliminar-${servicio}`}
+        class="button buttonDanger"
+        type="button"
+      >
+        {textoConfirmarFinal}
+      </button>
+    </footer>
+  </div>
+</div>
+
+<style>
+  .modalEliminar__content {
+    width: min(100%, 30rem);
+  }
+
+  .modalEliminar__header {
+    position: static;
+  }
+
+  .modalEliminar__body {
+    width: 100%;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .modalEliminar__body {
+      padding: 1.5rem 1rem;
+    }
+
+    .modalEliminar__footer > .button {
+      width: 100%;
+    }
+  }
+</style>

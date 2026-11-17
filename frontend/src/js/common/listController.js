@@ -353,18 +353,29 @@ export function createListController({
   function updateSortButtons() {
     for (const [sortName, button] of Object.entries(elements.sortButtons)) {
       const active = state.sort === sortName
+      const usesAriaSort =
+        button.tagName === 'TH' || button.hasAttribute('aria-sort')
 
       button.classList.toggle('activo', active)
 
-      button.setAttribute('aria-pressed', String(active))
+      if (usesAriaSort) {
+        button.setAttribute(
+          'aria-sort',
+          active ? (state.ascending ? 'ascending' : 'descending') : 'none'
+        )
+      } else {
+        button.setAttribute('aria-pressed', String(active))
+      }
 
       if (active) {
         button.dataset.direction = state.ascending ? 'asc' : 'desc'
 
-        button.setAttribute(
-          'aria-label',
-          state.ascending ? 'Orden ascendente' : 'Orden descendente'
-        )
+        if (!usesAriaSort) {
+          button.setAttribute(
+            'aria-label',
+            state.ascending ? 'Orden ascendente' : 'Orden descendente'
+          )
+        }
       } else {
         delete button.dataset.direction
       }

@@ -3,3 +3,4 @@ pub mod frontend_rebuild;
 pub mod instagram;
 pub mod password_reset;
 pub mod profile;
+// pub mod whatsapp;

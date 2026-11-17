@@ -1,3 +1,5 @@
+pub mod base;
+pub mod bingo;
 pub mod equipo;
 pub mod evento;
 pub mod img_donation;
@@ -9,5 +11,7 @@ pub mod password_reset;
 pub mod profile;
 pub mod role;
 pub mod service;
+pub mod tablas;
 pub mod user;
 pub mod voluntariado;
+// pub mod whatsapp;

@@ -108,6 +108,12 @@ impl From<sqlx::Error> for ApiError {
     }
 }
 
+impl From<crate::repositories::base::ErrorConsulta> for ApiError {
+    fn from(_: crate::repositories::base::ErrorConsulta) -> Self {
+        ApiError::InternalServerError
+    }
+}
+
 impl From<argon2::password_hash::Error> for ApiError {
     fn from(_: argon2::password_hash::Error) -> Self {
         ApiError::InternalServerError

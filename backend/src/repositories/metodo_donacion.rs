@@ -4,11 +4,19 @@ use crate::{
         CreateMetodoDonacionRequest, InformacionDonacion, MetodoDonacion, MetodoDonacionResponse,
         PatchInformacionDonacionRequest, PatchMetodoDonacionRequest,
     },
+    repositories::{
+        base::{self, Entidad, Ordenamiento},
+        tablas::{INFORMACION_DONACION, METODO_DONACION},
+    },
 };
 
-use sqlx::{FromRow, PgPool, Postgres, Transaction};
+use sqlx::{AssertSqlSafe, FromRow, PgPool, Postgres, Transaction};
 
 use std::collections::{HashMap, HashSet};
+
+static COLUMNAS_METODO_INSERT: &[&str] = &["nombre", "descripcion"];
+static COLUMNAS_METODO_UPDATE: &[&str] = &["nombre", "descripcion"];
+static COLUMNAS_INFO_INSERT: &[&str] = &["titulo", "valor", "metodo_donacion_id"];
 
 /* ==========================================================
    PRIVATE INFORMATION ROW
@@ -26,6 +34,10 @@ struct InformacionDonacionRow {
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
     metodo_donacion_id: i64,
+}
+
+impl Entidad for InformacionDonacionRow {
+    const TABLA: &'static crate::models::tabla::Tabla = &INFORMACION_DONACION;
 }
 
 impl From<InformacionDonacionRow> for InformacionDonacion {
@@ -47,37 +59,16 @@ impl From<InformacionDonacionRow> for InformacionDonacion {
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<MetodoDonacionResponse>> {
     let mut tx = db.begin().await?;
 
-    let metodos = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        ORDER BY id
-        "#,
-    )
-    .fetch_all(&mut *tx)
-    .await?;
+    let metodos =
+        base::obtener_todos::<MetodoDonacion>(&mut *tx, Some(Ordenamiento::asc("id"))).await?;
 
-    let information_rows = sqlx::query_as::<_, InformacionDonacionRow>(
-        r#"
-            SELECT
-                id,
-                titulo,
-                valor,
-                created_at,
-                updated_at,
-                metodo_donacion_id
-            FROM informacion_donacion
-            ORDER BY
-                metodo_donacion_id,
-                id
-            "#,
+    let information_rows = base::obtener_todos::<InformacionDonacionRow>(
+        &mut *tx,
+        [
+            Ordenamiento::asc("metodo_donacion_id"),
+            Ordenamiento::asc("id"),
+        ],
     )
-    .fetch_all(&mut *tx)
     .await?;
 
     tx.commit().await?;
@@ -108,21 +99,7 @@ pub async fn get_all(db: &PgPool) -> ApiResult<Vec<MetodoDonacionResponse>> {
 pub async fn get_by_id(db: &PgPool, id: i64) -> ApiResult<Option<MetodoDonacionResponse>> {
     let mut tx = db.begin().await?;
 
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?;
+    let metodo = base::obtener_por_id::<MetodoDonacion>(&mut *tx, id).await?;
 
     let Some(metodo) = metodo else {
         tx.rollback().await?;
@@ -153,61 +130,25 @@ pub async fn create(
 
     let mut tx = db.begin().await?;
 
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        INSERT INTO metodo_donacion
-            (
-                nombre,
-                descripcion
-            )
-        VALUES
-            (
-                $1,
-                $2
-            )
-        RETURNING
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        "#,
-    )
-    .bind(nombre)
-    .bind(descripcion)
-    .fetch_one(&mut *tx)
-    .await?;
+    let sql_metodo = base::sql_insertar(&METODO_DONACION, COLUMNAS_METODO_INSERT, true)?;
+
+    let metodo = sqlx::query_as::<_, MetodoDonacion>(AssertSqlSafe(sql_metodo))
+        .bind(nombre)
+        .bind(descripcion)
+        .fetch_one(&mut *tx)
+        .await?;
+
+    let sql_info = base::sql_insertar(&INFORMACION_DONACION, COLUMNAS_INFO_INSERT, true)?;
 
     let mut created_information = Vec::with_capacity(informacion.len());
 
     for item in informacion {
-        let created = sqlx::query_as::<_, InformacionDonacion>(
-            r#"
-            INSERT INTO informacion_donacion
-                (
-                    titulo,
-                    valor,
-                    metodo_donacion_id
-                )
-            VALUES
-                (
-                    $1,
-                    $2,
-                    $3
-                )
-            RETURNING
-                id,
-                titulo,
-                valor,
-                created_at,
-                updated_at
-            "#,
-        )
-        .bind(item.titulo)
-        .bind(item.valor)
-        .bind(metodo.id)
-        .fetch_one(&mut *tx)
-        .await?;
+        let created = sqlx::query_as::<_, InformacionDonacion>(AssertSqlSafe(sql_info.clone()))
+            .bind(item.titulo)
+            .bind(item.valor)
+            .bind(metodo.id)
+            .fetch_one(&mut *tx)
+            .await?;
 
         created_information.push(created);
     }
@@ -240,28 +181,20 @@ pub async fn update(
      * In that case nombre and descripcion are both None,
      * but the handler still calls this function.
      */
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        UPDATE metodo_donacion
-        SET
-            nombre = COALESCE($1, nombre),
-            descripcion = COALESCE($2, descripcion),
-            updated_at = NOW()
-        WHERE id = $3
-        RETURNING
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        "#,
-    )
-    .bind(nombre)
-    .bind(descripcion)
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let sql = base::sql_actualizar_coalesce_con_timestamp_por_id(
+        &METODO_DONACION,
+        COLUMNAS_METODO_UPDATE,
+        "updated_at",
+        true,
+    )?;
+
+    let metodo = sqlx::query_as::<_, MetodoDonacion>(AssertSqlSafe(sql))
+        .bind(nombre)
+        .bind(descripcion)
+        .bind(id)
+        .fetch_optional(&mut *tx)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     if let Some(informacion) = informacion {
         synchronize_information(&mut tx, metodo.id, informacion).await?;
@@ -281,22 +214,9 @@ pub async fn update(
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<MetodoDonacionResponse> {
     let mut tx = db.begin().await?;
 
-    let metodo = sqlx::query_as::<_, MetodoDonacion>(
-        r#"
-        SELECT
-            id,
-            nombre,
-            descripcion,
-            created_at,
-            updated_at
-        FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *tx)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+    let metodo = base::obtener_por_id::<MetodoDonacion>(&mut *tx, id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     let informacion = load_information(&mut tx, metodo.id).await?;
 
@@ -304,15 +224,7 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<MetodoDonacionResponse> {
      * informacion_donacion is removed automatically through
      * ON DELETE CASCADE.
      */
-    sqlx::query(
-        r#"
-        DELETE FROM metodo_donacion
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    base::eliminar_por_id(&mut *tx, &METODO_DONACION, id).await?;
 
     tx.commit().await?;
 
@@ -327,22 +239,15 @@ async fn load_information(
     tx: &mut Transaction<'_, Postgres>,
     metodo_id: i64,
 ) -> ApiResult<Vec<InformacionDonacion>> {
-    Ok(sqlx::query_as::<_, InformacionDonacion>(
-        r#"
-        SELECT
-            id,
-            titulo,
-            valor,
-            created_at,
-            updated_at
-        FROM informacion_donacion
-        WHERE metodo_donacion_id = $1
-        ORDER BY id
-        "#,
+    let rows = base::obtener_donde::<InformacionDonacionRow, _>(
+        &mut **tx,
+        "metodo_donacion_id",
+        metodo_id,
+        Some(Ordenamiento::asc("id")),
     )
-    .bind(metodo_id)
-    .fetch_all(&mut **tx)
-    .await?)
+    .await?;
+
+    Ok(rows.into_iter().map(Into::into).collect())
 }
 
 /* ==========================================================
@@ -369,6 +274,16 @@ async fn synchronize_information(
 
     let mut received_ids = HashSet::new();
 
+    let sql_update_info = base::ConsultaUpdate::en(&INFORMACION_DONACION)
+        .asignar("titulo")
+        .asignar("valor")
+        .asignar_ahora("updated_at")
+        .donde_clave_primaria()
+        .donde_igual("metodo_donacion_id")
+        .construir()?;
+
+    let sql_insert_info = base::sql_insertar(&INFORMACION_DONACION, COLUMNAS_INFO_INSERT, false)?;
+
     for item in informacion {
         match item.id {
             Some(information_id) => {
@@ -388,24 +303,13 @@ async fn synchronize_information(
                     ));
                 }
 
-                let result = sqlx::query(
-                    r#"
-                    UPDATE informacion_donacion
-                    SET
-                        titulo = $1,
-                        valor = $2,
-                        updated_at = NOW()
-                    WHERE
-                        id = $3
-                        AND metodo_donacion_id = $4
-                    "#,
-                )
-                .bind(item.titulo)
-                .bind(item.valor)
-                .bind(information_id)
-                .bind(metodo_id)
-                .execute(&mut **tx)
-                .await?;
+                let result = sqlx::query(AssertSqlSafe(sql_update_info.clone()))
+                    .bind(item.titulo)
+                    .bind(item.valor)
+                    .bind(information_id)
+                    .bind(metodo_id)
+                    .execute(&mut **tx)
+                    .await?;
 
                 if result.rows_affected() != 1 {
                     return Err(ApiError::BadRequest(
@@ -415,27 +319,12 @@ async fn synchronize_information(
             }
 
             None => {
-                sqlx::query(
-                    r#"
-                    INSERT INTO informacion_donacion
-                        (
-                            titulo,
-                            valor,
-                            metodo_donacion_id
-                        )
-                    VALUES
-                        (
-                            $1,
-                            $2,
-                            $3
-                        )
-                    "#,
-                )
-                .bind(item.titulo)
-                .bind(item.valor)
-                .bind(metodo_id)
-                .execute(&mut **tx)
-                .await?;
+                sqlx::query(AssertSqlSafe(sql_insert_info.clone()))
+                    .bind(item.titulo)
+                    .bind(item.valor)
+                    .bind(metodo_id)
+                    .execute(&mut **tx)
+                    .await?;
             }
         }
     }
@@ -452,13 +341,10 @@ async fn synchronize_information(
         sqlx::query(
             r#"
             DELETE FROM informacion_donacion
-            WHERE
-                id = $1
-                AND metodo_donacion_id = $2
+            WHERE id = $1
             "#,
         )
         .bind(existing_id)
-        .bind(metodo_id)
         .execute(&mut **tx)
         .await?;
     }
@@ -467,7 +353,7 @@ async fn synchronize_information(
 }
 
 /* ==========================================================
-   RESPONSE
+   RESPONSE BUILDER
 ========================================================== */
 
 fn build_response(

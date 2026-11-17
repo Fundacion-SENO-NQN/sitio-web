@@ -1,3 +1,4 @@
+pub mod bingo;
 pub mod equipo;
 pub mod evento;
 pub mod img_donation;
@@ -7,5 +8,6 @@ pub mod noticia;
 pub mod profile;
 pub mod role;
 pub mod service;
+pub mod tabla;
 pub mod user;
 pub mod voluntariado;

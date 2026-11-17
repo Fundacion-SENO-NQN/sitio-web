@@ -1,32 +1,27 @@
 use std::collections::HashSet;
 
-use sqlx::PgPool;
+use sqlx::{AssertSqlSafe, PgPool};
 
-use crate::models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia};
+use crate::{
+    models::noticia::{ChangeOrderNoticia, Noticia, UpdateNoticia},
+    repositories::{
+        base::{self, Ordenamiento},
+        tablas::NOTICIAS,
+    },
+};
 
 const NOTICIAS_ORDER_LOCK: i64 = 982_451_653;
+
+static COLUMNAS_NOTICIA_INSERT: &[&str] = &["fecha", "titulo", "orden", "contenido", "cant_img"];
+
+static COLUMNAS_NOTICIA_UPDATE: &[&str] = &["fecha", "titulo", "contenido", "cant_img"];
 
 /* ==========================================================
    OBTENER TODAS
 ========================================================== */
 
 pub async fn get_all(pool: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
-    sqlx::query_as::<_, Noticia>(
-        r#"
-        SELECT
-            id,
-            created_at,
-            fecha,
-            titulo,
-            orden,
-            contenido,
-            cant_img
-        FROM noticias
-        ORDER BY orden ASC
-        "#,
-    )
-    .fetch_all(pool)
-    .await
+    base::obtener_todos::<Noticia>(pool, Some(Ordenamiento::asc("orden"))).await
 }
 
 /* ==========================================================
@@ -34,23 +29,7 @@ pub async fn get_all(pool: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
 ========================================================== */
 
 pub async fn get_by_id(pool: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Error> {
-    sqlx::query_as::<_, Noticia>(
-        r#"
-        SELECT
-            id,
-            created_at,
-            fecha,
-            titulo,
-            orden,
-            contenido,
-            cant_img
-        FROM noticias
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await
+    base::obtener_por_id::<Noticia>(pool, id).await
 }
 
 /* ==========================================================
@@ -79,52 +58,18 @@ pub async fn create(
     .execute(&mut *transaction)
     .await?;
 
-    let next_order = sqlx::query_scalar::<_, i64>(
-        r#"
-            SELECT
-                COALESCE(
-                    MAX(orden),
-                    -1
-                ) + 1
-            FROM noticias
-            "#,
-    )
-    .fetch_one(&mut *transaction)
-    .await?;
+    let next_order = base::orden_maximo(&mut *transaction, &NOTICIAS, -1, 1).await?;
 
-    let noticia = sqlx::query_as::<_, Noticia>(
-        r#"
-            INSERT INTO noticias (
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            )
-            VALUES (
-                $1,
-                $2,
-                $3,
-                $4,
-                $5
-            )
-            RETURNING
-                id,
-                created_at,
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            "#,
-    )
-    .bind(fecha)
-    .bind(titulo)
-    .bind(next_order)
-    .bind(contenido)
-    .bind(cant_img)
-    .fetch_one(&mut *transaction)
-    .await?;
+    let sql = base::sql_insertar(&NOTICIAS, COLUMNAS_NOTICIA_INSERT, true)?;
+
+    let noticia = sqlx::query_as::<_, Noticia>(AssertSqlSafe(sql))
+        .bind(fecha)
+        .bind(titulo)
+        .bind(next_order)
+        .bind(contenido)
+        .bind(cant_img)
+        .fetch_one(&mut *transaction)
+        .await?;
 
     transaction.commit().await?;
 
@@ -155,32 +100,16 @@ pub async fn update(
         return get_by_id(pool, id).await;
     }
 
-    sqlx::query_as::<_, Noticia>(
-        r#"
-        UPDATE noticias
-        SET
-            fecha = COALESCE($1, fecha),
-            titulo = COALESCE($2, titulo),
-            contenido = COALESCE($3, contenido),
-            cant_img = COALESCE($4, cant_img)
-        WHERE id = $5
-        RETURNING
-            id,
-            created_at,
-            fecha,
-            titulo,
-            orden,
-            contenido,
-            cant_img
-        "#,
-    )
-    .bind(fecha)
-    .bind(titulo)
-    .bind(contenido)
-    .bind(cant_img)
-    .bind(id)
-    .fetch_optional(pool)
-    .await
+    let sql = base::sql_actualizar_coalesce_por_id(&NOTICIAS, COLUMNAS_NOTICIA_UPDATE, true)?;
+
+    sqlx::query_as::<_, Noticia>(AssertSqlSafe(sql))
+        .bind(fecha)
+        .bind(titulo)
+        .bind(contenido)
+        .bind(cant_img)
+        .bind(id)
+        .fetch_optional(pool)
+        .await
 }
 
 /* ==========================================================
@@ -199,24 +128,7 @@ pub async fn delete(pool: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Err
     .execute(&mut *transaction)
     .await?;
 
-    let noticia = sqlx::query_as::<_, Noticia>(
-        r#"
-            SELECT
-                id,
-                created_at,
-                fecha,
-                titulo,
-                orden,
-                contenido,
-                cant_img
-            FROM noticias
-            WHERE id = $1
-            FOR UPDATE
-            "#,
-    )
-    .bind(id)
-    .fetch_optional(&mut *transaction)
-    .await?;
+    let noticia = base::obtener_por_id_para_actualizar::<Noticia>(&mut *transaction, id).await?;
 
     let Some(noticia) = noticia else {
         transaction.rollback().await?;
@@ -224,33 +136,14 @@ pub async fn delete(pool: &PgPool, id: i64) -> Result<Option<Noticia>, sqlx::Err
         return Ok(None);
     };
 
-    sqlx::query(
-        r#"
-        DELETE FROM noticias
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *transaction)
-    .await?;
+    base::eliminar_por_id(&mut *transaction, &NOTICIAS, id).await?;
 
     /*
      * Las posiciones superiores se mueven temporalmente
      * fuera del rango utilizado para evitar conflictos
      * con la restricción UNIQUE.
      */
-    let temporary_base = sqlx::query_scalar::<_, i64>(
-        r#"
-            SELECT
-                COALESCE(
-                    MAX(orden),
-                    0
-                ) + 1000
-            FROM noticias
-            "#,
-    )
-    .fetch_one(&mut *transaction)
-    .await?;
+    let temporary_base = base::orden_maximo(&mut *transaction, &NOTICIAS, 0, 1000).await?;
 
     sqlx::query(
         r#"
@@ -334,15 +227,9 @@ pub async fn change_order(
     .await
     .map_err(ChangeOrderError::Database)?;
 
-    let total = sqlx::query_scalar::<_, i64>(
-        r#"
-            SELECT COUNT(*)
-            FROM noticias
-            "#,
-    )
-    .fetch_one(&mut *transaction)
-    .await
-    .map_err(ChangeOrderError::Database)?;
+    let total = base::contar(&mut *transaction, &NOTICIAS)
+        .await
+        .map_err(ChangeOrderError::Database)?;
 
     for change in changes {
         if change.orden >= total {
@@ -355,20 +242,9 @@ pub async fn change_order(
 
     let ids = changes.iter().map(|change| change.id).collect::<Vec<_>>();
 
-    let current_rows = sqlx::query_as::<_, (i64, i64)>(
-        r#"
-            SELECT
-                id,
-                orden
-            FROM noticias
-            WHERE id = ANY($1)
-            FOR UPDATE
-            "#,
-    )
-    .bind(&ids)
-    .fetch_all(&mut *transaction)
-    .await
-    .map_err(ChangeOrderError::Database)?;
+    let current_rows = base::obtener_ordenes_para_actualizar(&mut *transaction, &NOTICIAS, &ids)
+        .await
+        .map_err(ChangeOrderError::Database)?;
 
     if current_rows.len() != changes.len() {
         return Err(ChangeOrderError::NotFound);
@@ -392,34 +268,20 @@ pub async fn change_order(
         ));
     }
 
-    let temporary_base = sqlx::query_scalar::<_, i64>(
-        r#"
-            SELECT
-                COALESCE(
-                    MAX(orden),
-                    0
-                ) + 1000
-            FROM noticias
-            "#,
-    )
-    .fetch_one(&mut *transaction)
-    .await
-    .map_err(ChangeOrderError::Database)?;
+    let temporary_base = base::orden_maximo(&mut *transaction, &NOTICIAS, 0, 1000)
+        .await
+        .map_err(ChangeOrderError::Database)?;
 
     /*
      * Primero movemos las noticias a posiciones temporales.
      */
     for (index, change) in changes.iter().enumerate() {
-        sqlx::query(
-            r#"
-            UPDATE noticias
-            SET orden = $1
-            WHERE id = $2
-            "#,
+        base::asignar_orden(
+            &mut *transaction,
+            &NOTICIAS,
+            change.id,
+            temporary_base + index as i64,
         )
-        .bind(temporary_base + index as i64)
-        .bind(change.id)
-        .execute(&mut *transaction)
         .await
         .map_err(ChangeOrderError::Database)?;
     }
@@ -428,18 +290,9 @@ pub async fn change_order(
      * Después aplicamos las posiciones definitivas.
      */
     for change in changes {
-        sqlx::query(
-            r#"
-            UPDATE noticias
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(change.orden)
-        .bind(change.id)
-        .execute(&mut *transaction)
-        .await
-        .map_err(ChangeOrderError::Database)?;
+        base::asignar_orden(&mut *transaction, &NOTICIAS, change.id, change.orden)
+            .await
+            .map_err(ChangeOrderError::Database)?;
     }
 
     transaction
@@ -468,24 +321,10 @@ pub enum ChangeOrderError {
 const LATEST_NEWS_LIMIT: i64 = 4;
 
 pub async fn get_latest(pool: &PgPool) -> Result<Vec<Noticia>, sqlx::Error> {
-    sqlx::query_as::<_, Noticia>(
-        r#"
-        SELECT
-            id,
-            created_at,
-            fecha,
-            titulo,
-            orden,
-            contenido,
-            cant_img
-        FROM noticias
-        ORDER BY
-            created_at DESC,
-            id DESC
-        LIMIT $1
-        "#,
+    base::obtener_con_limite::<Noticia>(
+        pool,
+        [Ordenamiento::desc("created_at"), Ordenamiento::desc("id")],
+        LATEST_NEWS_LIMIT,
     )
-    .bind(LATEST_NEWS_LIMIT)
-    .fetch_all(pool)
     .await
 }

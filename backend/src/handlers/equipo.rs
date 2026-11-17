@@ -354,7 +354,6 @@ pub async fn change_order_equipo(
         }
 
         if !ids.insert(item.id) {
-            println!("ENTRE AL PRIMER ERROR");
             return Err(ApiError::BadRequest("Id de miembro duplicado.".into()));
         }
 

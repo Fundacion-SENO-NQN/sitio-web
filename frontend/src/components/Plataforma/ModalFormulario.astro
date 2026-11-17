@@ -1,0 +1,338 @@
+---
+export interface OpcionCampo {
+  value: string | number
+  label: string
+}
+
+export interface CampoFormulario {
+  id?: string
+  name: string
+  label: string
+  type?:
+    | 'text'
+    | 'number'
+    | 'tel'
+    | 'email'
+    | 'url'
+    | 'date'
+    | 'time'
+    | 'datetime-local'
+    | 'password'
+    | 'textarea'
+    | 'select'
+  placeholder?: string
+  required?: boolean
+  opcional?: boolean
+  ayuda?: string
+  completo?: boolean
+  maxLength?: number
+  minLength?: number
+  min?: number
+  max?: number
+  step?: number | 'any'
+  rows?: number
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'tel'
+    | 'url'
+    | 'email'
+    | 'numeric'
+    | 'decimal'
+    | 'search'
+  autocomplete?: string
+  value?: string | number
+  options?: OpcionCampo[]
+}
+
+export interface SeccionFormulario {
+  id?: string
+  titulo?: string
+  descripcion?: string
+  columnas?: 1 | 2 | 3
+  campos: CampoFormulario[]
+}
+
+export interface Props {
+  servicio: string
+  servicioPlural?: string
+  eyebrow?: string
+  titulo?: string
+  size?: 'small' | 'medium' | 'default' | 'large' | 'xl'
+  secciones?: SeccionFormulario[]
+  textoCancelar?: string
+  textoGuardar?: string
+  enctype?:
+    | 'application/x-www-form-urlencoded'
+    | 'multipart/form-data'
+    | 'text/plain'
+}
+
+const {
+  servicio,
+  servicioPlural = `${servicio}s`,
+  eyebrow,
+  titulo,
+  size = 'default',
+  secciones = [],
+  textoCancelar = 'Cancelar',
+  textoGuardar,
+  enctype
+} = Astro.props
+
+const eyebrowTexto = eyebrow ?? `Administración de ${servicioPlural}`
+const tituloTexto = titulo ?? `Nuevo ${servicio}`
+const textoGuardarFinal = textoGuardar ?? `Guardar ${servicio}`
+
+const sizeClassMap: Record<NonNullable<Props['size']>, string> = {
+  small: 'modalSmall',
+  medium: 'modalMedium',
+  default: '',
+  large: 'modalLarge',
+  xl: 'modalExtraLarge'
+}
+
+const modalSizeClass = sizeClassMap[size]
+---
+
+<div
+  id={`modal-${servicio}`}
+  class="modal modalFormulario oculto"
+  role="dialog"
+  aria-modal="true"
+  aria-hidden="true"
+  aria-labelledby={`modal-${servicio}-titulo`}
+  tabindex="-1"
+>
+  <div
+    class="modalBackdrop modal-fondo"
+    data-cerrar-modal={servicio}
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class:list={['modalContent', 'modalFormulario__content', modalSizeClass]}>
+    <header class="modalHeader modalFormulario__header">
+      <div class="modalHeaderContent">
+        <span class="modalSectionLabel">{eyebrowTexto}</span>
+
+        <h2 id={`modal-${servicio}-titulo`}>{tituloTexto}</h2>
+      </div>
+
+      <button
+        id={`btn-cerrar-modal-${servicio}`}
+        class="modalClose"
+        type="button"
+        aria-label={`Cerrar ventana de ${servicio}`}
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    <form
+      id={`form-${servicio}`}
+      class="form adminForm modalFormulario__form"
+      autocomplete="off"
+      enctype={enctype}
+    >
+      <div class="formContent modalFormulario__body">
+        <slot name="inicio" />
+
+        {
+          secciones.map((seccion, seccionIndex) => {
+            const seccionHeadingId =
+              seccion.id ?? `${servicio}-seccion-${seccionIndex}`
+
+            return (
+              <section
+                class="formSection modalFormulario__section"
+                aria-labelledby={seccion.titulo ? seccionHeadingId : undefined}
+              >
+                {(seccion.titulo || seccion.descripcion) && (
+                  <header class="formSectionHeader">
+                    {seccion.titulo && (
+                      <h3 id={seccionHeadingId}>{seccion.titulo}</h3>
+                    )}
+
+                    {seccion.descripcion && <p>{seccion.descripcion}</p>}
+                  </header>
+                )}
+
+                <div
+                  class:list={[
+                    'formGrid',
+                    'modalFormulario__grid',
+                    {
+                      formGridSingle: seccion.columnas === 1,
+                      formGridThree: seccion.columnas === 3
+                    }
+                  ]}
+                >
+                  {seccion.campos.map((campo) => {
+                    const fieldId = campo.id ?? `${servicio}-${campo.name}`
+                    const helpId = campo.ayuda ? `${fieldId}-ayuda` : undefined
+                    const fieldType = campo.type ?? 'text'
+
+                    return (
+                      <div
+                        class:list={[
+                          'formGroup',
+                          'campo',
+                          {
+                            full: campo.completo,
+                            'campo-completo': campo.completo
+                          }
+                        ]}
+                      >
+                        <label class="fieldLabel campo-label" for={fieldId}>
+                          {campo.label}
+
+                          {campo.required && (
+                            <span class="fieldRequired" aria-hidden="true">
+                              {' '}
+                              *
+                            </span>
+                          )}
+
+                          {!campo.required && campo.opcional && (
+                            <span class="fieldOptional opcional">
+                              {' '}
+                              Opcional
+                            </span>
+                          )}
+                        </label>
+
+                        {fieldType === 'textarea' ? (
+                          <textarea
+                            id={fieldId}
+                            name={campo.name}
+                            rows={campo.rows ?? 5}
+                            maxlength={campo.maxLength}
+                            minlength={campo.minLength}
+                            placeholder={campo.placeholder}
+                            required={campo.required}
+                            aria-describedby={helpId}
+                          >{campo.value !== undefined ? String(campo.value) : ''}</textarea>
+                        ) : fieldType === 'select' ? (
+                          <select
+                            id={fieldId}
+                            name={campo.name}
+                            required={campo.required}
+                            aria-describedby={helpId}
+                          >
+                            {campo.options?.map((opt) => (
+                              <option
+                                value={String(opt.value)}
+                                selected={
+                                  campo.value !== undefined &&
+                                  String(campo.value) === String(opt.value)
+                                }
+                              >
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            id={fieldId}
+                            name={campo.name}
+                            type={fieldType}
+                            placeholder={campo.placeholder}
+                            required={campo.required}
+                            maxlength={campo.maxLength}
+                            minlength={campo.minLength}
+                            min={campo.min}
+                            max={campo.max}
+                            step={campo.step}
+                            inputmode={campo.inputmode}
+                            autocomplete={campo.autocomplete ?? 'off'}
+                            value={
+                              campo.value !== undefined
+                                ? String(campo.value)
+                                : undefined
+                            }
+                            aria-describedby={helpId}
+                          />
+                        )}
+
+                        {campo.ayuda && (
+                          <small id={helpId} class="fieldHelp campo-ayuda">
+                            {campo.ayuda}
+                          </small>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )
+          })
+        }
+
+        <slot />
+      </div>
+
+      <footer class="modalFooter modalFormulario__footer">
+        <button
+          id={`btn-cancelar-${servicio}`}
+          class="button buttonGhost"
+          type="button"
+        >
+          {textoCancelar}
+        </button>
+
+        <button
+          id={`btn-guardar-${servicio}`}
+          class="button buttonPrimary"
+          type="submit"
+        >
+          {textoGuardarFinal}
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<style>
+  .modalFormulario__form {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+  }
+
+  .modalFormulario__body {
+    width: 100%;
+    min-width: 0;
+    padding: clamp(1.15rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--admin-space-large);
+  }
+
+  .modalFormulario__section {
+    width: 100%;
+    min-width: 0;
+    padding: clamp(1rem, 3vw, 1.35rem);
+    background-color: var(--admin-surface-soft);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius);
+  }
+
+  .modalFormulario__grid input[type='number'],
+  .modalFormulario__grid input[type='tel'] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .modalFormulario__body {
+      padding: 1rem;
+      gap: var(--admin-space-medium);
+    }
+
+    .modalFormulario__footer > .button {
+      width: 100%;
+    }
+  }
+</style>

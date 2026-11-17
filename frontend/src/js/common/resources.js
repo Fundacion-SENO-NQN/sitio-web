@@ -308,3 +308,31 @@ export const createDonationMethod = donationMethodsApi.create
 export const updateDonationMethod = donationMethodsApi.update
 
 export const deleteDonationMethod = donationMethodsApi.remove
+
+
+/* ==========================================================
+   BINGOS
+========================================================== */
+
+export const bingoApi = createCrudApi({
+  basePath: '/bingo',
+  hasOrder: false
+})
+
+export const getBingos = bingoApi.list
+
+export const getBingoById = bingoApi.get
+
+export function createBingo(formData) {
+  validateFormData(formData)
+
+  return bingoApi.create(formData)
+}
+
+export function patchBingo(id, formData) {
+  validateFormData(formData)
+
+  return bingoApi.update(id, formData)
+}
+
+export const deleteBingo = bingoApi.remove

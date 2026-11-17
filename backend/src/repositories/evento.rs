@@ -1,13 +1,14 @@
 use crate::{
     error::api_error::{ApiError, ApiResult},
     models::evento::{ChangeOrderEvento, Evento, UpdateEvento, UrlEventoInput, UrlEventoPatch},
+    repositories::{base, tablas::EVENTOS},
 };
 
 use sqlx::PgPool;
 
 /* ==========================================================
    GET ALL
-========================================================== */
+========================================================= */
 
 pub async fn get_all(db: &PgPool) -> ApiResult<Vec<Evento>> {
     let eventos = sqlx::query_as::<_, Evento>(
@@ -90,13 +91,7 @@ pub async fn create(
      * Prevent concurrent creations from calculating the
      * same MAX(orden) + 1 value.
      */
-    sqlx::query(
-        r#"
-        LOCK TABLE eventos IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
+    base::bloquear_tabla(&mut *tx, &EVENTOS).await?;
 
     let url_id = match url {
         Some(url_data) => {
@@ -511,13 +506,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateEvento) -> ApiResult<Eve
 pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Evento> {
     let mut tx = db.begin().await?;
 
-    sqlx::query(
-        r#"
-        LOCK TABLE eventos IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
+    base::bloquear_tabla(&mut *tx, &EVENTOS).await?;
 
     let evento = sqlx::query_as::<_, Evento>(
         r#"
@@ -562,53 +551,24 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Evento> {
      * Como se actualiza en orden ascendente, cada evento
      * utiliza la posición que acaba de quedar libre.
      */
-    let delete_result = sqlx::query(
-        r#"
-        DELETE FROM eventos
-        WHERE id = $1
-        "#,
-    )
-    .bind(id)
-    .execute(&mut *tx)
-    .await?;
+    let rows_deleted = base::eliminar_por_id(&mut *tx, &EVENTOS, id).await?;
 
-    if delete_result.rows_affected() != 1 {
+    if rows_deleted != 1 {
         return Err(ApiError::NotFound);
     }
 
-    let following_events = sqlx::query_as::<_, (i64, i64)>(
-        r#"
-        SELECT
-            id,
-            orden
-        FROM eventos
-        WHERE orden > $1
-        ORDER BY orden ASC
-        FOR UPDATE
-        "#,
-    )
-    .bind(evento.orden)
-    .fetch_all(&mut *tx)
-    .await?;
+    let following_events =
+        base::obtener_ordenes_posteriores_para_actualizar(&mut *tx, &EVENTOS, evento.orden).await?;
 
     /*
      * No se requieren valores temporales negativos ni
      * positivos: la eliminación ya creó un espacio libre.
      */
     for (following_id, previous_order) in following_events {
-        let update_result = sqlx::query(
-            r#"
-            UPDATE eventos
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(previous_order - 1)
-        .bind(following_id)
-        .execute(&mut *tx)
-        .await?;
+        let rows_updated =
+            base::asignar_orden(&mut *tx, &EVENTOS, following_id, previous_order - 1).await?;
 
-        if update_result.rows_affected() != 1 {
+        if rows_updated != 1 {
             return Err(ApiError::NotFound);
         }
     }
@@ -640,13 +600,7 @@ pub async fn delete(db: &PgPool, id: i64) -> ApiResult<Evento> {
 pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEvento>) -> ApiResult<()> {
     let mut tx = db.begin().await?;
 
-    sqlx::query(
-        r#"
-        LOCK TABLE eventos IN EXCLUSIVE MODE
-        "#,
-    )
-    .execute(&mut *tx)
-    .await?;
+    base::bloquear_tabla(&mut *tx, &EVENTOS).await?;
 
     /*
      * Obtain a value greater than every current order.
@@ -656,16 +610,7 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEvento>) -> ApiResu
      *
      * and do not conflict with existing unique values.
      */
-    let max_order: i64 = sqlx::query_scalar(
-        r#"
-        SELECT COALESCE(MAX(orden), 0)
-        FROM eventos
-        "#,
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-
-    let temporary_base = max_order + 1;
+    let temporary_base = base::orden_maximo(&mut *tx, &EVENTOS, 0, 1).await?;
 
     /*
      * First move every affected event to a unique temporary
@@ -674,19 +619,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEvento>) -> ApiResu
     for (index, evento) in order.iter().enumerate() {
         let temporary_order = temporary_base + index as i64;
 
-        let result = sqlx::query(
-            r#"
-            UPDATE eventos
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(temporary_order)
-        .bind(evento.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &EVENTOS, evento.id, temporary_order).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }
@@ -696,19 +631,9 @@ pub async fn change_order(db: &PgPool, order: Vec<ChangeOrderEvento>) -> ApiResu
      * requested orders.
      */
     for evento in &order {
-        let result = sqlx::query(
-            r#"
-            UPDATE eventos
-            SET orden = $1
-            WHERE id = $2
-            "#,
-        )
-        .bind(evento.orden)
-        .bind(evento.id)
-        .execute(&mut *tx)
-        .await?;
+        let rows = base::asignar_orden(&mut *tx, &EVENTOS, evento.id, evento.orden).await?;
 
-        if result.rows_affected() != 1 {
+        if rows != 1 {
             return Err(ApiError::NotFound);
         }
     }
