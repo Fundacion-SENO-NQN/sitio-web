@@ -22,6 +22,7 @@ const columnasBingo: Array<string | ColumnaTabla> = [
   'Teléfono',
   'Dirección',
   'Barrio',
+  { label: 'Vendedor', sortKey: 'seller' },
   { label: 'Localidad', sortKey: 'locality' },
   'Lugar de cobro',
   { label: 'Mes de inicio', sortKey: 'startMonth' },
@@ -74,6 +75,13 @@ const seccionesFormularioBingo: SeccionFormulario[] = [
         maxLength: 120,
         placeholder: 'Ej.: González',
         required: true
+      },
+      {
+        name: 'seller',
+        label: 'Vendedor',
+        type: 'text',
+        maxLength: 100,
+        placeholder: 'Ej.: Nancy'
       }
     ]
   },

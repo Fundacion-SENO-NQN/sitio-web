@@ -518,4 +518,49 @@ fn tablas_reales_protegen_mutabilidad_estricta() {
             columna: "created_at"
         }
     );
+
+    // BINGOS: `seller` es opcional, insertable y actualizable
+    let sql_bingo_create = sql_insertar(
+        &BINGOS,
+        &[
+            "name",
+            "last_name",
+            "phone",
+            "neighborhood",
+            "collection_date",
+            "collection_locate",
+            "start_month",
+            "locality",
+            "quote",
+            "nro_bingo",
+            "late_payment_notice",
+            "address",
+            "seller",
+        ],
+        true,
+    )
+    .unwrap();
+    assert!(sql_bingo_create.contains("seller"));
+
+    let sql_bingo_update = sql_actualizar_coalesce_por_id(
+        &BINGOS,
+        &[
+            "name",
+            "last_name",
+            "phone",
+            "neighborhood",
+            "collection_date",
+            "collection_locate",
+            "address",
+            "locality",
+            "start_month",
+            "quote",
+            "nro_bingo",
+            "late_payment_notice",
+            "seller",
+        ],
+        true,
+    )
+    .unwrap();
+    assert!(sql_bingo_update.contains("seller = COALESCE("));
 }

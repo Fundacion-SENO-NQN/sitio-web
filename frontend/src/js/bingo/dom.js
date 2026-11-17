@@ -6,6 +6,7 @@ export const bingoFieldSelectors = Object.freeze({
   nroBingo: '#bingo-nro_bingo',
   name: '#bingo-name',
   lastName: '#bingo-last_name',
+  seller: '#bingo-seller',
   phone: '#bingo-phone',
   address: '#bingo-address',
   neighborhood: '#bingo-neighborhood',

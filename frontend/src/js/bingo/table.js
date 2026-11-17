@@ -46,6 +46,10 @@ export function createBingoColumns({ onEdit, onDelete } = {}) {
     }),
 
     createTextColumn({
+      value: (item) => item.seller
+    }),
+
+    createTextColumn({
       value: (item) => item.locality
     }),
 

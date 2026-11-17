@@ -65,6 +65,7 @@ pub async fn create_bingo(
     let mut quote: Option<i16> = None;
     let mut nro_bingo: Option<i16> = None;
     let mut late_payment_notice: Option<i16> = None;
+    let mut seller: Option<String> = None;
 
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid bingo multipart body: {error}");
@@ -124,6 +125,10 @@ pub async fn create_bingo(
                 late_payment_notice = Some(parse_late_payment_notice(&raw)?);
             }
 
+            Some("seller") => {
+                let raw = read_text(field, "Vendedor inválido").await?;
+                seller = normalize_nullable(raw);
+            }
             _ => {}
         }
     }
@@ -161,6 +166,7 @@ pub async fn create_bingo(
             quote,
             nro_bingo,
             late_payment_notice,
+            seller
         },
     )
     .await?;
@@ -192,6 +198,7 @@ pub async fn patch_bingo(
     let mut quote: Option<i16> = None;
     let mut nro_bingo: Option<i16> = None;
     let mut late_payment_notice: Option<i16> = None;
+    let mut seller: Option<Option<String>> = None;
 
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid bingo multipart body: {error}");
@@ -251,6 +258,11 @@ pub async fn patch_bingo(
                 late_payment_notice = Some(parse_late_payment_notice(&raw)?);
             }
 
+            Some("seller") => {
+                let raw = read_text(field, "Vendedor inválido").await?;
+                seller = Some(normalize_nullable(raw));
+            }
+
             _ => {}
         }
     }
@@ -278,6 +290,7 @@ pub async fn patch_bingo(
         && quote.is_none()
         && nro_bingo.is_none()
         && late_payment_notice.is_none()
+        && seller.is_none()
     {
         return Err(ApiError::BadRequest("No se enviaron cambios".into()));
     }
@@ -295,6 +308,7 @@ pub async fn patch_bingo(
         quote,
         nro_bingo,
         late_payment_notice,
+        seller
     };
 
     let bingo = repositories::bingo::update(&state.db, id, update).await?;
@@ -354,6 +368,16 @@ fn clean_optional_text(value: Option<String>, empty_message: &str) -> ApiResult<
             Ok(value)
         })
         .transpose()
+}
+
+fn normalize_nullable(value: String) -> Option<String> {
+    let value = value.trim().to_string();
+
+    if value.is_empty() {
+        None
+    } else {
+        Some(value)
+    }
 }
 
 fn parse_i16(raw: &str, error_message: &str) -> ApiResult<i16> {
