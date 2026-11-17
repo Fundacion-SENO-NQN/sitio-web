@@ -21,6 +21,7 @@ static COLUMNAS_CREATE: &[&str] = &[
     "nro_bingo",
     "late_payment_notice",
     "address",
+    "seller"
 ];
 
 static COLUMNAS_UPDATE: &[&str] = &[
@@ -36,6 +37,7 @@ static COLUMNAS_UPDATE: &[&str] = &[
     "quote",
     "nro_bingo",
     "late_payment_notice",
+    "seller"
 ];
 
 /* ==========================================================
@@ -74,6 +76,7 @@ pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
         .bind(new_bingo.nro_bingo)
         .bind(new_bingo.late_payment_notice)
         .bind(new_bingo.address)
+        .bind(new_bingo.seller)
         .fetch_one(db)
         .await
         .map_err(map_bingo_db_error)?;
@@ -101,6 +104,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
         .bind(update.quote)
         .bind(update.nro_bingo)
         .bind(update.late_payment_notice)
+        .bind(update.seller)
         .bind(id)
         .fetch_optional(db)
         .await
