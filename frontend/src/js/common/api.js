@@ -1,4 +1,5 @@
 import { startLoading } from './loadingScreen.js'
+import { getSessionToken, clearSession, touchSession } from './session.js'
 
 const rawApiUrl = import.meta.env.PUBLIC_API_URL || 'https://sitio-web-fundacion-seno.fly.dev'
 
@@ -22,12 +23,12 @@ export class ApiError extends Error {
    AUTHENTICATION
 ========================================================== */
 
-function getToken() {
-  return localStorage.getItem('token')
+export function getToken() {
+  return getSessionToken()
 }
 
-function removeSession() {
-  localStorage.removeItem('token')
+export function removeSession() {
+  clearSession()
 }
 
 /* ==========================================================
@@ -52,8 +53,11 @@ export async function request(
 
   const token = getToken()
 
-  if (token && !requestHeaders.has('Authorization')) {
-    requestHeaders.set('Authorization', `Bearer ${token}`)
+  if (token) {
+    touchSession(false)
+    if (!requestHeaders.has('Authorization')) {
+      requestHeaders.set('Authorization', `Bearer ${token}`)
+    }
   }
 
   const normalizedBody = normalizeBody(body, requestHeaders)

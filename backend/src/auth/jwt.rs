@@ -8,7 +8,7 @@ pub fn generate_token(
     auth_version: i64,
     secret: &str,
 ) -> Result<String, jsonwebtoken::errors::Error> {
-    let expiration = Utc::now() + Duration::days(30);
+    let expiration = Utc::now() + Duration::days(90);
 
     let claims = Claims {
         sub: user_id,
@@ -58,7 +58,7 @@ mod tests {
         assert_eq!(decoded.claims.sub, user_id);
         assert_eq!(decoded.claims.auth_version, auth_version);
 
-        let expected_exp = (before + Duration::days(30)).timestamp() as usize;
+        let expected_exp = (before + Duration::days(90)).timestamp() as usize;
         let exp_diff = (decoded.claims.exp as i64) - (expected_exp as i64);
         assert!(exp_diff.abs() <= 5);
     }
