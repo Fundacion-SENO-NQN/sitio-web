@@ -13,6 +13,7 @@ export function buildBingoFormData({
   name,
   lastName = undefined,
   last_name = undefined,
+  seller = undefined,
   phone,
   address,
   neighborhood,
@@ -33,6 +34,7 @@ export function buildBingoFormData({
     lastName ?? last_name,
     'El apellido es requerido.'
   )
+  const cleanSeller = cleanOptionalText(seller)
   const cleanPhone = cleanRequiredText(phone, 'El teléfono es requerido.')
   const cleanAddress = cleanRequiredText(address, 'La dirección es requerida.')
   const cleanNeighborhood = cleanRequiredText(
@@ -62,6 +64,7 @@ export function buildBingoFormData({
   formData.append('nro_bingo', String(validatedNroBingo))
   formData.append('name', cleanName)
   formData.append('last_name', cleanLastName)
+  formData.append('seller', cleanSeller)
   formData.append('phone', cleanPhone)
   formData.append('address', cleanAddress)
   formData.append('neighborhood', cleanNeighborhood)
@@ -144,4 +147,8 @@ function cleanRequiredText(value, errorMessage) {
   }
 
   return cleaned
+}
+
+function cleanOptionalText(value) {
+  return String(value ?? '').trim()
 }

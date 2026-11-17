@@ -154,6 +154,7 @@ pub static BINGOS: Tabla = Tabla::nueva(
         Columna::requerida("late_payment_notice", Tipo::I16),
         Columna::requerida("address", Tipo::String),
         Columna::inmutable("created_at", Tipo::TimestampTz),
+        Columna::opcional("seller", Tipo::String),
     ],
 );
 

@@ -126,7 +126,8 @@ pub async fn create_bingo(
             }
 
             Some("seller") => {
-                seller = Some(read_text(field, "Vendedor inválido").await?);
+                let raw = read_text(field, "Vendedor inválido").await?;
+                seller = normalize_nullable(raw);
             }
             _ => {}
         }
@@ -197,7 +198,7 @@ pub async fn patch_bingo(
     let mut quote: Option<i16> = None;
     let mut nro_bingo: Option<i16> = None;
     let mut late_payment_notice: Option<i16> = None;
-    let mut seller: Option<String> = None;
+    let mut seller: Option<Option<String>> = None;
 
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid bingo multipart body: {error}");
@@ -258,7 +259,8 @@ pub async fn patch_bingo(
             }
 
             Some("seller") => {
-                seller = Some(read_text(field, "Vendedor inválido").await?);
+                let raw = read_text(field, "Vendedor inválido").await?;
+                seller = Some(normalize_nullable(raw));
             }
 
             _ => {}
@@ -275,7 +277,6 @@ pub async fn patch_bingo(
         clean_optional_text(collection_locate, "El lugar de cobro no puede estar vacío")?;
     let address = clean_optional_text(address, "La dirección no puede estar vacía")?;
     let locality = clean_optional_text(locality, "La localidad no puede estar vacía")?;
-    let seller = clean_optional_text(seller, "El vendedor no puede estar vacío")?;
 
     if name.is_none()
         && last_name.is_none()
@@ -367,6 +368,16 @@ fn clean_optional_text(value: Option<String>, empty_message: &str) -> ApiResult<
             Ok(value)
         })
         .transpose()
+}
+
+fn normalize_nullable(value: String) -> Option<String> {
+    let value = value.trim().to_string();
+
+    if value.is_empty() {
+        None
+    } else {
+        Some(value)
+    }
 }
 
 fn parse_i16(raw: &str, error_message: &str) -> ApiResult<i16> {

@@ -43,6 +43,7 @@ export const bingoModule = createPlatformCrudModule({
       bingo.name,
       bingo.last_name,
       `${bingo.name ?? ''} ${bingo.last_name ?? ''}`.trim(),
+      bingo.seller,
       bingo.phone,
       bingo.address,
       bingo.neighborhood,
@@ -63,6 +64,9 @@ export const bingoModule = createPlatformCrudModule({
     },
     lastName(a, b) {
       return compareLocale(a.last_name, b.last_name)
+    },
+    seller(a, b) {
+      return compareLocale(a.seller, b.seller)
     },
     locality(a, b) {
       return compareLocale(a.locality, b.locality)
@@ -115,6 +119,7 @@ export const bingoModule = createPlatformCrudModule({
       setFieldValue(form, 'nro_bingo', bingo.nro_bingo)
       setFieldValue(form, 'name', bingo.name)
       setFieldValue(form, 'last_name', bingo.last_name)
+      setFieldValue(form, 'seller', bingo.seller)
       setFieldValue(form, 'phone', bingo.phone)
       setFieldValue(form, 'address', bingo.address)
       setFieldValue(form, 'neighborhood', bingo.neighborhood)
@@ -139,6 +144,7 @@ export const bingoModule = createPlatformCrudModule({
         nroBingo: getFieldValue(form, 'nro_bingo'),
         name: getFieldValue(form, 'name'),
         lastName: getFieldValue(form, 'last_name'),
+        seller: getFieldValue(form, 'seller'),
         phone: getFieldValue(form, 'phone'),
         address: getFieldValue(form, 'address'),
         neighborhood: getFieldValue(form, 'neighborhood'),

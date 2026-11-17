@@ -9,6 +9,7 @@ const validInput = {
   nroBingo: '42',
   name: '  María  ',
   lastName: '  González ',
+  seller: '  Nancy  ',
   phone: ' 299 412-3456 ',
   address: ' Av. Argentina 450 ',
   neighborhood: ' Centro ',
@@ -27,6 +28,7 @@ describe('buildBingoFormData', () => {
     expect(formData.get('nro_bingo')).toBe('42')
     expect(formData.get('name')).toBe('María')
     expect(formData.get('last_name')).toBe('González')
+    expect(formData.get('seller')).toBe('Nancy')
     expect(formData.get('phone')).toBe('299 412-3456')
     expect(formData.get('address')).toBe('Av. Argentina 450')
     expect(formData.get('neighborhood')).toBe('Centro')
@@ -36,6 +38,20 @@ describe('buildBingoFormData', () => {
     expect(formData.get('start_month')).toBe('3')
     expect(formData.get('quote')).toBe('25')
     expect(formData.get('late_payment_notice')).toBe('31')
+  })
+
+  it('accepts optional or omitted seller', () => {
+    const formDataWithoutSeller = buildBingoFormData({
+      ...validInput,
+      seller: undefined
+    })
+    expect(formDataWithoutSeller.get('seller')).toBe('')
+
+    const formDataWithEmptySeller = buildBingoFormData({
+      ...validInput,
+      seller: '   '
+    })
+    expect(formDataWithEmptySeller.get('seller')).toBe('')
   })
 
   it('rejects negative or missing nro_bingo', () => {

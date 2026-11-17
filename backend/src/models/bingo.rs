@@ -51,5 +51,5 @@ pub struct UpdateBingo {
     pub quote: Option<i16>,
     pub nro_bingo: Option<i16>,
     pub late_payment_notice: Option<i16>,
-    pub seller: Option<String>,
+    pub seller: Option<Option<String>>,
 }
