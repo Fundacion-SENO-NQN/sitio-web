@@ -34,6 +34,8 @@ type HmacSha256 = Hmac<Sha256>;
 ========================================================== */
 
 pub const QUOTE_COUNT: usize = 8;
+pub const BINGO_BASE_YEAR: i64 = 2026;
+pub const MAX_START_MONTH: i16 = 16;
 
 const DEFAULT_API_VERSION: &str = "v25.0";
 const DEFAULT_TEMPLATE_NAME: &str = "aviso_cuota_bingo";
@@ -851,14 +853,13 @@ pub fn quote_state(quote: i16, index: usize) -> u16 {
 pub fn late_quote_indexes(
     quote: i16,
     start_month: i16,
-    created_at: DateTime<Utc>,
+    _created_at: DateTime<Utc>,
     now: DateTime<Tz>,
 ) -> Vec<usize> {
-    if !(1..=12).contains(&start_month) {
+    if !(1..=MAX_START_MONTH).contains(&start_month) {
         return Vec::new();
     }
 
-    let start_year = i64::from(created_at.with_timezone(&Buenos_Aires).year());
     let current_total = i64::from(now.year()) * 12 + i64::from(now.month0());
 
     (0..QUOTE_COUNT)
@@ -866,7 +867,7 @@ pub fn late_quote_indexes(
             let state = quote_state(quote, index);
             // 0b11 is invalid and shown as unpaid by the frontend.
             let unpaid = state == 0b00 || state == 0b11;
-            let quote_total = start_year * 12 + i64::from(start_month - 1) + index as i64;
+            let quote_total = BINGO_BASE_YEAR * 12 + i64::from(start_month - 1) + index as i64;
 
             unpaid && quote_total < current_total
         })
@@ -1481,9 +1482,25 @@ mod tests {
     }
 
     #[test]
+    fn late_quotes_support_next_year_2027_start_months() {
+        // Purchased in November 2026, starting in January 2027 (start_month = 13).
+        // In November 2026 and January 2027, nothing is late.
+        assert!(late_quote_indexes(0, 13, created(2026, 11, 15), ar(2026, 11, 20)).is_empty());
+        assert!(late_quote_indexes(0, 13, created(2026, 11, 15), ar(2027, 1, 20)).is_empty());
+
+        // In March 2027, January 2027 (quote 0) and February 2027 (quote 1) are late.
+        let late = late_quote_indexes(0, 13, created(2026, 11, 15), ar(2027, 3, 5));
+        assert_eq!(late, vec![0, 1]);
+        assert_eq!(
+            describe_late_quotes(13, &late),
+            "Cuota 1 (Enero), Cuota 2 (Febrero)"
+        );
+    }
+
+    #[test]
     fn invalid_start_month_yields_no_late_quotes() {
         assert!(late_quote_indexes(0, 0, created(2026, 1, 1), ar(2027, 6, 1)).is_empty());
-        assert!(late_quote_indexes(0, 13, created(2026, 1, 1), ar(2027, 6, 1)).is_empty());
+        assert!(late_quote_indexes(0, 17, created(2026, 1, 1), ar(2027, 6, 1)).is_empty());
     }
 
     #[test]

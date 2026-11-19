@@ -72,11 +72,22 @@ describe('buildBingoFormData', () => {
     )
   })
 
-  it('rejects invalid start_month values outside 1..12', () => {
+  it('accepts start_month values for 2026 (1..12) and up to April 2027 (13..16)', () => {
+    const formData2027 = buildBingoFormData({ ...validInput, startMonth: '13' })
+    expect(formData2027.get('start_month')).toBe('13')
+
+    const formDataApr2027 = buildBingoFormData({
+      ...validInput,
+      startMonth: '16'
+    })
+    expect(formDataApr2027.get('start_month')).toBe('16')
+  })
+
+  it('rejects invalid start_month values outside 1..16', () => {
     expect(() => buildBingoFormData({ ...validInput, startMonth: 0 })).toThrow(
       'mes de inicio'
     )
-    expect(() => buildBingoFormData({ ...validInput, startMonth: 13 })).toThrow(
+    expect(() => buildBingoFormData({ ...validInput, startMonth: 17 })).toThrow(
       'mes de inicio'
     )
   })

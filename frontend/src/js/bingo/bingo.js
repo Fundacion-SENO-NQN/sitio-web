@@ -7,7 +7,11 @@ import {
   getBingos,
   patchBingo
 } from '../common/resources.js'
-import { formatLatePaymentNotice, getMonthName } from './constants.js'
+import {
+  formatLatePaymentNotice,
+  getDefaultStartMonth,
+  getMonthName
+} from './constants.js'
 import { bingoFieldSelectors } from './dom.js'
 import { buildBingoFormData } from './formData.js'
 import { createBingoColumns } from './table.js'
@@ -100,7 +104,7 @@ export const bingoModule = createPlatformCrudModule({
     clear(form) {
       form.reset()
 
-      const defaultMonth = new Date().getMonth() + 1
+      const defaultMonth = getDefaultStartMonth()
       const startMonthSelect = form.elements.namedItem('start_month')
       const noticeSelect = form.elements.namedItem('late_payment_notice')
 

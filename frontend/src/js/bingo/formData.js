@@ -1,4 +1,4 @@
-import { QUOTE_COUNT } from '../common/quotes.js'
+import { MAX_START_MONTH, QUOTE_COUNT } from '../common/quotes.js'
 
 /* ==========================================================
    BINGO FORM DATA BUILDER & VALIDATOR
@@ -101,8 +101,10 @@ export function validateBingoNumber(rawValue) {
 export function validateStartMonth(rawValue) {
   const parsed = Number(String(rawValue ?? '').trim())
 
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 12) {
-    throw new Error('El mes de inicio debe estar entre 1 y 12.')
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > MAX_START_MONTH) {
+    throw new Error(
+      `El mes de inicio debe estar entre 1 y ${MAX_START_MONTH}.`
+    )
   }
 
   return parsed

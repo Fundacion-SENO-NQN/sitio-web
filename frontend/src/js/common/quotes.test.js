@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import {
+  MONTH_OPTIONS,
   QUOTE_STATE,
   createQuotesEditorController,
   createQuotesSquaresElement,
   decodeQuotes,
   encodeQuotes,
+  getDefaultStartMonth,
+  getMonthName,
   getQuoteMonthName,
   getQuoteMonthNumber,
   getQuoteVisualInfo,
@@ -43,11 +46,65 @@ describe('decodeQuotes & encodeQuotes', () => {
 })
 
 describe('quote months & late detection', () => {
-  it('computes month numbers and names wrapping across December -> January', () => {
+  it('computes month numbers and names wrapping across December -> January for 2026 and up to April 2027', () => {
+    expect(MONTH_OPTIONS).toHaveLength(16)
+    expect(MONTH_OPTIONS[0]).toEqual({ value: 1, label: 'Enero 2026' })
+    expect(MONTH_OPTIONS[11]).toEqual({ value: 12, label: 'Diciembre 2026' })
+    expect(MONTH_OPTIONS[12]).toEqual({ value: 13, label: 'Enero 2027' })
+    expect(MONTH_OPTIONS[15]).toEqual({ value: 16, label: 'Abril 2027' })
+
+    expect(getMonthName(3)).toBe('Marzo 2026')
+    expect(getMonthName(13)).toBe('Enero 2027')
+    expect(getMonthName(16)).toBe('Abril 2027')
+    expect(getMonthName(17)).toBe('')
+
+    expect(getDefaultStartMonth(new Date(2026, 10, 19))).toBe(11)
+    expect(getDefaultStartMonth(new Date(2027, 0, 10))).toBe(13)
+    expect(getDefaultStartMonth(new Date(2027, 6, 10))).toBe(16)
+
     expect(getQuoteMonthNumber(10, 0)).toBe(10)
     expect(getQuoteMonthName(10, 0)).toBe('Octubre')
     expect(getQuoteMonthNumber(10, 3)).toBe(1)
     expect(getQuoteMonthName(10, 3)).toBe('Enero')
+    expect(getQuoteMonthNumber(13, 0)).toBe(1)
+    expect(getQuoteMonthName(13, 0)).toBe('Enero')
+    expect(getQuoteMonthNumber(13, 1)).toBe(2)
+    expect(getQuoteMonthName(13, 1)).toBe('Febrero')
+  })
+
+  it('does not mark 2027 start_month (13..24) as late during 2026', () => {
+    const nov2026 = new Date(2026, 10, 19)
+    const feb2027 = new Date(2027, 1, 5)
+    const createdAt = '2026-11-15T12:00:00Z'
+
+    // Start month = 13 (January 2027)
+    expect(
+      isQuoteLate({
+        startMonth: 13,
+        quoteIndex: 0,
+        createdAt,
+        now: nov2026
+      })
+    ).toBe(false)
+
+    // In Feb 2027, Quote 0 (Jan 2027) is late, Quote 1 (Feb 2027) is not
+    expect(
+      isQuoteLate({
+        startMonth: 13,
+        quoteIndex: 0,
+        createdAt,
+        now: feb2027
+      })
+    ).toBe(true)
+
+    expect(
+      isQuoteLate({
+        startMonth: 13,
+        quoteIndex: 1,
+        createdAt,
+        now: feb2027
+      })
+    ).toBe(false)
   })
 
   it('marks an unpaid quote as late only after its month has passed', () => {

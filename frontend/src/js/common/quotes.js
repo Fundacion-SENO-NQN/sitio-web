@@ -6,6 +6,9 @@ import { resolveElement } from './dom.js'
 ========================================================== */
 
 export const QUOTE_COUNT = 8
+export const BINGO_BASE_YEAR = 2026
+export const BINGO_YEARS = Object.freeze([2026, 2027])
+export const MAX_START_MONTH = 16
 
 export const QUOTE_STATE = Object.freeze({
   UNPAID: 0,
@@ -29,10 +32,16 @@ export const MONTH_NAMES = Object.freeze([
 ])
 
 export const MONTH_OPTIONS = Object.freeze(
-  MONTH_NAMES.map((label, index) => ({
-    value: index + 1,
-    label
-  }))
+  Array.from({ length: MAX_START_MONTH }, (_, index) => {
+    const value = index + 1
+    const monthIndex = index % 12
+    const year = BINGO_BASE_YEAR + Math.floor(index / 12)
+
+    return {
+      value,
+      label: `${MONTH_NAMES[monthIndex]} ${year}`
+    }
+  })
 )
 
 /* ==========================================================
@@ -88,14 +97,30 @@ export function encodeQuotes(states, count = QUOTE_COUNT) {
    MONTHS & LATE QUOTE CALCULATION
 ========================================================== */
 
-export function getMonthName(monthNumber) {
-  const index = Number(monthNumber) - 1
+export function getMonthName(startMonth) {
+  const normalized = Number(startMonth)
 
-  if (!Number.isInteger(index) || index < 0 || index >= MONTH_NAMES.length) {
+  if (
+    !Number.isInteger(normalized) ||
+    normalized < 1 ||
+    normalized > MAX_START_MONTH
+  ) {
     return ''
   }
 
-  return MONTH_NAMES[index]
+  const monthIndex = (normalized - 1) % 12
+  const year = BINGO_BASE_YEAR + Math.floor((normalized - 1) / 12)
+
+  return `${MONTH_NAMES[monthIndex]} ${year}`
+}
+
+export function getDefaultStartMonth(now = new Date()) {
+  const referenceDate = now instanceof Date ? now : new Date(now)
+  const rawMonth =
+    (referenceDate.getFullYear() - BINGO_BASE_YEAR) * 12 +
+    (referenceDate.getMonth() + 1)
+
+  return Math.max(1, Math.min(MAX_START_MONTH, rawMonth))
 }
 
 export function getQuoteMonthNumber(startMonth, quoteIndex) {
@@ -105,7 +130,7 @@ export function getQuoteMonthNumber(startMonth, quoteIndex) {
   if (
     !Number.isInteger(normalizedStart) ||
     normalizedStart < 1 ||
-    normalizedStart > 12 ||
+    normalizedStart > MAX_START_MONTH ||
     !Number.isInteger(normalizedIndex) ||
     normalizedIndex < 0
   ) {
@@ -118,10 +143,24 @@ export function getQuoteMonthNumber(startMonth, quoteIndex) {
 export function getQuoteMonthName(startMonth, quoteIndex) {
   const monthNumber = getQuoteMonthNumber(startMonth, quoteIndex)
 
-  return monthNumber ? getMonthName(monthNumber) : ''
+  return monthNumber ? MONTH_NAMES[monthNumber - 1] ?? '' : ''
 }
 
-export function resolveStartYear({ createdAt = null, now = new Date() } = {}) {
+export function resolveStartYear({
+  startMonth = null,
+  createdAt = null,
+  now = new Date()
+} = {}) {
+  const normalizedStart = Number(startMonth)
+
+  if (
+    Number.isInteger(normalizedStart) &&
+    normalizedStart >= 1 &&
+    normalizedStart <= MAX_START_MONTH
+  ) {
+    return BINGO_BASE_YEAR + Math.floor((normalizedStart - 1) / 12)
+  }
+
   if (createdAt) {
     const parsed = createdAt instanceof Date ? createdAt : new Date(createdAt)
 
@@ -135,8 +174,7 @@ export function resolveStartYear({ createdAt = null, now = new Date() } = {}) {
 
 /**
  * Determines whether a quote's month has already passed relative to `now`.
- * Example: if `startMonth` is 3 (March), quote 0 is March and becomes late
- * once April begins (`quoteTotalMonths < currentTotalMonths`).
+ * `startMonth` in `1..12` represents Jan..Dec 2026 and `13..24` represents Jan..Dec 2027.
  */
 export function isQuoteLate({
   startMonth,
@@ -150,7 +188,7 @@ export function isQuoteLate({
   if (
     !Number.isInteger(normalizedStart) ||
     normalizedStart < 1 ||
-    normalizedStart > 12 ||
+    normalizedStart > MAX_START_MONTH ||
     !Number.isInteger(normalizedIndex) ||
     normalizedIndex < 0
   ) {
@@ -158,10 +196,9 @@ export function isQuoteLate({
   }
 
   const referenceDate = now instanceof Date ? now : new Date(now)
-  const startYear = resolveStartYear({ createdAt, now: referenceDate })
 
   const quoteTotalMonths =
-    startYear * 12 + (normalizedStart - 1) + normalizedIndex
+    BINGO_BASE_YEAR * 12 + (normalizedStart - 1) + normalizedIndex
 
   const currentTotalMonths =
     referenceDate.getFullYear() * 12 + referenceDate.getMonth()
