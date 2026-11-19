@@ -60,6 +60,7 @@ export interface Props {
   titulo?: string
   size?: 'small' | 'medium' | 'default' | 'large' | 'xl'
   secciones?: SeccionFormulario[]
+  textoLimpiar?: string
   textoCancelar?: string
   textoGuardar?: string
   enctype?:
@@ -75,6 +76,7 @@ const {
   titulo,
   size = 'default',
   secciones = [],
+  textoLimpiar = 'Limpiar formulario',
   textoCancelar = 'Cancelar',
   textoGuardar,
   enctype
@@ -274,6 +276,14 @@ const modalSizeClass = sizeClassMap[size]
 
       <footer class="modalFooter modalFormulario__footer">
         <button
+          id={`btn-limpiar-${servicio}`}
+          class="button buttonGhost modalFormulario__clear oculto"
+          type="button"
+        >
+          {textoLimpiar}
+        </button>
+
+        <button
           id={`btn-cancelar-${servicio}`}
           class="button buttonGhost"
           type="button"
@@ -294,6 +304,10 @@ const modalSizeClass = sizeClassMap[size]
 </div>
 
 <style>
+  .modalFormulario__clear {
+    margin-right: auto;
+  }
+
   .modalFormulario__form {
     width: 100%;
     min-width: 0;

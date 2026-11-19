@@ -27,9 +27,9 @@ const columnasBingo: Array<string | ColumnaTabla> = [
   'Lugar de cobro',
   { label: 'Mes de inicio', sortKey: 'startMonth' },
   'Fecha de cobro',
-  'Cuotas',
+  { label: 'Cuotas', sortKey: 'quotes' },
   'Aviso automático',
-  { label: 'Acciones', align: 'right' }
+  { label: 'Acciones', align: 'right', fixed: true }
 ]
 
 const seccionesFormularioBingo: SeccionFormulario[] = [
@@ -173,6 +173,7 @@ const seccionesFormularioBingo: SeccionFormulario[] = [
       servicio="bingo"
       servicioPlural="bingos"
       busqueda="número, nombre, localidad o fecha"
+      mostrarSelectorColumnas={true}
     />
 
     <Tabla

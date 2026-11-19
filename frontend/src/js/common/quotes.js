@@ -276,6 +276,84 @@ export function getQuoteVisualInfo({
   }
 }
 
+/**
+ * Summarizes paid, late, and pending quote counts for a record.
+ */
+export function getQuotesSummary({
+  quote = 0,
+  startMonth = 1,
+  createdAt = null,
+  count = QUOTE_COUNT,
+  now = new Date()
+} = {}) {
+  const states = decodeQuotes(quote, count)
+  let paidCount = 0
+  let lateCount = 0
+
+  states.forEach((paymentState, quoteIndex) => {
+    if (paymentState !== QUOTE_STATE.UNPAID) {
+      paidCount += 1
+      return
+    }
+
+    if (
+      isQuoteLate({
+        startMonth,
+        quoteIndex,
+        createdAt,
+        now
+      })
+    ) {
+      lateCount += 1
+    }
+  })
+
+  return {
+    paidCount,
+    lateCount,
+    pendingCount: Math.max(0, count - paidCount - lateCount),
+    total: count
+  }
+}
+
+/**
+ * Compares two items by number of paid quotes (0..count),
+ * breaking ties by number of late quotes.
+ */
+export function compareQuotesProgress(
+  first,
+  second,
+  {
+    getQuote = (item) => item?.quote,
+    getStartMonth = (item) => item?.start_month,
+    getCreatedAt = (item) => item?.created_at,
+    count = QUOTE_COUNT,
+    now = new Date()
+  } = {}
+) {
+  const firstSummary = getQuotesSummary({
+    quote: getQuote(first),
+    startMonth: getStartMonth(first),
+    createdAt: getCreatedAt(first),
+    count,
+    now
+  })
+
+  const secondSummary = getQuotesSummary({
+    quote: getQuote(second),
+    startMonth: getStartMonth(second),
+    createdAt: getCreatedAt(second),
+    count,
+    now
+  })
+
+  if (firstSummary.paidCount !== secondSummary.paidCount) {
+    return firstSummary.paidCount - secondSummary.paidCount
+  }
+
+  return secondSummary.lateCount - firstSummary.lateCount
+}
+
 /* ==========================================================
    TABLE SQUARES RENDERER & COLUMN FACTORY
 ========================================================== */
@@ -355,7 +433,8 @@ export function createQuotesEditorController({
   container,
   startMonthInput = null,
   count = QUOTE_COUNT,
-  getNow = () => new Date()
+  getNow = () => new Date(),
+  onChange = null
 } = {}) {
   const root = resolveElement(container)
 
@@ -375,6 +454,15 @@ export function createQuotesEditorController({
   let currentCreatedAt = null
   let eventController = null
 
+  function emitChange() {
+    if (typeof onChange === 'function') {
+      onChange({
+        quote: getValue(),
+        states: getStates()
+      })
+    }
+  }
+
   function initialize() {
     if (eventController) return controller
 
@@ -387,6 +475,7 @@ export function createQuotesEditorController({
         () => {
           states[index] = normalizeSingleState(select.value)
           refreshVisuals()
+          emitChange()
         },
         { signal }
       )
@@ -399,8 +488,12 @@ export function createQuotesEditorController({
           states[index] = (states[index] + 1) % 3
           if (selects[index]) {
             selects[index].value = String(states[index])
+            selects[index].dispatchEvent(new Event('change', { bubbles: true }))
+          } else {
+            refreshVisuals()
+            root.dispatchEvent(new Event('change', { bubbles: true }))
+            emitChange()
           }
-          refreshVisuals()
         },
         { signal }
       )

@@ -3,6 +3,7 @@ import { createFormModalController } from './modalController.js'
 import { createDeleteController } from './deleteController.js'
 import { createOrderController } from './orderController.js'
 import { createTableRenderer } from './table.js'
+import { createTableColumnsController } from './tableColumnsController.js'
 import { forceHideLoadingScreen, isLoading } from './loadingScreen.js'
 import { showToast } from './toast.js'
 import { hasSession } from './session.js'
@@ -27,6 +28,7 @@ export function getModuleSelectors(servicio, servicioPlural = `${servicio}s`) {
     searchInput: `#buscar-${servicioPlural}`,
     countElement: `#cantidad-${servicioPlural}`,
     newButton: `#btn-nuevo-${servicio}`,
+    columnSelector: `#selector-columnas-${servicio}`,
 
     /* Table & states */
     loadingElement: `#estado-cargando-${servicio}`,
@@ -45,6 +47,7 @@ export function getModuleSelectors(servicio, servicioPlural = `${servicio}s`) {
     saveButton: `#btn-guardar-${servicio}`,
     closeFormModalButton: `#btn-cerrar-modal-${servicio}`,
     cancelFormModalButton: `#btn-cancelar-${servicio}`,
+    clearFormModalButton: `#btn-limpiar-${servicio}`,
     formModalBackdrop: `[data-cerrar-modal="${servicio}"]`,
 
     /* Delete modal */
@@ -120,6 +123,10 @@ export function createPlatformCrudModule({
   /* Optional order options */
   enableOrder = false,
   orderOptions = {},
+
+  /* Optional column visibility options */
+  enableColumnVisibility = null,
+  columnVisibilityOptions = {},
 
   /* Lifecycle hooks */
   requireAuth = true,
@@ -219,6 +226,7 @@ export function createPlatformCrudModule({
     saveButton: selectors.saveButton,
     closeButtons: [selectors.closeFormModalButton],
     cancelButtons: [selectors.cancelFormModalButton],
+    clearDraftButtons: [selectors.clearFormModalButton],
     backdrop: selectors.formModalBackdrop,
     hiddenClass: 'oculto',
 
@@ -263,6 +271,28 @@ export function createPlatformCrudModule({
     ...deleteOptions
   })
 
+  const hasColumnSelectorInDom =
+    typeof document !== 'undefined' &&
+    Boolean(
+      document.querySelector(selectors.columnSelector) ||
+        document.querySelector(`[data-column-selector="${servicio}"]`)
+    )
+
+  const shouldEnableColumnVisibility =
+    enableColumnVisibility !== null
+      ? Boolean(enableColumnVisibility)
+      : hasColumnSelectorInDom
+
+  const columnsController = shouldEnableColumnVisibility
+    ? createTableColumnsController({
+        moduleKey: servicio,
+        container: selectors.columnSelector,
+        tableWrapper: selectors.tableWrapper,
+        tableBody: selectors.tableBody,
+        ...columnVisibilityOptions
+      })
+    : null
+
   const resolvedColumns =
     typeof createColumns === 'function'
       ? createColumns({
@@ -270,15 +300,24 @@ export function createPlatformCrudModule({
           orderController,
           formModal,
           deleteController,
+          columnsController,
           onEdit: (item) => formModal.openEdit(item),
           onDelete: (item) => deleteController.open(item)
         })
       : columns
 
+  const userOnRendered = tableOptions.onRendered
+
   renderTable = createTableRenderer({
     body: selectors.tableBody,
     columns: resolvedColumns,
-    ...tableOptions
+    ...tableOptions,
+    onRendered(renderContext) {
+      columnsController?.applyToBody()
+      if (typeof userOnRendered === 'function') {
+        userOnRendered(renderContext)
+      }
+    }
   })
 
   async function initialize() {
@@ -301,12 +340,14 @@ export function createPlatformCrudModule({
           listController,
           orderController,
           formModal,
-          deleteController
+          deleteController,
+          columnsController
         })
       }
 
       formModal.initialize()
       deleteController.initialize()
+      void columnsController?.initialize()
 
       await listController.initialize()
     } catch (error) {
@@ -325,6 +366,7 @@ export function createPlatformCrudModule({
     listController.destroy()
     formModal.destroy()
     deleteController.destroy()
+    columnsController?.destroy()
   }
 
   return {
@@ -333,6 +375,7 @@ export function createPlatformCrudModule({
     orderController,
     formModal,
     deleteController,
+    columnsController,
     initialize,
     destroy
   }

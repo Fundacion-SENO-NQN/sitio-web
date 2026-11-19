@@ -13,6 +13,10 @@ pub fn routes() -> Router<Arc<AppState>> {
         .route("/profile", get(profile::get).patch(profile::update))
         .route("/profile/permissions", get(profile::permissions))
         .route("/profile/password", patch(profile::change_password))
+        .route(
+            "/profile/settings",
+            get(profile::get_settings).patch(profile::update_settings),
+        )
         .layer(DefaultBodyLimit::max(8 * 1024))
         .layer(SetResponseHeaderLayer::overriding(
             CACHE_CONTROL,

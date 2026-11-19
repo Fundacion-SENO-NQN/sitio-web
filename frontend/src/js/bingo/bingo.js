@@ -8,6 +8,7 @@ import {
   patchBingo
 } from '../common/resources.js'
 import {
+  compareQuotesProgress,
   formatLatePaymentNotice,
   getAvailableStartMonthOptions,
   getDefaultStartMonth,
@@ -78,6 +79,10 @@ export const bingoModule = createPlatformCrudModule({
     },
     startMonth(a, b) {
       return Number(a.start_month) - Number(b.start_month)
+    },
+    quotes(a, b) {
+      const diff = compareQuotesProgress(a, b)
+      return diff !== 0 ? diff : Number(a.nro_bingo) - Number(b.nro_bingo)
     }
   },
 
@@ -101,6 +106,22 @@ export const bingoModule = createPlatformCrudModule({
     createButtonText: 'Guardar bingo',
     editButtonText: 'Guardar cambios',
     focusElement: bingoFieldSelectors.nroBingo,
+
+    autosave: {
+      key: 'bingo',
+      getExtraState() {
+        return {
+          quote: bingoQuotesEditor.getValue()
+        }
+      },
+      applyExtraState(extra, { fields }) {
+        const startMonth =
+          Number(fields?.start_month) || getDefaultStartMonth()
+        bingoQuotesEditor.setValue(extra?.quote ?? 0, {
+          startMonth
+        })
+      }
+    },
 
     clear(form) {
       form.reset()

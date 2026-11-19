@@ -5,6 +5,8 @@ export interface Props {
   busqueda: string
   textoNuevo?: string
   mostrarBotonNuevo?: boolean
+  mostrarSelectorColumnas?: boolean
+  textoColumnas?: string
   idBotonNuevo?: string
   idBuscador?: string
   idCantidad?: string
@@ -16,6 +18,8 @@ const {
   busqueda,
   textoNuevo,
   mostrarBotonNuevo = true,
+  mostrarSelectorColumnas = false,
+  textoColumnas = 'Columnas',
   idBotonNuevo,
   idBuscador,
   idCantidad
@@ -66,6 +70,57 @@ const etiquetaNuevo = textoNuevo ?? `Nuevo ${servicio}`
 
   <slot />
 
+  {
+    mostrarSelectorColumnas && (
+      <div
+        id={`selector-columnas-${servicio}`}
+        class="columnSelector controlTabla__columnas"
+        data-column-selector={servicio}
+      >
+        <button
+          id={`btn-columnas-${servicio}`}
+          class="button buttonGhost columnSelector__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls={`menu-columnas-${servicio}`}
+          data-column-selector-toggle
+        >
+          <span class="columnSelector__icon" aria-hidden="true">☷</span>
+          <span>{textoColumnas}</span>
+          <span
+            id={`badge-columnas-${servicio}`}
+            class="columnSelector__badge"
+            data-column-selector-badge
+          ></span>
+        </button>
+
+        <div
+          id={`menu-columnas-${servicio}`}
+          class="columnSelector__menu oculto"
+          role="group"
+          aria-label={`Columnas visibles de ${servicioPlural}`}
+          data-column-selector-menu
+        >
+          <div class="columnSelector__header">
+            <strong>Mostrar columnas</strong>
+            <button
+              type="button"
+              class="columnSelector__reset"
+              data-column-selector-reset
+            >
+              Restablecer
+            </button>
+          </div>
+
+          <div
+            class="columnSelector__list"
+            data-column-selector-list
+          ></div>
+        </div>
+      </div>
+    )
+  }
+
   <div
     class="adminSummary toolbarSummary resumen controlTabla__resumen"
     aria-live="polite"
@@ -110,6 +165,135 @@ const etiquetaNuevo = textoNuevo ?? `Nuevo ${servicio}`
   .controlTabla__input:focus {
     border-color: var(--color-secondary);
     box-shadow: var(--admin-focus);
+  }
+
+  .columnSelector {
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  .columnSelector__toggle {
+    min-height: 2.9rem;
+    padding: 0.65rem 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--admin-surface);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow-small);
+    font-weight: 700;
+  }
+
+  .columnSelector__icon {
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--color-secondary-hover);
+  }
+
+  .columnSelector__badge {
+    min-width: 1.5rem;
+    padding: 0.15rem 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--admin-radius-pill);
+    background-color: var(--admin-secondary-soft);
+    color: var(--color-secondary-hover);
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .columnSelector__badge:empty {
+    display: none;
+  }
+
+  .columnSelector__menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 25;
+    width: min(17.5rem, calc(100vw - 2rem));
+    max-height: 24rem;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--admin-surface);
+    border: var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow);
+    overflow: hidden;
+  }
+
+  .columnSelector__header {
+    padding: 0.75rem 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-bottom: var(--admin-border);
+    background-color: var(--admin-surface-soft);
+    font-size: 0.85rem;
+  }
+
+  .columnSelector__reset {
+    padding: 0.2rem 0.45rem;
+    border: 0;
+    border-radius: var(--admin-radius-xs);
+    background: transparent;
+    color: var(--color-secondary-hover);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .columnSelector__reset:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  .columnSelector__reset:disabled {
+    color: var(--admin-text-muted);
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .columnSelector__list {
+    padding: 0.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    overflow-y: auto;
+  }
+
+  .columnSelector :global(.columnSelector__item) {
+    padding: 0.5rem 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: var(--admin-radius-small);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--admin-text);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .columnSelector :global(.columnSelector__item:hover) {
+    background-color: var(--admin-surface-hover);
+  }
+
+  .columnSelector :global(.columnSelector__checkbox) {
+    width: 1rem;
+    height: 1rem;
+    min-height: 1rem;
+    margin: 0;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+
+  .columnSelector :global(.columnSelector__checkbox:disabled) {
+    cursor: not-allowed;
   }
 
   .controlTabla__resumen {

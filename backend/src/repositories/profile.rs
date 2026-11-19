@@ -47,6 +47,43 @@ pub async fn change_password(db: &PgPool, current: &User, new_hash: &str) -> Api
     Ok(())
 }
 
+pub async fn get_settings(db: &PgPool, current: &User) -> ApiResult<serde_json::Value> {
+    let raw = sqlx::query_scalar::<_, String>(
+        "SELECT COALESCE(settings::text, '{}')
+         FROM users
+         WHERE id = $1 AND active AND auth_version = $2",
+    )
+    .bind(current.id)
+    .bind(current.auth_version)
+    .fetch_optional(db)
+    .await?
+    .ok_or(ApiError::Unauthorized)?;
+
+    Ok(serde_json::from_str(&raw).unwrap_or_else(|_| serde_json::json!({})))
+}
+
+pub async fn update_settings(
+    db: &PgPool,
+    current: &User,
+    patch: &serde_json::Value,
+) -> ApiResult<serde_json::Value> {
+    let patch_str = serde_json::to_string(patch).map_err(|_| ApiError::InternalServerError)?;
+    let raw = sqlx::query_scalar::<_, String>(
+        "UPDATE users
+         SET settings = COALESCE(settings, '{}'::jsonb) || ($1::jsonb)
+         WHERE id = $2 AND active AND auth_version = $3
+         RETURNING COALESCE(settings::text, '{}')",
+    )
+    .bind(&patch_str)
+    .bind(current.id)
+    .bind(current.auth_version)
+    .fetch_optional(db)
+    .await?
+    .ok_or(ApiError::Unauthorized)?;
+
+    Ok(serde_json::from_str(&raw).unwrap_or_else(|_| serde_json::json!({})))
+}
+
 fn profile_error(error: sqlx::Error) -> ApiError {
     if let sqlx::Error::Database(ref db) = error {
         if db.is_unique_violation() {

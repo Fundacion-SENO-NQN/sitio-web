@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   MONTH_OPTIONS,
   QUOTE_STATE,
+  compareQuotesProgress,
   createQuotesEditorController,
   createQuotesSquaresElement,
   decodeQuotes,
@@ -13,6 +14,7 @@ import {
   getQuoteMonthName,
   getQuoteMonthNumber,
   getQuoteVisualInfo,
+  getQuotesSummary,
   isQuoteLate
 } from './quotes.js'
 
@@ -258,5 +260,42 @@ describe('DOM rendering & editor controller', () => {
 
     expect(editor.getValue()).toBe(encodeQuotes([1, 2, 0, 0, 0, 0, 0, 0]))
     editor.destroy()
+  })
+
+  it('summarizes paid and late counts and sorts by paid count then late count', () => {
+    const may2026 = new Date(2026, 4, 5) // May 2026
+    // Item A: 1 paid, 1 late (start month 3 = March)
+    const itemA = {
+      quote: encodeQuotes([1, 0, 0, 0, 0, 0, 0, 0]),
+      start_month: 3
+    }
+    // Item B: 3 paid, 0 late
+    const itemB = {
+      quote: encodeQuotes([1, 2, 1, 0, 0, 0, 0, 0]),
+      start_month: 3
+    }
+    // Item C: 1 paid, 0 late (start month 5 = May)
+    const itemC = {
+      quote: encodeQuotes([1, 0, 0, 0, 0, 0, 0, 0]),
+      start_month: 5
+    }
+
+    expect(
+      getQuotesSummary({
+        quote: itemA.quote,
+        startMonth: itemA.start_month,
+        now: may2026
+      })
+    ).toEqual({
+      paidCount: 1,
+      lateCount: 1,
+      pendingCount: 6,
+      total: 8
+    })
+
+    // Fewer paid comes before more paid in ascending order
+    expect(compareQuotesProgress(itemA, itemB, { now: may2026 })).toBeLessThan(0)
+    // Equal paid (1), but itemA has 1 late while itemC has 0 late -> itemA comes before itemC
+    expect(compareQuotesProgress(itemA, itemC, { now: may2026 })).toBeLessThan(0)
   })
 })
