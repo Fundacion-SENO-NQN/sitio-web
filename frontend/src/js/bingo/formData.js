@@ -36,22 +36,14 @@ export function buildBingoFormData({
   )
   const cleanSeller = cleanOptionalText(seller)
   const cleanPhone = cleanRequiredText(phone, 'El teléfono es requerido.')
-  const cleanAddress = cleanRequiredText(address, 'La dirección es requerida.')
-  const cleanNeighborhood = cleanRequiredText(
-    neighborhood,
-    'El barrio es requerido.'
+  const cleanAddress = cleanOptionalText(address)
+  const cleanNeighborhood = cleanOptionalText(neighborhood)
+  const cleanLocality = cleanOptionalText(locality)
+  const cleanCollectionLocate = cleanOptionalText(
+    collectionLocate ?? collection_locate
   )
-  const cleanLocality = cleanRequiredText(
-    locality,
-    'La localidad es requerida.'
-  )
-  const cleanCollectionLocate = cleanRequiredText(
-    collectionLocate ?? collection_locate,
-    'El lugar de cobro es requerido.'
-  )
-  const cleanCollectionDate = cleanRequiredText(
-    collectionDate ?? collection_date,
-    'La fecha de cobro es requerida.'
+  const cleanCollectionDate = cleanOptionalText(
+    collectionDate ?? collection_date
   )
   const validatedStartMonth = validateStartMonth(startMonth ?? start_month)
   const validatedQuote = validateQuotesBitmask(quote)
@@ -81,6 +73,41 @@ export function buildBingoFormData({
 /* ==========================================================
    VALIDATORS
 ========================================================== */
+
+export function findDuplicateBingoNumber(
+  rawValue,
+  bingos = [],
+  currentBingoId = null
+) {
+  const cleaned = String(rawValue ?? '').trim()
+  if (!cleaned) return null
+
+  const parsed = Number(cleaned)
+  if (!Number.isInteger(parsed) || parsed < 0 || parsed > 32767) {
+    return null
+  }
+
+  if (!Array.isArray(bingos)) return null
+
+  const hasCurrentId =
+    currentBingoId !== null &&
+    currentBingoId !== undefined &&
+    String(currentBingoId).trim() !== ''
+  const normalizedCurrentId = hasCurrentId ? Number(currentBingoId) : null
+
+  return (
+    bingos.find((item) => {
+      if (!item || typeof item !== 'object') return false
+      if (
+        normalizedCurrentId !== null &&
+        Number(item.id) === normalizedCurrentId
+      ) {
+        return false
+      }
+      return Number(item.nro_bingo) === parsed
+    }) ?? null
+  )
+}
 
 export function validateBingoNumber(rawValue) {
   const cleaned = String(rawValue ?? '').trim()
@@ -128,17 +155,7 @@ export function validateQuotesBitmask(rawValue) {
     throw new Error('El valor de las cuotas no es válido.')
   }
 
-  const bits = parsed & 0xffff
-
-  for (let index = 0; index < QUOTE_COUNT; index++) {
-    const state = (bits >> (index * 2)) & 0b11
-
-    if (state === 0b11) {
-      throw new Error('El estado de una de las cuotas no es válido.')
-    }
-  }
-
-  return bits
+  return parsed & 0xffff
 }
 
 function cleanRequiredText(value, errorMessage) {

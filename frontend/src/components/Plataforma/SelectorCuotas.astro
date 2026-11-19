@@ -20,7 +20,8 @@ const {
   opciones = [
     { value: 0, label: 'Sin pagar' },
     { value: 1, label: 'Efectivo (E)' },
-    { value: 2, label: 'Transferencia (T)' }
+    { value: 2, label: 'Transferencia (T)' },
+    { value: 3, label: 'Desconocido (?)' }
   ]
 } = Astro.props
 
@@ -44,7 +45,7 @@ const indices = Array.from({ length: cantidad }, (_, index) => index)
           <span class="cuotaSquare cuotaSquare--paid" aria-hidden="true">
             E
           </span>
-          <span>Pagada (E/T)</span>
+          <span>Pagada (E/T/?)</span>
         </li>
         <li class="cuotasLegend__item">
           <span

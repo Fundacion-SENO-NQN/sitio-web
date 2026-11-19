@@ -13,7 +13,8 @@ export const MAX_START_MONTH = 16
 export const QUOTE_STATE = Object.freeze({
   UNPAID: 0,
   CASH: 1,
-  TRANSFER: 2
+  TRANSFER: 2,
+  UNKNOWN: 3
 })
 
 export const MONTH_NAMES = Object.freeze([
@@ -51,7 +52,7 @@ export const MONTH_OPTIONS = Object.freeze(
    - 00 (0): unpaid
    - 01 (1): paid with cash (E)
    - 10 (2): paid by bank transfer (T)
-   - 11 (3): invalid
+   - 11 (3): paid with unknown method (?)
 ========================================================== */
 
 export function decodeQuotes(rawQuote, count = QUOTE_COUNT) {
@@ -63,7 +64,7 @@ export function decodeQuotes(rawQuote, count = QUOTE_COUNT) {
   for (let index = 0; index < count; index++) {
     const state = (bits >> (index * 2)) & 0b11
 
-    states.push(state === 0b11 ? QUOTE_STATE.UNPAID : state)
+    states.push(state)
   }
 
   return states
@@ -82,7 +83,7 @@ export function encodeQuotes(states, count = QUOTE_COUNT) {
     if (
       !Number.isInteger(state) ||
       state < QUOTE_STATE.UNPAID ||
-      state > QUOTE_STATE.TRANSFER
+      state > QUOTE_STATE.UNKNOWN
     ) {
       throw new Error('El estado de una de las cuotas no es válido.')
     }
@@ -247,6 +248,16 @@ export function getQuoteVisualInfo({
       statusLabel: 'Pagada · Transferencia',
       monthName,
       tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Transferencia`
+    }
+  }
+
+  if (paymentState === QUOTE_STATE.UNKNOWN) {
+    return {
+      status: 'paid',
+      shortLabel: '?',
+      statusLabel: 'Pagada · Medio desconocido',
+      monthName,
+      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Medio desconocido`
     }
   }
 
@@ -485,7 +496,7 @@ export function createQuotesEditorController({
       square.addEventListener(
         'click',
         () => {
-          states[index] = (states[index] + 1) % 3
+          states[index] = (states[index] + 1) % 4
           if (selects[index]) {
             selects[index].value = String(states[index])
             selects[index].dispatchEvent(new Event('change', { bubbles: true }))
@@ -628,7 +639,11 @@ export function createQuotesEditorController({
 function normalizeSingleState(value) {
   const numeric = Number(value)
 
-  if (numeric === QUOTE_STATE.CASH || numeric === QUOTE_STATE.TRANSFER) {
+  if (
+    numeric === QUOTE_STATE.CASH ||
+    numeric === QUOTE_STATE.TRANSFER ||
+    numeric === QUOTE_STATE.UNKNOWN
+  ) {
     return numeric
   }
 

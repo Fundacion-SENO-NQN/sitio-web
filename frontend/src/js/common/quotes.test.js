@@ -42,8 +42,20 @@ describe('decodeQuotes & encodeQuotes', () => {
     expect(decodeQuotes(-21846)).toEqual(allTransfer)
   })
 
+  it('encodes and decodes unknown payment method state 0b11 (3 -> "?")', () => {
+    const states = [3, 1, 2, 0, 3, 0, 0, 0]
+    const encoded = encodeQuotes(states)
+    expect(decodeQuotes(encoded)).toEqual(states)
+
+    const allUnknown = Array(8).fill(QUOTE_STATE.UNKNOWN)
+    expect(encodeQuotes(allUnknown)).toBe(65535)
+    expect(decodeQuotes(65535)).toEqual(allUnknown)
+    expect(decodeQuotes(-1)).toEqual(allUnknown)
+  })
+
   it('rejects invalid state values during encoding', () => {
-    expect(() => encodeQuotes([3, 0, 0, 0, 0, 0, 0, 0])).toThrow()
+    expect(() => encodeQuotes([4, 0, 0, 0, 0, 0, 0, 0])).toThrow()
+    expect(() => encodeQuotes([-1, 0, 0, 0, 0, 0, 0, 0])).toThrow()
     expect(() => encodeQuotes([0, 0, 0])).toThrow()
   })
 })
@@ -189,6 +201,16 @@ describe('quote months & late detection', () => {
     })
     expect(transferInfo.status).toBe('paid')
     expect(transferInfo.shortLabel).toBe('T')
+
+    const unknownInfo = getQuoteVisualInfo({
+      paymentState: QUOTE_STATE.UNKNOWN,
+      startMonth: 3,
+      quoteIndex: 2,
+      createdAt,
+      now: june2026
+    })
+    expect(unknownInfo.status).toBe('paid')
+    expect(unknownInfo.shortLabel).toBe('?')
   })
 })
 
@@ -236,6 +258,7 @@ describe('DOM rendering & editor controller', () => {
                 <option value="0">Sin pagar</option>
                 <option value="1">Efectivo (E)</option>
                 <option value="2">Transferencia (T)</option>
+                <option value="3">Desconocido (?)</option>
               </select>
             </div>
           `
@@ -254,9 +277,19 @@ describe('DOM rendering & editor controller', () => {
     expect(editor.getStates()[0]).toBe(1)
 
     const secondButton = document.querySelector('[data-cuota-square="1"]')
-    secondButton.click() // 0 -> 1
+    secondButton.click() // 0 -> 1 (Cash)
     secondButton.click() // 1 -> 2 (Transfer)
     expect(editor.getStates()[1]).toBe(2)
+
+    const thirdButton = document.querySelector('[data-cuota-square="2"]')
+    thirdButton.click() // 0 -> 1
+    thirdButton.click() // 1 -> 2
+    thirdButton.click() // 2 -> 3 (Unknown "?")
+    expect(editor.getStates()[2]).toBe(3)
+    expect(thirdButton.textContent).toBe('?')
+
+    thirdButton.click() // 3 -> 0 (back to Unpaid)
+    expect(editor.getStates()[2]).toBe(0)
 
     expect(editor.getValue()).toBe(encodeQuotes([1, 2, 0, 0, 0, 0, 0, 0]))
     editor.destroy()

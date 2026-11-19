@@ -15,7 +15,7 @@ import {
   getMonthName
 } from './constants.js'
 import { bingoFieldSelectors } from './dom.js'
-import { buildBingoFormData } from './formData.js'
+import { buildBingoFormData, findDuplicateBingoNumber } from './formData.js'
 import { createBingoColumns } from './table.js'
 
 /* ==========================================================
@@ -120,11 +120,22 @@ export const bingoModule = createPlatformCrudModule({
         bingoQuotesEditor.setValue(extra?.quote ?? 0, {
           startMonth
         })
+      },
+      onRestore({ form }) {
+        validateBingoNumberField(form)
+      }
+    },
+
+    validate({ form, item }) {
+      const check = validateBingoNumberField(form, item)
+      if (!check.valid) {
+        throw new Error(check.message)
       }
     },
 
     clear(form) {
       form.reset()
+      clearBingoNumberError(form)
 
       const defaultMonth = getDefaultStartMonth()
       const startMonthSelect = form.elements.namedItem('start_month')
@@ -176,6 +187,8 @@ export const bingoModule = createPlatformCrudModule({
         startMonth: bingo.start_month,
         createdAt: bingo.created_at
       })
+
+      validateBingoNumberField(form, bingo)
     },
 
     buildPayload({ form }) {
@@ -207,14 +220,77 @@ export const bingoModule = createPlatformCrudModule({
     }
   },
 
-  onInit() {
+  onInit({ formModal }) {
     bingoQuotesEditor.initialize()
+
+    const nroInput = formModal?.form?.elements?.namedItem('nro_bingo')
+    nroInput?.addEventListener('input', () => {
+      validateBingoNumberField(formModal.form, formModal.editingItem)
+    })
   }
 })
 
 /* ==========================================================
    HELPERS
 ========================================================== */
+
+export function validateBingoNumberField(
+  form,
+  editingItem = bingoModule?.formModal?.editingItem ?? null,
+  items = bingoModule?.listController?.items ?? []
+) {
+  const nroInput = form?.elements?.namedItem('nro_bingo')
+  if (!nroInput) {
+    return { valid: true, conflict: null, message: '' }
+  }
+
+  const errorElement =
+    form?.querySelector('[data-field-error="nro_bingo"]') ??
+    document.querySelector('#bingo-nro_bingo-error')
+
+  const conflict = findDuplicateBingoNumber(
+    nroInput.value,
+    items,
+    editingItem?.id
+  )
+
+  if (conflict) {
+    const holder = `${conflict.name ?? ''} ${conflict.last_name ?? ''}`.trim()
+    const message = holder
+      ? `El número de bingo ${conflict.nro_bingo} ya está en uso (${holder}).`
+      : `El número de bingo ${conflict.nro_bingo} ya está en uso.`
+
+    nroInput.setAttribute('aria-invalid', 'true')
+    nroInput.classList?.add('invalid')
+    nroInput.setCustomValidity?.(message)
+
+    if (errorElement) {
+      errorElement.textContent = message
+    }
+
+    return { valid: false, conflict, message }
+  }
+
+  clearBingoNumberError(form)
+  return { valid: true, conflict: null, message: '' }
+}
+
+function clearBingoNumberError(form) {
+  const nroInput = form?.elements?.namedItem('nro_bingo')
+  const errorElement =
+    form?.querySelector('[data-field-error="nro_bingo"]') ??
+    document.querySelector('#bingo-nro_bingo-error')
+
+  if (nroInput) {
+    nroInput.removeAttribute('aria-invalid')
+    nroInput.classList?.remove('invalid')
+    nroInput.setCustomValidity?.('')
+  }
+
+  if (errorElement) {
+    errorElement.textContent = ''
+  }
+}
 
 function compareLocale(a, b) {
   return String(a ?? '').localeCompare(String(b ?? ''), 'es-AR', {

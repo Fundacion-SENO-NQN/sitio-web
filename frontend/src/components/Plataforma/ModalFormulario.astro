@@ -262,6 +262,13 @@ const modalSizeClass = sizeClassMap[size]
                             {campo.ayuda}
                           </small>
                         )}
+
+                        <small
+                          id={`${fieldId}-error`}
+                          class="fieldError campo-error"
+                          role="alert"
+                          data-field-error={campo.name}
+                        />
                       </div>
                     )
                   })}
