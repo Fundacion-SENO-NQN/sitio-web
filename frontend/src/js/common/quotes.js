@@ -123,6 +123,19 @@ export function getDefaultStartMonth(now = new Date()) {
   return Math.max(1, Math.min(MAX_START_MONTH, rawMonth))
 }
 
+export function getAvailableStartMonthOptions({
+  editing = false,
+  now = new Date()
+} = {}) {
+  if (editing) {
+    return MONTH_OPTIONS
+  }
+
+  const maxMonth = getDefaultStartMonth(now)
+
+  return MONTH_OPTIONS.filter((option) => option.value <= maxMonth)
+}
+
 export function getQuoteMonthNumber(startMonth, quoteIndex) {
   const normalizedStart = Number(startMonth)
   const normalizedIndex = Number(quoteIndex)

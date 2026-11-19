@@ -6,6 +6,7 @@ import {
   MONTH_OPTIONS,
   QUOTE_COUNT,
   QUOTE_STATE,
+  getAvailableStartMonthOptions,
   getDefaultStartMonth,
   getMonthName
 } from '../common/quotes.js'
@@ -18,6 +19,7 @@ export {
   MONTH_OPTIONS,
   QUOTE_COUNT,
   QUOTE_STATE,
+  getAvailableStartMonthOptions,
   getDefaultStartMonth,
   getMonthName
 }

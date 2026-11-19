@@ -7,6 +7,7 @@ import {
   createQuotesSquaresElement,
   decodeQuotes,
   encodeQuotes,
+  getAvailableStartMonthOptions,
   getDefaultStartMonth,
   getMonthName,
   getQuoteMonthName,
@@ -61,6 +62,26 @@ describe('quote months & late detection', () => {
     expect(getDefaultStartMonth(new Date(2026, 10, 19))).toBe(11)
     expect(getDefaultStartMonth(new Date(2027, 0, 10))).toBe(13)
     expect(getDefaultStartMonth(new Date(2027, 6, 10))).toBe(16)
+
+    // Creating a new bingo in Nov 2026 shows only Enero 2026 .. Noviembre 2026 (1..11)
+    const createOptionsNov2026 = getAvailableStartMonthOptions({
+      editing: false,
+      now: new Date(2026, 10, 19)
+    })
+    expect(createOptionsNov2026).toHaveLength(11)
+    expect(createOptionsNov2026[0]).toEqual({ value: 1, label: 'Enero 2026' })
+    expect(createOptionsNov2026[10]).toEqual({
+      value: 11,
+      label: 'Noviembre 2026'
+    })
+
+    // Editing shows all months (1..16, Enero 2026 .. Abril 2027)
+    const editOptions = getAvailableStartMonthOptions({
+      editing: true,
+      now: new Date(2026, 10, 19)
+    })
+    expect(editOptions).toHaveLength(16)
+    expect(editOptions[15]).toEqual({ value: 16, label: 'Abril 2027' })
 
     expect(getQuoteMonthNumber(10, 0)).toBe(10)
     expect(getQuoteMonthName(10, 0)).toBe('Octubre')
