@@ -1,12 +1,28 @@
 import {
+  BINGO_BASE_YEAR,
+  BINGO_YEARS,
+  MAX_START_MONTH,
   MONTH_NAMES,
   MONTH_OPTIONS,
   QUOTE_COUNT,
   QUOTE_STATE,
+  getAvailableStartMonthOptions,
+  getDefaultStartMonth,
   getMonthName
 } from '../common/quotes.js'
 
-export { MONTH_NAMES, MONTH_OPTIONS, QUOTE_COUNT, QUOTE_STATE, getMonthName }
+export {
+  BINGO_BASE_YEAR,
+  BINGO_YEARS,
+  MAX_START_MONTH,
+  MONTH_NAMES,
+  MONTH_OPTIONS,
+  QUOTE_COUNT,
+  QUOTE_STATE,
+  getAvailableStartMonthOptions,
+  getDefaultStartMonth,
+  getMonthName
+}
 
 /* ==========================================================
    AUTOMATIC LATE PAYMENT NOTICE (WHATSAPP)

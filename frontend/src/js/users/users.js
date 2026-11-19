@@ -1,20 +1,13 @@
 import { createListController } from '../common/listController.js'
-
 import { usersApi, rolesApi } from '../common/resources.js'
-
 import { createEventScope, requireElement, setVisible } from '../common/dom.js'
-
 import { showToast } from '../common/toast.js'
-
 import { createUsersTable } from './usersTable.js'
-
 import { createRolesTable } from './rolesTable.js'
-
 import { createUserModal } from './userModal.js'
-
 import { createRoleModal } from './roleModal.js'
-
 import { createUsersDeleteController } from './deleteModal.js'
+import { getSessionItem } from '../common/session.js'
 
 /* ==========================================================
    ELEMENTOS DE LAS PESTAÑAS
@@ -582,11 +575,11 @@ export function getRoleById(id) {
 ========================================================== */
 
 export function getCurrentUsername() {
-  return String(localStorage.getItem('username') ?? '').trim()
+  return String(getSessionItem('username') ?? localStorage.getItem('username') ?? '').trim()
 }
 
 export function getCurrentRoleName() {
-  return String(localStorage.getItem('role') ?? '').trim()
+  return String(getSessionItem('role') ?? localStorage.getItem('role') ?? '').trim()
 }
 
 export function isCurrentUser(user) {

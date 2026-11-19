@@ -7,7 +7,12 @@ import {
   getBingos,
   patchBingo
 } from '../common/resources.js'
-import { formatLatePaymentNotice, getMonthName } from './constants.js'
+import {
+  formatLatePaymentNotice,
+  getAvailableStartMonthOptions,
+  getDefaultStartMonth,
+  getMonthName
+} from './constants.js'
 import { bingoFieldSelectors } from './dom.js'
 import { buildBingoFormData } from './formData.js'
 import { createBingoColumns } from './table.js'
@@ -100,11 +105,15 @@ export const bingoModule = createPlatformCrudModule({
     clear(form) {
       form.reset()
 
-      const defaultMonth = new Date().getMonth() + 1
+      const defaultMonth = getDefaultStartMonth()
       const startMonthSelect = form.elements.namedItem('start_month')
       const noticeSelect = form.elements.namedItem('late_payment_notice')
 
       if (startMonthSelect) {
+        setStartMonthSelectOptions(
+          startMonthSelect,
+          getAvailableStartMonthOptions({ editing: false })
+        )
         startMonthSelect.value = String(defaultMonth)
       }
 
@@ -116,6 +125,15 @@ export const bingoModule = createPlatformCrudModule({
     },
 
     populate(form, bingo) {
+      const startMonthSelect = form.elements.namedItem('start_month')
+
+      if (startMonthSelect) {
+        setStartMonthSelectOptions(
+          startMonthSelect,
+          getAvailableStartMonthOptions({ editing: true })
+        )
+      }
+
       setFieldValue(form, 'nro_bingo', bingo.nro_bingo)
       setFieldValue(form, 'name', bingo.name)
       setFieldValue(form, 'last_name', bingo.last_name)
@@ -180,6 +198,19 @@ export const bingoModule = createPlatformCrudModule({
 function compareLocale(a, b) {
   return String(a ?? '').localeCompare(String(b ?? ''), 'es-AR', {
     sensitivity: 'base'
+  })
+}
+
+function setStartMonthSelectOptions(selectElement, options) {
+  if (!selectElement || !('innerHTML' in selectElement)) return
+
+  selectElement.innerHTML = ''
+
+  options.forEach(({ value, label }) => {
+    const option = document.createElement('option')
+    option.value = String(value)
+    option.textContent = label
+    selectElement.appendChild(option)
   })
 }
 

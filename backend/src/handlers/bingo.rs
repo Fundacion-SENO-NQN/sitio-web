@@ -401,9 +401,9 @@ fn parse_nro_bingo(raw: &str) -> ApiResult<i16> {
 fn parse_start_month(raw: &str) -> ApiResult<i16> {
     let month = parse_i16(raw, "Mes de inicio inválido")?;
 
-    if !(1..=12).contains(&month) {
+    if !(1..=16).contains(&month) {
         return Err(ApiError::BadRequest(
-            "El mes de inicio debe estar entre 1 y 12".into(),
+            "El mes de inicio debe estar entre 1 y 16".into(),
         ));
     }
 
@@ -500,8 +500,10 @@ mod tests {
     fn parse_start_month_validates_range() {
         assert_eq!(parse_start_month("1").unwrap(), 1);
         assert_eq!(parse_start_month("12").unwrap(), 12);
+        assert_eq!(parse_start_month("13").unwrap(), 13);
+        assert_eq!(parse_start_month("16").unwrap(), 16);
         assert!(parse_start_month("0").is_err());
-        assert!(parse_start_month("13").is_err());
+        assert!(parse_start_month("17").is_err());
     }
 
     #[test]

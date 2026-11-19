@@ -1,9 +1,11 @@
+import { getSessionToken } from '../js/common/session.js'
+
 const rawApiUrl = import.meta.env.PUBLIC_API_URL || 'https://sitio-web-fundacion-seno.fly.dev'
 
 const API = rawApiUrl.replace(/\/+$/, '')
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('token')
+  const token = getSessionToken()
 
   const headers = new Headers(init.headers)
 

@@ -5,6 +5,7 @@ import { createOrderController } from './orderController.js'
 import { createTableRenderer } from './table.js'
 import { forceHideLoadingScreen, isLoading } from './loadingScreen.js'
 import { showToast } from './toast.js'
+import { hasSession } from './session.js'
 
 /* ==========================================================
    STANDARDIZED MODULE SELECTORS
@@ -284,7 +285,7 @@ export function createPlatformCrudModule({
     if (
       requireAuth &&
       typeof window !== 'undefined' &&
-      !window.localStorage?.getItem('token')
+      !hasSession()
     ) {
       forceHideLoadingScreen()
       if (typeof onUnauthorized === 'function') {
