@@ -1,8 +1,7 @@
 import { createFormModalController } from '../common/modalController.js'
-
 import { focusSoon, requireElement } from '../common/dom.js'
-
 import { buildAchievementFormData } from './formData.js'
+import { getToken } from '../common/api.js'
 
 /* ==========================================================
    MODAL FACTORY
@@ -189,7 +188,7 @@ export function createLogroModal({
 
         try {
           // Adding a fetch option cache to ensure we get the fresh image without using query params that might break R2 CORS/Routing.
-          const token = localStorage.getItem('token')
+          const token = getToken()
           const headers = {}
           if (token) headers['Authorization'] = `Bearer ${token}`
 

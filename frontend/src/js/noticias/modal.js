@@ -1,8 +1,7 @@
 import { createFormModalController } from '../common/modalController.js'
-
 import { requireElement, focusSoon } from '../common/dom.js'
-
 import { buildNoticiaFormData } from './formData.js'
+import { getToken } from '../common/api.js'
 
 /* ==========================================================
    MODAL FACTORY
@@ -179,7 +178,7 @@ export function createNoticiaModal({
         const fileName = `noticia_${id}_img_${index}.avif`
 
         try {
-          const token = localStorage.getItem('token')
+          const token = getToken()
           const headers = {}
           if (token) headers['Authorization'] = `Bearer ${token}`
 

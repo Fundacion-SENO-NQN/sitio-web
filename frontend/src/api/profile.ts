@@ -1,3 +1,9 @@
+import {
+  getSessionToken,
+  setSessionItem,
+  clearSession as clearUnifiedSession
+} from '../js/common/session.js'
+
 export interface Profile {
   id: number
   username: string
@@ -12,20 +18,15 @@ const API_URL = (
 ).replace(/\/+$/, '')
 
 export function clearSession(): void {
-  for (const key of ['token', 'username', 'name', 'lastname', 'role', 'email'])
-    localStorage.removeItem(key)
+  clearUnifiedSession()
 }
 
 export function cacheProfile(profile: Profile): void {
-  for (const [key, value] of Object.entries({
-    username: profile.username,
-    name: profile.name,
-    lastname: profile.last_name,
-    role: profile.role_name,
-    email: profile.email
-  })) {
-    localStorage.setItem(key, value)
-  }
+  setSessionItem('username', profile.username)
+  setSessionItem('name', profile.name)
+  setSessionItem('lastname', profile.last_name)
+  setSessionItem('role', profile.role_name)
+  setSessionItem('email', profile.email)
   window.dispatchEvent(new Event('profile-updated'))
 }
 
@@ -33,7 +34,7 @@ export async function profileRequest<T>(
   path: string,
   body?: Record<string, string>
 ): Promise<T> {
-  const token = localStorage.getItem('token')
+  const token = getSessionToken()
   if (!token) {
     window.location.replace('/login/')
     throw new Error('Iniciá sesión para continuar.')

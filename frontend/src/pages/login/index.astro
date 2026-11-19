@@ -123,6 +123,7 @@ import '../../style/login.css'
 
 <script>
   import { api } from '../../api/login'
+  import { hasSession, setSession } from '../../js/common/session.js'
 
   interface LoginResponse {
     token: string
@@ -130,6 +131,7 @@ import '../../style/login.css'
     name: string
     last_name: string
     role_name: string
+    email?: string
   }
 
   class LoginPage extends HTMLElement {
@@ -145,9 +147,7 @@ import '../../style/login.css'
     connectedCallback(): void {
       if (this.abortController) return
 
-      const savedToken = window.localStorage.getItem('token')
-
-      if (savedToken) {
+      if (hasSession()) {
         window.location.replace('/plataforma/')
         return
       }
@@ -277,17 +277,7 @@ import '../../style/login.css'
           })
         })
 
-        window.localStorage.setItem('token', response.token)
-
-        window.localStorage.setItem('username', response.username)
-
-        window.localStorage.setItem('name', response.name)
-
-        window.localStorage.setItem('lastname', response.last_name)
-
-        window.localStorage.setItem('role', response.role_name)
-
-        window.localStorage.setItem('email', response.email)
+        setSession(response)
 
         window.location.replace('/plataforma/')
       } catch (error) {

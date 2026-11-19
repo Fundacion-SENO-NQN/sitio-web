@@ -110,7 +110,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
 
 <script>
   import type Service from '../../data/interfaces/Service'
-  import { clearSession } from '../../api/profile'
+  import { getSessionToken, getSessionItem, clearSession } from '../../js/common/session.js'
 
   const API_URL = (
     import.meta.env.PUBLIC_API_URL ?? 'https://sitio-web-fundacion-seno.fly.dev'
@@ -130,7 +130,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
     connectedCallback(): void {
       if (this.abortController) return
 
-      const token = window.localStorage.getItem('token')
+      const token = getSessionToken()
 
       if (!token) {
         window.location.replace('/login/')
@@ -161,7 +161,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
         { signal }
       )
 
-      const savedName = window.localStorage.getItem('name')?.trim()
+      const savedName = getSessionItem('name')?.trim()
 
       if (this.nameElement && savedName) {
         this.nameElement.textContent = ' ' + savedName
@@ -197,7 +197,7 @@ import SvgDocumento from '../../assets/icon-voluntariado/icon-contrato-cuadrado.
     }
 
     private async loadServices(): Promise<void> {
-      const token = window.localStorage.getItem('token')
+      const token = getSessionToken()
 
       if (!token) {
         clearSession()

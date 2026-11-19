@@ -37,7 +37,7 @@ import SvgFlechaSimple from '../../assets/icon-common/icon-flecha-simple.svg'
 </profile-menu>
 
 <script>
-  import { clearSession } from '../../api/profile'
+  import { clearSession, getSessionItem } from '../../js/common/session.js'
 
   class ProfileMenu extends HTMLElement {
     private controller: AbortController | null = null
@@ -116,6 +116,9 @@ import SvgFlechaSimple from '../../assets/icon-common/icon-flecha-simple.svg'
       window.addEventListener('profile-updated', this.refreshIdentity, {
         signal
       })
+      window.addEventListener('session-updated', this.refreshIdentity, {
+        signal
+      })
       window.addEventListener('storage', this.refreshIdentity, { signal })
     }
 
@@ -130,13 +133,15 @@ import SvgFlechaSimple from '../../assets/icon-common/icon-flecha-simple.svg'
     }
 
     private refreshIdentity = () => {
-      const first = localStorage.getItem('name')?.trim() ?? ''
-      const last = localStorage.getItem('lastname')?.trim() ?? ''
+      const first = (getSessionItem('name') ?? localStorage.getItem('name'))?.trim() ?? ''
+      const last = (getSessionItem('lastname') ?? localStorage.getItem('lastname'))?.trim() ?? ''
       this.querySelector('[data-profile-name]')!.textContent =
         `${first} ${last}`.trim() ||
+        getSessionItem('username') ||
         localStorage.getItem('username') ||
         'Mi cuenta'
       this.querySelector('[data-profile-role]')!.textContent =
+        getSessionItem('role') ||
         localStorage.getItem('role') || ''
     }
   }

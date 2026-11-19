@@ -238,10 +238,14 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
 <script>
   import {
     cacheProfile,
-    clearSession,
     profileRequest,
     type Profile
   } from '../../api/profile'
+  import {
+    clearSession,
+    getSessionToken,
+    getSessionItem
+  } from '../../js/common/session.js'
 
   class SettingsModal extends HTMLElement {
     private controller: AbortController | null = null
@@ -324,9 +328,17 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
         (event) => {
           if (
             (!event.key || event.key === 'token') &&
-            !localStorage.getItem('token')
+            !getSessionToken()
           )
             window.location.replace('/login/')
+        },
+        { signal }
+      )
+
+      window.addEventListener(
+        'session-cleared',
+        () => {
+          window.location.replace('/login/')
         },
         { signal }
       )
@@ -342,7 +354,7 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
     }
 
     public open() {
-      if (!localStorage.getItem('token')) {
+      if (!getSessionToken()) {
         window.location.replace('/login/')
         return
       }
@@ -394,14 +406,14 @@ import SvgLogout from '../../assets/icon-common/icon-log-out.svg'
       retry.hidden = true
 
       try {
-        // Read directly from localStorage
+        // Read from unified session with localStorage fallback
         const profile: Profile = {
           id: 0, // id is not needed for the frontend view
-          username: localStorage.getItem('username') || '',
-          email: localStorage.getItem('email') || '',
-          name: localStorage.getItem('name') || '',
-          last_name: localStorage.getItem('lastname') || '',
-          role_name: localStorage.getItem('role') || ''
+          username: getSessionItem('username') || localStorage.getItem('username') || '',
+          email: getSessionItem('email') || localStorage.getItem('email') || '',
+          name: getSessionItem('name') || localStorage.getItem('name') || '',
+          last_name: getSessionItem('lastname') || localStorage.getItem('lastname') || '',
+          role_name: getSessionItem('role') || localStorage.getItem('role') || ''
         }
         if (!this.isConnected) return
         this.fill(profile)

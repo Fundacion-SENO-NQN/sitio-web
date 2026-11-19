@@ -1,6 +1,7 @@
 /**
  * Session and cookie management module for Fundación SENO.
- * Manages authentication and user session in cookies with 3-day inactivity sliding expiration.
+ * Manages authentication and user session in cookies with 3-day inactivity sliding expiration,
+ * while keeping localStorage synchronized for backwards compatibility.
  */
 
 export const SESSION_MAX_AGE_SECONDS = 3 * 24 * 60 * 60 // 3 days in seconds (259,200)
@@ -38,10 +39,11 @@ try {
  * @returns {string | null}
  */
 export function getCookie(name) {
-  if (typeof document === 'undefined') return null
+  if (typeof document === 'undefined' || !document.cookie) return null
   const prefix = `${encodeURIComponent(name)}=`
-  const cookies = document.cookie ? document.cookie.split('; ') : []
-  for (const cookie of cookies) {
+  const cookies = document.cookie.split(';')
+  for (const rawCookie of cookies) {
+    const cookie = rawCookie.trim()
     if (cookie.startsWith(prefix)) {
       try {
         return decodeURIComponent(cookie.slice(prefix.length))
@@ -80,27 +82,54 @@ export function setCookie(name, value, {
  */
 export function deleteCookie(name, { path = '/' } = {}) {
   if (typeof document === 'undefined') return
-  document.cookie = `${encodeURIComponent(name)}=; path=${path}; max-age=0; SameSite=Lax`
+  let cookieStr = `${encodeURIComponent(name)}=; path=${path}; max-age=0; SameSite=Lax`
+  if (typeof location !== 'undefined' && location.protocol === 'https:') {
+    cookieStr += '; Secure'
+  }
+  document.cookie = cookieStr
 }
 
 /**
  * Checks whether the current session has exceeded 3 days of inactivity.
+ * Automatically migrates legacy localStorage session if cookie is not yet set.
  * @returns {boolean}
  */
 export function isSessionExpired() {
-  const token = getCookie('token')
-  if (!token) return true
+  const lastActiveStr =
+    getCookie(ACTIVITY_KEY) ||
+    (typeof localStorage !== 'undefined'
+      ? localStorage.getItem(ACTIVITY_KEY)
+      : null)
 
-  const lastActiveStr = getCookie(ACTIVITY_KEY)
-  if (!lastActiveStr) {
-    // If token exists but no activity cookie yet, consider not expired
-    return false
+  if (lastActiveStr) {
+    const lastActive = Number(lastActiveStr)
+    if (
+      !Number.isNaN(lastActive) &&
+      Date.now() - lastActive > SESSION_INACTIVITY_MS
+    ) {
+      return true
+    }
   }
 
-  const lastActive = Number(lastActiveStr)
-  if (Number.isNaN(lastActive)) return true
+  let token = getCookie('token')
+  if (!token && typeof localStorage !== 'undefined') {
+    const localToken = localStorage.getItem('token')
+    if (localToken) {
+      setSession({
+        token: localToken,
+        username: localStorage.getItem('username') ?? undefined,
+        name: localStorage.getItem('name') ?? undefined,
+        lastname: localStorage.getItem('lastname') ?? undefined,
+        role: localStorage.getItem('role') ?? undefined,
+        email: localStorage.getItem('email') ?? undefined
+      })
+      token = localToken
+    }
+  }
 
-  return Date.now() - lastActive > SESSION_INACTIVITY_MS
+  if (!token) return true
+
+  return false
 }
 
 /**
@@ -110,7 +139,7 @@ export function isSessionExpired() {
  */
 export function touchSession(force = false) {
   if (typeof document === 'undefined') return
-  const token = getCookie('token')
+  const token = getCookie('token') || (typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null)
   if (!token) return
 
   const now = Date.now()
@@ -119,7 +148,7 @@ export function touchSession(force = false) {
   }
 
   // If already expired, clear session and bail out
-  const lastActiveStr = getCookie(ACTIVITY_KEY)
+  const lastActiveStr = getCookie(ACTIVITY_KEY) || (typeof localStorage !== 'undefined' ? localStorage.getItem(ACTIVITY_KEY) : null)
   if (lastActiveStr) {
     const lastActive = Number(lastActiveStr)
     if (!Number.isNaN(lastActive) && now - lastActive > SESSION_INACTIVITY_MS) {
@@ -132,10 +161,13 @@ export function touchSession(force = false) {
 
   // Update last active timestamp
   setCookie(ACTIVITY_KEY, String(now), { maxAge: SESSION_MAX_AGE_SECONDS })
+  try {
+    localStorage.setItem(ACTIVITY_KEY, String(now))
+  } catch {}
 
   // Refresh expiration on each active session cookie
   for (const key of SESSION_KEYS) {
-    const val = getCookie(key)
+    const val = getCookie(key) || (typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null)
     if (val !== null && val !== undefined) {
       setCookie(key, val, { maxAge: SESSION_MAX_AGE_SECONDS })
     }
@@ -154,7 +186,7 @@ export function getSessionToken() {
     return null
   }
   touchSession(false)
-  return getCookie('token')
+  return getCookie('token') || (typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null)
 }
 
 /**
@@ -177,35 +209,42 @@ export function getSessionItem(key) {
     return null
   }
   touchSession(false)
-  return getCookie(key)
+  return getCookie(key) || (typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null)
 }
 
 /**
- * Updates a single session field in cookies and refreshes activity.
+ * Updates a single session field in cookies and synchronizes localStorage.
  * @param {string} key
  * @param {string} value
  */
 export function setSessionItem(key, value) {
   if (typeof document === 'undefined') return
-  setCookie(key, String(value ?? ''), { maxAge: SESSION_MAX_AGE_SECONDS })
-  setCookie(ACTIVITY_KEY, String(Date.now()), { maxAge: SESSION_MAX_AGE_SECONDS })
+  const now = String(Date.now())
+  const strVal = String(value ?? '')
+  setCookie(key, strVal, { maxAge: SESSION_MAX_AGE_SECONDS })
+  setCookie(ACTIVITY_KEY, now, { maxAge: SESSION_MAX_AGE_SECONDS })
   try {
-    localStorage.removeItem(key)
+    localStorage.setItem(key, strVal)
+    localStorage.setItem(ACTIVITY_KEY, now)
   } catch {}
   window.dispatchEvent(new CustomEvent('session-updated', { detail: { key, value } }))
+  window.dispatchEvent(new Event('profile-updated'))
   try {
     authChannel?.postMessage({ type: 'SESSION_UPDATED', key, value })
   } catch {}
 }
 
 /**
- * Stores full session data into cookies upon login and cleans legacy localStorage.
+ * Stores full session data into cookies upon login and keeps localStorage synchronized.
  * @param {{ token: string, username?: string, name?: string, last_name?: string, lastname?: string, role_name?: string, role?: string, email?: string }} data
  */
 export function setSession(data) {
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined' || !data) return
   const now = String(Date.now())
   setCookie(ACTIVITY_KEY, now, { maxAge: SESSION_MAX_AGE_SECONDS })
+  try {
+    localStorage.setItem(ACTIVITY_KEY, now)
+  } catch {}
 
   const mapping = {
     token: data.token,
@@ -219,10 +258,10 @@ export function setSession(data) {
   for (const [key, val] of Object.entries(mapping)) {
     if (val !== undefined && val !== null) {
       setCookie(key, String(val), { maxAge: SESSION_MAX_AGE_SECONDS })
+      try {
+        localStorage.setItem(key, String(val))
+      } catch {}
     }
-    try {
-      localStorage.removeItem(key)
-    } catch {}
   }
 
   lastTouchTime = Date.now()
@@ -234,7 +273,7 @@ export function setSession(data) {
 }
 
 /**
- * Clears all session cookies and removes legacy localStorage keys.
+ * Clears all session cookies and removes localStorage session keys.
  */
 export function clearSession() {
   if (typeof document === 'undefined') return
@@ -261,7 +300,7 @@ export function initSessionActivityListener() {
   activityListenerAttached = true
 
   const onActivity = () => {
-    if (getCookie('token')) {
+    if (getCookie('token') || (typeof localStorage !== 'undefined' && localStorage.getItem('token'))) {
       touchSession(false)
     }
   }
@@ -278,7 +317,7 @@ export function initSessionActivityListener() {
         if (window.location.pathname.startsWith('/plataforma')) {
           window.location.replace('/login/')
         }
-      } else if (getCookie('token')) {
+      } else if (getCookie('token') || (typeof localStorage !== 'undefined' && localStorage.getItem('token'))) {
         touchSession(true)
       }
     }
