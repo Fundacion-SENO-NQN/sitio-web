@@ -73,10 +73,71 @@ pub struct ProfileUpdated {
     pub reauthenticate: bool,
 }
 
+pub const MAX_PROFILE_SETTINGS_BYTES: usize = 4096;
+
+pub fn validate_profile_settings(value: serde_json::Value) -> ApiResult<serde_json::Value> {
+    let Some(map) = value.as_object() else {
+        return Err(ApiError::BadRequest(
+            "La configuración del perfil debe ser un objeto JSON.".into(),
+        ));
+    };
+
+    for (key, section) in map {
+        if key.is_empty()
+            || key.chars().count() > 64
+            || key.chars().any(|c| c.is_whitespace() || c.is_control())
+        {
+            return Err(ApiError::BadRequest(
+                "Una de las claves de configuración no es válida.".into(),
+            ));
+        }
+
+        if !section.is_object() {
+            return Err(ApiError::BadRequest(
+                "Cada sección de configuración debe ser un objeto JSON.".into(),
+            ));
+        }
+    }
+
+    let serialized = serde_json::to_string(&value).map_err(|_| ApiError::BadRequest(
+        "No se pudo procesar la configuración del perfil.".into(),
+    ))?;
+
+    if serialized.len() > MAX_PROFILE_SETTINGS_BYTES {
+        return Err(ApiError::BadRequest(
+            "La configuración del perfil excede el tamaño máximo permitido.".into(),
+        ));
+    }
+
+    Ok(value)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn profile_settings_validates_object_sections_and_limits() {
+        let valid = json!({
+            "bingo": {
+                "columns": ["nro", "name", "quotes"]
+            }
+        });
+        assert!(validate_profile_settings(valid).is_ok());
+
+        assert!(validate_profile_settings(json!(["not-an-object"])).is_err());
+        assert!(validate_profile_settings(json!({"": {}})).is_err());
+        assert!(validate_profile_settings(json!({"bad key": {}})).is_err());
+        assert!(validate_profile_settings(json!({"bingo": "not-an-object"})).is_err());
+
+        let oversized = json!({
+            "bingo": {
+                "data": "x".repeat(MAX_PROFILE_SETTINGS_BYTES + 1)
+            }
+        });
+        assert!(validate_profile_settings(oversized).is_err());
+    }
 
     #[test]
     fn profile_rejects_privileged_fields_and_invalid_data() {

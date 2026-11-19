@@ -1,4 +1,5 @@
 import { showToast } from './toast.js'
+import { createFormAutosaveController } from './formAutosave.js'
 
 /**
  * Generic controller for create/edit form modals.
@@ -14,6 +15,7 @@ import { showToast } from './toast.js'
  * - Body scroll locking
  * - Success/error notifications
  * - Form reset and field population
+ * - Optional draft autosave for create mode
  */
 export function createFormModalController({
   modal,
@@ -24,6 +26,7 @@ export function createFormModalController({
 
   closeButtons = [],
   cancelButtons = [],
+  clearDraftButtons = [],
   backdrop = null,
 
   hiddenClass = 'oculto',
@@ -63,6 +66,8 @@ export function createFormModalController({
   onAfterSubmit = null,
   onClose = null,
 
+  autosave = null,
+
   disableFormWhileSubmitting = false,
 
   notify = showToast
@@ -79,6 +84,8 @@ export function createFormModalController({
     closeButtons: resolveElements(closeButtons),
 
     cancelButtons: resolveElements(cancelButtons),
+
+    clearDraftButtons: resolveElements(clearDraftButtons),
 
     backdrop: resolveElement(backdrop),
 
@@ -109,6 +116,26 @@ export function createFormModalController({
     signal: eventController.signal
   }
 
+  const autosaveOptions =
+    autosave && typeof autosave === 'object'
+      ? autosave
+      : autosave === true
+        ? {}
+        : null
+
+  const autosaveController = autosaveOptions
+    ? createFormAutosaveController({
+        ...autosaveOptions,
+        key:
+          autosaveOptions.key ||
+          elements.form.id ||
+          elements.modal.id ||
+          'default',
+        form: elements.form,
+        isEnabled: () => state.opened && state.editingItem === null
+      })
+    : null
+
   const controller = {
     initialize,
     destroy,
@@ -117,10 +144,13 @@ export function createFormModalController({
     openEdit,
     close,
     submit,
+    clearDraft,
 
     reset: resetForm,
 
     setSubmitting,
+
+    autosave: autosaveController,
 
     get editingItem() {
       return state.editingItem
@@ -168,6 +198,12 @@ export function createFormModalController({
       button.addEventListener('click', close, eventOptions)
     })
 
+    elements.clearDraftButtons.forEach((button) => {
+      button.addEventListener('click', clearDraft, eventOptions)
+    })
+
+    autosaveController?.initialize()
+
     /*
      * Used by modals that have a dedicated background:
      *
@@ -187,6 +223,7 @@ export function createFormModalController({
 
   function destroy() {
     eventController.abort()
+    autosaveController?.destroy()
 
     state.initialized = false
   }
@@ -203,12 +240,15 @@ export function createFormModalController({
     await resetForm()
 
     updateTexts()
+    updateClearDraftVisibility()
 
     if (typeof onOpenCreate === 'function')
       await onOpenCreate({
         controller,
         form: elements.form
       })
+
+    autosaveController?.restore()
 
     showModal()
     focusInitialElement()
@@ -230,6 +270,7 @@ export function createFormModalController({
     await populate(elements.form, item, controller)
 
     updateTexts()
+    updateClearDraftVisibility()
 
     if (typeof onOpenEdit === 'function')
       await onOpenEdit({
@@ -240,6 +281,35 @@ export function createFormModalController({
 
     showModal()
     focusInitialElement()
+  }
+
+  /* ========================================================
+     CLEAR DRAFT
+  ======================================================== */
+
+  async function clearDraft() {
+    if (state.submitting || state.editingItem !== null) return
+
+    autosaveController?.clear()
+
+    await resetForm()
+
+    if (typeof onOpenCreate === 'function')
+      await onOpenCreate({
+        controller,
+        form: elements.form
+      })
+
+    focusInitialElement()
+  }
+
+  function updateClearDraftVisibility() {
+    const showClearButton =
+      Boolean(autosaveController) && state.editingItem === null
+
+    elements.clearDraftButtons.forEach((button) => {
+      button.classList.toggle(hiddenClass, !showClearButton)
+    })
   }
 
   /* ========================================================
@@ -293,7 +363,10 @@ export function createFormModalController({
           payload,
           state.editingItem
         )
-      else result = await create(payload)
+      else {
+        result = await create(payload)
+        autosaveController?.clear()
+      }
 
       notify(
         resolveMessage(editing ? updateSuccessMessage : createSuccessMessage, {
@@ -418,19 +491,24 @@ export function createFormModalController({
       button.disabled = state.submitting
     })
 
+    elements.clearDraftButtons.forEach((button) => {
+      button.disabled = state.submitting
+    })
+
     if (disableFormWhileSubmitting) setFormControlsDisabled(state.submitting)
   }
 
   function setFormControlsDisabled(disabled) {
     for (const control of elements.form.elements) {
       /*
-       * The save, cancel and close buttons are managed
+       * The save, cancel, clear and close buttons are managed
        * separately.
        */
       if (
         control === elements.saveButton ||
         elements.cancelButtons.includes(control) ||
-        elements.closeButtons.includes(control)
+        elements.closeButtons.includes(control) ||
+        elements.clearDraftButtons.includes(control)
       )
         continue
 

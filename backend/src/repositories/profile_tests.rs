@@ -41,7 +41,9 @@ async fn profile_database_lifecycle() {
             id bigint PRIMARY KEY, username text NOT NULL UNIQUE, email text NOT NULL UNIQUE,
             name text NOT NULL, last_name text NOT NULL, password_hash text NOT NULL,
             role_id bigint NOT NULL REFERENCES roles(id), auth_version bigint NOT NULL DEFAULT 0,
-            active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now());",
+            active boolean NOT NULL DEFAULT true,
+            settings jsonb NOT NULL DEFAULT '{}'::jsonb,
+            created_at timestamptz NOT NULL DEFAULT now());",
     )
     .execute(&db)
     .await

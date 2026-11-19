@@ -27,7 +27,8 @@ pub async fn list_candidate_bingos(
             b.nro_bingo,
             b.late_payment_notice,
             b.address,
-            b.created_at
+            b.created_at,
+            b.seller
         FROM public.bingos b
         WHERE b.late_payment_notice BETWEEN 1 AND 31
           AND NOT EXISTS (

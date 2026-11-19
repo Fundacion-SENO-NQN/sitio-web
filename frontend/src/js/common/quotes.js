@@ -13,7 +13,8 @@ export const MAX_START_MONTH = 16
 export const QUOTE_STATE = Object.freeze({
   UNPAID: 0,
   CASH: 1,
-  TRANSFER: 2
+  TRANSFER: 2,
+  UNKNOWN: 3
 })
 
 export const MONTH_NAMES = Object.freeze([
@@ -51,7 +52,7 @@ export const MONTH_OPTIONS = Object.freeze(
    - 00 (0): unpaid
    - 01 (1): paid with cash (E)
    - 10 (2): paid by bank transfer (T)
-   - 11 (3): invalid
+   - 11 (3): paid with unknown method (?)
 ========================================================== */
 
 export function decodeQuotes(rawQuote, count = QUOTE_COUNT) {
@@ -63,7 +64,7 @@ export function decodeQuotes(rawQuote, count = QUOTE_COUNT) {
   for (let index = 0; index < count; index++) {
     const state = (bits >> (index * 2)) & 0b11
 
-    states.push(state === 0b11 ? QUOTE_STATE.UNPAID : state)
+    states.push(state)
   }
 
   return states
@@ -82,7 +83,7 @@ export function encodeQuotes(states, count = QUOTE_COUNT) {
     if (
       !Number.isInteger(state) ||
       state < QUOTE_STATE.UNPAID ||
-      state > QUOTE_STATE.TRANSFER
+      state > QUOTE_STATE.UNKNOWN
     ) {
       throw new Error('El estado de una de las cuotas no es válido.')
     }
@@ -250,6 +251,16 @@ export function getQuoteVisualInfo({
     }
   }
 
+  if (paymentState === QUOTE_STATE.UNKNOWN) {
+    return {
+      status: 'paid',
+      shortLabel: '?',
+      statusLabel: 'Pagada · Medio desconocido',
+      monthName,
+      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Medio desconocido`
+    }
+  }
+
   const late = isQuoteLate({
     startMonth,
     quoteIndex,
@@ -274,6 +285,84 @@ export function getQuoteVisualInfo({
     monthName,
     tooltip: `Cuota ${quoteNumber}${monthSuffix}: Sin pagar`
   }
+}
+
+/**
+ * Summarizes paid, late, and pending quote counts for a record.
+ */
+export function getQuotesSummary({
+  quote = 0,
+  startMonth = 1,
+  createdAt = null,
+  count = QUOTE_COUNT,
+  now = new Date()
+} = {}) {
+  const states = decodeQuotes(quote, count)
+  let paidCount = 0
+  let lateCount = 0
+
+  states.forEach((paymentState, quoteIndex) => {
+    if (paymentState !== QUOTE_STATE.UNPAID) {
+      paidCount += 1
+      return
+    }
+
+    if (
+      isQuoteLate({
+        startMonth,
+        quoteIndex,
+        createdAt,
+        now
+      })
+    ) {
+      lateCount += 1
+    }
+  })
+
+  return {
+    paidCount,
+    lateCount,
+    pendingCount: Math.max(0, count - paidCount - lateCount),
+    total: count
+  }
+}
+
+/**
+ * Compares two items by number of paid quotes (0..count),
+ * breaking ties by number of late quotes.
+ */
+export function compareQuotesProgress(
+  first,
+  second,
+  {
+    getQuote = (item) => item?.quote,
+    getStartMonth = (item) => item?.start_month,
+    getCreatedAt = (item) => item?.created_at,
+    count = QUOTE_COUNT,
+    now = new Date()
+  } = {}
+) {
+  const firstSummary = getQuotesSummary({
+    quote: getQuote(first),
+    startMonth: getStartMonth(first),
+    createdAt: getCreatedAt(first),
+    count,
+    now
+  })
+
+  const secondSummary = getQuotesSummary({
+    quote: getQuote(second),
+    startMonth: getStartMonth(second),
+    createdAt: getCreatedAt(second),
+    count,
+    now
+  })
+
+  if (firstSummary.paidCount !== secondSummary.paidCount) {
+    return firstSummary.paidCount - secondSummary.paidCount
+  }
+
+  return secondSummary.lateCount - firstSummary.lateCount
 }
 
 /* ==========================================================
@@ -355,7 +444,8 @@ export function createQuotesEditorController({
   container,
   startMonthInput = null,
   count = QUOTE_COUNT,
-  getNow = () => new Date()
+  getNow = () => new Date(),
+  onChange = null
 } = {}) {
   const root = resolveElement(container)
 
@@ -375,6 +465,15 @@ export function createQuotesEditorController({
   let currentCreatedAt = null
   let eventController = null
 
+  function emitChange() {
+    if (typeof onChange === 'function') {
+      onChange({
+        quote: getValue(),
+        states: getStates()
+      })
+    }
+  }
+
   function initialize() {
     if (eventController) return controller
 
@@ -387,6 +486,7 @@ export function createQuotesEditorController({
         () => {
           states[index] = normalizeSingleState(select.value)
           refreshVisuals()
+          emitChange()
         },
         { signal }
       )
@@ -396,11 +496,15 @@ export function createQuotesEditorController({
       square.addEventListener(
         'click',
         () => {
-          states[index] = (states[index] + 1) % 3
+          states[index] = (states[index] + 1) % 4
           if (selects[index]) {
             selects[index].value = String(states[index])
+            selects[index].dispatchEvent(new Event('change', { bubbles: true }))
+          } else {
+            refreshVisuals()
+            root.dispatchEvent(new Event('change', { bubbles: true }))
+            emitChange()
           }
-          refreshVisuals()
         },
         { signal }
       )
@@ -535,7 +639,11 @@ export function createQuotesEditorController({
 function normalizeSingleState(value) {
   const numeric = Number(value)
 
-  if (numeric === QUOTE_STATE.CASH || numeric === QUOTE_STATE.TRANSFER) {
+  if (
+    numeric === QUOTE_STATE.CASH ||
+    numeric === QUOTE_STATE.TRANSFER ||
+    numeric === QUOTE_STATE.UNKNOWN
+  ) {
     return numeric
   }
 

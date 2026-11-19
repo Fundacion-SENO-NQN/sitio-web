@@ -3,7 +3,7 @@ import {
   LATE_PAYMENT_NOTICE_OPTIONS,
   formatLatePaymentNotice
 } from './constants.js'
-import { buildBingoFormData } from './formData.js'
+import { buildBingoFormData, findDuplicateBingoNumber } from './formData.js'
 
 const validInput = {
   nroBingo: '42',
@@ -40,18 +40,23 @@ describe('buildBingoFormData', () => {
     expect(formData.get('late_payment_notice')).toBe('31')
   })
 
-  it('accepts optional or omitted seller', () => {
-    const formDataWithoutSeller = buildBingoFormData({
+  it('accepts optional or omitted seller, address, neighborhood, locality, collectionLocate and collectionDate', () => {
+    const formDataWithOptionalsEmpty = buildBingoFormData({
       ...validInput,
-      seller: undefined
+      seller: undefined,
+      address: '',
+      neighborhood: '   ',
+      locality: undefined,
+      collectionLocate: '',
+      collectionDate: undefined
     })
-    expect(formDataWithoutSeller.get('seller')).toBe('')
 
-    const formDataWithEmptySeller = buildBingoFormData({
-      ...validInput,
-      seller: '   '
-    })
-    expect(formDataWithEmptySeller.get('seller')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('seller')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('address')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('neighborhood')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('locality')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('collection_locate')).toBe('')
+    expect(formDataWithOptionalsEmpty.get('collection_date')).toBe('')
   })
 
   it('rejects negative or missing nro_bingo', () => {
@@ -63,12 +68,15 @@ describe('buildBingoFormData', () => {
     )
   })
 
-  it('rejects missing required text fields', () => {
+  it('rejects missing required text fields (name, lastName, phone)', () => {
     expect(() => buildBingoFormData({ ...validInput, name: '   ' })).toThrow(
       'nombre'
     )
-    expect(() => buildBingoFormData({ ...validInput, address: '' })).toThrow(
-      'dirección'
+    expect(() =>
+      buildBingoFormData({ ...validInput, lastName: '   ' })
+    ).toThrow('apellido')
+    expect(() => buildBingoFormData({ ...validInput, phone: '' })).toThrow(
+      'teléfono'
     )
   })
 
@@ -92,15 +100,39 @@ describe('buildBingoFormData', () => {
     )
   })
 
-  it('rejects invalid quote bitmasks (0b11 state or out of 2-byte range)', () => {
-    expect(() => buildBingoFormData({ ...validInput, quote: 3 })).toThrow(
-      'cuotas'
-    )
-    expect(() => buildBingoFormData({ ...validInput, quote: 27 })).toThrow(
-      'cuotas'
-    )
+  it('accepts quote bitmasks with 0b11 unknown payment method state and rejects out of 2-byte range', () => {
+    const formDataWithUnknown = buildBingoFormData({ ...validInput, quote: 3 })
+    expect(formDataWithUnknown.get('quote')).toBe('3')
+
+    const formDataWithMixedUnknown = buildBingoFormData({
+      ...validInput,
+      quote: 27
+    })
+    expect(formDataWithMixedUnknown.get('quote')).toBe('27')
+
     expect(() => buildBingoFormData({ ...validInput, quote: 70000 })).toThrow(
       'cuotas'
+    )
+  })
+
+  it('detects duplicate nro_bingo in create mode and ignores self in edit mode', () => {
+    const existingBingos = [
+      { id: 10, nro_bingo: 104, name: 'María', last_name: 'González' },
+      { id: 11, nro_bingo: 205, name: 'Carlos', last_name: 'Pérez' }
+    ]
+
+    // Create mode: 104 is taken
+    expect(findDuplicateBingoNumber('104', existingBingos)).toEqual(
+      existingBingos[0]
+    )
+    // Create mode: 999 is free
+    expect(findDuplicateBingoNumber('999', existingBingos)).toBeNull()
+
+    // Edit mode for id=10: 104 is its own number -> not a duplicate
+    expect(findDuplicateBingoNumber('104', existingBingos, 10)).toBeNull()
+    // Edit mode for id=10: 205 belongs to id=11 -> duplicate!
+    expect(findDuplicateBingoNumber('205', existingBingos, 10)).toEqual(
+      existingBingos[1]
     )
   })
 

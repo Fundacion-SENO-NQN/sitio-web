@@ -73,6 +73,21 @@ pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
 ========================================================== */
 
 pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bingo> {
+    let neighborhood_was_sent = update.neighborhood.is_some();
+    let neighborhood_value = update.neighborhood.flatten();
+
+    let collection_date_was_sent = update.collection_date.is_some();
+    let collection_date_value = update.collection_date.flatten();
+
+    let collection_locate_was_sent = update.collection_locate.is_some();
+    let collection_locate_value = update.collection_locate.flatten();
+
+    let address_was_sent = update.address.is_some();
+    let address_value = update.address.flatten();
+
+    let locality_was_sent = update.locality.is_some();
+    let locality_value = update.locality.flatten();
+
     let seller_was_sent = update.seller.is_some();
     let seller_value = update.seller.flatten();
 
@@ -83,20 +98,35 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
             name = COALESCE($1, name),
             last_name = COALESCE($2, last_name),
             phone = COALESCE($3, phone),
-            neighborhood = COALESCE($4, neighborhood),
-            collection_date = COALESCE($5, collection_date),
-            collection_locate = COALESCE($6, collection_locate),
-            address = COALESCE($7, address),
-            locality = COALESCE($8, locality),
-            start_month = COALESCE($9, start_month),
-            quote = COALESCE($10, quote),
-            nro_bingo = COALESCE($11, nro_bingo),
-            late_payment_notice = COALESCE($12, late_payment_notice),
+            neighborhood = CASE
+                WHEN $4 THEN $5
+                ELSE neighborhood
+            END,
+            collection_date = CASE
+                WHEN $6 THEN $7
+                ELSE collection_date
+            END,
+            collection_locate = CASE
+                WHEN $8 THEN $9
+                ELSE collection_locate
+            END,
+            address = CASE
+                WHEN $10 THEN $11
+                ELSE address
+            END,
+            locality = CASE
+                WHEN $12 THEN $13
+                ELSE locality
+            END,
+            start_month = COALESCE($14, start_month),
+            quote = COALESCE($15, quote),
+            nro_bingo = COALESCE($16, nro_bingo),
+            late_payment_notice = COALESCE($17, late_payment_notice),
             seller = CASE
-                WHEN $13 THEN $14
+                WHEN $18 THEN $19
                 ELSE seller
             END
-        WHERE id = $15
+        WHERE id = $20
         RETURNING
             id,
             name,
@@ -118,11 +148,16 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
     .bind(update.name)
     .bind(update.last_name)
     .bind(update.phone)
-    .bind(update.neighborhood)
-    .bind(update.collection_date)
-    .bind(update.collection_locate)
-    .bind(update.address)
-    .bind(update.locality)
+    .bind(neighborhood_was_sent)
+    .bind(neighborhood_value)
+    .bind(collection_date_was_sent)
+    .bind(collection_date_value)
+    .bind(collection_locate_was_sent)
+    .bind(collection_locate_value)
+    .bind(address_was_sent)
+    .bind(address_value)
+    .bind(locality_was_sent)
+    .bind(locality_value)
     .bind(update.start_month)
     .bind(update.quote)
     .bind(update.nro_bingo)

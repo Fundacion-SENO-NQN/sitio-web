@@ -56,11 +56,11 @@ pub async fn create_bingo(
     let mut name = String::new();
     let mut last_name = String::new();
     let mut phone = String::new();
-    let mut neighborhood = String::new();
-    let mut collection_date = String::new();
-    let mut collection_locate = String::new();
-    let mut address = String::new();
-    let mut locality = String::new();
+    let mut neighborhood: Option<String> = None;
+    let mut collection_date: Option<String> = None;
+    let mut collection_locate: Option<String> = None;
+    let mut address: Option<String> = None;
+    let mut locality: Option<String> = None;
     let mut start_month: Option<i16> = None;
     let mut quote: Option<i16> = None;
     let mut nro_bingo: Option<i16> = None;
@@ -86,23 +86,28 @@ pub async fn create_bingo(
             }
 
             Some("neighborhood") => {
-                neighborhood = read_text(field, "Barrio inválido").await?;
+                let raw = read_text(field, "Barrio inválido").await?;
+                neighborhood = normalize_nullable(raw);
             }
 
             Some("collection_date") => {
-                collection_date = read_text(field, "Fecha de cobro inválida").await?;
+                let raw = read_text(field, "Fecha de cobro inválida").await?;
+                collection_date = normalize_nullable(raw);
             }
 
             Some("collection_locate") => {
-                collection_locate = read_text(field, "Lugar de cobro inválido").await?;
+                let raw = read_text(field, "Lugar de cobro inválido").await?;
+                collection_locate = normalize_nullable(raw);
             }
 
             Some("address") => {
-                address = read_text(field, "Dirección inválida").await?;
+                let raw = read_text(field, "Dirección inválida").await?;
+                address = normalize_nullable(raw);
             }
 
             Some("locality") => {
-                locality = read_text(field, "Localidad inválida").await?;
+                let raw = read_text(field, "Localidad inválida").await?;
+                locality = normalize_nullable(raw);
             }
 
             Some("start_month") => {
@@ -136,13 +141,6 @@ pub async fn create_bingo(
     let name = validate_required_text(&name, "El nombre es requerido")?;
     let last_name = validate_required_text(&last_name, "El apellido es requerido")?;
     let phone = validate_required_text(&phone, "El teléfono es requerido")?;
-    let neighborhood = validate_required_text(&neighborhood, "El barrio es requerido")?;
-    let collection_date =
-        validate_required_text(&collection_date, "La fecha de cobro es requerida")?;
-    let collection_locate =
-        validate_required_text(&collection_locate, "El lugar de cobro es requerido")?;
-    let address = validate_required_text(&address, "La dirección es requerida")?;
-    let locality = validate_required_text(&locality, "La localidad es requerida")?;
 
     let start_month =
         start_month.ok_or_else(|| ApiError::BadRequest("El mes de inicio es requerido".into()))?;
@@ -189,11 +187,11 @@ pub async fn patch_bingo(
     let mut name: Option<String> = None;
     let mut last_name: Option<String> = None;
     let mut phone: Option<String> = None;
-    let mut neighborhood: Option<String> = None;
-    let mut collection_date: Option<String> = None;
-    let mut collection_locate: Option<String> = None;
-    let mut address: Option<String> = None;
-    let mut locality: Option<String> = None;
+    let mut neighborhood: Option<Option<String>> = None;
+    let mut collection_date: Option<Option<String>> = None;
+    let mut collection_locate: Option<Option<String>> = None;
+    let mut address: Option<Option<String>> = None;
+    let mut locality: Option<Option<String>> = None;
     let mut start_month: Option<i16> = None;
     let mut quote: Option<i16> = None;
     let mut nro_bingo: Option<i16> = None;
@@ -219,23 +217,28 @@ pub async fn patch_bingo(
             }
 
             Some("neighborhood") => {
-                neighborhood = Some(read_text(field, "Barrio inválido").await?);
+                let raw = read_text(field, "Barrio inválido").await?;
+                neighborhood = Some(normalize_nullable(raw));
             }
 
             Some("collection_date") => {
-                collection_date = Some(read_text(field, "Fecha de cobro inválida").await?);
+                let raw = read_text(field, "Fecha de cobro inválida").await?;
+                collection_date = Some(normalize_nullable(raw));
             }
 
             Some("collection_locate") => {
-                collection_locate = Some(read_text(field, "Lugar de cobro inválido").await?);
+                let raw = read_text(field, "Lugar de cobro inválido").await?;
+                collection_locate = Some(normalize_nullable(raw));
             }
 
             Some("address") => {
-                address = Some(read_text(field, "Dirección inválida").await?);
+                let raw = read_text(field, "Dirección inválida").await?;
+                address = Some(normalize_nullable(raw));
             }
 
             Some("locality") => {
-                locality = Some(read_text(field, "Localidad inválida").await?);
+                let raw = read_text(field, "Localidad inválida").await?;
+                locality = Some(normalize_nullable(raw));
             }
 
             Some("start_month") => {
@@ -270,13 +273,6 @@ pub async fn patch_bingo(
     let name = clean_optional_text(name, "El nombre no puede estar vacío")?;
     let last_name = clean_optional_text(last_name, "El apellido no puede estar vacío")?;
     let phone = clean_optional_text(phone, "El teléfono no puede estar vacío")?;
-    let neighborhood = clean_optional_text(neighborhood, "El barrio no puede estar vacío")?;
-    let collection_date =
-        clean_optional_text(collection_date, "La fecha de cobro no puede estar vacía")?;
-    let collection_locate =
-        clean_optional_text(collection_locate, "El lugar de cobro no puede estar vacío")?;
-    let address = clean_optional_text(address, "La dirección no puede estar vacía")?;
-    let locality = clean_optional_text(locality, "La localidad no puede estar vacía")?;
 
     if name.is_none()
         && last_name.is_none()
@@ -425,9 +421,9 @@ fn parse_late_payment_notice(raw: &str) -> ApiResult<i16> {
 /// Parses and validates the 2-byte quote value.
 /// Each of the 8 quotes uses 2 bits:
 /// - `00`: unpaid
-/// - `01`: paid with cash
-/// - `10`: paid by bank transfer
-/// - `11`: invalid
+/// - `01`: paid with cash (E)
+/// - `10`: paid by bank transfer (T)
+/// - `11`: paid with unknown method (?)
 fn parse_quotes(raw: &str) -> ApiResult<i16> {
     let parsed = raw
         .trim()
@@ -443,16 +439,6 @@ fn parse_quotes(raw: &str) -> ApiResult<i16> {
             "El valor de las cuotas excede los 2 bytes".into(),
         ));
     };
-
-    for quote_index in 0..8 {
-        let state = (bits >> (quote_index * 2)) & 0b11;
-
-        if state == 0b11 {
-            return Err(ApiError::BadRequest(
-                "El estado de una de las cuotas no es válido".into(),
-            ));
-        }
-    }
 
     Ok(bits as i16)
 }
@@ -477,16 +463,19 @@ mod tests {
         // All 8 quotes paid by bank transfer: 0b1010_1010_1010_1010 = 0xAAAA = 43690 (u16) = -21846 (i16)
         assert_eq!(parse_quotes("43690").unwrap(), -21846);
         assert_eq!(parse_quotes("-21846").unwrap(), -21846);
+        // All 8 quotes paid with unknown method: 0b1111_1111_1111_1111 = 0xFFFF = 65535 (u16) = -1 (i16)
+        assert_eq!(parse_quotes("65535").unwrap(), -1);
+        assert_eq!(parse_quotes("-1").unwrap(), -1);
     }
 
     #[test]
-    fn parse_quotes_rejects_invalid_bit_pair_11() {
-        // 3 = 0b11 in first quote
-        assert!(parse_quotes("3").is_err());
+    fn parse_quotes_accepts_unknown_method_bit_pair_11() {
+        // 3 = 0b11 in first quote (paid with unknown method "?")
+        assert_eq!(parse_quotes("3").unwrap(), 3);
         // 27 = 0b0001_1011 (first quote is 11)
-        assert!(parse_quotes("27").is_err());
-        // 8th quote is 11: 0b1100_0000_0000_0000 = 49152
-        assert!(parse_quotes("49152").is_err());
+        assert_eq!(parse_quotes("27").unwrap(), 27);
+        // 8th quote is 11: 0b1100_0000_0000_0000 = 49152 (u16) = -16384 (i16)
+        assert_eq!(parse_quotes("49152").unwrap(), -16384);
     }
 
     #[test]

@@ -865,8 +865,8 @@ pub fn late_quote_indexes(
     (0..QUOTE_COUNT)
         .filter(|&index| {
             let state = quote_state(quote, index);
-            // 0b11 is invalid and shown as unpaid by the frontend.
-            let unpaid = state == 0b00 || state == 0b11;
+            // 0b00 is unpaid; 0b01 (cash), 0b10 (transfer) and 0b11 (unknown method) are paid.
+            let unpaid = state == 0b00;
             let quote_total = BINGO_BASE_YEAR * 12 + i64::from(start_month - 1) + index as i64;
 
             unpaid && quote_total < current_total

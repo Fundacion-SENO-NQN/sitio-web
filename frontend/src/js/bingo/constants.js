@@ -6,9 +6,11 @@ import {
   MONTH_OPTIONS,
   QUOTE_COUNT,
   QUOTE_STATE,
+  compareQuotesProgress,
   getAvailableStartMonthOptions,
   getDefaultStartMonth,
-  getMonthName
+  getMonthName,
+  getQuotesSummary
 } from '../common/quotes.js'
 
 export {
@@ -19,9 +21,11 @@ export {
   MONTH_OPTIONS,
   QUOTE_COUNT,
   QUOTE_STATE,
+  compareQuotesProgress,
   getAvailableStartMonthOptions,
   getDefaultStartMonth,
-  getMonthName
+  getMonthName,
+  getQuotesSummary
 }
 
 /* ==========================================================

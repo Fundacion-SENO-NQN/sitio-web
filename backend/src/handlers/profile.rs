@@ -6,7 +6,10 @@ use crate::{
     },
     error::api_error::{ApiError, ApiResult},
     models::{
-        profile::{ProfileUpdated, UpdatePassword, UpdateProfile, validate_current_password},
+        profile::{
+            ProfileUpdated, UpdatePassword, UpdateProfile, validate_current_password,
+            validate_profile_settings,
+        },
         service::Service,
         user::{User, UserResponse},
     },
@@ -24,6 +27,26 @@ pub async fn get(
 
 pub async fn permissions(AuthUser(session): AuthUser) -> Json<Vec<Service>> {
     Json(session.permissions)
+}
+
+pub async fn get_settings(
+    AuthUser(session): AuthUser,
+    State(state): State<Arc<AppState>>,
+) -> ApiResult<Json<serde_json::Value>> {
+    let current = current_user(&state, &session).await?;
+    let settings = repositories::profile::get_settings(&state.db, &current).await?;
+    Ok(Json(settings))
+}
+
+pub async fn update_settings(
+    AuthUser(session): AuthUser,
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<serde_json::Value>,
+) -> ApiResult<Json<serde_json::Value>> {
+    let validated = validate_profile_settings(request)?;
+    let current = current_user(&state, &session).await?;
+    let updated = repositories::profile::update_settings(&state.db, &current, &validated).await?;
+    Ok(Json(updated))
 }
 
 pub async fn update(

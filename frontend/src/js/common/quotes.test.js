@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   MONTH_OPTIONS,
   QUOTE_STATE,
+  compareQuotesProgress,
   createQuotesEditorController,
   createQuotesSquaresElement,
   decodeQuotes,
@@ -13,6 +14,7 @@ import {
   getQuoteMonthName,
   getQuoteMonthNumber,
   getQuoteVisualInfo,
+  getQuotesSummary,
   isQuoteLate
 } from './quotes.js'
 
@@ -40,8 +42,20 @@ describe('decodeQuotes & encodeQuotes', () => {
     expect(decodeQuotes(-21846)).toEqual(allTransfer)
   })
 
+  it('encodes and decodes unknown payment method state 0b11 (3 -> "?")', () => {
+    const states = [3, 1, 2, 0, 3, 0, 0, 0]
+    const encoded = encodeQuotes(states)
+    expect(decodeQuotes(encoded)).toEqual(states)
+
+    const allUnknown = Array(8).fill(QUOTE_STATE.UNKNOWN)
+    expect(encodeQuotes(allUnknown)).toBe(65535)
+    expect(decodeQuotes(65535)).toEqual(allUnknown)
+    expect(decodeQuotes(-1)).toEqual(allUnknown)
+  })
+
   it('rejects invalid state values during encoding', () => {
-    expect(() => encodeQuotes([3, 0, 0, 0, 0, 0, 0, 0])).toThrow()
+    expect(() => encodeQuotes([4, 0, 0, 0, 0, 0, 0, 0])).toThrow()
+    expect(() => encodeQuotes([-1, 0, 0, 0, 0, 0, 0, 0])).toThrow()
     expect(() => encodeQuotes([0, 0, 0])).toThrow()
   })
 })
@@ -187,6 +201,16 @@ describe('quote months & late detection', () => {
     })
     expect(transferInfo.status).toBe('paid')
     expect(transferInfo.shortLabel).toBe('T')
+
+    const unknownInfo = getQuoteVisualInfo({
+      paymentState: QUOTE_STATE.UNKNOWN,
+      startMonth: 3,
+      quoteIndex: 2,
+      createdAt,
+      now: june2026
+    })
+    expect(unknownInfo.status).toBe('paid')
+    expect(unknownInfo.shortLabel).toBe('?')
   })
 })
 
@@ -234,6 +258,7 @@ describe('DOM rendering & editor controller', () => {
                 <option value="0">Sin pagar</option>
                 <option value="1">Efectivo (E)</option>
                 <option value="2">Transferencia (T)</option>
+                <option value="3">Desconocido (?)</option>
               </select>
             </div>
           `
@@ -252,11 +277,58 @@ describe('DOM rendering & editor controller', () => {
     expect(editor.getStates()[0]).toBe(1)
 
     const secondButton = document.querySelector('[data-cuota-square="1"]')
-    secondButton.click() // 0 -> 1
+    secondButton.click() // 0 -> 1 (Cash)
     secondButton.click() // 1 -> 2 (Transfer)
     expect(editor.getStates()[1]).toBe(2)
 
+    const thirdButton = document.querySelector('[data-cuota-square="2"]')
+    thirdButton.click() // 0 -> 1
+    thirdButton.click() // 1 -> 2
+    thirdButton.click() // 2 -> 3 (Unknown "?")
+    expect(editor.getStates()[2]).toBe(3)
+    expect(thirdButton.textContent).toBe('?')
+
+    thirdButton.click() // 3 -> 0 (back to Unpaid)
+    expect(editor.getStates()[2]).toBe(0)
+
     expect(editor.getValue()).toBe(encodeQuotes([1, 2, 0, 0, 0, 0, 0, 0]))
     editor.destroy()
+  })
+
+  it('summarizes paid and late counts and sorts by paid count then late count', () => {
+    const may2026 = new Date(2026, 4, 5) // May 2026
+    // Item A: 1 paid, 1 late (start month 3 = March)
+    const itemA = {
+      quote: encodeQuotes([1, 0, 0, 0, 0, 0, 0, 0]),
+      start_month: 3
+    }
+    // Item B: 3 paid, 0 late
+    const itemB = {
+      quote: encodeQuotes([1, 2, 1, 0, 0, 0, 0, 0]),
+      start_month: 3
+    }
+    // Item C: 1 paid, 0 late (start month 5 = May)
+    const itemC = {
+      quote: encodeQuotes([1, 0, 0, 0, 0, 0, 0, 0]),
+      start_month: 5
+    }
+
+    expect(
+      getQuotesSummary({
+        quote: itemA.quote,
+        startMonth: itemA.start_month,
+        now: may2026
+      })
+    ).toEqual({
+      paidCount: 1,
+      lateCount: 1,
+      pendingCount: 6,
+      total: 8
+    })
+
+    // Fewer paid comes before more paid in ascending order
+    expect(compareQuotesProgress(itemA, itemB, { now: may2026 })).toBeLessThan(0)
+    // Equal paid (1), but itemA has 1 late while itemC has 0 late -> itemA comes before itemC
+    expect(compareQuotesProgress(itemA, itemC, { now: may2026 })).toBeLessThan(0)
   })
 })

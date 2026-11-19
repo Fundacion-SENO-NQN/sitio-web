@@ -123,6 +123,8 @@ export function createTableRenderer({
 
       const cell = renderColumn(column, item, columnContext)
 
+      cell.dataset.colIndex = String(columnIndex)
+
       row.appendChild(cell)
     })
 
