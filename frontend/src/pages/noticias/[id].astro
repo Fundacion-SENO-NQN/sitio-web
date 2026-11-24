@@ -473,47 +473,9 @@ function createNewsImageUrl({
 </Layout>
 
 <script>
-  function initializeNewsGalleryImages() {
-    const images = document.querySelectorAll<HTMLImageElement>(
-      '[data-news-image]:not([data-image-initialized])'
-    )
+  import { initImageErrorHandling } from '../../js/common/imageErrorHandler'
 
-    images.forEach((image) => {
-      image.dataset.imageInitialized = 'true'
-
-      image.addEventListener('error', () => {
-        const fallbackUrl = image.dataset.fallbackSrc
-
-        /*
-         * The main image first tries the old news-image
-         * location for backwards compatibility.
-         */
-        if (fallbackUrl) {
-          delete image.dataset.fallbackSrc
-
-          image.src = fallbackUrl
-
-          return
-        }
-
-        image.hidden = true
-
-        const container = image.closest('[data-news-image-container]')
-
-        const placeholder = container?.querySelector<HTMLElement>(
-          '[data-news-image-placeholder]'
-        )
-
-        if (placeholder) {
-          placeholder.hidden = false
-        }
-      })
-    })
-  }
-
-  initializeNewsGalleryImages()
-
-  document.addEventListener('astro:page-load', initializeNewsGalleryImages)
+  initImageErrorHandling()
 </script>
 
 <style>
