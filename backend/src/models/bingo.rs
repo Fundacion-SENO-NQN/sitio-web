@@ -18,6 +18,7 @@ pub struct Bingo {
     pub late_payment_notice: i16,
     pub created_at: DateTime<Utc>,
     pub seller: Option<String>,
+    pub cancelled: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -35,6 +36,7 @@ pub struct CreateBingo {
     pub nro_bingo: i16,
     pub late_payment_notice: i16,
     pub seller: Option<String>,
+    pub cancelled: bool,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -52,4 +54,5 @@ pub struct UpdateBingo {
     pub nro_bingo: Option<i16>,
     pub late_payment_notice: Option<i16>,
     pub seller: Option<Option<String>>,
+    pub cancelled: Option<bool>,
 }

@@ -519,7 +519,7 @@ fn tablas_reales_protegen_mutabilidad_estricta() {
         }
     );
 
-    // BINGOS: `seller` es opcional, insertable y actualizable
+    // BINGOS: `seller` es opcional, `cancelled` es requerida; ambas insertables y actualizables
     let sql_bingo_create = sql_insertar(
         &BINGOS,
         &[
@@ -536,11 +536,13 @@ fn tablas_reales_protegen_mutabilidad_estricta() {
             "late_payment_notice",
             "address",
             "seller",
+            "cancelled",
         ],
         true,
     )
     .unwrap();
     assert!(sql_bingo_create.contains("seller"));
+    assert!(sql_bingo_create.contains("cancelled"));
 
     let sql_bingo_update = sql_actualizar_coalesce_por_id(
         &BINGOS,
@@ -558,9 +560,11 @@ fn tablas_reales_protegen_mutabilidad_estricta() {
             "nro_bingo",
             "late_payment_notice",
             "seller",
+            "cancelled",
         ],
         true,
     )
     .unwrap();
     assert!(sql_bingo_update.contains("seller = COALESCE("));
+    assert!(sql_bingo_update.contains("cancelled = COALESCE("));
 }
