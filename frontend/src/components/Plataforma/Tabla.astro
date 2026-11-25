@@ -356,6 +356,18 @@ function obtenerClaveColumna(columna: ColumnaTabla, index: number) {
     box-shadow: 0 0 0 3px #1582cb9a;
   }
 
+  /* Cancelled row overrides */
+  .tablaComponente :global(tbody tr.filaCancelada .numero-badge) {
+    color: #5f6874;
+    background-color: #d6dce3;
+    border-color: #bcc5d0;
+  }
+
+  .tablaComponente :global(tbody tr.filaCancelada .cuotasSquares) {
+    filter: grayscale(100%);
+    opacity: 0.65;
+  }
+
   @media (max-width: 640px) {
     .tablaComponente {
       border-radius: var(--admin-radius);

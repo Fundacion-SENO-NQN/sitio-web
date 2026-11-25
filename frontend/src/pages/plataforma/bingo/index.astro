@@ -83,6 +83,13 @@ const seccionesFormularioBingo: SeccionFormulario[] = [
         maxLength: 100,
         placeholder: 'Ej.: Nancy',
         opcional: true
+      },
+      {
+        name: 'cancelled',
+        label: 'Cancelado',
+        type: 'checkbox',
+        checked: false,
+        ayuda: 'Marcá esta opción si el bingo fue cancelado.'
       }
     ]
   },
@@ -175,7 +182,12 @@ const seccionesFormularioBingo: SeccionFormulario[] = [
       servicioPlural="bingos"
       busqueda="número, nombre, localidad o fecha"
       mostrarSelectorColumnas={true}
-    />
+    >
+      <label class="adminFilterCheckbox" for="mostrar-cancelados-bingo">
+        <input id="mostrar-cancelados-bingo" type="checkbox" checked />
+        <span>Mostrar cancelados</span>
+      </label>
+    </ControlTabla>
 
     <Tabla
       servicio="bingo"

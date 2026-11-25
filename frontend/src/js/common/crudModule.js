@@ -103,6 +103,7 @@ export function createPlatformCrudModule({
 
   /* List options */
   searchValues,
+  filter = null,
   sorters = undefined,
   defaultSort = undefined,
   defaultAscending = true,
@@ -178,6 +179,7 @@ export function createPlatformCrudModule({
     },
 
     searchValues,
+    filter,
     sorters,
     defaultSort,
     defaultAscending,

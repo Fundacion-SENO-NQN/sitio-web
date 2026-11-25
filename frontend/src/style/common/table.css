@@ -275,6 +275,24 @@
   opacity: 0.85;
 }
 
+:where(.table, .adminTable) tbody tr.filaCancelada {
+  background-color: #e6eaef;
+}
+
+:where(.table, .adminTable) tbody tr.filaCancelada:hover {
+  background-color: #dce2e8;
+}
+
+:where(.table, .adminTable) tbody tr.filaCancelada td {
+  color: #6b7280;
+}
+
+:where(.table, .adminTable) tbody tr.filaCancelada .tableBadge {
+  color: #5f6874;
+  background-color: #d6dce3;
+  border-color: #bcc5d0;
+}
+
 /* ==========================================================
    SORTABLE HEADER
 ========================================================== */

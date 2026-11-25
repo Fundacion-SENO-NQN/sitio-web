@@ -31,6 +31,7 @@ export function createListController({
   onLoaded = null,
 
   searchValues = defaultSearchValues,
+  filter = null,
 
   sorters = {
     order: compareOrder
@@ -287,6 +288,13 @@ export function createListController({
     state.query = normalizeSearchText(elements.searchInput?.value ?? '', locale)
 
     state.filteredItems = state.items.filter((item) => {
+      if (
+        typeof filter === 'function' &&
+        !filter(item, { query: state.query, controller })
+      ) {
+        return false
+      }
+
       if (!state.query) return true
 
       const values = searchValues(item)
@@ -496,9 +504,9 @@ export function createListController({
 
     const visible = state.filteredItems.length
 
-    const hasSearch = Boolean(state.query)
+    const hasActiveFilter = Boolean(state.query) || typeof filter === 'function'
 
-    if (hasSearch && visible !== total) {
+    if (hasActiveFilter && visible !== total) {
       elements.countElement.textContent = `${visible} de ${total} ${plural}`
 
       return

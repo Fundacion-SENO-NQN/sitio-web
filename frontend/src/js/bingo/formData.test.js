@@ -38,6 +38,27 @@ describe('buildBingoFormData', () => {
     expect(formData.get('start_month')).toBe('3')
     expect(formData.get('quote')).toBe('25')
     expect(formData.get('late_payment_notice')).toBe('31')
+    expect(formData.get('cancelled')).toBe('false')
+  })
+
+  it('serializes cancelled flag as true or false and rejects invalid values', () => {
+    expect(
+      buildBingoFormData({ ...validInput, cancelled: true }).get('cancelled')
+    ).toBe('true')
+    expect(
+      buildBingoFormData({ ...validInput, cancelled: false }).get('cancelled')
+    ).toBe('false')
+    expect(
+      buildBingoFormData({ ...validInput, cancelled: 'true' }).get('cancelled')
+    ).toBe('true')
+    expect(
+      buildBingoFormData({ ...validInput, cancelled: undefined }).get(
+        'cancelled'
+      )
+    ).toBe('false')
+    expect(() =>
+      buildBingoFormData({ ...validInput, cancelled: 'invalid' })
+    ).toThrow('cancelación')
   })
 
   it('accepts optional or omitted seller, address, neighborhood, locality, collectionLocate and collectionDate', () => {

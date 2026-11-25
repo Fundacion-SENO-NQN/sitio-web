@@ -20,9 +20,11 @@ export interface CampoFormulario {
     | 'password'
     | 'textarea'
     | 'select'
+    | 'checkbox'
   placeholder?: string
   required?: boolean
   opcional?: boolean
+  checked?: boolean
   ayuda?: string
   completo?: boolean
   maxLength?: number
@@ -182,85 +184,137 @@ const modalSizeClass = sizeClassMap[size]
                           'campo',
                           {
                             full: campo.completo,
-                            'campo-completo': campo.completo
+                            'campo-completo': campo.completo,
+                            modalFormulario__checkboxGroup:
+                              fieldType === 'checkbox'
                           }
                         ]}
                       >
-                        <label class="fieldLabel campo-label" for={fieldId}>
-                          {campo.label}
-
-                          {campo.required && (
-                            <span class="fieldRequired" aria-hidden="true">
-                              {' '}
-                              *
-                            </span>
-                          )}
-
-                          {!campo.required && campo.opcional && (
-                            <span class="fieldOptional opcional">
-                              {' '}
-                              Opcional
-                            </span>
-                          )}
-                        </label>
-
-                        {fieldType === 'textarea' ? (
-                          <textarea
-                            id={fieldId}
-                            name={campo.name}
-                            rows={campo.rows ?? 5}
-                            maxlength={campo.maxLength}
-                            minlength={campo.minLength}
-                            placeholder={campo.placeholder}
-                            required={campo.required}
-                            aria-describedby={helpId}
-                          >{campo.value !== undefined ? String(campo.value) : ''}</textarea>
-                        ) : fieldType === 'select' ? (
-                          <select
-                            id={fieldId}
-                            name={campo.name}
-                            required={campo.required}
-                            aria-describedby={helpId}
+                        {fieldType === 'checkbox' ? (
+                          <label
+                            class="choiceOption modalFormulario__checkbox"
+                            for={fieldId}
                           >
-                            {campo.options?.map((opt) => (
-                              <option
-                                value={String(opt.value)}
-                                selected={
-                                  campo.value !== undefined &&
-                                  String(campo.value) === String(opt.value)
-                                }
-                              >
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            id={fieldId}
-                            name={campo.name}
-                            type={fieldType}
-                            placeholder={campo.placeholder}
-                            required={campo.required}
-                            maxlength={campo.maxLength}
-                            minlength={campo.minLength}
-                            min={campo.min}
-                            max={campo.max}
-                            step={campo.step}
-                            inputmode={campo.inputmode}
-                            autocomplete={campo.autocomplete ?? 'off'}
-                            value={
-                              campo.value !== undefined
-                                ? String(campo.value)
-                                : undefined
-                            }
-                            aria-describedby={helpId}
-                          />
-                        )}
+                            <input
+                              id={fieldId}
+                              name={campo.name}
+                              type="checkbox"
+                              checked={Boolean(campo.checked)}
+                              required={campo.required}
+                              aria-describedby={helpId}
+                            />
 
-                        {campo.ayuda && (
-                          <small id={helpId} class="fieldHelp campo-ayuda">
-                            {campo.ayuda}
-                          </small>
+                            <span class="modalFormulario__checkboxBody">
+                              <span class="modalFormulario__checkboxLabel">
+                                {campo.label}
+
+                                {campo.required && (
+                                  <span
+                                    class="fieldRequired"
+                                    aria-hidden="true"
+                                  >
+                                    {' '}
+                                    *
+                                  </span>
+                                )}
+
+                                {!campo.required && campo.opcional && (
+                                  <span class="fieldOptional opcional">
+                                    {' '}
+                                    Opcional
+                                  </span>
+                                )}
+                              </span>
+
+                              {campo.ayuda && (
+                                <small
+                                  id={helpId}
+                                  class="fieldHelp campo-ayuda"
+                                >
+                                  {campo.ayuda}
+                                </small>
+                              )}
+                            </span>
+                          </label>
+                        ) : (
+                          <>
+                            <label class="fieldLabel campo-label" for={fieldId}>
+                              {campo.label}
+
+                              {campo.required && (
+                                <span class="fieldRequired" aria-hidden="true">
+                                  {' '}
+                                  *
+                                </span>
+                              )}
+
+                              {!campo.required && campo.opcional && (
+                                <span class="fieldOptional opcional">
+                                  {' '}
+                                  Opcional
+                                </span>
+                              )}
+                            </label>
+
+                            {fieldType === 'textarea' ? (
+                              <textarea
+                                id={fieldId}
+                                name={campo.name}
+                                rows={campo.rows ?? 5}
+                                maxlength={campo.maxLength}
+                                minlength={campo.minLength}
+                                placeholder={campo.placeholder}
+                                required={campo.required}
+                                aria-describedby={helpId}
+                              >{campo.value !== undefined ? String(campo.value) : ''}</textarea>
+                            ) : fieldType === 'select' ? (
+                              <select
+                                id={fieldId}
+                                name={campo.name}
+                                required={campo.required}
+                                aria-describedby={helpId}
+                              >
+                                {campo.options?.map((opt) => (
+                                  <option
+                                    value={String(opt.value)}
+                                    selected={
+                                      campo.value !== undefined &&
+                                      String(campo.value) === String(opt.value)
+                                    }
+                                  >
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                id={fieldId}
+                                name={campo.name}
+                                type={fieldType}
+                                placeholder={campo.placeholder}
+                                required={campo.required}
+                                maxlength={campo.maxLength}
+                                minlength={campo.minLength}
+                                min={campo.min}
+                                max={campo.max}
+                                step={campo.step}
+                                inputmode={campo.inputmode}
+                                autocomplete={campo.autocomplete ?? 'off'}
+                                value={
+                                  campo.value !== undefined
+                                    ? String(campo.value)
+                                    : undefined
+                                }
+                                aria-describedby={helpId}
+                              />
+                            )}
+
+                            {campo.ayuda && (
+                              <small id={helpId} class="fieldHelp campo-ayuda">
+                                {campo.ayuda}
+                              </small>
+                            )}
+                          </>
                         )}
 
                         <small
@@ -344,6 +398,29 @@ const modalSizeClass = sizeClassMap[size]
   .modalFormulario__grid input[type='number'],
   .modalFormulario__grid input[type='tel'] {
     font-variant-numeric: tabular-nums;
+  }
+
+  .modalFormulario__checkboxGroup {
+    justify-content: flex-end;
+  }
+
+  .modalFormulario__checkbox {
+    min-height: var(--admin-control-height);
+    align-items: center;
+  }
+
+  .modalFormulario__checkboxBody {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .modalFormulario__checkboxLabel {
+    color: var(--admin-text);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.35;
   }
 
   @media (max-width: 640px) {
