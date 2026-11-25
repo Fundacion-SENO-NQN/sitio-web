@@ -157,7 +157,7 @@ export function getQuoteMonthNumber(startMonth, quoteIndex) {
 export function getQuoteMonthName(startMonth, quoteIndex) {
   const monthNumber = getQuoteMonthNumber(startMonth, quoteIndex)
 
-  return monthNumber ? MONTH_NAMES[monthNumber - 1] ?? '' : ''
+  return monthNumber ? (MONTH_NAMES[monthNumber - 1] ?? '') : ''
 }
 
 export function resolveStartYear({
@@ -220,6 +220,36 @@ export function isQuoteLate({
   return quoteTotalMonths < currentTotalMonths
 }
 
+export function isQuoteActual({
+  startMonth,
+  quoteIndex,
+  createdAt = null,
+  now = new Date()
+} = {}) {
+  const normalizedStart = Number(startMonth)
+  const normalizedIndex = Number(quoteIndex)
+
+  if (
+    !Number.isInteger(normalizedStart) ||
+    normalizedStart < 1 ||
+    normalizedStart > MAX_START_MONTH ||
+    !Number.isInteger(normalizedIndex) ||
+    normalizedIndex < 0
+  ) {
+    return false
+  }
+
+  const referenceDate = now instanceof Date ? now : new Date(now)
+
+  const quoteTotalMonths =
+    BINGO_BASE_YEAR * 12 + (normalizedStart - 1) + normalizedIndex
+
+  const currentTotalMonths =
+    referenceDate.getFullYear() * 12 + referenceDate.getMonth()
+
+  return quoteTotalMonths === currentTotalMonths
+}
+
 export function getQuoteVisualInfo({
   paymentState,
   startMonth,
@@ -230,35 +260,58 @@ export function getQuoteVisualInfo({
   const quoteNumber = Number(quoteIndex) + 1
   const monthName = getQuoteMonthName(startMonth, quoteIndex)
   const monthSuffix = monthName ? ` (${monthName})` : ''
+  const quoteActual = isQuoteActual({
+    startMonth,
+    quoteIndex,
+    createdAt,
+    now
+  })
+
+  const objReturn = {
+    status: 'paid',
+    shortLabel: '',
+    statusLabel: 'Pagada · ',
+    monthName,
+    tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · `
+  }
 
   if (paymentState === QUOTE_STATE.CASH) {
-    return {
-      status: 'paid',
-      shortLabel: 'E',
-      statusLabel: 'Pagada · Efectivo',
-      monthName,
-      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Efectivo`
-    }
+    objReturn.shortLabel = 'E'
+    objReturn.shortLabel += quoteActual ? ' M' : ''
+
+    objReturn.statusLabel += 'Efectivo'
+    objReturn.statusLabel += quoteActual ? ' · Mes Actual' : ''
+
+    objReturn.tooltip += 'Efectivo'
+    objReturn.tooltip += quoteActual ? ' · Mes Actual' : ''
+
+    return objReturn
   }
 
   if (paymentState === QUOTE_STATE.TRANSFER) {
-    return {
-      status: 'paid',
-      shortLabel: 'T',
-      statusLabel: 'Pagada · Transferencia',
-      monthName,
-      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Transferencia`
-    }
+    objReturn.shortLabel = 'T'
+    objReturn.shortLabel += quoteActual ? ' M' : ''
+
+    objReturn.statusLabel += 'Transferencia'
+    objReturn.statusLabel += quoteActual ? ' · Mes Actual' : ''
+
+    objReturn.tooltip += 'Transferencia'
+    objReturn.tooltip += quoteActual ? ' · Mes Actual' : ''
+
+    return objReturn
   }
 
   if (paymentState === QUOTE_STATE.UNKNOWN) {
-    return {
-      status: 'paid',
-      shortLabel: '?',
-      statusLabel: 'Pagada · Medio desconocido',
-      monthName,
-      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Pagada · Medio desconocido`
-    }
+    objReturn.shortLabel = '?'
+    objReturn.shortLabel += quoteActual ? ' M' : ''
+
+    objReturn.statusLabel += 'Medio desconocido'
+    objReturn.statusLabel += quoteActual ? ' · Mes Actual' : ''
+
+    objReturn.tooltip += 'Medio desconocido'
+    objReturn.tooltip += quoteActual ? ' · Mes Actual' : ''
+
+    return objReturn
   }
 
   const late = isQuoteLate({
@@ -269,22 +322,30 @@ export function getQuoteVisualInfo({
   })
 
   if (late) {
-    return {
-      status: 'late',
-      shortLabel: '',
-      statusLabel: 'Sin pagar · Fuera de término',
-      monthName,
-      tooltip: `Cuota ${quoteNumber}${monthSuffix}: Sin pagar · Fuera de término`
-    }
+    objReturn.status = 'late'
+
+    objReturn.shortLabel = quoteActual ? 'M' : ''
+
+    objReturn.statusLabel = 'Sin pagar · Fuera de término'
+    objReturn.statusLabel += quoteActual ? ' · Mes Actual' : ''
+
+    objReturn.tooltip += 'Sin pagar · Fuera de término'
+    objReturn.tooltip += quoteActual ? ' · Mes Actual' : ''
+
+    return objReturn
   }
 
-  return {
-    status: 'pending',
-    shortLabel: '',
-    statusLabel: 'Sin pagar',
-    monthName,
-    tooltip: `Cuota ${quoteNumber}${monthSuffix}: Sin pagar`
-  }
+  objReturn.status = 'pending'
+
+  objReturn.shortLabel = quoteActual ? 'M' : ''
+
+  objReturn.statusLabel = 'Sin pagar'
+  objReturn.statusLabel += quoteActual ? ' · Mes Actual' : ''
+
+  objReturn.tooltip += 'Sin pagar'
+  objReturn.tooltip += quoteActual ? ' · Mes Actual' : ''
+
+  return objReturn
 }
 
 /**
@@ -382,7 +443,9 @@ export function createQuotesSquaresElement({
   container.className = 'cuotasSquares'
   container.setAttribute('role', 'group')
 
-  const paidCount = states.filter((state) => state !== QUOTE_STATE.UNPAID).length
+  const paidCount = states.filter(
+    (state) => state !== QUOTE_STATE.UNPAID
+  ).length
   container.setAttribute(
     'aria-label',
     `${paidCount} de ${count} cuotas pagadas`
@@ -398,7 +461,7 @@ export function createQuotesSquaresElement({
     })
 
     const square = document.createElement('span')
-    square.className = `cuotaSquare cuotaSquare--${info.status}`
+    square.className = `cuotaSquare cuotaSquare--${info.status}${info.shortLabel.includes('M') ? ' mesActual' : ''}`
     square.textContent = info.shortLabel
     square.title = info.tooltip
     square.setAttribute('aria-label', info.tooltip)
