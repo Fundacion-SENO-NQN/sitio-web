@@ -615,10 +615,12 @@ export function createQuotesEditorController({
         square.classList.remove(
           'cuotaSquare--paid',
           'cuotaSquare--pending',
-          'cuotaSquare--late'
+          'cuotaSquare--late',
+          'mesActual'
         )
         square.classList.add(`cuotaSquare--${info.status}`)
-        square.textContent = info.shortLabel
+        if (info.shortLabel.includes('M')) square.classList.add('mesActual')
+        square.textContent = info.shortLabel.replace('M', '').trim()
         square.title = `${info.tooltip} (clic para cambiar)`
         square.setAttribute('aria-label', `${info.tooltip}. Clic para cambiar`)
       }
