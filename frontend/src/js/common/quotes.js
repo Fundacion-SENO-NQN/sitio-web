@@ -462,7 +462,7 @@ export function createQuotesSquaresElement({
 
     const square = document.createElement('span')
     square.className = `cuotaSquare cuotaSquare--${info.status}${info.shortLabel.includes('M') ? ' mesActual' : ''}`
-    square.textContent = info.shortLabel
+    square.textContent = info.shortLabel.replace('M', '').trim()
     square.title = info.tooltip
     square.setAttribute('aria-label', info.tooltip)
     square.dataset.quoteIndex = String(quoteIndex)
