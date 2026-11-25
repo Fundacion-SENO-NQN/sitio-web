@@ -21,7 +21,8 @@ static COLUMNAS_CREATE: &[&str] = &[
     "nro_bingo",
     "late_payment_notice",
     "address",
-    "seller"
+    "seller",
+    "cancelled",
 ];
 
 /* ==========================================================
@@ -61,6 +62,7 @@ pub async fn create(db: &PgPool, new_bingo: CreateBingo) -> ApiResult<Bingo> {
         .bind(new_bingo.late_payment_notice)
         .bind(new_bingo.address)
         .bind(new_bingo.seller)
+        .bind(new_bingo.cancelled)
         .fetch_one(db)
         .await
         .map_err(map_bingo_db_error)?;
@@ -125,8 +127,9 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
             seller = CASE
                 WHEN $18 THEN $19
                 ELSE seller
-            END
-        WHERE id = $20
+            END,
+            cancelled = COALESCE($20, cancelled)
+        WHERE id = $21
         RETURNING
             id,
             name,
@@ -142,7 +145,8 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
             late_payment_notice,
             address,
             created_at,
-            seller
+            seller,
+            cancelled
         "#,
     )
     .bind(update.name)
@@ -164,6 +168,7 @@ pub async fn update(db: &PgPool, id: i64, update: UpdateBingo) -> ApiResult<Bing
     .bind(update.late_payment_notice)
     .bind(seller_was_sent)
     .bind(seller_value)
+    .bind(update.cancelled)
     .bind(id)
     .fetch_optional(db)
     .await

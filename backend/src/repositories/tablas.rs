@@ -155,6 +155,7 @@ pub static BINGOS: Tabla = Tabla::nueva(
         Columna::opcional("address", Tipo::String),
         Columna::inmutable("created_at", Tipo::TimestampTz),
         Columna::opcional("seller", Tipo::String),
+        Columna::requerida("cancelled", Tipo::Bool),
     ],
 );
 

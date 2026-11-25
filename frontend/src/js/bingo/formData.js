@@ -26,7 +26,8 @@ export function buildBingoFormData({
   start_month = undefined,
   quote = 0,
   latePaymentNotice = undefined,
-  late_payment_notice = undefined
+  late_payment_notice = undefined,
+  cancelled = false
 } = {}) {
   const validatedNroBingo = validateBingoNumber(nroBingo ?? nro_bingo)
   const cleanName = cleanRequiredText(name, 'El nombre es requerido.')
@@ -50,6 +51,7 @@ export function buildBingoFormData({
   const validatedNotice = validateLatePaymentNotice(
     latePaymentNotice ?? late_payment_notice ?? 0
   )
+  const validatedCancelled = validateCancelled(cancelled)
 
   const formData = new FormData()
 
@@ -66,6 +68,7 @@ export function buildBingoFormData({
   formData.append('start_month', String(validatedStartMonth))
   formData.append('quote', String(validatedQuote))
   formData.append('late_payment_notice', String(validatedNotice))
+  formData.append('cancelled', String(validatedCancelled))
 
   return formData
 }
@@ -156,6 +159,19 @@ export function validateQuotesBitmask(rawValue) {
   }
 
   return parsed & 0xffff
+}
+
+export function validateCancelled(rawValue) {
+  if (typeof rawValue === 'boolean') return rawValue
+  if (rawValue === null || rawValue === undefined) return false
+
+  const normalized = String(rawValue).trim().toLowerCase()
+  if (normalized === 'true' || normalized === '1') return true
+  if (normalized === 'false' || normalized === '0' || normalized === '') {
+    return false
+  }
+
+  throw new Error('El estado de cancelación no es válido.')
 }
 
 function cleanRequiredText(value, errorMessage) {

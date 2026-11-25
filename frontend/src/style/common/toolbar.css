@@ -324,6 +324,65 @@
 }
 
 /* ==========================================================
+   CHECKBOX FILTER
+========================================================== */
+
+:where(.adminFilterCheckbox, .filterCheckbox, .filtro-checkbox) {
+  min-height: 2.9rem;
+  padding: 0.65rem 0.95rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  flex: 0 0 auto;
+
+  color: var(--admin-text);
+  background-color: var(--admin-surface);
+
+  border: var(--admin-border);
+  border-radius: var(--admin-radius);
+
+  box-shadow: var(--admin-shadow-small);
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+
+  transition:
+    color var(--admin-transition),
+    background-color var(--admin-transition),
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+:where(.adminFilterCheckbox, .filterCheckbox, .filtro-checkbox):hover {
+  border-color: var(--admin-text-muted);
+  background-color: var(--admin-surface-hover);
+}
+
+:where(.adminFilterCheckbox, .filterCheckbox, .filtro-checkbox):focus-within {
+  border-color: var(--color-secondary);
+  box-shadow: var(--admin-focus);
+}
+
+:where(.adminFilterCheckbox, .filterCheckbox, .filtro-checkbox)
+  input[type='checkbox'] {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+
+  flex: 0 0 auto;
+
+  accent-color: var(--color-secondary);
+  cursor: pointer;
+}
+
+/* ==========================================================
    TABS CONTAINER
 
    Utilizado principalmente por administración de usuarios
@@ -568,6 +627,10 @@
     width: 100%;
   }
 
+  :where(.adminFilterCheckbox, .filterCheckbox, .filtro-checkbox) {
+    width: 100%;
+  }
+
   :where(.adminSummary, .toolbarSummary, .resumen, .resultsSummary) {
     text-align: left;
     white-space: normal;
@@ -614,6 +677,9 @@
     .adminFilterSelect,
     .filterSelect,
     .filtro-select,
+    .adminFilterCheckbox,
+    .filterCheckbox,
+    .filtro-checkbox,
     .adminTab,
     .tab
   ) {

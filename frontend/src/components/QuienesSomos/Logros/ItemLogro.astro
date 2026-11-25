@@ -29,7 +29,7 @@ const imageUrl3 = `${IMG_URL}/img_logros/${logro.id}_3.avif`
       decoding="async"
       width="600"
       height="600"
-      onerror="this.style.display='none'"
+      data-image-error="hide"
     />
 
     <h3 class="achievement__title">
@@ -73,6 +73,12 @@ const imageUrl3 = `${IMG_URL}/img_logros/${logro.id}_3.avif`
     }
   </div>
 </details>
+
+<script>
+  import { initImageErrorHandling } from '../../../js/common/imageErrorHandler'
+
+  initImageErrorHandling()
+</script>
 
 <style>
   .achievement {

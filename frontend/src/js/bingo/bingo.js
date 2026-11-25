@@ -1,4 +1,9 @@
 import { createPlatformCrudModule } from '../common/crudModule.js'
+import {
+  getCachedModuleSettings,
+  loadModuleSettings,
+  saveModuleSettings
+} from '../common/profileSettings.js'
 import { createQuotesEditorController } from '../common/quotes.js'
 import {
   createBingo,
@@ -14,9 +19,16 @@ import {
   getDefaultStartMonth,
   getMonthName
 } from './constants.js'
-import { bingoFieldSelectors } from './dom.js'
+import { bingoFieldSelectors, bingoSelectors } from './dom.js'
 import { buildBingoFormData, findDuplicateBingoNumber } from './formData.js'
 import { createBingoColumns } from './table.js'
+
+/* ==========================================================
+   CANCELLED FILTER STATE
+========================================================== */
+
+let showCancelled = true
+let showCancelledEvents = null
 
 /* ==========================================================
    QUOTES EDITOR (MODAL)
@@ -57,8 +69,13 @@ export const bingoModule = createPlatformCrudModule({
       bingo.collection_locate,
       bingo.collection_date,
       getMonthName(bingo.start_month),
-      formatLatePaymentNotice(bingo.late_payment_notice)
+      formatLatePaymentNotice(bingo.late_payment_notice),
+      bingo.cancelled ? 'Cancelado' : ''
     ]
+  },
+
+  filter(bingo) {
+    return showCancelled || !Boolean(bingo?.cancelled)
   },
 
   sorters: {
@@ -93,12 +110,26 @@ export const bingoModule = createPlatformCrudModule({
     emptyTitle: 'No hay bingos registrados',
     emptyDescription: 'Creá el primer número de bingo para comenzar.',
     noResultsTitle: 'No se encontraron bingos',
-    noResultsDescription: 'Probá buscar con otro número, nombre o localidad.',
+    noResultsDescription:
+      'Probá buscar con otro número, nombre o localidad, o revisar el filtro de cancelados.',
     loadError: 'No se pudieron cargar los bingos.'
   },
 
   createColumns: ({ onEdit, onDelete }) =>
     createBingoColumns({ onEdit, onDelete }),
+
+  tableOptions: {
+    getRowClassName(bingo) {
+      return {
+        filaCancelada: Boolean(bingo.cancelled)
+      }
+    },
+    getRowDataset(bingo) {
+      return {
+        cancelled: bingo.cancelled ? 'true' : 'false'
+      }
+    }
+  },
 
   modalOptions: {
     createTitle: 'Nuevo bingo',
@@ -153,6 +184,8 @@ export const bingoModule = createPlatformCrudModule({
         noticeSelect.value = '0'
       }
 
+      setFieldValue(form, 'cancelled', false)
+
       bingoQuotesEditor.reset({ startMonth: defaultMonth })
     },
 
@@ -170,6 +203,7 @@ export const bingoModule = createPlatformCrudModule({
       setFieldValue(form, 'name', bingo.name)
       setFieldValue(form, 'last_name', bingo.last_name)
       setFieldValue(form, 'seller', bingo.seller)
+      setFieldValue(form, 'cancelled', Boolean(bingo.cancelled))
       setFieldValue(form, 'phone', bingo.phone)
       setFieldValue(form, 'address', bingo.address)
       setFieldValue(form, 'neighborhood', bingo.neighborhood)
@@ -197,6 +231,7 @@ export const bingoModule = createPlatformCrudModule({
         name: getFieldValue(form, 'name'),
         lastName: getFieldValue(form, 'last_name'),
         seller: getFieldValue(form, 'seller'),
+        cancelled: getFieldValue(form, 'cancelled'),
         phone: getFieldValue(form, 'phone'),
         address: getFieldValue(form, 'address'),
         neighborhood: getFieldValue(form, 'neighborhood'),
@@ -220,13 +255,61 @@ export const bingoModule = createPlatformCrudModule({
     }
   },
 
-  onInit({ formModal }) {
+  onInit({ formModal, listController }) {
     bingoQuotesEditor.initialize()
 
     const nroInput = formModal?.form?.elements?.namedItem('nro_bingo')
     nroInput?.addEventListener('input', () => {
       validateBingoNumberField(formModal.form, formModal.editingItem)
     })
+
+    const checkbox =
+      typeof document !== 'undefined'
+        ? document.querySelector(bingoSelectors.showCancelled)
+        : null
+
+    if (checkbox) {
+      showCancelled = Boolean(checkbox.checked)
+
+      const cached = getCachedModuleSettings('bingo')
+      if (typeof cached?.showCancelled === 'boolean') {
+        showCancelled = cached.showCancelled
+        checkbox.checked = showCancelled
+      }
+
+      let userChanged = false
+      showCancelledEvents?.abort()
+      showCancelledEvents = new AbortController()
+
+      checkbox.addEventListener(
+        'change',
+        () => {
+          userChanged = true
+          showCancelled = Boolean(checkbox.checked)
+          listController.applyFilters()
+          void saveModuleSettings('bingo', { showCancelled })
+        },
+        { signal: showCancelledEvents.signal }
+      )
+
+      void loadModuleSettings('bingo')
+        .then((remote) => {
+          if (userChanged || typeof remote?.showCancelled !== 'boolean') return
+          if (remote.showCancelled === showCancelled) return
+
+          showCancelled = remote.showCancelled
+          checkbox.checked = showCancelled
+
+          if (
+            !listController.loading &&
+            !listController.error &&
+            listController.items.length > 0
+          ) {
+            listController.applyFilters()
+          }
+        })
+        .catch(() => {})
+    }
   }
 })
 
@@ -314,7 +397,14 @@ function setStartMonthSelectOptions(selectElement, options) {
 function setFieldValue(form, fieldName, value) {
   const control = form.elements.namedItem(fieldName)
 
-  if (control && 'value' in control) {
+  if (!control) return
+
+  if (control.type === 'checkbox') {
+    control.checked = Boolean(value)
+    return
+  }
+
+  if ('value' in control) {
     control.value = value !== null && value !== undefined ? String(value) : ''
   }
 }
@@ -322,7 +412,13 @@ function setFieldValue(form, fieldName, value) {
 function getFieldValue(form, fieldName) {
   const control = form.elements.namedItem(fieldName)
 
-  return control && 'value' in control ? control.value : ''
+  if (!control) return ''
+
+  if (control.type === 'checkbox') {
+    return Boolean(control.checked)
+  }
+
+  return 'value' in control ? control.value : ''
 }
 
 /* ==========================================================

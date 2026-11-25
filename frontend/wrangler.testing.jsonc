@@ -3,10 +3,37 @@
   "compatibility_date": "2026-10-20",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "name": "sitio-web-testing",
-  //"main": "@astrojs/cloudflare/entrypoints/server", 
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",
-    // "binding": "ASSETS"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": [
+      "/*",
+      "!/*.js",
+      "!/*.mjs",
+      "!/*.css",
+      "!/*.map",
+      "!/*.svg",
+      "!/*.png",
+      "!/*.jpg",
+      "!/*.jpeg",
+      "!/*.webp",
+      "!/*.avif",
+      "!/*.gif",
+      "!/*.ico",
+      "!/*.woff",
+      "!/*.woff2",
+      "!/*.ttf",
+      "!/*.otf",
+      "!/*.eot",
+      "!/*.sfd",
+      "!/*.pdf",
+      "!/*.xml",
+      "!/*.txt",
+      "!/*.json",
+      "!/*.webmanifest"
+    ]
   },
   "observability": {
     "enabled": true,
@@ -21,11 +48,5 @@
       "head_sampling_rate": 1,
       "persist": true
     }
-  },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "SESSION",
-  //     "id": "8c4828c00cfa407f925ecb86402c58fc"
-  //   }
-  // ]
+  }
 }

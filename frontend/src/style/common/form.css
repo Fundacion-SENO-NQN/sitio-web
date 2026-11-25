@@ -177,7 +177,10 @@
   > :where(label, .fieldLabel, .campo-label, .adminFieldLabel):not(
     .imageUpload,
     .zona-subida,
-    .serviceOption
+    .serviceOption,
+    .choiceOption,
+    .opcion-seleccion,
+    .adminChoiceOption
   ) {
   color: var(--admin-text);
 

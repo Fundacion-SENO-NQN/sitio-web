@@ -66,6 +66,7 @@ pub async fn create_bingo(
     let mut nro_bingo: Option<i16> = None;
     let mut late_payment_notice: Option<i16> = None;
     let mut seller: Option<String> = None;
+    let mut cancelled: Option<bool> = None;
 
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid bingo multipart body: {error}");
@@ -134,6 +135,11 @@ pub async fn create_bingo(
                 let raw = read_text(field, "Vendedor inválido").await?;
                 seller = normalize_nullable(raw);
             }
+
+            Some("cancelled") => {
+                let raw = read_text(field, "Estado de cancelación inválido").await?;
+                cancelled = Some(parse_bool(&raw, "Estado de cancelación inválido")?);
+            }
             _ => {}
         }
     }
@@ -148,6 +154,7 @@ pub async fn create_bingo(
         nro_bingo.ok_or_else(|| ApiError::BadRequest("El número de bingo es requerido".into()))?;
     let quote = quote.unwrap_or(0);
     let late_payment_notice = late_payment_notice.unwrap_or(0);
+    let cancelled = cancelled.unwrap_or(false);
 
     let bingo = repositories::bingo::create(
         &state.db,
@@ -164,7 +171,8 @@ pub async fn create_bingo(
             quote,
             nro_bingo,
             late_payment_notice,
-            seller
+            seller,
+            cancelled,
         },
     )
     .await?;
@@ -197,6 +205,7 @@ pub async fn patch_bingo(
     let mut nro_bingo: Option<i16> = None;
     let mut late_payment_notice: Option<i16> = None;
     let mut seller: Option<Option<String>> = None;
+    let mut cancelled: Option<bool> = None;
 
     while let Some(field) = multipart.next_field().await.map_err(|error| {
         eprintln!("Invalid bingo multipart body: {error}");
@@ -266,6 +275,11 @@ pub async fn patch_bingo(
                 seller = Some(normalize_nullable(raw));
             }
 
+            Some("cancelled") => {
+                let raw = read_text(field, "Estado de cancelación inválido").await?;
+                cancelled = Some(parse_bool(&raw, "Estado de cancelación inválido")?);
+            }
+
             _ => {}
         }
     }
@@ -287,6 +301,7 @@ pub async fn patch_bingo(
         && nro_bingo.is_none()
         && late_payment_notice.is_none()
         && seller.is_none()
+        && cancelled.is_none()
     {
         return Err(ApiError::BadRequest("No se enviaron cambios".into()));
     }
@@ -304,7 +319,8 @@ pub async fn patch_bingo(
         quote,
         nro_bingo,
         late_payment_notice,
-        seller
+        seller,
+        cancelled,
     };
 
     let bingo = repositories::bingo::update(&state.db, id, update).await?;
@@ -380,6 +396,14 @@ fn parse_i16(raw: &str, error_message: &str) -> ApiResult<i16> {
     raw.trim()
         .parse::<i16>()
         .map_err(|_| ApiError::BadRequest(error_message.to_string()))
+}
+
+fn parse_bool(raw: &str, error_message: &str) -> ApiResult<bool> {
+    match raw.trim().to_ascii_lowercase().as_str() {
+        "true" | "1" => Ok(true),
+        "false" | "0" => Ok(false),
+        _ => Err(ApiError::BadRequest(error_message.to_string())),
+    }
 }
 
 fn parse_nro_bingo(raw: &str) -> ApiResult<i16> {
@@ -509,5 +533,17 @@ mod tests {
         assert_eq!(parse_late_payment_notice("31").unwrap(), 31);
         assert!(parse_late_payment_notice("-1").is_err());
         assert!(parse_late_payment_notice("32").is_err());
+    }
+
+    #[test]
+    fn parse_bool_accepts_valid_values_and_rejects_invalid() {
+        assert!(parse_bool("true", "err").unwrap());
+        assert!(parse_bool(" TRUE ", "err").unwrap());
+        assert!(parse_bool("1", "err").unwrap());
+        assert!(!parse_bool("false", "err").unwrap());
+        assert!(!parse_bool(" False ", "err").unwrap());
+        assert!(!parse_bool("0", "err").unwrap());
+        assert!(parse_bool("", "err").is_err());
+        assert!(parse_bool("yes", "err").is_err());
     }
 }
